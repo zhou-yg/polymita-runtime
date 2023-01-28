@@ -1,7 +1,7 @@
 /**
  * fork from https://github.com/facebook/prop-types
  */
-import { isSignal } from "atomic-signal";
+import { isSignal } from "@polymita/signal";
 
 export const SignalFlag = 'Signal'
 export const typeFlagSymbol = Symbol.for('renderTypeFlag');

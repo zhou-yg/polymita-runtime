@@ -1,7 +1,7 @@
 import { CommandOP, createRenderer, extendModule, h, isVirtualNode, LayoutStructTree, VirtualLayoutJSON } from '../../src'
 import * as mock from '../mock'
 import { overridePatchRules } from '../mock'
-import { signal } from 'atomic-signal'
+import { signal } from '@polymita/signal'
 
 describe('override', () => {
 

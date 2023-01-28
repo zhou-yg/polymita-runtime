@@ -19,7 +19,7 @@ import {
 import {
   isSignal,
   signal,
-} from 'atomic-signal'
+} from '@polymita/signal'
 
 describe('utils', () => {
 

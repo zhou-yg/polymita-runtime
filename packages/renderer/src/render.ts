@@ -12,7 +12,7 @@ import {
   VNodeComponent2,
 } from "./types";
 
-import { signal } from "atomic-signal";
+import { signal } from "@polymita/signal";
 
 import {
   assignDefaultValueByPropTypes,

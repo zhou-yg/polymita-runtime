@@ -1,6 +1,6 @@
 import type * as CSS from "csstype";
 import type { ProxyLayoutHandler } from "./utils";
-import type { StateSignal } from "atomic-signal";
+import type { StateSignal } from "@polymita/signal";
 import {
   LayoutStructTree,
   PatchCommand,

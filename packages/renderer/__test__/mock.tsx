@@ -34,7 +34,7 @@ import {
   UseComponent,
   UseModule,
 } from "../src/index";
-import { signal } from "atomic-signal";
+import { signal } from "@polymita/signal";
 
 export interface MockReactElement {
   // $$typeof: symbol

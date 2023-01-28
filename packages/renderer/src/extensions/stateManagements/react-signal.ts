@@ -8,7 +8,7 @@ import {
   after,
   Computed,
   CurrentRunnerScope, Driver, getNamespace, IHookContext, isSignal, Runner, Signal, signal, State, StateSignal
-} from 'atomic-signal'
+} from '@polymita/signal'
 import { PropTypeValidator, SignalProps, StateManagementConfig, VirtualLayoutJSON } from '../../types'
 import { isFunction, last, traverse, traverseLayoutTree } from '../../utils'
 import { SignalFlag, typeFlagSymbol } from '../../lib/propTypes'

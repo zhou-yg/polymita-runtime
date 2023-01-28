@@ -1,4 +1,4 @@
-import { isSignal } from "atomic-signal";
+import { isSignal } from "@polymita/signal";
 import {
   VirtualLayoutJSON,
   LayoutTreeProxyDraft,

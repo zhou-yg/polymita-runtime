@@ -1,7 +1,7 @@
 import { ModuleRenderContainer, OverrideModule, PC2ArrToOverrideModule, SingleFileModule, StateManagementConfig, VirtualLayoutJSON } from "../../types";
 import {
   CurrentRunnerScope, Driver, getNamespace, IHookContext, Runner
-} from 'atomic-signal'
+} from '@polymita/signal'
 import {
   isVirtualNode, buildLayoutNestedObj, proxyLayoutJSON, ProxyLayoutHandler, assignRules, assignPattern,
   SEMATIC_RELATION_HAS, SEMATIC_RELATION_IS, mergeFromProps, renderHTMLProp, runOverrides, shouldNotRender, assignDefaultValueByPropTypes, ShouldRenderAttr } from '../../utils'
