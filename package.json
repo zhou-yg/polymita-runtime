@@ -1,0 +1,18 @@
+{
+  "name": "polymita-runtime",
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhou-yg/polymita-runtime.git"
+  },
+  "author": "zhou-yg",
+  "bugs": {
+    "url": "https://github.com/zhou-yg/polymita-runtime/issues"
+  },
+  "homepage": "https://github.com/zhou-yg/polymita-runtime#readme",
+  "devDependencies": {
+  },
+  "dependencies": {
+  }
+}
