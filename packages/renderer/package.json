@@ -1,6 +1,6 @@
 {
   "name": "@polymita/renderer",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "useHook serverless framework",
   "main": "./dist/renderer.js",
   "module": "./dist/renderer.esm.js",
@@ -14,7 +14,7 @@
     "format": "prettier --write --parser typescript \"*/*.ts?(x)\"",
     "build": "rm -rf dist/ && npm run format && rollup --config rollup.config.mjs && sh after-build.sh",
     "build:watch": "rm -rf dist/ && npm run format && rollup --config rollup.config.mjs --watch",
-    "release": "bump && npm run build && pnpm publish --no-git-checks"
+    "release": "bump --commit \"release: @polymita/signal v%s\" && npm run build && pnpm publish --no-git-checks"
   },
   "tsd": {
     "directory": "__test_types__",
