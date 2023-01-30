@@ -1,6 +1,6 @@
 {
   "name": "@polymita/renderer",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "useHook serverless framework",
   "main": "./dist/renderer.js",
   "module": "./dist/renderer.esm.js",
@@ -26,7 +26,7 @@
     "src",
     "dist",
     "package.json",
-    "jsx-runtime.d.ts"
+    "jsx-runtime.ts"
   ],
   "repository": {
     "type": "git",
