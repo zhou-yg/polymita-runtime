@@ -174,7 +174,7 @@ export function createReactContainer<
       // console.log('allOverrideModules: ', allOverrideModules[0]?.patchLayout.toString());
 
       runOverrides(allOverrideModules, convertedProps, proxyHandler.draft);
-
+      
       allOverrideModules.forEach(override => {
         proxyHandler.append(override.patches)
       })
