@@ -12,8 +12,6 @@ import {
   VNodeComponent2,
 } from "./types";
 
-import { signal } from "@polymita/signal";
-
 import {
   assignDefaultValueByPropTypes,
   isVNodeComponent,
@@ -24,6 +22,7 @@ import {
 } from "./utils";
 
 import * as reactSignalManagement from "./extensions/stateManagements/react-signal";
+import * as reactHookManagement from "./extensions/stateManagements/react-hook";
 import * as reactRenderContainer from "./extensions/frameworks/react";
 
 import {
@@ -51,10 +50,46 @@ function popCurrentRenderer() {
   globalCurrentRenderer.pop();
 }
 
-export const createRSRender = createRenderer;
+
+export function createRHRenderer<
+  P extends Record<string, any>,
+  L extends LayoutStructTree,
+  PCArr extends PatchCommand[][],
+  NewPC,
+  ModuleName
+>(
+  module: SingleFileModule<P, L, PCArr, ModuleName>,
+  renderHost: RenderHost,
+  override?: OverrideModule<
+    P,
+    SingleFileModule<P, L, PCArr, ModuleName>["layoutStruct"],
+    NewPC
+  > 
+) {
+  const renderer = createRenderer2<
+    P,
+    L,
+    PCArr,
+    NewPC,
+    NormalizeProps<P>,
+    ModuleName
+  >({
+    module,
+    renderHost,
+    override,
+    stateManagement: reactHookManagement.config,
+    renderContainerCreator: reactRenderContainer.createReactContainer,
+  });
+
+  return renderer;
+}
+
+
 /**
- * for React-Signal case
+ * R: React
+ * S: Signal
  */
+export const createRSRender = createRenderer;
 export function createRenderer<
   P extends Record<string, any>,
   L extends LayoutStructTree,
@@ -495,6 +530,10 @@ export function overrideModule<
   >;
 }
 
+/**
+ * 
+ * common render constructor
+ */
 export function createRenderer2<
   P extends Record<string, any>,
   L extends LayoutStructTree,
