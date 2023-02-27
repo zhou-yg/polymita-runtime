@@ -102,3 +102,9 @@ dist
 
 # TernJS port file
 .tern-port
+
+
+packages/signal-server/__test__/database/autoPrisma
+packages/signal-server/__test__/database/migrations
+packages/signal-server/__test__/database/dev.db
+packages/signal-server/__test__/database/dev.db-journal
