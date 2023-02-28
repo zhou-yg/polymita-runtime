@@ -1,5 +1,4 @@
 import {
-  IPatch,
   isFunc,
   map,
   IHookContext,
@@ -30,7 +29,8 @@ import {
   isDataPatch,
   shortValue,
   get,
-  getNamespace
+  getNamespace,
+  THookDepUnit
 } from './util'
 import { getPlugin, TCacheFrom } from './plugin'
 import EventEmitter from 'eventemitter3'
@@ -58,7 +58,7 @@ function checkFreeze(target: { _hook?: { freezed?: boolean } }) {
 
 interface ITarget<T> {
   watcher: Watcher<T>
-  notify: (hook?: ISource<T>, patches?: IPatch[], rc?: ReactiveChain) => void
+  notify: (hook?: ISource<T>, patches?: IDataPatch[], rc?: ReactiveChain) => void
   addDep: (source: ISource<T>, path?: (number | string)[]) => void
 }
 
@@ -73,7 +73,7 @@ export class Watcher<T = Hook> {
   notify(
     dep: ISource<T>,
     path: TPath,
-    patches?: IPatch[],
+    patches?: IDataPatch[],
     reactiveChain?: ReactiveChain
   ) {
     const paths = this.deps.get(dep)
@@ -162,7 +162,7 @@ export class State<T = any> extends Hook {
   _internalValue: T
   freezed?: boolean
   modifiedTimstamp = Date.now()
-  inputComputePatchesMap: Map<InputCompute, [T, IPatch[]]> = new Map()
+  inputComputePatchesMap: Map<InputCompute, [T, IDataPatch[]]> = new Map()
 
   contextName = 'state'
   needContextValue = true
@@ -177,7 +177,7 @@ export class State<T = any> extends Hook {
   }
   trigger(
     path: (number | string)[] = [''],
-    patches?: IPatch[],
+    patches?: IDataPatch[],
     reactiveChain?: ReactiveChain<T>,
     triggeredSet?: Set<Watcher>
   ) {
@@ -259,7 +259,7 @@ export class State<T = any> extends Hook {
       return shallowCopy(this._internalValue)
     }
   }
-  addComputePatches(value: T, patches: IPatch[]) {
+  addComputePatches(value: T, patches: IDataPatch[]) {
     if (currentInputeCompute) {
       let exist = this.inputComputePatchesMap.get(currentInputeCompute)
       if (!exist) {
@@ -469,7 +469,7 @@ export class Computed<T> extends AsyncState<T | Symbol> implements ITarget<T> {
   tryModify(reactiveChain?: ReactiveChain) {
     this.run(reactiveChain?.add(this))
   }
-  notify(h?: ISource<T>, p?: IPatch[], reactiveChain?: ReactiveChain) {
+  notify(h?: ISource<T>, p?: IDataPatch[], reactiveChain?: ReactiveChain) {
     /**
      * trigger synchronism
      */
@@ -953,7 +953,7 @@ export class Cache<T> extends AsyncState<T | Symbol> {
       super.update(initVal)
     }
   }
-  notify(hook?: Hook, p?: IPatch[], reactiveChain?: ReactiveChain) {
+  notify(hook?: Hook, p?: IDataPatch[], reactiveChain?: ReactiveChain) {
     const { from } = this.options
     const { source } = this
 
@@ -1029,7 +1029,7 @@ export class Cache<T> extends AsyncState<T | Symbol> {
    */
   override async update(
     v?: T | Symbol,
-    patches?: IPatch[],
+    patches?: IDataPatch[],
 
     silent?: boolean,
     reactiveChain?: ReactiveChain
@@ -1318,7 +1318,7 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
       )
 
       const modifiedOriginalDeps = originalDepsBeforeCompose.map(a => {
-        const arr: THookDeps[0] = cloneDeep(a)
+        const arr: THookDepUnit = cloneDeep(a)
         if (arr[2]) {
           arr[2] = arr[2].map(b => {
             if (Array.isArray(b)) {
@@ -1360,7 +1360,7 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
     const hooksInComposeSize = ei - si
 
     const modifiedDeps = (this.intialContextDeps || []).map(a => {
-      const arr: THookDeps[0] = cloneDeep(a)
+      const arr: THookDepUnit = cloneDeep(a)
 
       if (arr[1] >= si) {
         arr[1] += hooksInComposeSize
@@ -1384,7 +1384,7 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
       return arr
     })
     const newModifiedDeps: THookDeps = deps.map(a => {
-      const arr: THookDeps[0] = cloneDeep(a)
+      const arr: THookDepUnit = cloneDeep(a)
 
       arr[1] += si
       if (arr[2]) {
@@ -1778,7 +1778,7 @@ type IModifyFunction<T> = ((draft: Draft<T>) => void) | T
 
 function createStateSetterGetterFunc<SV>(s: State<SV>): {
   (): SV
-  (parameter: IModifyFunction<SV>): [SV, IPatch[]]
+  (parameter: IModifyFunction<SV>): [SV, IDataPatch[]]
 } {
   return (parameter?: any): any => {
     if (isDef(parameter)) {
@@ -1813,7 +1813,7 @@ function createStateSetterGetterFunc<SV>(s: State<SV>): {
 
 function createCacheSetterGetterFunc<SV>(c: Cache<SV>): {
   (): SV
-  (parameter: IModifyFunction<SV>): [SV, IPatch[]]
+  (parameter: IModifyFunction<SV>): [SV, IDataPatch[]]
 } {
   return (parameter?: any): any => {
     if (isDef(parameter)) {
@@ -2025,7 +2025,7 @@ function mountInputCompute(func: any) {
  */
 type StateGetterAndSetter<T> = {
   (): T
-  (parameter: IModifyFunction<T>): [any, IPatch[]]
+  (parameter: IModifyFunction<T>): [any, IDataPatch[]]
 } & { _hook: State<T> }
 
 export function state<T>(initialValue: T): StateGetterAndSetter<T>
@@ -2075,7 +2075,7 @@ export function signal<T>(initialValue: T): StateSignal<T>
 export function signal<T>(v: null): StateSignal<T>
 // export function signal<T = undefined>(): {
 //   (): T
-//   (parameter: IModifyFunction<T | undefined>): [any, IPatch[]]
+//   (parameter: IModifyFunction<T | undefined>): [any, IDataPatch[]]
 // } & { _hook: State<T | undefined> }
 export function signal(v?: any) {
   if (isFunc(v)) {

@@ -257,14 +257,14 @@ export interface IHookContext {
   patch?: [string, IStatePatchRecord[]][]
 }
 
-export type THookDeps = Array<
-  [
-    'h' | 'ic',
-    number,
-    (number | ['c', number, string])[], // get
-    (number | ['c', number, string])[]? // set
-  ]
->
+export type THookDepUnit =   [
+  'h' | 'ic',
+  number,
+  (number | ['c', number, string])[], // get
+  (number | ['c', number, string])[]? // set
+]
+
+export type THookDeps = Array<THookDepUnit>
 
 export function findWithDefault<T>(
   arr: T[],
@@ -279,10 +279,8 @@ export function findWithDefault<T>(
   return e
 }
 
-export type IPatch = IDataPatch
-
-export const isDataPatch = (p: IPatch) => Reflect.has(p, 'path')
-export const isModelPatch = (p: IPatch) => !Reflect.has(p, 'path')
+export const isDataPatch = (p: IDataPatch) => Reflect.has(p, 'path')
+export const isModelPatch = (p: IDataPatch) => !Reflect.has(p, 'path')
 
 // for data
 export interface IDataPatch {
