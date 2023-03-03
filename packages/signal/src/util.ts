@@ -280,7 +280,6 @@ export function findWithDefault<T>(
 }
 
 export const isDataPatch = (p: IDataPatch) => Reflect.has(p, 'path')
-export const isModelPatch = (p: IDataPatch) => !Reflect.has(p, 'path')
 
 // for data
 export interface IDataPatch {

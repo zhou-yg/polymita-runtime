@@ -62,7 +62,7 @@ interface ITarget<T> {
   addDep: (source: ISource<T>, path?: (number | string)[]) => void
 }
 
-interface ISource<U> {
+export interface ISource<U> {
   watchers: Set<Watcher<U>>
   addWatcher: (w: Watcher<U>) => void
 }
@@ -1367,18 +1367,12 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
       }
       if (arr[2]) {
         arr[2] = arr[2].map(v => {
-          if (v >= si) {
-            return typeof v === 'number' ? v + hooksInComposeSize : v
-          }
-          return v
+          return typeof v === 'number' && v >= si ? v + hooksInComposeSize : v
         })
       }
       if (arr[3]) {
         arr[3] = arr[3].map(v => {
-          if (v >= si) {
-            return typeof v === 'number' ? v + hooksInComposeSize : v
-          }
-          return v
+          return typeof v === 'number' && v >= si ? v + hooksInComposeSize : v
         })
       }
       return arr
@@ -1528,6 +1522,11 @@ let currentRunnerScope: CurrentRunnerScope<Driver> | null = null
  *
  */
 let currentReactiveChain: ReactiveChain | undefined = undefined
+
+export function getCurrentReactiveChain () {
+  return currentReactiveChain
+}
+
 export function startdReactiveChain(name: string = 'root') {
   currentReactiveChain = new ReactiveChain()
   currentReactiveChain.isRoot = true
