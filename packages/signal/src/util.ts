@@ -252,9 +252,6 @@ export interface IHookContext {
   index?: number
   indexName?: string
   args?: any[]
-  // patches
-  // ...
-  patch?: [string, IStatePatchRecord[]][]
 }
 
 export type THookDepUnit =   [

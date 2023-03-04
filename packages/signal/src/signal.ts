@@ -283,55 +283,6 @@ export class State<T = any> extends Hook {
 
 type TStateKey = string
 
-export let GlobalStateEvent: StateEvent | null = null
-
-export function setGlobalStateEvent(me: StateEvent | null) {
-  GlobalStateEvent = me
-}
-
-export class StateEvent {
-  private data = new Map<TStateKey, IStatePatchRecord[]>()
-  listeners: Function[] = []
-
-  subscribe(f: () => void) {
-    this.listeners.push(f)
-    return () => {
-      const i = this.listeners.indexOf(f)
-      this.listeners.splice(i, 1)
-    }
-  }
-
-  from(arr: IHookContext['patch']) {
-    this.data.clear()
-    arr.forEach(([stateKey, record]) => {
-      this.data.set(stateKey, record)
-    })
-    this.listeners.forEach(f => f())
-  }
-  toArray() {
-    const arr: IHookContext['patch'] = []
-    this.data.forEach((v, k) => {
-      arr.push([k, v])
-    })
-    return arr
-  }
-
-  getRecord(stateKey: string) {
-    return this.data.get(stateKey)
-  }
-  pushPatch(stateKey: string, p: IDataPatch[]) {
-    let record = this.data.get(stateKey)
-    if (!record) {
-      record = []
-      this.data.set(stateKey, record)
-    }
-    record.push({
-      timing: Date.now(),
-      patch: p
-    })
-  }
-}
-
 interface AsyncHook<T> {
   init: boolean
   getterPromise: Promise<T> | null
@@ -666,8 +617,6 @@ export class RunnerContext<T extends Driver> {
   triggerHookIndex?: number
   triggerHookName?: string
 
-  patch?: IHookContext['patch']
-
   withInitialContext: boolean
 
   scope: CurrentRunnerScope
@@ -688,9 +637,6 @@ export class RunnerContext<T extends Driver> {
       // args in context has higher priority
       if (initialContext.args) {
         this.args = initialContext.args as any
-      }
-      if (initialContext.patch) {
-        this.patch = initialContext.patch
       }
     }
   }
@@ -753,17 +699,14 @@ export class RunnerContext<T extends Driver> {
       args: args || []
     }
   }
-  serializePatch(hooks: Hook[], statePatchEvents: StateEvent): IHookContext {
+  serializePatch(hooks: Hook[]): IHookContext {
     const hooksData = this.formatContextData(hooks)
-    const p = statePatchEvents.toArray()
+    // const p = statePatchEvents.toArray()
     return {
       initialArgList: this.initialArgList,
       name: this.driverName,
       data: hooksData,
-      // index: -1,
-      // indexName: '',
-      // args: [],
-      patch: p
+      // patch: p
     }
   }
 
@@ -773,10 +716,6 @@ export class RunnerContext<T extends Driver> {
       initialArgList: this.initialArgList,
       name: this.driverName,
       data: hooksData,
-      // index: -1,
-      // indexName: '',
-      // args: [],
-      patch: []
     }
   }
 
@@ -802,8 +741,6 @@ export class RunnerContext<T extends Driver> {
         }
       }
     })
-
-    this.patch = c.patch
   }
 }
 
@@ -836,18 +773,12 @@ export class Runner<T extends Driver> {
       initialContext
     )
 
-    const modelPatchEvents =
-      process.env.TARGET === 'server' || !GlobalStateEvent
-        ? new StateEvent()
-        : GlobalStateEvent
-
     const deps = getDeps(this.driver)
     const names = getNames(this.driver)
     const scope = new CurrentRunnerScope<T>(
       context,
       deps,
       names,
-      modelPatchEvents
     )
     scope.setOptions(this.options)
 
@@ -1106,7 +1037,6 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
     public runnerContext: RunnerContext<T>,
     public intialContextDeps: THookDeps,
     public intialContextNames: THookNames,
-    public statePatchEvents: StateEvent
   ) {
     super()
     runnerContext.bindScope(this)
@@ -1458,9 +1388,6 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
         }
       }
     )
-    if (c.patch) {
-      this.statePatchEvents.from(c.patch)
-    }
 
     this.notify()
   }
