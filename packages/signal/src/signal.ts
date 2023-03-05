@@ -161,7 +161,7 @@ export function internalProxy<T>(
 export class State<T = any> extends Hook {
   _internalValue: T
   freezed?: boolean
-  modifiedTimstamp = Date.now()
+  modifiedTimestamp = Date.now()
   inputComputePatchesMap: Map<InputCompute, [T, IDataPatch[]]> = new Map()
 
   contextName = 'state'
@@ -198,7 +198,7 @@ export class State<T = any> extends Hook {
     return triggeredSet
   }
   get value(): T {
-    if (currentInputeCompute) {
+    if (currentInputCompute) {
       return this.getInputComputeDraftValue()
     }
     return internalProxy(this, this._internalValue)
@@ -213,7 +213,7 @@ export class State<T = any> extends Hook {
     this._internalValue = v
     const shouldTrigger = oldValue !== v && !isEqual(oldValue, v)
     if (shouldTrigger) {
-      this.modifiedTimstamp = Date.now()
+      this.modifiedTimestamp = Date.now()
       this.emit(EHookEvents.change, this)
     }
     reactiveChain?.update()
@@ -249,7 +249,7 @@ export class State<T = any> extends Hook {
     }
   }
   getInputComputeDraftValue(): T {
-    let exist = this.inputComputePatchesMap.get(currentInputeCompute!)
+    let exist = this.inputComputePatchesMap.get(currentInputCompute!)
     if (exist) {
       return exist[0]
     } else {
@@ -260,8 +260,8 @@ export class State<T = any> extends Hook {
     }
   }
   addComputePatches(value: T, patches: IDataPatch[]) {
-    if (currentInputeCompute) {
-      let exist = this.inputComputePatchesMap.get(currentInputeCompute)
+    if (currentInputCompute) {
+      let exist = this.inputComputePatchesMap.get(currentInputCompute)
       if (!exist) {
         exist = [value, []]
       }
@@ -270,7 +270,7 @@ export class State<T = any> extends Hook {
        * @TODO：need merging patches
        */
       exist[1] = exist[1].concat(patches)
-      this.inputComputePatchesMap.set(currentInputeCompute, exist)
+      this.inputComputePatchesMap.set(currentInputCompute, exist)
     } else {
       throw new Error(
         '[Model.addComputePatches] must invoked under a InputCompute'
@@ -435,15 +435,19 @@ export class Computed<T> extends AsyncState<T | Symbol> implements ITarget<T> {
 /**
  * control global InputCompute while running
  */
-let currentInputeCompute: InputCompute | null = null
+let currentInputCompute: InputCompute | null = null
 const inputComputeStack: InputCompute[] = []
+
+export function getCurrentInputCompute () {
+  return currentInputCompute
+}
 
 function pushInputComputeStack(ic: InputCompute) {
   inputComputeStack.push(ic)
-  currentInputeCompute = ic
+  currentInputCompute = ic
 }
 function popInputComputeStack() {
-  currentInputeCompute = inputComputeStack[inputComputeStack.length - 2]
+  currentInputCompute = inputComputeStack[inputComputeStack.length - 2]
   return inputComputeStack.pop()
 }
 
@@ -505,13 +509,13 @@ export class InputCompute<P extends any[] = any> extends Hook {
     }
 
     // confirm：the composed inputCompute still running under the parent inputCompute
-    // if (!currentInputeCompute) {
-    //   currentInputeCompute = this
+    // if (!currentInputCompute) {
+    //   currentInputCompute = this
     // }
 
     // means that current IC is nested in other IC.
-    if (currentInputeCompute) {
-      const r = currentInputeCompute.commitComputePatches(currentReactiveChain)
+    if (currentInputCompute) {
+      const r = currentInputCompute.commitComputePatches(currentReactiveChain)
       if (r?.some(p => isPromise(p))) {
         await Promise.all(r)
       }
@@ -526,8 +530,8 @@ export class InputCompute<P extends any[] = any> extends Hook {
 
     popInputComputeStack()
 
-    // if (currentInputeCompute === this) {
-    //   currentInputeCompute = null
+    // if (currentInputCompute === this) {
+    //   currentInputCompute = null
     // }
 
     log(
@@ -542,8 +546,8 @@ export class InputCompute<P extends any[] = any> extends Hook {
         funcResult as Generator<void>,
         // enter: start/resume
         () => {
-          // if (!currentInputeCompute) {
-          //   currentInputeCompute = this
+          // if (!currentInputCompute) {
+          //   currentInputCompute = this
           // }
           pushInputComputeStack(this)
 
@@ -553,8 +557,8 @@ export class InputCompute<P extends any[] = any> extends Hook {
         // leave: stop/suspend
         () => {
           // tip: inputCompute supporting nestly compose other inputCompute
-          // if (currentInputeCompute === this) {
-          //   currentInputeCompute = null
+          // if (currentInputCompute === this) {
+          //   currentInputCompute = null
           // }
           popInputComputeStack()
 
@@ -569,8 +573,8 @@ export class InputCompute<P extends any[] = any> extends Hook {
 
       return this.inputFuncEnd(newReactiveChain)
     }
-    if (currentInputeCompute === this) {
-      currentInputeCompute = null
+    if (currentInputCompute === this) {
+      currentInputCompute = null
     }
     return this.inputFuncEnd(newReactiveChain)
   }
@@ -651,7 +655,7 @@ export class RunnerContext<T extends Driver> {
     const hooksData: IHookContext['data'] = hooks.map((hook, i) => {
       if (hook && (!enable || enable(i))) {
         if (hook instanceof Computed) {
-          return ['computed', getValueSilently(hook), hook.modifiedTimstamp]
+          return ['computed', getValueSilently(hook), hook.modifiedTimestamp]
         }
         if (hook instanceof InputCompute) {
           return ['inputCompute']
@@ -661,7 +665,7 @@ export class RunnerContext<T extends Driver> {
             return [
               hook.contextName,
               getValueSilently(hook),
-              hook.modifiedTimstamp
+              hook.modifiedTimestamp
             ]
           }
           return [hook.contextName]
@@ -748,7 +752,7 @@ export interface IRunnerOptions {
   // scope
   beleiveContext: boolean
   updateCallbackSync?: boolean
-  applyComputeParalle?: boolean
+  applyComputeParallel?: boolean
   // modelIndexes?: IModelIndexesBase
   //
   runnerContext?: Symbol
@@ -759,7 +763,7 @@ export class Runner<T extends Driver> {
   options: IRunnerOptions = {
     beleiveContext: false,
     updateCallbackSync: false,
-    applyComputeParalle: false
+    applyComputeParallel: false
     // modelIndexes: undefined
   }
   constructor(public driver: T, options?: IRunnerOptions) {
@@ -1016,7 +1020,7 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
    */
   beleiveContext = false
   updateCallbackSync = false
-  applyComputeParalle = false
+  applyComputeParallel = false
 
   // modelIndexes: IModelIndexesBase | undefined = undefined
   // modelIndexesPath: string[] = []
@@ -1335,7 +1339,7 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
     currentInputCompute: InputCompute,
     reactiveChain?: ReactiveChain
   ): (void | Promise<void>)[] {
-    const { applyComputeParalle, hooks } = this
+    const { applyComputeParallel, hooks } = this
     const hookModified = hooks.filter(h => {
       if (h && (h as State).inputComputePatchesMap) {
         return (h as State).inputComputePatchesMap.get(currentInputCompute)
@@ -1348,7 +1352,7 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
       return hookModified.map(h => {
         const newChildChain = reactiveChain?.addUpdate(h as State)
 
-        if (applyComputeParalle || !(h as State).applyComputeAsync) {
+        if (applyComputeParallel || !(h as State).applyComputeAsync) {
           return (h as State).applyComputePatches(
             currentInputCompute,
             newChildChain
@@ -1384,7 +1388,7 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
       (state, value, timestamp) => {
         state.update?.(value, [], true)
         if (value && timestamp) {
-          state.modifiedTimstamp = timestamp
+          state.modifiedTimestamp = timestamp
         }
       }
     )
@@ -1717,7 +1721,7 @@ function createStateSetterGetterFunc<SV>(s: State<SV>): {
       } else {
         result = parameter
       }
-      if (currentInputeCompute) {
+      if (currentInputCompute) {
         s.addComputePatches(result, patches)
       } else {
         const reactiveChain: ReactiveChain<SV> | undefined =
@@ -1753,7 +1757,7 @@ function createCacheSetterGetterFunc<SV>(c: Cache<SV>): {
         result = parameter
       }
 
-      if (currentInputeCompute) {
+      if (currentInputCompute) {
         c.addComputePatches(result, patches)
       } else {
         const reactiveChain = currentReactiveChain?.addUpdate(c)
@@ -1786,7 +1790,7 @@ function updateState<T>(initialValue?: T) {
     currentRunnerScope!.runnerContext.initialData![currentIndex]?.[2]
   const hook = new State(initialValue)
   if (timestamp) {
-    hook.modifiedTimstamp = timestamp
+    hook.modifiedTimestamp = timestamp
   }
 
   const setterGetter = createStateSetterGetterFunc(hook)
@@ -1834,7 +1838,7 @@ function updateCache<T>(key: string, options: ICacheOptions<T>) {
   if (initialValue !== undefined) {
     hook._internalValue = initialValue
     if (timestamp) {
-      hook.modifiedTimstamp = timestamp
+      hook.modifiedTimestamp = timestamp
     }
   }
 
@@ -1883,7 +1887,7 @@ function updateComputed<T>(fn: any): any {
   hook._internalValue = initialValue
   hook.init = false
   if (timestamp) {
-    hook.modifiedTimstamp = timestamp
+    hook.modifiedTimestamp = timestamp
   }
 
   currentReactiveChain?.add(hook)
@@ -2083,7 +2087,7 @@ export function combineLatest<T>(
       if (!latest._hook) {
         return hook
       }
-      if (_hook.modifiedTimstamp > latest._hook.modifiedTimstamp) {
+      if (_hook.modifiedTimestamp > latest._hook.modifiedTimestamp) {
         return hook
       }
       return latest

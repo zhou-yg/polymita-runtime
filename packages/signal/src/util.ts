@@ -285,16 +285,6 @@ export interface IDataPatch {
   value?: any
 }
 
-export interface IStackUnit {
-  value: {
-    [k: string]: any
-  }
-  source: {
-    [k: string]: any
-  }
-  currentFieldPath: string
-}
-
 export type TPath = (string | number)[]
 /**
  * 修改了对象或数组的patch，计算

@@ -104,7 +104,7 @@ describe('cache', () => {
       const cVal = result.c()
   
       expect(cVal).toBe(2)
-      expect(result.c._hook.modifiedTimstamp).toBe(cd[0][2])
+      expect(result.c._hook.modifiedTimestamp).toBe(cd[0][2])
     })
   })
 })
