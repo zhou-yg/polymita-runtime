@@ -3,6 +3,51 @@ import {
   IHookContext,
 } from "@polymita/signal"
 
+export interface IStackUnit {
+  value: {
+    [k: string]: any
+  }
+  source: {
+    [k: string]: any
+  }
+  currentFieldPath: string
+}
+
+export interface IDiff {
+  create: IStackUnit[]
+  update: IStackUnit[]
+  remove: IStackUnit[]
+}
+
+/**
+ * append types definition for signal plugin
+ */
+declare module '@polymita/signal' {
+  export interface IPlugins {
+    Model?: {
+      find(
+        from: string,
+        entity: string,
+        query: IModelQuery['query']
+      ): Promise<any>
+      update(from: string, entity: string, query: IModelData): Promise<number[]>
+      create(from: string, entity: string, data: IModelCreateData): Promise<any>
+      remove(
+        from: string,
+        entity: string,
+        data: Omit<IModelData, 'data'>
+      ): Promise<number[]>
+      executeDiff(from: string, entity: string, d: IDiff): Promise<void>
+    }
+    Context?: {
+      postDiffToServer(entity: string, d: IDiff): Promise<void>
+      postComputeToServer(c: IHookContext): Promise<IHookContext>
+      postQueryToServer(c: IHookContext): Promise<IHookContext>
+    }  
+  }
+}
+
+
 export interface IModelHookContext extends IHookContext {
   patch?: [string, IModelPatchRecord[]][]
 }
