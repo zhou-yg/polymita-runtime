@@ -1,7 +1,12 @@
 import {
   IDataPatch,
   IHookContext,
+  IRunnerOptions
 } from "@polymita/signal"
+
+export interface IServerRunnerOptions extends IRunnerOptions {
+  modelIndexes?: IModelIndexesBase
+}
 
 export interface IStackUnit {
   value: {

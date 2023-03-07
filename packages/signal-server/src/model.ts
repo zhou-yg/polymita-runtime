@@ -37,7 +37,8 @@ import {
   mountHookFactory,
   inputCompute,
   Runner,
-  IRunnerOptions,
+  produceWithPatches,
+  applyPatches
 } from '@polymita/signal'
 import { 
   IModelIndexesBase, IModelOption,
@@ -48,7 +49,8 @@ import {
   IModelHookContext,
   IModelPatchCreate,
   IModelPatchUpdate,
-  IModelPatchRemove
+  IModelPatchRemove,
+  IServerRunnerOptions
 } from './types'
 import { merge } from './lib/merge'
 import {
@@ -58,15 +60,16 @@ import {
   getShallowRelatedIndexes,
   isModelPatch
 } from './util'
-import * as immer from 'immer'
 
-const { produceWithPatches, applyPatches } = immer
 
 export class ServerRunner<T extends Driver> extends Runner<T> {
   ScopeConstructor: typeof RunnerModelScope = RunnerModelScope
   scope: RunnerModelScope = null
-  constructor(public driver: T, options?: IRunnerOptions) {
+  constructor(public driver: T, options?: IServerRunnerOptions) {
     super(driver, options)
+  }
+  override prepareScope () {
+    return super.prepareScope() as RunnerModelScope;
   }
 }
 
@@ -130,6 +133,7 @@ export function getModelRunnerScope () {
 }
 
 export class RunnerModelScope<T extends Driver = any> extends CurrentRunnerScope<T> {
+  // set by this.setOptions
   modelIndexes: IModelIndexesBase | undefined = undefined
   modelIndexesPath: string[] = []
 
@@ -552,6 +556,12 @@ export abstract class WriteModel<T extends Object> extends AsyncState<
     }
     this.entity = scope.getRealEntityName(this.entity)
   }
+  
+  override hasPatches (ic: InputCompute) {
+    const r1 = super.hasPatches(ic)
+    const arr = this.inputComputeModelPatchesMap.get(ic)
+    return r1 || (arr && arr.length > 0)
+  }
 
   refresh(): Promise<void> {
     return this.sourceModel?.refresh()
@@ -586,7 +596,6 @@ export abstract class WriteModel<T extends Object> extends AsyncState<
   abstract removeRow(where: number): Promise<void>
   abstract executeModelPath(ps: IModelPatch[]): Promise<void>
 
-
   addModelPatches(value: T, patches: IModelPatch[]) {
     const currentInputCompute = getCurrentInputCompute()
     if (currentInputCompute) {
@@ -611,6 +620,7 @@ export abstract class WriteModel<T extends Object> extends AsyncState<
     reactiveChain?: ReactiveChain
   ) {
     const exist = this.inputComputeModelPatchesMap.get(ic)
+
     if (exist) {
       this.inputComputeModelPatchesMap.delete(ic)
       const patches = exist[1].filter(isModelPatch) as IModelPatch[]

@@ -1,5 +1,5 @@
 import {
-  Runner, ServerRunner,
+  ServerRunner,
 } from '../../src'
 
 import * as mockBM from '../mockBM'

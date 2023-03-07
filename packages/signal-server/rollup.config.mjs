@@ -3,6 +3,8 @@ import dts from "rollup-plugin-dts"
 import replace from '@rollup/plugin-replace';
 // import { nodeResolve } from '@rollup/plugin-node-resolve';
 
+const libName = 'signal-server'
+
 const base = {
   plugins: [
     tsPlugin({
@@ -25,7 +27,7 @@ export default [
       }),
     ],
     output: {
-      file: 'dist/signal.js',
+      file: `dist/${libName}.js`,
       format: 'commonjs'
     },
   },
@@ -39,7 +41,7 @@ export default [
       }),
     ],
     output: {
-      file: 'dist/signal.esm.js',
+      file: `dist/${libName}.esm.js`,
       format: 'esm'
     },
   },
@@ -53,7 +55,7 @@ export default [
       }),
     ],
     output: {
-      file: 'dist/signal.client.esm.js',
+      file: `dist/${libName}.client.esm.js`,
       format: 'esm'
     }
   },
@@ -67,15 +69,15 @@ export default [
       }),
     ],
     output: {
-      file: 'dist/signal.client.js',
+      file: `dist/${libName}.client.js`,
       format: 'cjs'
     }
   },
   {
     input: "src/index.ts",
     output: [
-      { file: "dist/signal.client.d.ts", format: "es" },
-      { file: "dist/signal.d.ts", format: "es" },
+      { file: `dist/${libName}.client.d.ts`, format: "es" },
+      { file: `dist/${libName}.d.ts`, format: "es" },
     ],
     plugins: [
       dts(),
