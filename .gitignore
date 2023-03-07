@@ -104,7 +104,7 @@ dist
 .tern-port
 
 
-packages/signal-server/__test__/database/autoPrisma
-packages/signal-server/__test__/database/migrations
-packages/signal-server/__test__/database/dev.db
-packages/signal-server/__test__/database/dev.db-journal
+packages/*/__test__/database/autoPrisma
+packages/*/__test__/database/migrations
+packages/*/__test__/database/dev.db
+packages/*/__test__/database/dev.db-journal
