@@ -759,6 +759,7 @@ export interface IRunnerOptions {
 }
 
 export class Runner<T extends Driver> {
+  ScopeConstructor: typeof CurrentRunnerScope = CurrentRunnerScope
   scope: CurrentRunnerScope<T>
   options: IRunnerOptions = {
     beleiveContext: false,
@@ -779,7 +780,7 @@ export class Runner<T extends Driver> {
 
     const deps = getDeps(this.driver)
     const names = getNames(this.driver)
-    const scope = new CurrentRunnerScope<T>(
+    const scope = new this.ScopeConstructor<T>(
       context,
       deps,
       names,
