@@ -34,11 +34,9 @@ import {
 } from './util'
 import { getPlugin, TCacheFrom } from './plugin'
 import EventEmitter from 'eventemitter3'
-import * as immer from 'immer'
 import type { Draft } from 'immer'
-import { merge } from './lib/merge'
-
-const { produceWithPatches, enablePatches, applyPatches } = immer
+import { produceWithPatches, enablePatches } from 'immer'
+export { produceWithPatches, applyPatches } from 'immer'
 
 enablePatches()
 
@@ -197,6 +195,12 @@ export class State<T = any> extends Hook {
     })
     return triggeredSet
   }
+
+  hasPatches (ic: InputCompute) {
+    const arr = this.inputComputePatchesMap.get(ic)
+    return arr && arr.length > 0
+  }
+
   get value(): T {
     if (currentInputCompute) {
       return this.getInputComputeDraftValue()
@@ -1342,8 +1346,8 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
   ): (void | Promise<void>)[] {
     const { applyComputeParallel, hooks } = this
     const hookModified = hooks.filter(h => {
-      if (h && (h as State).inputComputePatchesMap) {
-        return (h as State).inputComputePatchesMap.get(currentInputCompute)
+      if (h && (h as State).hasPatches) {
+        return (h as State).hasPatches(currentInputCompute)
       }
     })
 
