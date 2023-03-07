@@ -52,7 +52,7 @@ function unFreeze(target: { _hook?: { freezed?: boolean } }) {
     target._hook.freezed = false
   }
 }
-function checkFreeze(target: { _hook?: { freezed?: boolean } }) {
+export function checkFreeze(target: { _hook?: { freezed?: boolean } }) {
   return target._hook?.freezed === true
 }
 
@@ -125,7 +125,7 @@ export function isSignal(h: { _hook?: State | Computed<any> }): h is Signal<any>
   return h?._hook && (h._hook instanceof Computed || h._hook instanceof State)
 }
 
-enum EHookEvents {
+export enum EHookEvents {
   change = 'change',
   beforeCalling = 'beforeCalling',
   afterCalling = 'afterCalling'
@@ -321,7 +321,7 @@ export class AsyncState<T> extends State<T> implements AsyncHook<T> {
  */
 let currentComputedStack: Computed<any>[] = []
 
-function underComputed() {
+export function underComputed() {
   return currentComputedStack.length > 0
 }
 
@@ -336,9 +336,9 @@ export function setCurrentComputed(c: Computed<any>[]) {
   currentComputedStack = c
 }
 
-type FComputedFuncGenerator<T> = (prev?: T) => Generator<any, T, unknown>
-type FComputedFuncAsync<T> = (prev?: T) => T
-type FComputedFunc<T> = (prev?: T) => T
+export type FComputedFuncGenerator<T> = (prev?: T) => Generator<any, T, unknown>
+export type FComputedFuncAsync<T> = (prev?: T) => T
+export type FComputedFunc<T> = (prev?: T) => T
 
 export const ComputedInitialSymbol = Symbol('@@ComputedInitialSymbol')
 export class Computed<T> extends AsyncState<T | Symbol> implements ITarget<T> {
@@ -451,9 +451,9 @@ function popInputComputeStack() {
   return inputComputeStack.pop()
 }
 
-type InputComputeFn<T extends any[]> = (...arg: T) => void
-type AsyncInputComputeFn<T extends any[]> = (...arg: T) => Promise<void>
-type GeneratorInputComputeFn<T extends any[]> = (
+export type InputComputeFn<T extends any[]> = (...arg: T) => void
+export type AsyncInputComputeFn<T extends any[]> = (...arg: T) => Promise<void>
+export type GeneratorInputComputeFn<T extends any[]> = (
   ...arg: T
 ) => Generator<unknown, void, T>
 
@@ -1449,6 +1449,9 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
 
 let currentRunnerScope: CurrentRunnerScope<Driver> | null = null
 
+export function getCurrentRunnerScope() {
+  return currentRunnerScope
+}
 /**
  *
  */
@@ -1664,6 +1667,10 @@ export let currentHookFactory: {
   action: typeof mountInputCompute
 } = mountHookFactory
 
+export function getCurrentHookFactory () {
+  return currentHookFactory
+}
+
 export const hookFactoryFeatures = {
   /**
    * all hooks name list
@@ -1679,7 +1686,7 @@ export const hookFactoryFeatures = {
   initiativeCompute: ['inputCompute', 'action']
 }
 
-function updateValidation() {
+export function updateValidation() {
   if (!currentRunnerScope) {
     throw new Error('[updateValidation] update hook must under a tarat runner')
   }
@@ -1704,7 +1711,7 @@ function createUnaccessGetter<T>(index: number) {
   return newF
 }
 
-type IModifyFunction<T> = ((draft: Draft<T>) => void) | T
+export type IModifyFunction<T> = ((draft: Draft<T>) => void) | T
 
 function createStateSetterGetterFunc<SV>(s: State<SV>): {
   (): SV
