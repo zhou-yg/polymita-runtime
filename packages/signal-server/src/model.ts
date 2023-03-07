@@ -68,8 +68,8 @@ export class ServerRunner<T extends Driver> extends Runner<T> {
   constructor(public driver: T, options?: IServerRunnerOptions) {
     super(driver, options)
   }
-  override prepareScope () {
-    return super.prepareScope() as RunnerModelScope;
+  override prepareScope (args?: Parameters<T>, initialContext?: IHookContext) {
+    return super.prepareScope(args, initialContext) as RunnerModelScope;
   }
 }
 
