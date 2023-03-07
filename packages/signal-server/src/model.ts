@@ -36,6 +36,8 @@ import {
   underComputed,
   mountHookFactory,
   inputCompute,
+  Runner,
+  IRunnerOptions,
 } from '@polymita/signal'
 import { 
   IModelIndexesBase, IModelOption,
@@ -59,6 +61,15 @@ import {
 import * as immer from 'immer'
 
 const { produceWithPatches, applyPatches } = immer
+
+export class ServerRunner<T extends Driver> extends Runner<T> {
+  ScopeConstructor: typeof RunnerModelScope = RunnerModelScope
+  scope: RunnerModelScope = null
+  constructor(public driver: T, options?: IRunnerOptions) {
+    super(driver, options)
+  }
+}
+
 
 let GlobalModelEvent: ModelEvent | null = null
 

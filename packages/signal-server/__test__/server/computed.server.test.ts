@@ -1,5 +1,5 @@
 import {
-  Runner,
+  Runner, ServerRunner,
 } from '../../src'
 
 import * as mockBM from '../mockBM'
@@ -16,7 +16,7 @@ describe('computed', () => {
     it('simple', async () => {
       mockBM.useSimpleServerMiddleware(mockBM.simpleComputedInServer)
   
-      const runner = new Runner(mockBM.simpleComputedInServer)
+      const runner = new ServerRunner(mockBM.simpleComputedInServer)
       const result = runner.init()
 
       // debuggerLog(true)
@@ -34,7 +34,7 @@ describe('computed', () => {
     it('simple', async () => {
       mockBM.useSimpleServerMiddleware(mockBM.simpleComputedInServer)
   
-      const runner = new Runner(mockBM.simpleComputedInServer)
+      const runner = new ServerRunner(mockBM.simpleComputedInServer)
 
       const initContext = mockBM.initContext({
         index: undefined,

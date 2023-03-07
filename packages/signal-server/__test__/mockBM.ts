@@ -26,6 +26,7 @@ import {
   injectWrite,
   injectModel,
   loadPlugin,
+  ServerRunner,
 } from '../src/'
 
 function injectExternalDescription(f: Function, arr: [any, any]) {
@@ -127,7 +128,7 @@ export function useSimpleServerMiddleware(bm: BM) {
   initModelConfig({
     async postComputeToServer(c: IHookContext) {
       process.env.TARGET = 'server'
-      const serverRunner = new Runner(bm)
+      const serverRunner = new ServerRunner(bm)
       serverRunner.init(c.initialArgList as [any, any], c)
 
       if (c.index) {
