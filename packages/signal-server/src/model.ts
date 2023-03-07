@@ -34,6 +34,7 @@ import {
   shallowCopy,
   IModifyFunction,
   underComputed,
+  mountHookFactory,
 } from '@polymita/signal'
 import { 
   IModelIndexesBase, IModelOption,
@@ -122,6 +123,8 @@ export class RunnerModelScope<T extends Driver = any> extends CurrentRunnerScope
 
   modelPatchEvents: ModelEvent
 
+  modelHookFactory = mountModelHookFactory
+
   constructor (
     public runnerContext: RunnerContext<T>,
     public initialContextDeps: THookDeps,
@@ -139,6 +142,10 @@ export class RunnerModelScope<T extends Driver = any> extends CurrentRunnerScope
         this.notifyAllModel()
       })
     )
+
+    if (runnerContext.withInitialContext) {
+      this.modelHookFactory = updateModelHookFactory
+    }
   }
 
   readyRelated(h: Hook) {
@@ -997,6 +1004,74 @@ export class ClientComputed<T> extends Computed<T> {
  * 
  * 
  */
+
+
+export const mountModelHookFactory = {
+  model: mountPrisma,
+  prisma: mountPrisma,
+  writePrisma: mountWritePrisma,
+  writeModel: writeModel,
+  // quick command
+  createPrisma: mountCreatePrisma,
+  updatePrisma: mountUpdatePrisma,
+  removePrisma: mountRemovePrisma,
+
+  computedInServer: mountComputedInServer,
+  inputComputeInServer: mountInputComputeInServer
+}
+export const updateModelHookFactory = {
+  model: updateCyclePrisma,
+  prisma: updateCyclePrisma,
+  writePrisma: mountWritePrisma,
+  writeModel: writeModel,
+
+  createPrisma: mountCreatePrisma,
+  updatePrisma: mountUpdatePrisma,
+  removePrisma: mountRemovePrisma,
+
+  computedInServer: updateComputedInServer,
+  inputComputeInServer: updateInputComputeInServer
+}
+
+
+
+export const hookFactoryFeatures = {
+  /**
+   * all hooks name list
+   */
+  all: Object.keys({...mountHookFactory, ...mountModelHookFactory}),
+  /**
+   * need other hook as data source
+   */
+  withSource: [
+    'cache',
+    'writeModel',
+    'writePrisma',
+    'createPrisma',
+    'updatePrisma',
+    'removePrisma'
+  ],
+  /**
+   * manual calling by User or System
+   */
+  initiativeCompute: [
+    'inputCompute',
+    'inputComputeInServer',
+    'writePrisma',
+    'writeModel',
+    'createPrisma',
+    'updatePrisma',
+    'removePrisma'
+  ],
+  /**
+   * only compatibility with server
+   * "model" & "prisma" maybe still run in client because of their query compute
+   */
+  serverOnly: ['inputComputeInServer', 'computedInServer']
+}
+
+
+
 function createUnaccessibleGetter<T>(index: number) {
   const f = () => {
     throw new Error(`[update getter] cant access un initialized hook(${index})`)
@@ -1005,6 +1080,76 @@ function createUnaccessibleGetter<T>(index: number) {
     _hook: null
   })
   return newF
+}
+function createUnaccessibleModelGetter<T extends any[]>(
+  index: number,
+  entity: string
+) {
+  const f = (): any => {
+    throw new Error(`[update getter] cant access un initialized hook(${index})`)
+  }
+  const newF: any = Object.assign(f, {
+    _hook: { entity },
+    exist: () => true,
+    create: () => {},
+    update: () => {},
+    remove: () => {},
+    refresh: () => {}
+  })
+  return newF
+}
+
+function updateCyclePrisma<T extends any[]>(
+  e: string,
+  q?: () => IModelQuery['query'] | undefined,
+  op?: IModelOption
+) {
+  const currentRunnerScope = getModelRunnerScope()!
+  const { valid, currentIndex } = updateValidation()
+
+  if (!valid) {
+    currentRunnerScope!.addHook(undefined)
+    return createUnaccessibleModelGetter<T>(currentIndex, e)
+  }
+  const inServer = process.env.TARGET === 'server'
+  const { beleiveContext } = currentRunnerScope!
+
+  const receiveDataFromContext = beleiveContext || !inServer
+
+  op = Object.assign({}, op, {
+    immediate: !receiveDataFromContext
+  })
+
+  const hook = inServer
+    ? new Prisma<T>(e, q, op, currentRunnerScope)
+    : new ClientPrisma<T>(e, q, op, currentRunnerScope)
+
+  currentRunnerScope.addHook(hook)
+  getCurrentReactiveChain()?.add(hook)
+
+  if (receiveDataFromContext) {
+    const initialValue: T =
+      currentRunnerScope!.runnerContext.initialData![currentIndex]?.[1]
+    const timestamp =
+      currentRunnerScope!.runnerContext.initialData![currentIndex]?.[2]
+    hook.init = false
+    hook._internalValue = initialValue || []
+    if (timestamp) {
+      hook.modifiedTimestamp = timestamp
+    }
+  }
+
+  const setterGetter = createModelSetterGetterFunc<T>(hook)
+  const newSetterGetter = Object.assign(setterGetter, {
+    _hook: hook,
+    exist: hook.exist.bind(hook) as typeof hook.exist,
+    // create: hook.createRow.bind(hook) as typeof hook.createRow,
+    // update: hook.updateRow.bind(hook) as typeof hook.updateRow,
+    // remove: hook.removeRow.bind(hook) as typeof hook.removeRow,
+    refresh: hook.refresh.bind(hook) as typeof hook.refresh
+  })
+
+  return newSetterGetter
 }
 
 function updateInputComputeInServer(func: any) {
@@ -1289,4 +1434,96 @@ function mountRemovePrisma<T>(
     _hook: hook
   })
   return newCaller
+}
+
+
+/**
+ * 
+ * 
+ * 
+ * open user api
+ * 
+ * 
+ * 
+ */
+
+
+export function model<T extends any[]>(
+  e: string,
+  q?: () => IModelQuery['query'] | undefined,
+  op?: IModelOption
+) {
+   const scope = getModelRunnerScope()
+  if (!scope) {
+    throw new Error('[model] must under a signal model runner')
+  }
+  return scope.modelHookFactory.prisma<T>(e, q, op)
+}
+export function writeModel<T>(source: { _hook: Model<T[]> }, q: () => T) {
+  const scope = getModelRunnerScope()
+  if (!scope) {
+    throw new Error('[writePrisma] must under a signal model runner')
+  }
+  return scope.modelHookFactory.writePrisma<T>(source, q)
+}
+
+export function prisma<T extends any[]>(
+  e: string,
+  q?: () => IModelQuery['query'] | undefined,
+  op?: IModelOption
+) {
+   const scope = getModelRunnerScope()
+  if (!scope) {
+    throw new Error('[prisma] must under a signal model runner')
+  }
+
+  return scope.modelHookFactory.prisma<T>(e, q, op)
+}
+
+export function writePrisma<T>(
+  source: { _hook: Model<T[]> },
+  q?: () => Partial<T>
+) {
+   const scope = getModelRunnerScope()
+  if (!scope) {
+    throw new Error('[writePrisma] must under a signal model runner')
+  }
+
+  return scope.modelHookFactory.writePrisma<T>(source, q)
+}
+
+export function createPrisma<T>(
+  source: { _hook: Model<T[]> },
+  q?: () => Partial<T>
+) {
+   const scope = getModelRunnerScope()
+  if (!scope) {
+    throw new Error('[createPrisma] must under a signal model runner')
+  }
+
+  return scope.modelHookFactory.createPrisma<T>(source, q)
+}
+
+export function updatePrisma<T>(
+  source: { _hook: Model<T[]> },
+  q?: () => Partial<T>
+) {
+   const scope = getModelRunnerScope()
+  if (!scope) {
+    throw new Error('[updatePrisma] must under a signal model runner')
+  }
+
+  return scope.modelHookFactory.updatePrisma<T>(source, q)
+}
+
+export function removePrisma<T>(
+  source: { _hook: Model<T[]> },
+  q?: () => Partial<T>
+) {
+  const scope = getModelRunnerScope()
+  if (!scope) {
+    throw new Error('[removePrisma] must under a signal model runner')
+  }
+
+  return scope.modelHookFactory.removePrisma<T>(source, q)
 }
