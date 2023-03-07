@@ -35,6 +35,7 @@ import {
   IModifyFunction,
   underComputed,
   mountHookFactory,
+  inputCompute,
 } from '@polymita/signal'
 import { 
   IModelIndexesBase, IModelOption,
@@ -1033,9 +1034,7 @@ export const updateModelHookFactory = {
   inputComputeInServer: updateInputComputeInServer
 }
 
-
-
-export const hookFactoryFeatures = {
+export const modelHookFactoryFeatures = {
   /**
    * all hooks name list
    */
@@ -1446,7 +1445,47 @@ function mountRemovePrisma<T>(
  * 
  * 
  */
+export function computedInServer<T>(
+  fn: FComputedFuncGenerator<T>
+): (() => T) & { _hook: Computed<T> }
+export function computedInServer<T>(
+  fn: FComputedFuncAsync<T>
+): (() => T) & { _hook: Computed<T> }
+export function computedInServer<T>(
+  fn: FComputedFunc<T>
+): (() => T) & { _hook: Computed<T> }
+export function computedInServer<T>(fn: any): any {
+  const scope = getModelRunnerScope()
+  if (!scope) {
+    throw new Error('[computed] must under a tarat runner')
+  }
+  return scope.modelHookFactory.computedInServer<T>(fn)
+}
 
+export function inputComputeInServer<T extends any[]>(
+  func: AsyncInputComputeFn<T>
+): AsyncInputComputeFn<T> & { _hook: Hook }
+export function inputComputeInServer<T extends any[]>(
+  func: GeneratorInputComputeFn<T>
+): AsyncInputComputeFn<T> & { _hook: Hook }
+export function inputComputeInServer<T extends any[]>(
+  func: InputComputeFn<T>
+): AsyncInputComputeFn<T> & { _hook: Hook }
+export function inputComputeInServer(func: any) {
+  const scope = getModelRunnerScope()
+  if (!scope) {
+    throw new Error('[inputComputeServer] must under a tarat runner')
+  }
+  /**
+   * running in client should post request to server
+   * if already in server, should execute directly
+   */
+  if (process.env.TARGET === 'server') {
+    return inputCompute(func)
+  }
+  const wrapFunc = scope.modelHookFactory.inputComputeInServer(func)
+  return wrapFunc
+}
 
 export function model<T extends any[]>(
   e: string,
@@ -1527,3 +1566,55 @@ export function removePrisma<T>(
 
   return scope.modelHookFactory.removePrisma<T>(source, q)
 }
+
+/**
+ * inject input data to Model as initial value
+ */
+type PartialGetter<T> = {
+  [K in keyof T]?: T[K]
+}
+
+type TGetterData<T> = () => PartialGetter<T>
+
+type TModelGetter<T> = ReturnType<typeof model | typeof writePrisma>
+export function connectModel<T>(
+  modelGetter: TModelGetter<T>,
+  dataGetter: TGetterData<T>
+) {
+  modelGetter._hook.setGetter(dataGetter)
+}
+
+export function injectWrite<T>(
+  modelGetter:
+    | ReturnType<typeof createPrisma>
+    | ReturnType<typeof updatePrisma>
+    | ReturnType<typeof removePrisma>,
+  dataGetter: TGetterData<T>
+): void
+export function injectWrite<T>(
+  modelGetter: ReturnType<typeof model<T[]>>,
+  dataGetter: () => IModelQuery['query'] | undefined
+): void
+export function injectWrite<T>(
+  modelGetter: ReturnType<typeof writeModel>,
+  method: TWriteMethod,
+  dataGetter: TGetterData<T>
+): void
+export function injectWrite<T>(...args: any[]) {
+  const [modelGetter, methodOrDataGetter, dataGetter] = args
+  if (dataGetter) {
+    modelGetter._hook.injectGetter(dataGetter, methodOrDataGetter)
+  } else {
+    if (modelGetter._hook instanceof Model) {
+      modelGetter._hook.injectFindGetter(methodOrDataGetter)
+    } else if (modelGetter._hook instanceof WriteModel) {
+      modelGetter._hook.injectGetter(methodOrDataGetter, modelGetter._method)
+    } else {
+      /** @TODO "_hook" maybe created by createUnaccessModelGetter */
+      // throw new Error('[injectWrite] invalid getter._hook type')
+      console.error('[injectWrite] invalid getter._hook type')
+    }
+  }
+}
+
+export const injectModel = injectWrite

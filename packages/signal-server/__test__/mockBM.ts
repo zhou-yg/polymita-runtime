@@ -1,4 +1,3 @@
-import { stat, write } from 'fs'
 import {
   state,
   model,
@@ -25,9 +24,9 @@ import {
   updatePrisma,
   removePrisma,
   injectWrite,
-  injectModel
+  injectModel,
+  loadPlugin,
 } from '../src/'
-import { loadPlugin } from '../src/plugin'
 
 function injectExternalDescription(f: Function, arr: [any, any]) {
   Object.assign(f, {
@@ -151,3 +150,20 @@ export function blank() {}
 export function returnArg(arg: any) {
   return arg
 }
+
+/**
+ * 
+ * computed.server
+ * 
+ */
+export function simpleComputedInServer() {
+  const s1 = state(0)
+  const c = computedInServer(() => {
+    return s1()
+  })
+  return { c }
+}
+injectExternalDescription(simpleComputedInServer, [
+  [0, 's1', 1, 'c'],
+  [['h', 1, [0]]]
+])

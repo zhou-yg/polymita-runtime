@@ -1,4 +1,5 @@
 import {
+  cloneDeep,
   IDataPatch,
   THookDeps,
   findWithDefault,
@@ -516,9 +517,6 @@ function preparePatches2(data: any | any[], ps: IDataPatch[]) {
 /**
  * 根据patch计算diff，决定要进行的数据库操作
  */
-export function cloneDeep(obj?: any) {
-  return obj && JSON.parse(JSON.stringify(obj))
-}
 export function calculateDiff(data: any | any[], ps: IDataPatch[]) {
   data = cloneDeep(data)
 
