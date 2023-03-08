@@ -3,7 +3,7 @@ import dts from "rollup-plugin-dts"
 import replace from '@rollup/plugin-replace';
 // import { nodeResolve } from '@rollup/plugin-node-resolve';
 
-const libName = 'signal-server'
+const libName = 'signal-model'
 
 const base = {
   plugins: [

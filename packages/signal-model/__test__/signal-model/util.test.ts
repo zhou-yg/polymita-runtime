@@ -2,6 +2,7 @@ import {
   THookDeps
 } from '../../src'
 import {
+  UNDEF_TAG,
   calculateDiff,
   checkQueryWhere,
   constructDataGraph,
@@ -12,6 +13,8 @@ import {
   getShallowRelatedIndexes,
   mapGraph,
   mapGraphSetToIds,
+  parseWithUndef,
+  stringifyWithUndef,
 } from '../../src/util'
 import { produceWithPatches, enablePatches } from 'immer'
 
@@ -638,6 +641,17 @@ describe('util', () => {
 
       const sn6 = getShallowRelatedIndexes(6, deps)
       expect((sn6)).toEqual(new Set([6, 1, 8]))
+    })
+  })
+
+  describe('JSON including undef', () => {
+    it('stringify', () => {
+      const r = stringifyWithUndef({ a: undefined })
+      expect(r).toBe(`{"a":"${UNDEF_TAG}"}`)
+    })
+    it('parse', () => {
+      const r = parseWithUndef(`{"a": "${UNDEF_TAG}" }`)
+      expect(r).toEqual({ a: undefined })
     })
   })
 })
