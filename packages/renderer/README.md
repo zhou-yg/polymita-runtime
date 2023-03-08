@@ -5,6 +5,18 @@ a common renderer support different frameworks:
 - react
 - vue
 
+## Description
+生态定位
+
+- input
+  - polymita module
+  - 渲染框架：react, vue 或其他
+
+- output
+  - Component instance of ui framework
+
+## Structure
+
 renderer
 - 提供渲染
   - 根据layout JSON渲染 UI
@@ -16,3 +28,4 @@ renderer
   - 拼接 layout tree
 - 提供遍历的工具方法
   - 接入到 transform
+
