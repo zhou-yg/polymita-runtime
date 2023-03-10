@@ -3,6 +3,8 @@ import type ReactTypes from 'react'
 import { RenderDriver, getCurrentModelIndexes } from '../driver'
 import { unstable_serialize } from 'swr'
 
+export { RenderDriver } from '../driver'
+
 let hookAdaptorRuntime: typeof ReactTypes = null
 let hookAdaptorContext: ReactTypes.Context<RenderDriver> = null
 export function setHookAdaptor(runtime: typeof ReactTypes) {
@@ -152,7 +154,7 @@ export function useProgress<T extends Driver> (react: any, result: ReturnType<T>
   }
 }
 
-export default function ReactAdaptor (React: typeof ReactTypes) {
+export function ReactAdaptor (React: any) {
   let rd: RenderDriver;
   
   const TopContext = setHookAdaptor(React)
@@ -161,10 +163,14 @@ export default function ReactAdaptor (React: typeof ReactTypes) {
     getRoot (e: ReactTypes.ReactElement) {
       if (!rd) {
         rd = new RenderDriver()
-        rd.mode = 'collect'
       }
+      rd.mode = 'collect'
       return React.createElement(TopContext.Provider, { value: rd }, e)
     },
+    getUpdateRoot (e: ReactTypes.ReactElement) {
+      rd.switchToServerConsumeMode()
+      return React.createElement(TopContext.Provider, { value: rd }, e)
+    },    
     get driver () {
       return rd
     }

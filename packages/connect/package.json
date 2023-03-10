@@ -8,8 +8,17 @@
   "scripts": {
     "format": "prettier --write --parser typescript \"*/*.ts?(x)\"",
     "format:commit": "npm run format && git commit -a -m 'feat(core): lint'",
-    "build": "rm -rf dist/ && npm run format && rollup --config rollup.config.mjs",
+    "build": "npm run format && rollup --config rollup.config.mjs",
     "build:watch": "rm -rf dist/ && npm run format && rollup --config rollup.config.mjs --watch"
+  },
+  "exports": {
+    "./*": "./dist/*"
+  },
+  "typesVersions": {
+    "*": {
+      "connect": ["./dist/connect.d.ts"],
+      "react": ["./dist/react.d.ts"]
+    }
   },
   "files": [
     "src",
@@ -29,7 +38,8 @@
     "@polymita/signal-model": "workspace:^0.0.1",
     "@types/node": "^18.6.2",
     "@types/react": "^18.0.28",
-    "swr": "^2.1.0"
+    "swr": "^2.1.0",
+    "tarat-cascading-list": "link:/Users/zhouyunge/Documents/tarat/packages/example/cascading-list"
   },
   "devDependencies": {
     "@jsdevtools/version-bump-prompt": "6.1.0",
