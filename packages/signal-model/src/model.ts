@@ -1090,6 +1090,9 @@ export const modelHookFactoryFeatures = {
   serverOnly: ['inputComputeInServer', 'computedInServer']
 }
 
+export const hookFactoryNames = modelHookFactoryFeatures.all
+export const hasSourceHookFactoryNames = modelHookFactoryFeatures.withSource
+export const initiativeComputeHookFactoryNames = modelHookFactoryFeatures.initiativeCompute
 
 
 function createUnaccessibleGetter<T>(index: number) {

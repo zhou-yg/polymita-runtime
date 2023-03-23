@@ -39,10 +39,10 @@ function build(cwd) {
   })
 }
 
-function publish () {
+function publish (cwd) {
   return new Promise(resolve => {
     console.log('npm pulibsh');
-    exec(`npm publish`, { cwd: taratModule }, (err, stdout) => {
+    exec(`npm publish`, { cwd }, (err, stdout) => {
       if (err) {
         throw err
       }
@@ -57,8 +57,8 @@ function publish () {
 function commit () {
   return new Promise(resolve => {
     console.log('git commit');
-    const taratPkg = JSON.parse(readFileSync(join(taratModule, PKG)).toString())
-    exec(`git commit -a -m "release: tarat v${taratPkg.version} "`, (err, stdout) => {
+    const taratPkg = JSON.parse(readFileSync(join(__dirname, '..', PKG)).toString())
+    exec(`git commit -a -m "release: polymita v${taratPkg.version} "`, (err, stdout) => {
       if (err) {
         throw err
       }
@@ -85,16 +85,16 @@ build(S)
     return build(SM)
   }).then(() => {
     return build(C)
-  }).then(() => {
+  }).then(async () => {
     if (SHOULD_RELEASE) {
       upgradePatch(S)
       upgradePatch(C)
       upgradePatch(SM)
 
-      commit().then(() => {
-        return publish()
-      }).then(() => {
-        console.timeEnd('release tarat')
-      })
+      await commit();
+
+      publish(S)
+      publish(C)
+      publish(SM)
     }
   })

@@ -1,6 +1,6 @@
 {
   "name": "@polymita/signal-model",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "a simple reactive utility for logic description",
   "main": "./dist/signal-model.js",
   "module": "./dist/signal-model.esm.js",
@@ -17,13 +17,14 @@
     "p:dev": "prisma migrate dev --schema ./__test__/database/testSchema.prisma && prisma generate",
     "p:gen": "prisma generate --schema ./__test__/database/testSchema.prisma"
   },
-  "exports": {
-    "./*": "./dist/*"
-  },
   "typesVersions": {
     "*": {
-      "signal-model.client": ["./dist/signal-model.client.d.ts"],
-      "signal-model": ["./dist/signal-model.d.ts"]
+      "signal-model.client": [
+        "./dist/signal-model.client.d.ts"
+      ],
+      "signal-model": [
+        "./dist/signal-model.d.ts"
+      ]
     }
   },
   "files": [
@@ -42,12 +43,11 @@
   "homepage": "https://github.com/zhou-yg/polymita-runtime#readme",
   "dependencies": {
     "@jest/test-sequencer": "^28.1.3",
-    "@polymita/signal": "workspace:^0.0.2",
+    "@polymita/signal": "workspace:*",
     "@types/jest": "^29.4.0",
     "eventemitter3": "^4.0.7",
     "immer": "^9.0.14",
     "rollup-plugin-dts": "^4.2.2",
-    "tarat-cascading-list": "link:/Users/zhouyunge/Documents/tarat/packages/example/cascading-list",
     "tslib": "^2.4.0"
   },
   "devDependencies": {
