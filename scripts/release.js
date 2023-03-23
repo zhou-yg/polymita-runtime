@@ -77,9 +77,6 @@ function upgradePatch(dirPath) {
   writeFileSync(pkgJSONPath, JSON.stringify(pkgJSON, null, 2))
 }
 
-
-console.time('release tarat')
-
 build(S)
   .then(() => {
     return build(SM)
