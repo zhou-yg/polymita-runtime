@@ -76,7 +76,7 @@ export const preset = {
 function clientRuntime(c: {
   modelConfig?: any
   host?: string
-}) {
+} = {}) {
   if (typeof window === 'undefined') {
     throw new Error('must under browser runtime')
   }
