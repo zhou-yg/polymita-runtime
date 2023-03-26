@@ -1,6 +1,6 @@
 {
   "name": "@polymita/signal-model",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "a simple reactive utility for logic description",
   "main": "./dist/signal-model.js",
   "module": "./dist/signal-model.esm.js",
@@ -62,5 +62,8 @@
     "rollup": "^2.74.1",
     "rollup-plugin-typescript2": "^0.31.2",
     "typescript": "^4.9.4"
+  },
+  "peerDependencies": {
+    "@polymita/signal": "workspace:*"
   }
 }
