@@ -41,7 +41,7 @@ function build(cwd) {
 
 function publish (cwd) {
   return new Promise(resolve => {
-    console.log('npm pulibsh');
+    console.log('pnpm pulibsh');
     exec(`pnpm publish --access=public`, { cwd }, (err, stdout) => {
       if (err) {
         throw err
