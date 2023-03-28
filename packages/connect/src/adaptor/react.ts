@@ -160,14 +160,14 @@ export function ReactAdaptor (React: any) {
   const TopContext = setHookAdaptor(React)
 
   return {
-    getRoot (e: ReactTypes.ReactElement) {
+    getRoot (e: ReactTypes.ReactElement): ReactTypes.ReactElement {
       if (!rd) {
         rd = new RenderDriver()
       }
       rd.mode = 'collect'
       return React.createElement(TopContext.Provider, { value: rd }, e)
     },
-    getUpdateRoot (e: ReactTypes.ReactElement) {
+    getUpdateRoot (e: ReactTypes.ReactElement): ReactTypes.ReactElement {
       rd.switchToServerConsumeMode()
       return React.createElement(TopContext.Provider, { value: rd }, e)
     },    
