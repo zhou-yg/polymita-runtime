@@ -564,7 +564,10 @@ export abstract class WriteModel<T extends Object> extends AsyncState<
   }
 
   refresh(): Promise<void> {
-    return this.sourceModel?.refresh()
+    /**
+     * 在client -> server时，sourceModel不一定被同步序列化，而是createUnaccessibleModelGetter得到了一个空的 
+     */
+    return this.sourceModel?.refresh?.()
   }
   injectGetter(fn: () => T, method: TWriteMethod) {
     if (method === 'find') {
@@ -1166,9 +1169,6 @@ function updateCyclePrisma<T extends any[]>(
   const newSetterGetter = Object.assign(setterGetter, {
     _hook: hook,
     exist: hook.exist.bind(hook) as typeof hook.exist,
-    // create: hook.createRow.bind(hook) as typeof hook.createRow,
-    // update: hook.updateRow.bind(hook) as typeof hook.updateRow,
-    // remove: hook.removeRow.bind(hook) as typeof hook.removeRow,
     refresh: hook.refresh.bind(hook) as typeof hook.refresh
   })
 
