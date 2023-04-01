@@ -180,8 +180,11 @@ export class RunnerModelScope<T extends Driver = any> extends CurrentRunnerScope
   getRealEntityName(entityKey: string) {
     let result = entityKey
     if (this.modelIndexes) {
+      /**
+       * @TODO 当前工程下生成的modelIndex默认没有modelIndexesPath
+       */
       const subIndexes = get(this.modelIndexes, this.modelIndexesPath)
-      result = subIndexes[entityKey] || entityKey
+      result = subIndexes?.[entityKey] || entityKey
     }
 
     log(
