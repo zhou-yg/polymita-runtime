@@ -716,3 +716,7 @@ export function shouldNotRender(json: VirtualLayoutJSON) {
     (json?.props?.if === false || json?.props?.if === null)
   );
 }
+
+export function lowerCaseType (type: LayoutStructTree['type']) {
+  return typeof type === 'function' ? type : type.toLowerCase();
+}
