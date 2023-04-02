@@ -78,7 +78,8 @@ function upgradePatch(dirPath) {
 }
 
 Promise.all([
-  build(S)
+  build(S),
+  build(R),
 ])
   .then(() => {
     return build(SM)
@@ -89,19 +90,13 @@ Promise.all([
       upgradePatch(S)
       upgradePatch(C)
       upgradePatch(SM)
+      upgradePatch(R)
 
       await commit();
 
       publish(S)
       publish(C)
       publish(SM)
+      publish(R)
     }
   });
-
-build(R).then(async () => {
-  if (SHOULD_RELEASE) {
-    upgradePatch(R);
-
-    publish(R);
-  }
-})
