@@ -253,7 +253,7 @@ function createFunctionComponent<T extends VNodeComponent2>(
 export function h(
   type: string | Function,
   props: Record<string, any> | null,
-  ...children: (VirtualLayoutJSON | BaseDataType)[]
+  ...children: (VirtualLayoutJSON | VirtualLayoutJSON[] | BaseDataType)[]
 ): VirtualLayoutJSON {
   if (isVNodeComponent(type)) {
     const json = (type as any)({
