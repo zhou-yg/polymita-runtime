@@ -77,7 +77,9 @@ function upgradePatch(dirPath) {
   writeFileSync(pkgJSONPath, JSON.stringify(pkgJSON, null, 2))
 }
 
-build(S)
+Promise.all([
+  build(S)
+])
   .then(() => {
     return build(SM)
   }).then(() => {
@@ -94,4 +96,12 @@ build(S)
       publish(C)
       publish(SM)
     }
-  })
+  });
+
+build(R).then(async () => {
+  if (SHOULD_RELEASE) {
+    upgradePatch(R);
+
+    publish(R);
+  }
+})
