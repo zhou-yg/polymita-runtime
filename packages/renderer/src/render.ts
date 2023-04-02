@@ -9,8 +9,8 @@ import {
   StateManagementConfig,
   VirtualLayoutJSON,
   VNodeComponent,
-  VNodeComponent2,
-} from "./types";
+  VNodeComponent2
+} from './types'
 
 import {
   assignDefaultValueByPropTypes,
@@ -18,38 +18,37 @@ import {
   last,
   VirtualNodeTypeSymbol,
   VNodeComponentSymbol,
-  VNodeFunctionComponentSymbol,
-} from "./utils";
+  VNodeFunctionComponentSymbol
+} from './utils'
 
-import * as reactSignalManagement from "./extensions/stateManagements/react-signal";
-import * as reactHookManagement from "./extensions/stateManagements/react-hook";
-import * as reactRenderContainer from "./extensions/frameworks/react";
+import * as reactSignalManagement from './extensions/stateManagements/react-signal'
+import * as reactHookManagement from './extensions/stateManagements/react-hook'
+import * as reactRenderContainer from './extensions/frameworks/react'
 
 import {
   BaseDataType,
   FormatPatchCommands,
   LayoutStructTree,
   MergedPatchCommandsToModule,
-  PatchCommand,
-} from "./types-layout";
+  PatchCommand
+} from './types-layout'
 
 interface GlobalCurrentRenderer {
-  renderHooksContainer: ModuleRenderContainer<any, any, any, any, any, string>;
-  config: any; // TODO
+  renderHooksContainer: ModuleRenderContainer<any, any, any, any, any, string>
+  config: any // TODO
 }
 
-let globalCurrentRenderer: GlobalCurrentRenderer[] = [];
+let globalCurrentRenderer: GlobalCurrentRenderer[] = []
 
 function getCurrentRenderer() {
-  return last(globalCurrentRenderer);
+  return last(globalCurrentRenderer)
 }
 function pushCurrentRenderer(renderer: GlobalCurrentRenderer) {
-  globalCurrentRenderer.push(renderer);
+  globalCurrentRenderer.push(renderer)
 }
 function popCurrentRenderer() {
-  globalCurrentRenderer.pop();
+  globalCurrentRenderer.pop()
 }
-
 
 export function createRHRenderer<
   P extends Record<string, any>,
@@ -62,9 +61,9 @@ export function createRHRenderer<
   renderHost: RenderHost,
   override?: OverrideModule<
     P,
-    SingleFileModule<P, L, PCArr, ModuleName>["layoutStruct"],
+    SingleFileModule<P, L, PCArr, ModuleName>['layoutStruct'],
     NewPC
-  > 
+  >
 ) {
   const renderer = createRenderer2<
     P,
@@ -78,18 +77,17 @@ export function createRHRenderer<
     renderHost,
     override,
     stateManagement: reactHookManagement.config,
-    renderContainerCreator: reactRenderContainer.createReactContainer,
-  });
+    renderContainerCreator: reactRenderContainer.createReactContainer
+  })
 
-  return renderer;
+  return renderer
 }
-
 
 /**
  * R: React
  * S: Signal
  */
-export const createRSRender = createRenderer;
+export const createRSRender = createRenderer
 export function createRenderer<
   P extends Record<string, any>,
   L extends LayoutStructTree,
@@ -101,7 +99,7 @@ export function createRenderer<
   renderHost: RenderHost,
   override?: OverrideModule<
     P,
-    SingleFileModule<P, L, PCArr, ModuleName>["layoutStruct"],
+    SingleFileModule<P, L, PCArr, ModuleName>['layoutStruct'],
     NewPC
   >
 ) {
@@ -117,50 +115,50 @@ export function createRenderer<
     renderHost,
     override,
     stateManagement: reactSignalManagement.config,
-    renderContainerCreator: reactRenderContainer.createReactContainer, // @TODO1
-  });
+    renderContainerCreator: reactRenderContainer.createReactContainer // @TODO1
+  })
 
-  return renderer;
+  return renderer
 }
 
-let idIndex = 0;
+let idIndex = 0
 
 export function clearIdIndex() {
-  idIndex = 0;
+  idIndex = 0
 }
 
 export function createComponent<T extends VNodeComponent2>(func: T) {
   function component(...args: Parameters<T>): ReturnType<VNodeComponent> {
-    return func.apply(null, args);
+    return func.apply(null, args)
   }
-  Object.defineProperty(component, "name", {
+  Object.defineProperty(component, 'name', {
     get() {
-      return func.name;
-    },
-  });
-  component[VNodeComponentSymbol] = true;
-  Object.keys(func).forEach((key) => {
-    component[key] = func[key];
-  });
-  return component;
+      return func.name
+    }
+  })
+  component[VNodeComponentSymbol] = true
+  Object.keys(func).forEach(key => {
+    component[key] = func[key]
+  })
+  return component
 }
 function createFunctionComponent<T extends VNodeComponent2>(
   func: T,
   name: string
 ) {
   function component(...args: Parameters<T>): ReturnType<VNodeComponent> {
-    return func.apply(null, args);
+    return func.apply(null, args)
   }
-  Object.defineProperty(component, "name", {
+  Object.defineProperty(component, 'name', {
     get() {
-      return name || "Unknown function component";
-    },
-  });
-  Object.keys(func).forEach((key) => {
-    component[key] = func[key];
-  });
-  component[VNodeFunctionComponentSymbol] = true;
-  return component;
+      return name || 'Unknown function component'
+    }
+  })
+  Object.keys(func).forEach(key => {
+    component[key] = func[key]
+  })
+  component[VNodeFunctionComponentSymbol] = true
+  return component
 }
 
 // export function h2<
@@ -260,17 +258,17 @@ export function h(
   if (isVNodeComponent(type)) {
     const json = (type as any)({
       ...(props || {}),
-      children,
-    });
-    return json;
+      children
+    })
+    return json
   }
   /** compatible with different versions jsx: children in props, and key in children */
   if (props?.children) {
     if (children.length !== 0) {
-      props.key = children;
+      props.key = children
     }
-    children = props.children;
-    delete props.children;
+    children = props.children
+    delete props.children
   }
 
   const result: VirtualLayoutJSON = {
@@ -278,15 +276,15 @@ export function h(
     flags: VirtualNodeTypeSymbol,
     type,
     props: props || {},
-    children: children.flat() /** @TODO it's danger! */,
-  };
-
-  let key = props?.key;
-  if (key) {
-    result.key = key;
+    children: children.flat() /** @TODO it's danger! */
   }
 
-  return result;
+  let key = props?.key
+  if (key) {
+    result.key = key
+  }
+
+  return result
 }
 
 /**
@@ -294,14 +292,14 @@ export function h(
  */
 
 export function useLogic<T = any>(...args: any[]): T {
-  const renderer = getCurrentRenderer();
+  const renderer = getCurrentRenderer()
   if (!renderer) {
-    throw new Error("useLogic must be called in render function");
+    throw new Error('useLogic must be called in render function')
   }
-  return renderer.renderHooksContainer.runLogic(...args) as T;
+  return renderer.renderHooksContainer.runLogic(...args) as T
 }
 
-export const useModule = useComponentModule;
+export const useModule = useComponentModule
 // export function useModule<
 //   P extends Record<string, any>,
 //   L extends LayoutStructTree,
@@ -365,13 +363,13 @@ export function useComposeModule<
   module: SingleFileModule<P, L, PCArr, ModuleName>,
   override?: OverrideModule<
     P,
-    SingleFileModule<P, L, PCArr, ModuleName>["layoutStruct"],
+    SingleFileModule<P, L, PCArr, ModuleName>['layoutStruct'],
     NewPC
   >
 ) {
-  const renderer = getCurrentRenderer();
+  const renderer = getCurrentRenderer()
   if (!renderer) {
-    throw new Error("useModule must be called in render function");
+    throw new Error('useModule must be called in render function')
   }
   const subModuleRenderer = createRenderer2<
     P,
@@ -383,28 +381,28 @@ export function useComposeModule<
   >({
     ...renderer.config,
     module,
-    override,
-  });
+    override
+  })
 
   return createComponent(
     <NewConstructPC>(
       props: P & {
         override?: OverrideModule<
           P,
-          SingleFileModule<P, L, [...PCArr, NewPC], ModuleName>["layoutStruct"],
+          SingleFileModule<P, L, [...PCArr, NewPC], ModuleName>['layoutStruct'],
           NewConstructPC
-        >;
-        checkerTypes?: (arg: { l: L; pcArr: PCArr; newPC: NewPC }) => void;
+        >
+        checkerTypes?: (arg: { l: L; pcArr: PCArr; newPC: NewPC }) => void
       }
     ) => {
-      const { override, ...rest } = props;
+      const { override, ...rest } = props
 
       return subModuleRenderer.construct<NewConstructPC>(
         rest as ConstructProps,
         override
-      );
+      )
     }
-  );
+  )
 }
 export function useComponentModule<
   P extends Record<string, any>,
@@ -417,13 +415,13 @@ export function useComponentModule<
   module: SingleFileModule<P, L, PCArr, ModuleName>,
   override?: OverrideModule<
     P,
-    SingleFileModule<P, L, PCArr, ModuleName>["layoutStruct"],
+    SingleFileModule<P, L, PCArr, ModuleName>['layoutStruct'],
     NewPC
   >
 ) {
-  const renderer = getCurrentRenderer();
+  const renderer = getCurrentRenderer()
   if (!renderer) {
-    throw new Error("useModule must be called in render function");
+    throw new Error('useModule must be called in render function')
   }
   const subModuleRenderer = createRenderer2<
     P,
@@ -435,39 +433,39 @@ export function useComponentModule<
   >({
     ...renderer.config,
     module,
-    override,
-  });
+    override
+  })
 
   return createFunctionComponent(
     <NewConstructPC>(
       props: P & {
         override?: OverrideModule<
           P,
-          SingleFileModule<P, L, [...PCArr, NewPC], ModuleName>["layoutStruct"],
+          SingleFileModule<P, L, [...PCArr, NewPC], ModuleName>['layoutStruct'],
           NewConstructPC
-        >;
-        checkerTypes?: (arg: { l: L; pcArr: PCArr; newPC: NewPC }) => void;
-        key?: any;
+        >
+        checkerTypes?: (arg: { l: L; pcArr: PCArr; newPC: NewPC }) => void
+        key?: any
       }
     ) => {
-      const { override, ...rest } = props;
+      const { override, ...rest } = props
 
       subModuleRenderer.construct<NewConstructPC>(
         rest as ConstructProps,
         override
-      );
-      return subModuleRenderer.render();
+      )
+      return subModuleRenderer.render()
     },
     String(module.name)
-  );
+  )
 }
 
 export function useLayout<T extends LayoutStructTree>() {
-  const renderer = getCurrentRenderer();
+  const renderer = getCurrentRenderer()
   if (!renderer) {
-    throw new Error("useLayout must be called in render function");
+    throw new Error('useLayout must be called in render function')
   }
-  return renderer.renderHooksContainer.getLayout<T>();
+  return renderer.renderHooksContainer.getLayout<T>()
 }
 
 export function extendModule<
@@ -481,23 +479,23 @@ export function extendModule<
   module: SingleFileModule<Props, L, PCArr, ModuleName>,
   override: () => OverrideModule<
     NewProps,
-    SingleFileModule<NewProps, L, PCArr, ModuleName>["layoutStruct"],
+    SingleFileModule<NewProps, L, PCArr, ModuleName>['layoutStruct'],
     NewPC
   >
 ) {
   return {
     ...module,
     override() {
-      const p1 = module.override?.() || [];
-      const p2 = override();
-      return [...p1, p2];
-    },
+      const p1 = module.override?.() || []
+      const p2 = override()
+      return [...p1, p2]
+    }
   } as unknown as SingleFileModule<
     NewProps,
     L,
     [...PCArr, FormatPatchCommands<NewPC>],
     ModuleName
-  >;
+  >
 }
 export function overrideModule<
   L extends LayoutStructTree,
@@ -510,28 +508,28 @@ export function overrideModule<
   module: SingleFileModule<Props, L, PCArr, ModuleName>,
   override: OverrideModule<
     NewProps,
-    SingleFileModule<Props & NewProps, L, PCArr, ModuleName>["layoutStruct"],
+    SingleFileModule<Props & NewProps, L, PCArr, ModuleName>['layoutStruct'],
     NewPC
   >
 ) {
   const newOverride = () => {
-    const p1 = module.override?.() || [];
-    const p2 = override;
-    return [...p1, p2];
-  };
+    const p1 = module.override?.() || []
+    const p2 = override
+    return [...p1, p2]
+  }
   return {
     ...module,
-    override: newOverride,
+    override: newOverride
   } as unknown as SingleFileModule<
     NewProps,
     L,
     [...PCArr, FormatPatchCommands<NewPC>],
     ModuleName
-  >;
+  >
 }
 
 /**
- * 
+ *
  * common render constructor
  */
 export function createRenderer2<
@@ -542,13 +540,13 @@ export function createRenderer2<
   ConstructProps,
   ModuleName
 >(config: {
-  module: SingleFileModule<P, L, PCArr2, ModuleName>;
-  renderHost: RenderHost;
+  module: SingleFileModule<P, L, PCArr2, ModuleName>
+  renderHost: RenderHost
   override?: OverrideModule<
     P,
-    SingleFileModule<P, L, PCArr2, ModuleName>["layoutStruct"],
+    SingleFileModule<P, L, PCArr2, ModuleName>['layoutStruct'],
     NewRendererPC
-  >;
+  >
   renderContainerCreator: RenderContainer<
     P,
     L,
@@ -556,21 +554,21 @@ export function createRenderer2<
     NewRendererPC,
     ConstructProps,
     ModuleName
-  >;
-  stateManagement: StateManagementConfig;
+  >
+  stateManagement: StateManagementConfig
 }) {
   const {
     module,
     renderHost,
     override,
     renderContainerCreator,
-    stateManagement,
-  } = config;
+    stateManagement
+  } = config
 
   if (module.name && /^[a-z]/.test(String(module.name))) {
     throw new Error(
       `First char of module name must be uppercase, but got ${module.name}.`
-    );
+    )
   }
 
   const rendererContainer = renderContainerCreator(
@@ -578,11 +576,11 @@ export function createRenderer2<
     module,
     stateManagement,
     {
-      useEmotion: renderHost.useEmotion,
+      useEmotion: renderHost.useEmotion
     }
-  );
+  )
 
-  let layoutJSON: VirtualLayoutJSON = null;
+  let layoutJSON: VirtualLayoutJSON = null
 
   function construct<NewConstructPC>(
     props?: ConstructProps,
@@ -593,38 +591,38 @@ export function createRenderer2<
         L,
         [...PCArr2, NewRendererPC],
         ModuleName
-      >["layoutStruct"],
+      >['layoutStruct'],
       NewConstructPC
     >
   ) {
-    pushCurrentRenderer(currentRendererInstance);
+    pushCurrentRenderer(currentRendererInstance)
 
-    const mergedOverrides: any = [override, secondOverride].filter(Boolean);
+    const mergedOverrides: any = [override, secondOverride].filter(Boolean)
 
     const r = rendererContainer.construct<NewConstructPC>(
       props,
       mergedOverrides
-    );
+    )
 
-    layoutJSON = r;
+    layoutJSON = r
 
-    popCurrentRenderer();
+    popCurrentRenderer()
 
-    return r;
+    return r
   }
   function render() {
     if (!layoutJSON) {
-      return;
+      return
     }
-    return rendererContainer.render(layoutJSON);
+    return rendererContainer.render(layoutJSON)
   }
 
   const currentRendererInstance = {
     renderHooksContainer: rendererContainer,
     construct,
     render,
-    config,
-  };
+    config
+  }
 
-  return currentRendererInstance;
+  return currentRendererInstance
 }

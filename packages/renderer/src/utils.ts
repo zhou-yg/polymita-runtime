@@ -1,4 +1,4 @@
-import { isSignal } from "@polymita/signal";
+import { isSignal } from '@polymita/signal'
 import {
   VirtualLayoutJSON,
   LayoutTreeProxyDraft,
@@ -10,102 +10,102 @@ import {
   LayoutTreeDraft,
   PropTypeValidator,
   DraftOperatesEnum,
-  DraftPatch,
-} from "./types";
-import { deepClone } from "./lib/deepClone";
-import { css } from "@emotion/css";
+  DraftPatch
+} from './types'
+import { deepClone } from './lib/deepClone'
+import { css } from '@emotion/css'
 import {
   CommandOP,
   LayoutStructTree,
   PatchCommand,
-  BaseDataType,
-} from "./types-layout";
-import { typeDefaultValueFlagSymbol } from "./lib/propTypes";
+  BaseDataType
+} from './types-layout'
+import { typeDefaultValueFlagSymbol } from './lib/propTypes'
 
 // (window as any).ecss = css;
 
-export { isFunction } from "./lib/serialize";
+export { isFunction } from './lib/serialize'
 
 export function mergeFromProps(
   json: VirtualLayoutJSON,
   props: Record<string, any>,
   keys: string[]
 ) {
-  keys.forEach((key) => {
-    const val = props[key];
+  keys.forEach(key => {
+    const val = props[key]
     if (val) {
       if (json.props[key]) {
-        json.props[key] = `${json.props[key]} ${val}`;
+        json.props[key] = `${json.props[key]} ${val}`
       } else {
-        json.props[key] = val;
+        json.props[key] = val
       }
     }
-  });
-  return json;
+  })
+  return json
 }
 
 export function assignRules(draft: LayoutTreeProxyDraft, rules: StyleRule[]) {
   for (const rule of rules) {
-    const { condition, target: draftTarget, style } = rule;
+    const { condition, target: draftTarget, style } = rule
     if (!!condition || condition === undefined) {
-      const pathInDraft: string[] = getPathsFromDraft(draftTarget);
-      const stylePath = pathInDraft.concat(["props", "style"]);
+      const pathInDraft: string[] = getPathsFromDraft(draftTarget)
+      const stylePath = pathInDraft.concat(['props', 'style'])
 
-      const styleObj = get(draft, stylePath);
+      const styleObj = get(draft, stylePath)
       if (isFake(styleObj)) {
-        set(draft, stylePath, {});
+        set(draft, stylePath, {})
       }
       Object.entries(style).forEach(([k, v]) => {
-        set(draft, stylePath.concat(k), v);
-      });
+        set(draft, stylePath.concat(k), v)
+      })
     }
   }
 }
 /**
  * key point: pattern implicitly match every JSON Node
  */
-export const SEMATIC_RELATION_IS = "is";
-export const SEMATIC_RELATION_HAS = "has";
+export const SEMATIC_RELATION_IS = 'is'
+export const SEMATIC_RELATION_HAS = 'has'
 export function checkSematic(
   sematic: string,
-  props: VirtualLayoutJSON["props"]
+  props: VirtualLayoutJSON['props']
 ) {
-  let result = false;
-  const kvArr = Object.entries(props);
+  let result = false
+  const kvArr = Object.entries(props)
   for (const [k, v] of kvArr) {
-    const [relationField, ...sematicArr] = k.split("-");
+    const [relationField, ...sematicArr] = k.split('-')
     if (relationField === SEMATIC_RELATION_IS && sematicArr.length > 1) {
       throw new Error(
-        "[checkSematic] the node can not be multiply sematic at the same time"
-      );
+        '[checkSematic] the node can not be multiply sematic at the same time'
+      )
     }
     if ([SEMATIC_RELATION_IS, SEMATIC_RELATION_HAS].includes(relationField)) {
-      result = result || sematicArr.includes(sematic);
+      result = result || sematicArr.includes(sematic)
     }
     if (result) {
-      break;
+      break
     }
   }
-  return result;
+  return result
 }
 
 export function camelToLine(str: string) {
-  return str.replace(/([A-Z])/g, "-$1").toLowerCase();
+  return str.replace(/([A-Z])/g, '-$1').toLowerCase()
 }
 
 function patternResultToEmotionCSS(
   style: PatternStructureResult,
   pseudo?: string
 ) {
-  let styleRows: string[] = [];
+  let styleRows: string[] = []
   Object.entries(style || {}).forEach(([k, v]) => {
-    const r = Array.isArray(v) ? last(v) : v;
-    styleRows.push(`${camelToLine(k)}: ${r};`);
-  });
+    const r = Array.isArray(v) ? last(v) : v
+    styleRows.push(`${camelToLine(k)}: ${r};`)
+  })
 
   return css`
-    ${styleRows.join("\n")}
-  `;
+    ${styleRows.join('\n')}
+  `
 }
 
 export function assignPattern(
@@ -114,106 +114,106 @@ export function assignPattern(
   useEmotion?: boolean
 ): VirtualLayoutJSON {
   // const source = deepClone(json)
-  const source = json;
+  const source = json
 
-  traverseLayoutTree(source, (node) => {
-    const { props } = node;
+  traverseLayoutTree(source, node => {
+    const { props } = node
     for (const sematic in pattern) {
       if (checkSematic(sematic, props)) {
-        const style = pattern[sematic];
+        const style = pattern[sematic]
         if (useEmotion) {
-          const cls = patternResultToEmotionCSS(style);
+          const cls = patternResultToEmotionCSS(style)
           if (props.className) {
-            props.className = `${props.className} ${cls}`;
+            props.className = `${props.className} ${cls}`
           } else {
-            props.className = cls;
+            props.className = cls
           }
         } else {
           if (!props.style) {
-            props.style = {};
+            props.style = {}
           }
           Object.entries(style).forEach(([k, v]) => {
-            props.style[k] = Array.isArray(v) ? last(v) : v;
-          });
+            props.style[k] = Array.isArray(v) ? last(v) : v
+          })
         }
       }
     }
-  });
-  return source;
+  })
+  return source
 }
 type PatternStructureValueMatcher =
   | (number | string | boolean)[]
-  | (number | string | boolean)[][];
+  | (number | string | boolean)[][]
 
 type MatcherValueOrStar<T extends PatternStructureValueMatcher> = {
-  [K in keyof T]: T[K] | "*";
-};
+  [K in keyof T]: T[K] | '*'
+}
 
 interface PatternMatrix {
   [mainSematic: string]: {
     [propertyKey: string]: {
-      [value: string]: PatternStructureValueMatcher;
-    };
-  };
+      [value: string]: PatternStructureValueMatcher
+    }
+  }
 }
 
 function equalMatcher(setting: any[] | any[][], inputs: any[]) {
   return (
-    setting.every((v, i) => v === inputs[i] || v === "*") ||
-    setting.some((arr2) => {
+    setting.every((v, i) => v === inputs[i] || v === '*') ||
+    setting.some(arr2 => {
       if (Array.isArray(arr2)) {
-        return equalMatcher(arr2, inputs);
+        return equalMatcher(arr2, inputs)
       }
-      return false;
+      return false
     })
-  );
+  )
 }
 
 export function matchPatternMatrix<T extends PatternStructureValueMatcher>(
   patternInputs: T
 ) {
   return (ps: PatternMatrix) => {
-    let result: PatternStructure = {};
+    let result: PatternStructure = {}
     for (let mainSemantic in ps) {
-      result[mainSemantic] = {};
+      result[mainSemantic] = {}
       for (let propertyKey in ps[mainSemantic]) {
-        result[mainSemantic][propertyKey] = [];
+        result[mainSemantic][propertyKey] = []
         for (let value in ps[mainSemantic][propertyKey]) {
-          const matcher = ps[mainSemantic][propertyKey][value];
+          const matcher = ps[mainSemantic][propertyKey][value]
 
           if (equalMatcher(matcher, patternInputs) || matcher.length === 0) {
-            result[mainSemantic][propertyKey].push(value);
+            result[mainSemantic][propertyKey].push(value)
           }
         }
       }
     }
-    return result;
-  };
+    return result
+  }
 }
 // in html attributes
-export const renderHTMLProp = "_html";
+export const renderHTMLProp = '_html'
 
-export const VirtualNodeTypeSymbol = Symbol.for("polymitaVirtualNodeSymbol");
+export const VirtualNodeTypeSymbol = Symbol.for('polymitaVirtualNodeSymbol')
 
 export function isVirtualNode(node: any): node is VirtualLayoutJSON {
   return (
     node &&
-    typeof node === "object" &&
-    "type" in node &&
-    "props" in node &&
-    "children" in node &&
+    typeof node === 'object' &&
+    'type' in node &&
+    'props' in node &&
+    'children' in node &&
     node.flags === VirtualNodeTypeSymbol
-  );
+  )
 }
 
 /**
  * uppercase path means it is a Module Component
  */
 function isFunctionComponentPath(path: string | number) {
-  return /^[A-Z]/.test(String(path));
+  return /^[A-Z]/.test(String(path))
 }
 
-const ExportPropKey = "props";
+const ExportPropKey = 'props'
 /**
  * source = div/p/span, path=['div'] => div, 1
  * source = div/span/span, path=['div', 'p'] => null, 1
@@ -223,49 +223,49 @@ export function getVirtualNodesByPath(
   source: VirtualLayoutJSON,
   path: (string | number)[]
 ): [VirtualLayoutJSON[], number] {
-  let current = [source];
-  let i = 0;
+  let current = [source]
+  let i = 0
   for (; i < path.length; i++) {
-    const type = path[i];
+    const type = path[i]
 
     if (isFunctionComponentPath(type)) {
       current = current.filter(
-        (n) => isVNodeFunctionComponent(n) && n.type.name === type
-      );
-      break;
+        n => isVNodeFunctionComponent(n) && n.type.name === type
+      )
+      break
     }
 
-    const newCurrent: VirtualLayoutJSON[] = [];
+    const newCurrent: VirtualLayoutJSON[] = []
     for (const node of current) {
       if (isVirtualNode(node)) {
         if (node.type === type) {
-          newCurrent.push(node);
+          newCurrent.push(node)
         }
       }
     }
     if (newCurrent.length === 0) {
-      break;
+      break
     }
-    const nextType = path[i + 1];
+    const nextType = path[i + 1]
     const nextChildren = newCurrent
-      .map((n) =>
-        n.children.filter((n) => {
+      .map(n =>
+        n.children.filter(n => {
           if (isVirtualNode(n)) {
             if (isVNodeFunctionComponent(n)) {
-              return n.type.name === nextType;
+              return n.type.name === nextType
             }
-            return n.type === nextType;
+            return n.type === nextType
           }
         })
       )
-      .flat() as VirtualLayoutJSON[];
+      .flat() as VirtualLayoutJSON[]
     if (nextChildren.length === 0) {
-      break;
+      break
     }
-    current = nextChildren;
+    current = nextChildren
   }
 
-  return [current, i];
+  return [current, i]
 }
 
 /**
@@ -278,11 +278,11 @@ export function getVirtualNodesByPath(
 const DRAFT_OPERATES = [
   DraftOperatesEnum.insert,
   DraftOperatesEnum.remove,
-  DraftOperatesEnum.replace,
-];
+  DraftOperatesEnum.replace
+]
 
 export function isFunctionVNode(node: VirtualLayoutJSON) {
-  return typeof node.type === "function";
+  return typeof node.type === 'function'
 }
 
 function assignPatchToNode(
@@ -290,26 +290,26 @@ function assignPatchToNode(
   i: number,
   patch: DraftPatch
 ) {
-  const { op, path, value } = patch;
+  const { op, path, value } = patch
 
   switch (op) {
     case DraftOperatesEnum.replace:
-      const restKeys = path.slice(i + 1);
-      current.forEach((node) => {
-        set(node, restKeys, value);
-      });
-      break;
+      const restKeys = path.slice(i + 1)
+      current.forEach(node => {
+        set(node, restKeys, value)
+      })
+      break
     case DraftOperatesEnum.insert:
-      current.forEach((node) => {
+      current.forEach(node => {
         if (node.children) {
-          node.children = [].concat(node.children).concat(value);
+          node.children = [].concat(node.children).concat(value)
         } else {
-          node.children = [value];
+          node.children = [value]
         }
-      });
-      break;
+      })
+      break
     case DraftOperatesEnum.remove:
-      break;
+      break
   }
 }
 function mergeConstructOverrideToNode(
@@ -317,50 +317,50 @@ function mergeConstructOverrideToNode(
   i: number,
   patch: DraftPatch
 ) {
-  const { op, path, value } = patch;
-  const newPath = path.slice(i + 1);
+  const { op, path, value } = patch
+  const newPath = path.slice(i + 1)
 
   const newPatch = {
     ...patch,
-    path: newPath,
-  };
-  nodes.forEach((n) => {
+    path: newPath
+  }
+  nodes.forEach(n => {
     if (!n.props) {
-      n.props = {};
+      n.props = {}
     }
     if (n.props.override?.patches) {
-      n.props.override.patches.push(newPatch);
+      n.props.override.patches.push(newPatch)
     } else {
       n.props.override = Object.assign(n.props.override || {}, {
-        patches: [newPatch],
-      });
+        patches: [newPatch]
+      })
     }
-  });
+  })
 }
 export function applyJSONTreePatches(
   source: VirtualLayoutJSON,
   patches: DraftPatch[]
 ) {
-  const target: VirtualLayoutJSON = source;
+  const target: VirtualLayoutJSON = source
 
   for (const patch of patches) {
-    const { op, path, value } = patch;
+    const { op, path, value } = patch
 
     if (value.condition === false) {
-      continue;
+      continue
     }
 
-    let [current, i] = getVirtualNodesByPath(target, path);
+    let [current, i] = getVirtualNodesByPath(target, path)
 
     if (isVNodeFunctionComponent(current[0])) {
       // console.log('isVNodeFunctionComponent current: ', current, i);
-      mergeConstructOverrideToNode(current, i, patch);
+      mergeConstructOverrideToNode(current, i, patch)
     } else {
-      assignPatchToNode(current, i, patch);
+      assignPatchToNode(current, i, patch)
     }
   }
 
-  return target;
+  return target
 }
 
 /**
@@ -369,111 +369,111 @@ export function applyJSONTreePatches(
  *
  * 返回的是 Proxy对象，只需要考虑 Object，只收集 set
  */
-export const handlerPathKeySymbol = Symbol.for("handlerPathKeySymbol");
-export type ProxyLayoutHandler = ReturnType<typeof proxyLayoutJSON>;
+export const handlerPathKeySymbol = Symbol.for('handlerPathKeySymbol')
+export type ProxyLayoutHandler = ReturnType<typeof proxyLayoutJSON>
 
 function getPathsFromDraft(target: any): string[] {
-  return target[handlerPathKeySymbol];
+  return target[handlerPathKeySymbol]
 }
 
-const draftOperationMethodSymbol = Symbol.for("draftOperationMethod");
+const draftOperationMethodSymbol = Symbol.for('draftOperationMethod')
 
-const fakeProxyObjectSymbol = Symbol.for("fakeProxyObjectSymbol");
+const fakeProxyObjectSymbol = Symbol.for('fakeProxyObjectSymbol')
 
 function isFake(obj: any) {
-  return obj && obj[fakeProxyObjectSymbol];
+  return obj && obj[fakeProxyObjectSymbol]
 }
 
 export function proxyLayoutJSON(json: VirtualLayoutJSON) {
-  const patches: DraftPatch[] = [];
+  const patches: DraftPatch[] = []
 
-  const jsonTree = buildLayoutNestedObj(json);
+  const jsonTree = buildLayoutNestedObj(json)
 
   function createProxy(target: LayoutTreeDraft, pathArr: string[] = []) {
     const proxy = new Proxy(target, {
       get(target, key: string | symbol | DraftOperatesEnum) {
         if (key === handlerPathKeySymbol) {
-          return pathArr;
+          return pathArr
         }
-        const v = Reflect.get(target, key);
+        const v = Reflect.get(target, key)
         // console.log('target=', target, 'key=', key, 'value=',v);
-        if (typeof key === "string") {
+        if (typeof key === 'string') {
           if (DRAFT_OPERATES.includes(key as DraftOperatesEnum)) {
             return createProxy(
               Object.assign(() => {}, { [draftOperationMethodSymbol]: key }),
               pathArr
-            );
-          } else if (typeof v === "object" || v === undefined || v === null) {
+            )
+          } else if (typeof v === 'object' || v === undefined || v === null) {
             return createProxy(
               v || { [fakeProxyObjectSymbol]: true },
               pathArr.concat(key)
-            );
+            )
           }
         }
-        return v;
+        return v
       },
       set(target, key: string, value: any) {
-        const currentPathArr = pathArr.concat(key);
+        const currentPathArr = pathArr.concat(key)
         patches.push({
           op: DraftOperatesEnum.replace,
           path: currentPathArr,
-          value,
-        });
-        Reflect.set(target, key, value);
-        return true;
+          value
+        })
+        Reflect.set(target, key, value)
+        return true
       },
       apply(target: any, thisArg, argArray) {
         // console.log('argArray: ', argArray);
         // console.log('target: ', target[draftOperationMethodSymbol]);
-        const currentPathArr = pathArr;
-        const op: DraftOperatesEnum = target[draftOperationMethodSymbol];
+        const currentPathArr = pathArr
+        const op: DraftOperatesEnum = target[draftOperationMethodSymbol]
         switch (op) {
           case DraftOperatesEnum.insert:
             patches.push({
               op,
               path: currentPathArr,
-              value: argArray[0],
-            });
-            break;
+              value: argArray[0]
+            })
+            break
           case DraftOperatesEnum.remove:
             patches.push({
               op,
               path: currentPathArr,
-              value: argArray[0],
-            });
-            break;
+              value: argArray[0]
+            })
+            break
           case DraftOperatesEnum.replace:
             patches.push({
               op,
               path: currentPathArr,
-              value: argArray[0],
-            });
-            break;
+              value: argArray[0]
+            })
+            break
         }
-      },
-    });
-    return proxy;
+      }
+    })
+    return proxy
   }
 
   function commit() {}
 
   function applyPatches() {
-    const newObj = applyJSONTreePatches(json, patches);
-    return newObj;
+    const newObj = applyJSONTreePatches(json, patches)
+    return newObj
   }
 
   function appendPatches(ps: DraftPatch[] = []) {
-    patches.push(...ps);
+    patches.push(...ps)
   }
 
   // 此处的类型应该根据 layout 结构生成得出，但这里是通用方法，无法精确取得类型
-  const draftJSON = createProxy(jsonTree);
+  const draftJSON = createProxy(jsonTree)
 
   return {
     draft: draftJSON,
     append: appendPatches,
-    apply: applyPatches,
-  };
+    apply: applyPatches
+  }
 }
 
 /**
@@ -483,25 +483,25 @@ export function proxyLayoutJSON(json: VirtualLayoutJSON) {
 export function buildLayoutNestedObj<T extends LayoutStructTree>(
   json: VirtualLayoutJSON
 ): LayoutTreeDraft {
-  let root: LayoutTreeDraft = {};
+  let root: LayoutTreeDraft = {}
 
   function buildRoot(
     target: LayoutTreeDraft,
     source: VirtualLayoutJSON | BaseDataType
   ) {
     if (isVirtualNode(source)) {
-      const tag = source?.type;
-      if (typeof tag === "string") {
+      const tag = source?.type
+      if (typeof tag === 'string') {
         /**
          * @TODO how to keep reference to original "props object"?
          */
         target[tag] = <LayoutTreeDraft>{
-          [ExportPropKey]: source.props,
-        };
+          [ExportPropKey]: source.props
+        }
         if (Array.isArray(source.children) || isVirtualNode(source.children)) {
-          [].concat(source.children).forEach((child) => {
-            buildRoot(target[tag], child);
-          });
+          ;[].concat(source.children).forEach(child => {
+            buildRoot(target[tag], child)
+          })
         }
       } else {
         /**
@@ -511,12 +511,12 @@ export function buildLayoutNestedObj<T extends LayoutStructTree>(
     }
   }
 
-  buildRoot(root, json);
+  buildRoot(root, json)
 
-  return root;
+  return root
 }
 
-let max = 1e3;
+let max = 1e3
 export function traverse(
   obj: any,
   callback: (k: string[], v: any) => boolean | void,
@@ -524,15 +524,15 @@ export function traverse(
   cache: Set<any> = new Set()
 ) {
   if (cache.has(obj)) {
-    return;
+    return
   }
-  cache.add(obj);
+  cache.add(obj)
   if (callback(path, obj) !== false) {
-    if (!obj || typeof obj !== "object") return;
+    if (!obj || typeof obj !== 'object') return
     for (let k in obj) {
-      const v = obj[k];
+      const v = obj[k]
       if (callback(path.concat(k), v) !== false) {
-        traverse(v, callback, path.concat(k), cache);
+        traverse(v, callback, path.concat(k), cache)
       }
     }
   }
@@ -543,115 +543,115 @@ export function traverseLayoutTree(
   callback: (n: VirtualLayoutJSON) => void
 ) {
   if (isVirtualNode(layoutTree)) {
-    callback(layoutTree);
+    callback(layoutTree)
 
     if (layoutTree.children) {
       if (Array.isArray(layoutTree.children)) {
-        layoutTree.children.forEach((child) => {
-          traverseLayoutTree(child, callback);
-        });
+        layoutTree.children.forEach(child => {
+          traverseLayoutTree(child, callback)
+        })
       } else {
-        traverseLayoutTree(layoutTree.children, callback);
+        traverseLayoutTree(layoutTree.children, callback)
       }
     }
   }
 }
 
 /** fork from swr */
-export const isArray = Array.isArray;
+export const isArray = Array.isArray
 
 export function last<T>(arr: T[]): T {
-  return arr[arr.length - 1];
+  return arr[arr.length - 1]
 }
 
 export function set(obj: any, path: string | (number | string)[], value: any) {
-  let base = obj;
+  let base = obj
   const currentFieldPath = isArray(path)
     ? path.slice(0)
     : path.split
-    ? path.split(".")
-    : [path];
+    ? path.split('.')
+    : [path]
   if (currentFieldPath.length > 0) {
-    const fieldName = currentFieldPath.pop();
+    const fieldName = currentFieldPath.pop()
     currentFieldPath.forEach((p, i) => {
-      if (base[p] === undefined) base[p] = {};
-      base = base[p];
-    });
+      if (base[p] === undefined) base[p] = {}
+      base = base[p]
+    })
     if (base instanceof Map) {
-      base.set(fieldName, value);
+      base.set(fieldName, value)
     } else if (base instanceof Set) {
-      base.add(value);
+      base.add(value)
     } else {
-      base[fieldName!] = value;
+      base[fieldName!] = value
     }
   }
 }
 
 export function get(obj: any, path: string | (number | string)[]) {
-  let base = obj;
+  let base = obj
   const pathArr = isArray(path)
     ? path.slice(0)
     : path.split
-    ? path.split(".")
-    : [path];
+    ? path.split('.')
+    : [path]
   if (pathArr.length === 0) {
-    return obj;
+    return obj
   }
-  const currentPathArr = pathArr.slice(0, -1);
-  const key = last(pathArr);
+  const currentPathArr = pathArr.slice(0, -1)
+  const key = last(pathArr)
   for (const p of currentPathArr) {
-    if (base[p] === undefined) return undefined;
-    base = base[p];
+    if (base[p] === undefined) return undefined
+    base = base[p]
   }
   if (base instanceof Map) {
-    return base.get(key);
+    return base.get(key)
   }
-  return base[key];
+  return base[key]
 }
-export const VNodeComponentSymbol = Symbol("VNodeComponentSymbol");
+export const VNodeComponentSymbol = Symbol('VNodeComponentSymbol')
 export const VNodeFunctionComponentSymbol = Symbol(
-  "VNodeFunctionComponentSymbol"
-);
+  'VNodeFunctionComponentSymbol'
+)
 export function isVNodeComponent(target: any) {
-  return !!target?.[VNodeComponentSymbol];
+  return !!target?.[VNodeComponentSymbol]
 }
 export function isVNodeFunctionComponent(
   target: any
 ): target is { type: Function } {
-  return !!target?.type?.[VNodeFunctionComponentSymbol];
+  return !!target?.type?.[VNodeFunctionComponentSymbol]
 }
 
-function createVirtualNode(child: PatchCommand["child"]) {
+function createVirtualNode(child: PatchCommand['child']) {
   return {
     ...child,
     id: -1,
     props: (child as any).props || {},
     flags: VirtualNodeTypeSymbol,
     type: child.type,
-    children: child.children,
-  };
+    children: child.children
+  }
 }
 
 function doPatchLayoutCommand(cmd: PatchCommand, draft: LayoutTreeProxyDraft) {
   if (cmd.condition === false) {
-    return;
+    return
   }
-  let parent = draft;
+  let parent = draft
 
-  const paths = getPathsFromDraft(cmd.parent);
+  const paths = getPathsFromDraft(cmd.parent)
 
-  paths.forEach((path) => (parent = parent[path]));
+  paths.forEach(path => (parent = parent[path]))
 
   switch (cmd.op) {
     case CommandOP.addChild:
-      parent[DraftOperatesEnum.insert](createVirtualNode(cmd.child));
-      break;
+      parent[DraftOperatesEnum.insert](createVirtualNode(cmd.child))
+      break
     case CommandOP.replaceChild:
-      parent[DraftOperatesEnum.replace](createVirtualNode(cmd.child));
-      break;
+      parent[DraftOperatesEnum.replace](createVirtualNode(cmd.child))
+      break
     case CommandOP.removeChild:
-      parent[DraftOperatesEnum.remove](createVirtualNode(cmd.child));
-      break;
+      parent[DraftOperatesEnum.remove](createVirtualNode(cmd.child))
+      break
   }
 }
 
@@ -661,25 +661,25 @@ export function runOverrides(
   draft: LayoutTreeProxyDraft
 ) {
   // patch layout
-  overrides.forEach((override) => {
+  overrides.forEach(override => {
     // 兼容逻辑
-    override.layout?.(props, draft);
+    override.layout?.(props, draft)
 
     if (override.patchLayout) {
       const patchLayoutCommands: PatchCommand[] = override.patchLayout(
         props,
         draft
-      );
+      )
 
-      patchLayoutCommands?.forEach?.((cmd) => {
-        doPatchLayoutCommand(cmd, draft);
-      });
+      patchLayoutCommands?.forEach?.(cmd => {
+        doPatchLayoutCommand(cmd, draft)
+      })
     }
     if (override.patchRules) {
-      const rules = override.patchRules(props, draft);
-      assignRules(draft, rules);
+      const rules = override.patchRules(props, draft)
+      assignRules(draft, rules)
     }
-  });
+  })
 }
 
 export function assignDefaultValueByPropTypes<T extends Record<string, any>>(
@@ -687,36 +687,36 @@ export function assignDefaultValueByPropTypes<T extends Record<string, any>>(
   propTypes?: Record<string, PropTypeValidator>
 ): T {
   if (!propTypes) {
-    return props;
+    return props
   }
 
-  const r: Record<string, any> = {};
-  Object.keys(propTypes).forEach((key) => {
+  const r: Record<string, any> = {}
+  Object.keys(propTypes).forEach(key => {
     if (props[key] === undefined) {
-      const defaultValue = propTypes?.[key]?.[typeDefaultValueFlagSymbol];
+      const defaultValue = propTypes?.[key]?.[typeDefaultValueFlagSymbol]
       if (defaultValue !== undefined) {
         if (isSignal(defaultValue)) {
           console.error(
             `[propTypes] props.${key} is return a signal directly, it maybe cause some unexpected error.`
-          );
+          )
         }
         r[key] =
-          typeof defaultValue === "function" ? defaultValue() : defaultValue;
+          typeof defaultValue === 'function' ? defaultValue() : defaultValue
       }
     }
-  });
+  })
 
-  return Object.assign({}, props, r);
+  return Object.assign({}, props, r)
 }
 
-export const ShouldRenderAttr = "if";
+export const ShouldRenderAttr = 'if'
 export function shouldNotRender(json: VirtualLayoutJSON) {
   return (
-    typeof json?.type !== "function" &&
+    typeof json?.type !== 'function' &&
     (json?.props?.if === false || json?.props?.if === null)
-  );
+  )
 }
 
-export function lowerCaseType (type: LayoutStructTree['type']) {
-  return typeof type === 'function' ? type : type.toLowerCase();
+export function lowerCaseType(type: LayoutStructTree['type']) {
+  return typeof type === 'function' ? type : type.toLowerCase()
 }
