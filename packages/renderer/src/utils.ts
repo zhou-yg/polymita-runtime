@@ -89,7 +89,7 @@ export function checkSematic(
   return result
 }
 
-function camelToLine(str: string) {
+export function camelToLine(str: string) {
   return str.replace(/([A-Z])/g, '-$1').toLowerCase()
 }
 
@@ -716,8 +716,6 @@ export function shouldNotRender(json: VirtualLayoutJSON) {
     (json?.props?.if === false || json?.props?.if === null)
   )
 }
-
-
 
 export function lowerCaseType(type: LayoutStructTree['type']) {
   return typeof type === 'function' ? type : camelToLine(type)
