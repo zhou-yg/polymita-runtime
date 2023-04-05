@@ -1,6 +1,6 @@
 {
   "name": "@polymita/signal",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "description": "a simple reactive utility for logic description",
   "main": "./dist/signal.js",
   "module": "./dist/signal.esm.js",

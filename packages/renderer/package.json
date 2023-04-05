@@ -1,6 +1,6 @@
 {
   "name": "@polymita/renderer",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "useHook serverless framework",
   "main": "./dist/renderer.js",
   "module": "./dist/renderer.esm.js",
