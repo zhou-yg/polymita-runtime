@@ -188,8 +188,6 @@ function runReactLogic<T extends Driver>(react: any, hook: T, props: Parameters<
       unListen()
       init.current.scope.deactivate()
       init.current.scope.dispose()
-      init.current = null
-      // didMount.current = false
     }
   }, [])
 
