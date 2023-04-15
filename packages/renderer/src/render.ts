@@ -50,7 +50,7 @@ function popCurrentRenderer() {
   globalCurrentRenderer.pop()
 }
 /**
- * 
+ *
  * R: React，
  * 传入的状态是正常变量，不是信号
  */
@@ -107,14 +107,7 @@ export function createRSRender<
     NewPC
   >
 ) {
-  const renderer = createRenderer2<
-    P,
-    L,
-    PCArr,
-    NewPC,
-    P,
-    ModuleName
-  >({
+  const renderer = createRenderer2<P, L, PCArr, NewPC, P, ModuleName>({
     module,
     renderHost,
     override,
@@ -124,7 +117,6 @@ export function createRSRender<
 
   return renderer
 }
-
 
 let idIndex = 0
 
