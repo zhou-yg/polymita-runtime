@@ -41,6 +41,16 @@ function filterPatternSematicProps(props?: any) {
 
   return obj
 }
+/**
+ * in web-component mode, we need to transform className to class
+ * because React wont convert "className" to "class" by default
+ */
+function transformClsName (props: any) {
+  if (props && props.className) {
+    props.class = props.className
+  }
+  return props;
+}
 
 export function createReactContainer<
   P extends Record<string, any>,
@@ -128,7 +138,7 @@ export function createReactContainer<
     }
 
     let children = json.children
-    let elementArgs = [lowerCaseType(json.type), filterPatternSematicProps(json.props)];
+    let elementArgs = [lowerCaseType(json.type), transformClsName(filterPatternSematicProps(json.props))];
 
     if (Array.isArray(json.children)) {
       children = json.children.map(createElementDepth)
