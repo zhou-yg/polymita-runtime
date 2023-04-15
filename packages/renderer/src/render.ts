@@ -92,7 +92,7 @@ export function createRHRenderer<
  * S: Signal
  * 传入的props是信号
  */
-export function createRSRender<
+export function createRSRenderer<
   P extends Record<string, any>,
   L extends LayoutStructTree,
   PCArr extends PatchCommand[][],
