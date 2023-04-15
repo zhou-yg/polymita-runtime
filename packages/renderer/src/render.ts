@@ -49,7 +49,11 @@ function pushCurrentRenderer(renderer: GlobalCurrentRenderer) {
 function popCurrentRenderer() {
   globalCurrentRenderer.pop()
 }
-
+/**
+ * 
+ * R: React，
+ * 传入的状态是正常变量，不是信号
+ */
 export function createRHRenderer<
   P extends Record<string, any>,
   L extends LayoutStructTree,
@@ -86,9 +90,9 @@ export function createRHRenderer<
 /**
  * R: React
  * S: Signal
+ * 传入的props是信号
  */
-export const createRSRender = createRenderer
-export function createRenderer<
+export function createRSRender<
   P extends Record<string, any>,
   L extends LayoutStructTree,
   PCArr extends PatchCommand[][],
@@ -108,7 +112,7 @@ export function createRenderer<
     L,
     PCArr,
     NewPC,
-    NormalizeProps<P>,
+    P,
     ModuleName
   >({
     module,
@@ -120,6 +124,7 @@ export function createRenderer<
 
   return renderer
 }
+
 
 let idIndex = 0
 
