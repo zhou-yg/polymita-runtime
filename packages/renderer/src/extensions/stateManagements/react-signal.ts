@@ -22,7 +22,7 @@ export const config: StateManagementConfig = {
   ],
   runLogic: runReactLogic,
   transform,
-  covertProps: convertToSignal
+  convertProps: convertToSignal
 }
 
 function transform (json: VirtualLayoutJSON) {

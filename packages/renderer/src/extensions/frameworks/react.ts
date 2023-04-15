@@ -60,7 +60,7 @@ export function createReactContainer<
   const modulePropTypes = module.propTypes
   const runReactLogic = stateManagement?.runLogic.bind(null, React, module.logic)
 
-  const convertProps = stateManagement?.covertProps || (<T>(props: T) => props)
+  const convertProps = stateManagement?.convertProps || (<T>(props: T) => props)
 
   function initLogic (props?: any) {
     let cache: ModuleCache = module[cacheSymbol]

@@ -222,7 +222,7 @@ export interface StateManagementConfig {
     args: Parameters<T>
   ) => ReturnType<T>
   transform?: (json: VirtualLayoutJSON) => VirtualLayoutJSON
-  covertProps?: (
+  convertProps?: (
     props: any,
     propTypes?: Record<string, PropTypeValidator>
   ) => any
