@@ -8,7 +8,7 @@ import {
   after,
   Computed,
   CurrentRunnerScope, Driver, getNamespace, IHookContext, isSignal, Runner, Signal, signal, State, StateSignal
-} from '@polymita/signal'
+} from '@polymita/signal-model'
 import { PropTypeValidator, SignalProps, StateManagementConfig, VirtualLayoutJSON } from '../../types'
 import { isFunction, last, traverse, traverseLayoutTree } from '../../utils'
 import { SignalFlag, typeFlagSymbol } from '../../lib/propTypes'
@@ -172,13 +172,7 @@ function runReactLogic<T extends Driver>(react: any, hook: T, props: Parameters<
     }
   }, [signalProps])
 
-  // confirm only run once in React18 with strict mode or in development
-  // const didMount = useRef(false)
-  // release event
   useEffect(() => {
-    // if (didMount.current === true) return
-    // didMount.current = true
-
     init.current.scope.activate()
     const unListen = init.current.scope.onUpdate(() => {
       setHookResult({ ...init.current.result })

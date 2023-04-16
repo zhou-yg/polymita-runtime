@@ -4,7 +4,7 @@ import {
   CommandOP,
   ConvertToLayoutTreeDraft,
   createComponent,
-  createRenderer,
+  createRHRenderer as createRenderer,
   extendModule,
   h,
   LayoutStructTree,
@@ -34,7 +34,7 @@ import {
   UseComponent,
   UseModule
 } from '../src/index'
-import { signal } from '@polymita/signal'
+import { signal } from '@polymita/signal-model'
 
 export interface MockReactElement {
   // $$typeof: symbol

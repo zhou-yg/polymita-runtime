@@ -1,4 +1,4 @@
-import { isSignal } from '@polymita/signal'
+import { isSignal } from '@polymita/signal-model'
 import {
   VirtualLayoutJSON,
   LayoutTreeProxyDraft,

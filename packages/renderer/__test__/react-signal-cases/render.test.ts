@@ -1,4 +1,4 @@
-import { clearIdIndex, createComponent, createRenderer, isVirtualNode, VirtualLayoutJSON } from '../../src'
+import { clearIdIndex, createComponent, createRSRenderer, createRHRenderer as createRenderer, isVirtualNode, VirtualLayoutJSON } from '../../src'
 import {
   simpleModule,
   moduleHasMultipleChild,
@@ -59,7 +59,7 @@ describe('render', () => {
 
 
   it('auto add input handler', () => {
-    const rr = createRenderer(hasInputInLayout(), {
+    const rr = createRSRenderer(hasInputInLayout(), {
       framework: MockRectFramework
     })
     const rr2 = rr.construct()

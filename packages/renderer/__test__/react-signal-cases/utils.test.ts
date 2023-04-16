@@ -19,7 +19,7 @@ import {
 import {
   isSignal,
   signal,
-} from '@polymita/signal'
+} from '@polymita/signal-model'
 
 describe('utils', () => {
 

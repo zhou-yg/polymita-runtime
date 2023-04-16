@@ -1,6 +1,6 @@
 import * as CSS from 'csstype'
 import { VirtualLayoutJSON } from './src/types'
-import type { StateSignal, ComputedSignal } from '@polymita/signal'
+import type { StateSignal, ComputedSignal } from '@polymita/signal-model'
 
 import { h } from './src/index'
 

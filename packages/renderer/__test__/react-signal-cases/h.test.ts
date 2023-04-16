@@ -1,4 +1,4 @@
-import { clearIdIndex, createRenderer, VirtualNodeTypeSymbol } from '../../src'
+import { clearIdIndex, VirtualNodeTypeSymbol } from '../../src'
 import {
   simpleModule,
   moduleHasMultipleChild,

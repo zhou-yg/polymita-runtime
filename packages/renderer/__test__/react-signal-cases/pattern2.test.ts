@@ -1,4 +1,4 @@
-import { ACTIVE, clearIdIndex, constructCSSObj, createPatternCSS, createRenderer, createRenderer2, HOVER, isVirtualNode, mergeStyleObjs, PatternMatrix2, SELECTED, VirtualLayoutJSON } from '../../src'
+import { ACTIVE, clearIdIndex, constructCSSObj, createPatternCSS, createRHRenderer as createRenderer, HOVER, isVirtualNode, mergeStyleObjs, PatternMatrix2, SELECTED, VirtualLayoutJSON } from '../../src'
 import * as mock from '../mock'
 
 describe('pattern2', () => {

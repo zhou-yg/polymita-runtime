@@ -39,10 +39,13 @@
   "homepage": "https://github.com/zhou-yg/tarat#readme",
   "dependencies": {
     "@emotion/css": "^11.10.5",
-    "@polymita/signal": "workspace:*",
     "csstype": "^3.1.1"
   },
+  "peerDependencies": {
+    "@polymita/signal-model": "workspace:*"
+  },
   "devDependencies": {
+    "@polymita/signal-model": "workspace:*",
     "@jsdevtools/version-bump-prompt": "6.1.0",
     "@rollup/plugin-alias": "^3.1.9",
     "@rollup/plugin-node-resolve": "^13.3.0",

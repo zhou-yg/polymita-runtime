@@ -1,7 +1,7 @@
 import { ModuleRenderContainer, OverrideModule, PC2ArrToOverrideModule, SingleFileModule, StateManagementConfig, VirtualLayoutJSON } from "../../types";
 import {
   CurrentRunnerScope, Driver, getNamespace, IHookContext, Runner
-} from '@polymita/signal'
+} from '@polymita/signal-model'
 import {
   isVirtualNode, buildLayoutNestedObj, proxyLayoutJSON, ProxyLayoutHandler, assignRules, assignPattern,
   SEMATIC_RELATION_HAS, SEMATIC_RELATION_IS, mergeFromProps, renderHTMLProp, runOverrides, shouldNotRender, assignDefaultValueByPropTypes, ShouldRenderAttr, lowerCaseType } from '../../utils'
@@ -214,7 +214,7 @@ export function createReactContainer<
       }
 
       /** modify layout json */
-      stateManagement?.transform(newJSON)
+      stateManagement?.transform?.(newJSON)
 
       disposeFromModule()
 

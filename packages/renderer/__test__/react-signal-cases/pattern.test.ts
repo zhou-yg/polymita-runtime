@@ -1,4 +1,4 @@
-import { clearIdIndex, createRenderer, createRenderer2, isVirtualNode, VirtualLayoutJSON } from '../../src'
+import { clearIdIndex, createRHRenderer as createRenderer, createRenderer2, isVirtualNode, VirtualLayoutJSON } from '../../src'
 import * as mock from '../mock'
 
 import * as reactSignalManagement from '../../src/extensions/stateManagements/react-signal'

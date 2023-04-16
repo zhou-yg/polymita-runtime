@@ -1,7 +1,6 @@
-import { CommandOP, createRenderer, extendModule, h, isVirtualNode, LayoutStructTree, VirtualLayoutJSON } from '../../src'
+import { CommandOP, createRHRenderer as createRenderer, extendModule, h, isVirtualNode, LayoutStructTree, VirtualLayoutJSON } from '../../src'
 import * as mock from '../mock'
 import { overridePatchRules } from '../mock'
-import { signal } from '@polymita/signal'
 
 describe('override', () => {
 
@@ -193,9 +192,9 @@ describe('override', () => {
       const r2 = r.render()
 
       expect(r2).toEqual({
-        type: 'usingModule',
+        type: 'using-module',
         props: {
-          className: 'at-module'
+          class: 'at-module'
         },
         children: {
           type: 'div',
@@ -228,9 +227,9 @@ describe('override', () => {
       const r1 = r.construct({ m2Text: 'at construct layer' })
       const r2 = r.render()
       expect(r2).toEqual({
-        type: 'usingModule',
+        type: 'using-module',
         props: {
-          className: 'at-module'
+          class: 'at-module'
         },
         children: {
           type: 'div',
