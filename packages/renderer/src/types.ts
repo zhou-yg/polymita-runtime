@@ -82,7 +82,7 @@ export interface SingleFileModule<
   _pc2Arr?: PC2Arr
   _L?: L
   layoutStruct?: PatchLayoutWithCommands<L, FlatPatchCommandsArr<PC2Arr>>
-  logic?: (...args: any[]) => Record<string, any>
+  logic?: (...args: any[]) => Record<string, any> | void
   layout?: (p?: Props) => VirtualLayoutJSON
   designPattern?: (
     p?: Props,
