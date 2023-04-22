@@ -1,4 +1,4 @@
-import { clearIdIndex, createComponent, createRSRenderer, createRHRenderer as createRenderer, isVirtualNode, VirtualLayoutJSON } from '../../src'
+import { clearIdIndex, createComposeComponent, createRSRenderer, createRHRenderer as createRenderer, isVirtualNode, VirtualLayoutJSON } from '../../src'
 import {
   simpleModule,
   moduleHasMultipleChild,
@@ -18,8 +18,8 @@ describe('render', () => {
     clearIdIndex()
   })
 
-  it('createComponent', () => {
-    const NewCpt = createComponent(Object.assign(function myCpt () {
+  it('createComposeComponent', () => {
+    const NewCpt = createComposeComponent(Object.assign(function myCpt () {
     }, { version: 0 }))
 
     expect((NewCpt as any).version).toBe(0)

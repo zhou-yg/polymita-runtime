@@ -78,8 +78,8 @@ export function createRHRenderer<
     ModuleName
   >({
     module,
-    renderHost,
     override,
+    renderHost,
     stateManagement: reactHookManagement.config,
     renderContainerCreator: reactRenderContainer.createReactContainer
   })
@@ -109,8 +109,8 @@ export function createRSRenderer<
 ) {
   const renderer = createRenderer2<P, L, PCArr, NewPC, P, ModuleName>({
     module,
-    renderHost,
     override,
+    renderHost,
     stateManagement: reactSignalManagement.config,
     renderContainerCreator: reactRenderContainer.createReactContainer // @TODO1
   })
@@ -124,7 +124,7 @@ export function clearIdIndex() {
   idIndex = 0
 }
 
-export function createComponent<T extends VNodeComponent2>(func: T) {
+export function createComposeComponent<T extends VNodeComponent2>(func: T) {
   function component(...args: Parameters<T>): ReturnType<VNodeComponent> {
     return func.apply(null, args)
   }
@@ -381,7 +381,7 @@ export function useComposeModule<
     override
   })
 
-  return createComponent(
+  return createComposeComponent(
     <NewConstructPC>(
       props: P & {
         override?: OverrideModule<
@@ -555,9 +555,9 @@ export function createRenderer2<
   stateManagement: StateManagementConfig
 }) {
   const {
-    module,
+    // module,
+    // override,
     renderHost,
-    override,
     renderContainerCreator,
     stateManagement
   } = config

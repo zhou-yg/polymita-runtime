@@ -3,7 +3,7 @@ import {
   BaseDataType,
   CommandOP,
   ConvertToLayoutTreeDraft,
-  createComponent,
+  createComposeComponent,
   createRHRenderer as createRenderer,
   extendModule,
   h,
@@ -401,7 +401,7 @@ export function patternHasMultiMatchers2(): SingleFileModule<
   }
 }
 
-const MyCpt = createComponent((p: { value: string }) => {
+const MyCpt = createComposeComponent((p: { value: string }) => {
   return <span>value is {p.value}</span>
 })
 
