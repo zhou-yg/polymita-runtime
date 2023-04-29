@@ -2,7 +2,7 @@ import {
   ModuleRenderContainer,
   NormalizeProps,
   OverrideModule,
-  RenderContainer,
+  RenderContainerConstructor,
   RenderHost,
   SignalProps,
   SingleFileModule,
@@ -544,7 +544,7 @@ export function createRenderer2<
     SingleFileModule<P, L, PCArr2, ModuleName>['layoutStruct'],
     NewRendererPC
   >
-  renderContainerCreator: RenderContainer<
+  renderContainerCreator: RenderContainerConstructor<
     P,
     L,
     PCArr2,
@@ -555,8 +555,8 @@ export function createRenderer2<
   stateManagement: StateManagementConfig
 }) {
   const {
-    // module,
-    // override,
+    module,
+    override,
     renderHost,
     renderContainerCreator,
     stateManagement

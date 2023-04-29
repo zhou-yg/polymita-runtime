@@ -2,7 +2,7 @@ import {
   ModuleRenderContainer,
   NormalizeProps,
   OverrideModule,
-  RenderContainer,
+  RenderContainerConstructor,
   RenderHost,
   SignalProps,
   SingleFileModule,
@@ -16,6 +16,7 @@ import {
   assignDefaultValueByPropTypes,
   isVNodeComponent,
   last,
+  traverse,
   VirtualNodeTypeSymbol,
   VNodeComponentSymbol,
   VNodeFunctionComponentSymbol
@@ -32,10 +33,14 @@ import {
   MergedPatchCommandsToModule,
   PatchCommand
 } from './types-layout'
+import { h } from './render'
 
 interface GlobalCurrentRenderer {
-  renderHooksContainer: ModuleRenderContainer<any, any, any, any, any, string>
-  config: any // TODO
+  config: {
+    renderHost: RenderHost
+    createRenderContainer: RenderContainerConstructor<any, any, any, any, any, any>
+    stateManagement: StateManagementConfig
+  }
 }
 
 let globalCurrentRenderer: GlobalCurrentRenderer[] = []
@@ -54,7 +59,18 @@ const renderContextSymbol = Symbol('renderContextSymbol');
 function attachRendererContext (target: any, context: GlobalCurrentRenderer) {
   target[renderContextSymbol] = context;
 }
-function getRendererContext (target: any) {
+
+function traverseAndAttachRendererContext(json: VirtualLayoutJSON, context: GlobalCurrentRenderer) {
+  function dfs (node: VirtualLayoutJSON) {
+    if (isFunctionComponent(node.type) && !getRendererContext(node.type)) {
+      attachRendererContext(node.type, context)
+    }
+    node.children?.forEach(dfs)
+  }
+  dfs(json)
+}
+
+function getRendererContext (target: any): GlobalCurrentRenderer {
   return target[renderContextSymbol];
 }
 
@@ -63,10 +79,10 @@ function getRendererContext (target: any) {
  * 
  * 入参
  * 1.配置 module, override
- * 2.动态环境 renderContainer, statement, 外部framework
+ * 2.动态环境 RenderContainerConstructor, statement, 外部framework
  * 
  * 先固化配置
- * 在渲染的时候，获取 renderContainer (statement, framework host)
+ * 在渲染的时候，获取 RenderContainerConstructor (statement, framework host)
  * 
  * usage 引用组件（like react style)：
  * 1.specific component
@@ -92,11 +108,10 @@ function getRendererContext (target: any) {
  *  2.1 使用FunctionComponent，内部执行framework 组件
  * 3.返回 framework.Element
  */
-function createRSRoot(config: {
+export function createRSRoot(config: {
   renderHost: RenderHost,
 }) {
   const currentRendererContext = {
-    renderHooksContainer: null,
     config: {
       renderHost: config.renderHost,
       createRenderContainer: reactRenderContainer.createReactContainer,
@@ -105,8 +120,8 @@ function createRSRoot(config: {
   }
 
   return {
-    wrap(component: Function) {
-      return (props: Record<string, any>) => {
+    wrap<Props>(component: FunctionComponent<Props>) {
+      return (props: Props) => {
         attachRendererContext(component, currentRendererContext)
         const ele = config.renderHost.framework.lib.createElement(component, props)
         return ele;
@@ -115,7 +130,12 @@ function createRSRoot(config: {
   }
 }
 
-function createFunctionComponent<
+interface FunctionComponent<Props> {
+  (p: Props): VirtualLayoutJSON
+  [VNodeFunctionComponentSymbol]: boolean
+}
+
+export function createFunctionComponent<
   P extends Record<string, any>,
   L extends LayoutStructTree,
   PCArr extends PatchCommand[][],
@@ -128,8 +148,14 @@ function createFunctionComponent<
     SingleFileModule<P, L, PCArr, ModuleName>['layoutStruct'],
     NewPC
   >
-) {
+): FunctionComponent<P> {
   const { name } = module
+
+  if (name && /^[a-z]/.test(String(name))) {
+    throw new Error(
+      `First char of module name must be uppercase, but got ${name}.`
+    )
+  }
 
   /**
    * real component code in framework
@@ -137,16 +163,38 @@ function createFunctionComponent<
    * 问题：当然渲染器怎么往下传递，用React.Context吗？
    * 应该不行，应该自己的Context机制
    */
-  function frameworkFunctionComponent(props: P) {
-    const renderer = getRendererContext(frameworkFunctionComponent);
-    
+  function frameworkFunctionComponent(props: P): VirtualLayoutJSON {
+    const { override: secondOverride, ...restProps } = props;
+    const rendererContext = getRendererContext(frameworkFunctionComponent);
+    const { renderHost, createRenderContainer, stateManagement } = rendererContext.config;
+
+    const renderContainer = createRenderContainer(
+      renderHost.framework.lib,
+      module,
+      stateManagement,
+    );
+
+    const mergedOverrides: any = [override, secondOverride].filter(Boolean)
+
+    const layoutJSON = renderContainer.construct(restProps, mergedOverrides)
+
+    traverseAndAttachRendererContext(layoutJSON, rendererContext)
+
+    const ins = renderContainer.render(layoutJSON);
+
+    return ins;
   }
   Object.defineProperty(frameworkFunctionComponent, 'name', {
     get() {
       return name || 'Unknown function component'
     }
   })
-  frameworkFunctionComponent[VNodeFunctionComponentSymbol] = true
+  const componentWithSymbol = Object.assign(frameworkFunctionComponent, {
+    [VNodeFunctionComponentSymbol]: true,
+  })
 
-  return frameworkFunctionComponent;
+  return componentWithSymbol;
+}
+function isFunctionComponent(target: any) {
+  return target?.[VNodeFunctionComponentSymbol]
 }

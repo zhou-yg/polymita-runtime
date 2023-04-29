@@ -88,14 +88,25 @@ export function simpleModule(): SingleFileModule<{}, any, [], 'unknown'> {
     }
   }
 }
+export function simpleModule2(): SingleFileModule<{}, any, [], 'unknown'> {
+  return {
+    logic() {
+      return {}
+    },
+    layout() {
+      return <div><p></p></div>
+    }
+  }
+}
 
 export function moduleHasMultipleChild(): SingleFileModule<
   {},
   any,
   [],
-  'unknown'
+  'ModuleHasMultipleChild'
 > {
   return {
+    name: 'ModuleHasMultipleChild',
     logic() {
       return {}
     },

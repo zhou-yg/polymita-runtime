@@ -228,7 +228,7 @@ export interface StateManagementConfig {
   ) => any
 }
 
-export type RenderContainer<
+export type RenderContainerConstructor<
   P extends Record<string, any>,
   L extends LayoutStructTree,
   PCArr extends PatchCommand[][],
