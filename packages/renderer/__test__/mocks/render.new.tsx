@@ -1,8 +1,10 @@
-import { h, PropTypes, SignalProps, SingleFileModule } from '../../src';
+import { CommandOP, PropTypes, SignalProps, SingleFileModule, UseModule } from '../../src';
 import * as mock from '../mock'
 import {
+  extendModule, h, 
   createFunctionComponent, useLayout, useLogic
 } from '../../src/render.new'
+import { signal } from '@polymita/signal-model';
 
 export const SimpleModuleComponent = createFunctionComponent(mock.simpleModule2());
 
@@ -64,4 +66,85 @@ export function useStyleInLayout(): SingleFileModule<
       ]
     }
   }
+}
+
+
+type LayoutUseLogicLayout = {
+  type: 'div'
+}
+type LayoutUseLogicFileModule = ReturnType<typeof layoutUseLogic>
+export function layoutUseLogic(): SingleFileModule<
+  SignalProps<{ name: string }>,
+  LayoutUseLogicLayout,
+  [],
+  'LayoutUseLogic'
+> {
+  return {
+    name: 'LayoutUseLogic',
+    propTypes: {
+      name: PropTypes.signal.isRequired
+    },
+    logic() {
+      return { num: 1 }
+    },
+    layout(props) {
+      const logic = useLogic<{ num: number }>()
+      return (
+        <div name={props.name()} is-container>
+          {logic.num}
+        </div>
+      )
+    }
+  }
+}
+
+
+export function otherOtherComponentModule(): SingleFileModule<
+  {},
+  {
+    type: 'div'
+    children: [UseModule<LayoutUseLogicFileModule>]
+  },
+  [],
+  'unknown'
+> {
+
+  const M2 = createFunctionComponent(layoutUseLogic())
+
+  return {
+    layout() {
+
+      return (
+        <div>
+          <M2 name={signal('m2')} />
+        </div>
+      )
+    },
+    styleRules(p, rootDraft) {
+      return [
+        {
+          target: rootDraft.div.LayoutUseLogic.div,
+          style: {
+            fontSize: '12px'
+          }
+        }
+      ]
+    }
+  }
+}
+
+export function patchDeepComposeComponent() {
+  const NewModule = extendModule(otherOtherComponentModule(), () => ({
+    patchLayout(props, layout) {
+      return [
+        {
+          parent: layout.div.LayoutUseLogic.div,
+          op: CommandOP.addChild,
+          child: (<span>deep</span>) as { type: 'span' }
+        }
+      ] as const
+    }
+  }))
+
+  return NewModule
 }

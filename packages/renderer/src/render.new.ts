@@ -15,6 +15,7 @@ import {
 import {
   assignDefaultValueByPropTypes,
   isVNodeComponent,
+  isVNodeFunctionComponent,
   last,
   traverse,
   VirtualNodeTypeSymbol,
@@ -33,7 +34,43 @@ import {
   MergedPatchCommandsToModule,
   PatchCommand
 } from './types-layout'
-import { h } from './render'
+
+export function h(
+  type: string | Function,
+  props: Record<string, any> | null,
+  ...children: (VirtualLayoutJSON | VirtualLayoutJSON[] | BaseDataType)[]
+): VirtualLayoutJSON {
+  if (isVNodeComponent(type)) {
+    const json = (type as any)({
+      ...(props || {}),
+      children
+    })
+    return json
+  }
+  /** compatible with different versions jsx: children in props, and key in children */
+  if (props?.children) {
+    if (children.length !== 0) {
+      props.key = children
+    }
+    children = props.children
+    delete props.children
+  }
+
+  const result: VirtualLayoutJSON = {
+    // id: idIndex++,
+    flags: VirtualNodeTypeSymbol,
+    type,
+    props: props || {},
+    children: children.flat() /** @TODO it's danger! */
+  }
+
+  let key = props?.key
+  if (key) {
+    result.key = key
+  }
+
+  return result
+}
 
 type GlobalCurrentRenderer = ModuleRenderContainer<any, any, any, any, any, any>;
 
@@ -62,7 +99,7 @@ function attachRendererContext (target: any, context: CurrentRenderContext) {
 
 function traverseAndAttachRendererContext(json: VirtualLayoutJSON, context: CurrentRenderContext) {
   function dfs (node: VirtualLayoutJSON) {
-    if (isFunctionComponent(node.type) && !getRendererContext(node.type)) {
+    if (isVNodeFunctionComponent(node) && !getRendererContext(node.type)) {
       attachRendererContext(node.type, context)
     }
     node.children?.forEach(dfs)
@@ -74,6 +111,73 @@ function getRendererContext (target: any): CurrentRenderContext {
   return target[renderContextSymbol];
 }
 
+/**
+ *
+ * R: React，
+ * 传入的状态是正常变量，不是信号
+ */
+export function createRHRenderer<
+  P extends Record<string, any>,
+  L extends LayoutStructTree,
+  PCArr extends PatchCommand[][],
+  NewPC,
+  ModuleName
+>(
+  module: SingleFileModule<P, L, PCArr, ModuleName>,
+  renderHost: RenderHost,
+  override?: OverrideModule<
+    P,
+    SingleFileModule<P, L, PCArr, ModuleName>['layoutStruct'],
+    NewPC
+  >
+) {
+  const renderer = createRenderer3<
+    P,
+    L,
+    PCArr,
+    NewPC,
+    NormalizeProps<P>,
+    ModuleName
+  >({
+    module,
+    override,
+    renderHost,
+    stateManagement: reactHookManagement.config,
+    createRenderContainer: reactRenderContainer.createReactContainer
+  })
+
+  return renderer
+}
+/**
+ * R: React
+ * S: Signal
+ * 传入的props是信号
+ */
+export function createRSRenderer<
+  P extends Record<string, any>,
+  L extends LayoutStructTree,
+  PCArr extends PatchCommand[][],
+  NewPC,
+  ModuleName
+>(
+  module: SingleFileModule<P, L, PCArr, ModuleName>,
+  renderHost: RenderHost,
+  override?: OverrideModule<
+    P,
+    SingleFileModule<P, L, PCArr, ModuleName>['layoutStruct'],
+    NewPC
+  >
+) {
+  const renderer = createRenderer3<P, L, PCArr, NewPC, P, ModuleName>({
+    module,
+    override,
+    renderHost,
+    stateManagement: reactSignalManagement.config,
+    createRenderContainer: reactRenderContainer.createReactContainer // @TODO1
+  })
+
+  return renderer
+}
 /**
  * 组件嵌套
  * 
@@ -181,27 +285,19 @@ export function createFunctionComponent<
   function frameworkFunctionComponent(props: P): VirtualLayoutJSON {
     const { override: secondOverride, ...restProps } = props;
     const rendererContext = getRendererContext(frameworkFunctionComponent);
-    const { renderHost, createRenderContainer, stateManagement } = rendererContext;
+    const { createRenderContainer, renderHost, stateManagement } = rendererContext;
 
-    const renderContainer = createRenderContainer(
-      renderHost.framework.lib,
+    const renderer = createRenderer3({
       module,
+      override,
       stateManagement,
-    );
+      renderHost,
+      createRenderContainer,
+    })
 
-    const mergedOverrides: any = [override, secondOverride].filter(Boolean)
+    renderer.construct(restProps, secondOverride)
 
-    pushCurrentRenderer(renderContainer)
-
-    const layoutJSON = renderContainer.construct(restProps, mergedOverrides)
-
-    popCurrentRenderer()
-
-    traverseAndAttachRendererContext(layoutJSON, rendererContext)
-
-    const ins = renderContainer.render(layoutJSON);
-
-    return ins;
+    return renderer.render();
   }
   Object.defineProperty(frameworkFunctionComponent, 'name', {
     get() {
@@ -214,10 +310,136 @@ export function createFunctionComponent<
 
   return componentWithSymbol;
 }
-function isFunctionComponent(target: any) {
-  return target?.[VNodeFunctionComponentSymbol]
+
+/**
+ *
+ * common render constructor
+ */
+export function createRenderer3<
+  P extends Record<string, any>,
+  L extends LayoutStructTree,
+  PCArr2 extends PatchCommand[][],
+  NewRendererPC, // pc at renderer layer
+  ConstructProps,
+  ModuleName
+>(config: {
+  module: SingleFileModule<P, L, PCArr2, ModuleName>
+  renderHost: RenderHost
+  override?: OverrideModule<
+    P,
+    SingleFileModule<P, L, PCArr2, ModuleName>['layoutStruct'],
+    NewRendererPC
+  >
+  createRenderContainer: RenderContainerConstructor<
+    P,
+    L,
+    PCArr2,
+    NewRendererPC,
+    ConstructProps,
+    ModuleName
+  >
+  stateManagement: StateManagementConfig
+}) {
+  const {
+    module,
+    override,
+    renderHost,
+    createRenderContainer,
+    stateManagement
+  } = config
+
+  const rendererContext: CurrentRenderContext = {
+    renderHost,
+    createRenderContainer,
+    stateManagement
+  }
+
+  const rendererContainer = createRenderContainer(
+    renderHost.framework.lib,
+    module,
+    stateManagement,
+    {
+      useEmotion: renderHost.useEmotion
+    }
+  )
+
+  let layoutJSON: VirtualLayoutJSON = null
+
+  function construct<NewConstructPC>(
+    props?: ConstructProps,
+    secondOverride?: OverrideModule<
+      P,
+      SingleFileModule<
+        P,
+        L,
+        [...PCArr2, NewRendererPC],
+        ModuleName
+      >['layoutStruct'],
+      NewConstructPC
+    >
+  ) {
+    
+    const mergedOverrides: any = [override, secondOverride].filter(Boolean)
+    
+    pushCurrentRenderer(rendererContainer);
+    const r = rendererContainer.construct<NewConstructPC>(
+      props,
+      mergedOverrides
+    );
+    popCurrentRenderer()
+
+    traverseAndAttachRendererContext(r, rendererContext)
+
+    layoutJSON = r
+    console.log('layoutJSON: ', layoutJSON);
+
+    return r
+  }
+  function render() {
+    if (!layoutJSON) {
+      return
+    }
+    return rendererContainer.render(layoutJSON)
+  }
+
+  const currentRendererInstance = {
+    construct,
+    render,
+    rendererContext
+  }
+
+  return currentRendererInstance
 }
 
+export function extendModule<
+  Props,
+  L extends LayoutStructTree,
+  PCArr extends PatchCommand[][],
+  NewProps extends Props,
+  NewPC,
+  ModuleName
+>(
+  module: SingleFileModule<Props, L, PCArr, ModuleName>,
+  override: () => OverrideModule<
+    NewProps,
+    SingleFileModule<NewProps, L, PCArr, ModuleName>['layoutStruct'],
+    NewPC
+  >
+) {
+  return {
+    ...module,
+    override() {
+      const p1 = module.override?.() || []
+      const p2 = override()
+      return [...p1, p2]
+    }
+  } as unknown as SingleFileModule<
+    NewProps,
+    L,
+    [...PCArr, FormatPatchCommands<NewPC>],
+    ModuleName
+  >
+}
 
 /**
  * export hooks
@@ -238,3 +460,93 @@ export function useLayout<T extends LayoutStructTree>() {
   }
   return renderer.getLayout<T>()
 }
+
+
+// export function h2<
+//   T extends string | Function,
+//   CT1 extends string | Function = undefined,
+//   CT2 extends string | Function = undefined,
+//   CT3 extends string | Function = undefined,
+//   C11 extends string | Function = undefined,
+//   C12 extends string | Function = undefined,
+//   C13 extends string | Function = undefined,
+//   C21 extends string | Function = undefined,
+//   C22 extends string | Function = undefined,
+//   C23 extends string | Function = undefined,
+//   C31 extends string | Function = undefined,
+//   C32 extends string | Function = undefined,
+//   C33 extends string | Function = undefined,
+//   CB1 = undefined,
+//   CB2 = undefined,
+//   CB3 = undefined
+// >(
+//   type: T,
+//   props?: Record<string, any> | null,
+//   c1?: VLayoutNode<CT1, C11, C12, C13> | CB1,
+//   c2?: VLayoutNode<CT2, C21, C22, C23> | CB2,
+//   c3?: VLayoutNode<CT3, C31, C32, C33> | CB3
+// ) {
+//   if (isVNodeComponent(type)) {
+//     const json = (type as any)({
+//       ...(props || {})
+//     })
+//     return json as VLayoutNode<
+//       T,
+//       CT1,
+//       CT2,
+//       CT3,
+//       C11,
+//       C12,
+//       C13,
+//       C21,
+//       C22,
+//       C23,
+//       C31,
+//       C32,
+//       C33,
+//       CB1,
+//       CB2,
+//       CB3
+//     >
+//   }
+//   let key: VLayoutNode<string>['key'] = props?.key
+//   let children = []
+//   if (props?.children) {
+//     if (c1) {
+//       key = c1
+//     }
+//     children = props.children
+//     delete props.children
+//   } else {
+//     children = [c1, c2, c3].filter(Boolean)
+//   }
+//   if (key !== undefined) {
+//     props.key = key
+//   }
+
+//   const vLayoutNode = {
+//     type,
+//     flags: VirtualNodeTypeSymbol,
+//     props: props || {},
+//     children: [c1, c2, c3].filter(Boolean)
+//   } as unknown as VLayoutNode<
+//     T,
+//     CT1,
+//     CT2,
+//     CT3,
+//     C11,
+//     C12,
+//     C13,
+//     C21,
+//     C22,
+//     C23,
+//     C31,
+//     C32,
+//     C33,
+//     CB1,
+//     CB2,
+//     CB3
+//   >
+
+//   return vLayoutNode
+// }

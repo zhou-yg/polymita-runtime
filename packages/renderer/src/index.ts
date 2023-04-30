@@ -2,7 +2,7 @@
  * @jsx h
  */
 // @ts
-export * from './render'
+export * from './render.new'
 export * from './types'
 export * from './types-layout'
 export * from './utils'

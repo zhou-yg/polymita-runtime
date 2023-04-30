@@ -2,37 +2,17 @@
 import {
   BaseDataType,
   CommandOP,
-  ConvertToLayoutTreeDraft,
-  createComposeComponent,
-  createRHRenderer as createRenderer,
   extendModule,
   h,
-  LayoutStructTree,
   matchPatternMatrix,
-  PatchCommand,
   PrintLayoutStructTree,
-  PrintObjectLike,
-  ShallowCopyArray,
   StyleRule,
   useLayout,
   useLogic,
-  useModule,
-  OverrideModule,
   SingleFileModule,
-  VirtualLayoutJSON,
-  PatchLayoutWithCommands,
-  FlatPatchCommandsArr,
-  Assign,
-  overrideModule,
   SignalProps,
   PropTypes,
   HOVER,
-  SELECTED,
-  DISABLED,
-  useComposeModule,
-  useComponentModule,
-  UseComponent,
-  UseModule
 } from '../src/index'
 import { signal } from '@polymita/signal-model'
 
@@ -127,6 +107,7 @@ export function moduleHasMultipleChild(): SingleFileModule<
     }
   }
 }
+
 type LayoutUseLogicLayout = {
   type: 'div'
 }
@@ -188,147 +169,6 @@ export function useStyleInLayout(): SingleFileModule<
     },
     styleRules(props) {
       const root = useLayout<UseStyleInLayoutStruct>()
-      return [
-        {
-          target: root.div,
-          style: {
-            color: 'red'
-          }
-        }
-      ]
-    }
-  }
-}
-
-type UseOtherModule = {
-  type: 'div'
-  children: [
-    {
-      type: 'span'
-    }
-  ]
-}
-
-export function useOtherModule(): SingleFileModule<
-  SignalProps<{ name: string }>,
-  UseOtherModule,
-  [],
-  'unknown'
-> {
-  return {
-    logic() {
-      return { num: 1 }
-    },
-    layout() {
-      const logic = useLogic<{ num: number }>()
-      const M2 = useComposeModule(layoutUseLogic())
-      return (
-        <div>
-          <span>{logic.num}</span>
-
-          {M2({ name: signal('m2') })}
-        </div>
-      )
-    },
-    styleRules() {
-      const root = useLayout<UseOtherModule>()
-      return [
-        {
-          target: root.div,
-          style: {
-            color: 'red'
-          }
-        }
-      ]
-    }
-  }
-}
-
-export function otherOtherComponentModule(): SingleFileModule<
-  {},
-  {
-    type: 'div'
-    children: [UseModule<LayoutUseLogicFileModule>]
-  },
-  [],
-  'unknown'
-> {
-  return {
-    layout() {
-      const M2 = useComponentModule(layoutUseLogic(), {
-        patchLayout(props, layout) {
-          return []
-        }
-      })
-
-      return (
-        <div>
-          <M2 name={signal('m2')} />
-        </div>
-      )
-    },
-    styleRules(p, rootDraft) {
-      return [
-        {
-          target: rootDraft.div.LayoutUseLogic.div,
-          style: {
-            fontSize: '12px'
-          }
-        }
-      ]
-    }
-  }
-}
-export function patchDeepComposeComponent() {
-  const NewModule = extendModule(otherOtherComponentModule(), () => ({
-    patchLayout(props, layout) {
-      return [
-        {
-          parent: layout.div.LayoutUseLogic.div,
-          op: CommandOP.addChild,
-          child: (<span>deep</span>) as { type: 'span' }
-        }
-      ] as const
-    }
-  }))
-
-  return NewModule
-}
-
-type UseOtherComponentModule = {
-  type: 'div'
-  children: [
-    {
-      type: 'span'
-    }
-  ]
-}
-
-export function useOtherComponentModule(): SingleFileModule<
-  {},
-  UseOtherComponentModule,
-  [],
-  'unknown'
-> {
-  return {
-    logic() {
-      return { num: 1 }
-    },
-    layout() {
-      const logic = useLogic<{ num: number }>()
-      const M2 = useComposeModule(layoutUseLogic())
-      return (
-        <div>
-          <span>{logic.num}</span>
-
-          {M2({ name: signal('m2') })}
-
-          {/* <M2 name="m2" /> */}
-        </div>
-      )
-    },
-    styleRules() {
-      const root = useLayout<UseOtherComponentModule>()
       return [
         {
           target: root.div,
@@ -419,22 +259,6 @@ export function patternHasMultiMatchers2(): SingleFileModule<
   }
 }
 
-const MyCpt = createComposeComponent((p: { value: string }) => {
-  return <span>value is {p.value}</span>
-})
-
-export function insideVNodeComponent() {
-  return {
-    layout() {
-      return (
-        <div>
-          <MyCpt value="123" />
-        </div>
-      )
-    }
-  }
-}
-
 // for extend module
 
 export interface LayoutHasTypesStruct {
@@ -517,10 +341,6 @@ type BaseOverride2I1 = ReturnType<
   ReturnType<(typeof newModule2)['override']>['1']['patchLayout']
 >
 
-const _cr = createRenderer(newModule2, {
-  framework: MockRectFramework
-})
-
 const newModule3 = extendModule(newModule2, () => ({
   patchLayout(props, jsonDraft) {
     return [
@@ -589,7 +409,7 @@ function BaseModuleForOverride(): SingleFileModule<
 
 export function useSingleOverride() {
   const base = BaseModuleForOverride()
-  const singleOverride = overrideModule(base, {
+  const singleOverride = extendModule(base, () => ({
     patchLayout(
       props: SignalProps<BaseModuleForOverrideProps> & { show?: boolean },
       jsonDraft
@@ -603,7 +423,7 @@ export function useSingleOverride() {
         }
       ] as const
     }
-  })
+  }))
 
   const m2 = singleOverride
 
@@ -662,100 +482,100 @@ export function overrideAtModuleLayer() {
   return m2
 }
 
-export function overrideAtUseModule(): SingleFileModule<
-  SignalProps<{ m2Text: string }>,
-  { type: 'div' },
-  [],
-  'unknown'
-> {
-  const m2 = overrideAtModuleLayer()
+// export function overrideAtUseModule(): SingleFileModule<
+//   SignalProps<{ m2Text: string }>,
+//   { type: 'div' },
+//   [],
+//   'unknown'
+// > {
+//   const m2 = overrideAtModuleLayer()
 
-  type pc2Arr = (typeof m2)['_pc2Arr']
+//   type pc2Arr = (typeof m2)['_pc2Arr']
 
-  return {
-    layout(props) {
-      const UsedM2 = useComposeModule(m2, {
-        patchLayout(props, jsonDraft) {
-          return [
-            {
-              op: CommandOP.addChild,
-              parent: jsonDraft.div.p,
-              child: <text>{123}</text>
-            }
-          ]
-        }
-      })
+//   return {
+//     layout(props) {
+//       const UsedM2 = useComposeModule(m2, {
+//         patchLayout(props, jsonDraft) {
+//           return [
+//             {
+//               op: CommandOP.addChild,
+//               parent: jsonDraft.div.p,
+//               child: <text>{123}</text>
+//             }
+//           ]
+//         }
+//       })
 
-      return (
-        <usingModule className="at-module">
-          <UsedM2 text={props.m2Text}></UsedM2>
-        </usingModule>
-      )
-    }
-  }
-}
+//       return (
+//         <usingModule className="at-module">
+//           <UsedM2 text={props.m2Text}></UsedM2>
+//         </usingModule>
+//       )
+//     }
+//   }
+// }
 
-export function overrideAtUseModuleAndRender(): SingleFileModule<
-  SignalProps<{ m2Text: string }>,
-  { type: 'div' },
-  [],
-  'unknown'
-> {
-  const m2 = overrideAtModuleLayer()
+// export function overrideAtUseModuleAndRender(): SingleFileModule<
+//   SignalProps<{ m2Text: string }>,
+//   { type: 'div' },
+//   [],
+//   'unknown'
+// > {
+//   const m2 = overrideAtModuleLayer()
 
-  type pc2Arr = (typeof m2)['_pc2Arr']
+//   type pc2Arr = (typeof m2)['_pc2Arr']
 
-  return {
-    layout(props) {
-      const UsedM2 = useComposeModule(m2, {
-        patchLayout(props, jsonDraft) {
-          return [
-            {
-              op: CommandOP.addChild,
-              parent: jsonDraft.div.p,
-              child: (<text>123</text>) as unknown as {
-                readonly type: 'text'
-                readonly children: readonly ['123']
-              }
-            }
-          ] as const
-        }
-      })
+//   return {
+//     layout(props) {
+//       const UsedM2 = useComposeModule(m2, {
+//         patchLayout(props, jsonDraft) {
+//           return [
+//             {
+//               op: CommandOP.addChild,
+//               parent: jsonDraft.div.p,
+//               child: (<text>123</text>) as unknown as {
+//                 readonly type: 'text'
+//                 readonly children: readonly ['123']
+//               }
+//             }
+//           ] as const
+//         }
+//       })
 
-      return (
-        <usingModule className="at-module">
-          <UsedM2
-            text={props.m2Text}
-            checkerTypes={({ l, pcArr, newPC }) => {
-              type L = typeof l
-              type LDisplay = PrintLayoutStructTree<L>
-              type PCArr = typeof pcArr
-              type PC = typeof newPC
-              type FPC = FlatPatchCommandsArr<[...PCArr, PC]>
-              type NewL = PatchLayoutWithCommands<L, FPC>
-              type NewLDisplay = PrintLayoutStructTree<NewL>
-              type NewD = ConvertToLayoutTreeDraft<
-                PatchLayoutWithCommands<L, FPC>
-              >
-            }}
-            override={{
-              patchLayout(props, jsonDraft) {
-                type Draft = typeof jsonDraft
-                return [
-                  {
-                    op: CommandOP.addChild,
-                    parent: jsonDraft.div.p.text,
-                    child: <label>{456}</label>
-                  }
-                ]
-              }
-            }}
-          ></UsedM2>
-        </usingModule>
-      )
-    }
-  }
-}
+//       return (
+//         <usingModule className="at-module">
+//           <UsedM2
+//             text={props.m2Text}
+//             checkerTypes={({ l, pcArr, newPC }) => {
+//               type L = typeof l
+//               type LDisplay = PrintLayoutStructTree<L>
+//               type PCArr = typeof pcArr
+//               type PC = typeof newPC
+//               type FPC = FlatPatchCommandsArr<[...PCArr, PC]>
+//               type NewL = PatchLayoutWithCommands<L, FPC>
+//               type NewLDisplay = PrintLayoutStructTree<NewL>
+//               type NewD = ConvertToLayoutTreeDraft<
+//                 PatchLayoutWithCommands<L, FPC>
+//               >
+//             }}
+//             override={{
+//               patchLayout(props, jsonDraft) {
+//                 type Draft = typeof jsonDraft
+//                 return [
+//                   {
+//                     op: CommandOP.addChild,
+//                     parent: jsonDraft.div.p.text,
+//                     child: <label>{456}</label>
+//                   }
+//                 ]
+//               }
+//             }}
+//           ></UsedM2>
+//         </usingModule>
+//       )
+//     }
+//   }
+// }
 
 export function moduleHasNewDesignPatterns(): SingleFileModule<
   { name: string },
