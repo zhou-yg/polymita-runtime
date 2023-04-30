@@ -203,7 +203,6 @@ export interface OverrideModule<
   patchLayout?: (
     props: Props,
     root: ConvertToLayoutTreeDraft<L>,
-    types?: { l: L; pc: PC }
   ) => PC
 }
 

@@ -4,8 +4,6 @@ import {
   createFunctionComponent
 } from '../../src/render.new'
 
-
-
 export const SimpleModuleComponent = createFunctionComponent(mock.simpleModule2());
 
 export function moduleHasNested(): SingleFileModule<{ name: string }, any, [], 'unknown'> {

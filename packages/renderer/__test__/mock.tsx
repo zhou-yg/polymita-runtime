@@ -101,7 +101,14 @@ export function simpleModule2(): SingleFileModule<{}, any, [], 'unknown'> {
 
 export function moduleHasMultipleChild(): SingleFileModule<
   {},
-  any,
+  {
+    type: 'div',
+    children: [
+      {
+        type: 'div'
+      }
+    ]
+  },
   [],
   'ModuleHasMultipleChild'
 > {
@@ -732,10 +739,8 @@ export function overrideAtUseModuleAndRender(): SingleFileModule<
               >
             }}
             override={{
-              patchLayout(props, jsonDraft, types) {
+              patchLayout(props, jsonDraft) {
                 type Draft = typeof jsonDraft
-                type Types = PrintLayoutStructTree<typeof types.l>
-                type Types2 = typeof types
                 return [
                   {
                     op: CommandOP.addChild,
