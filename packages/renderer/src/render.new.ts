@@ -35,13 +35,7 @@ import {
 } from './types-layout'
 import { h } from './render'
 
-interface GlobalCurrentRenderer {
-  config: {
-    renderHost: RenderHost
-    createRenderContainer: RenderContainerConstructor<any, any, any, any, any, any>
-    stateManagement: StateManagementConfig
-  }
-}
+type GlobalCurrentRenderer = ModuleRenderContainer<any, any, any, any, any, any>;
 
 let globalCurrentRenderer: GlobalCurrentRenderer[] = []
 
@@ -55,12 +49,18 @@ function popCurrentRenderer() {
   globalCurrentRenderer.pop()
 }
 
+interface CurrentRenderContext {
+  renderHost: RenderHost
+  createRenderContainer: RenderContainerConstructor<any, any, any, any, any, any>
+  stateManagement: StateManagementConfig
+}
+
 const renderContextSymbol = Symbol('renderContextSymbol');
-function attachRendererContext (target: any, context: GlobalCurrentRenderer) {
+function attachRendererContext (target: any, context: CurrentRenderContext) {
   target[renderContextSymbol] = context;
 }
 
-function traverseAndAttachRendererContext(json: VirtualLayoutJSON, context: GlobalCurrentRenderer) {
+function traverseAndAttachRendererContext(json: VirtualLayoutJSON, context: CurrentRenderContext) {
   function dfs (node: VirtualLayoutJSON) {
     if (isFunctionComponent(node.type) && !getRendererContext(node.type)) {
       attachRendererContext(node.type, context)
@@ -70,7 +70,7 @@ function traverseAndAttachRendererContext(json: VirtualLayoutJSON, context: Glob
   dfs(json)
 }
 
-function getRendererContext (target: any): GlobalCurrentRenderer {
+function getRendererContext (target: any): CurrentRenderContext {
   return target[renderContextSymbol];
 }
 
@@ -98,8 +98,6 @@ function getRendererContext (target: any): GlobalCurrentRenderer {
  */
 
 
-
-
 /**
  * 创建渲染器 createRoot
  * 1.内部保留了这个所需的：renderContainer, statement, 外部framework
@@ -108,15 +106,32 @@ function getRendererContext (target: any): GlobalCurrentRenderer {
  *  2.1 使用FunctionComponent，内部执行framework 组件
  * 3.返回 framework.Element
  */
+export function createRHRoot(config: {
+  renderHost: RenderHost,
+}) {
+  const currentRendererContext = {
+    renderHost: config.renderHost,
+    createRenderContainer: reactRenderContainer.createReactContainer,
+    stateManagement: reactHookManagement.config,
+  }
+
+  return {
+    wrap<Props>(component: FunctionComponent<Props>) {
+      return (props: Props) => {
+        attachRendererContext(component, currentRendererContext)
+        const ele = config.renderHost.framework.lib.createElement(component, props)
+        return ele;
+      }
+    }
+  }
+}
 export function createRSRoot(config: {
   renderHost: RenderHost,
 }) {
   const currentRendererContext = {
-    config: {
-      renderHost: config.renderHost,
-      createRenderContainer: reactRenderContainer.createReactContainer,
-      stateManagement: reactSignalManagement.config,
-    },
+    renderHost: config.renderHost,
+    createRenderContainer: reactRenderContainer.createReactContainer,
+    stateManagement: reactSignalManagement.config,
   }
 
   return {
@@ -166,7 +181,7 @@ export function createFunctionComponent<
   function frameworkFunctionComponent(props: P): VirtualLayoutJSON {
     const { override: secondOverride, ...restProps } = props;
     const rendererContext = getRendererContext(frameworkFunctionComponent);
-    const { renderHost, createRenderContainer, stateManagement } = rendererContext.config;
+    const { renderHost, createRenderContainer, stateManagement } = rendererContext;
 
     const renderContainer = createRenderContainer(
       renderHost.framework.lib,
@@ -176,7 +191,11 @@ export function createFunctionComponent<
 
     const mergedOverrides: any = [override, secondOverride].filter(Boolean)
 
+    pushCurrentRenderer(renderContainer)
+
     const layoutJSON = renderContainer.construct(restProps, mergedOverrides)
+
+    popCurrentRenderer()
 
     traverseAndAttachRendererContext(layoutJSON, rendererContext)
 
@@ -197,4 +216,25 @@ export function createFunctionComponent<
 }
 function isFunctionComponent(target: any) {
   return target?.[VNodeFunctionComponentSymbol]
+}
+
+
+/**
+ * export hooks
+ */
+
+export function useLogic<T = any>(...args: any[]): T {
+  const renderer = getCurrentRenderer()
+  if (!renderer) {
+    throw new Error('useLogic must be called in render function')
+  }
+  return renderer.runLogic(...args) as T
+}
+
+export function useLayout<T extends LayoutStructTree>() {
+  const renderer = getCurrentRenderer()
+  if (!renderer) {
+    throw new Error('useLayout must be called in render function')
+  }
+  return renderer.getLayout<T>()
 }

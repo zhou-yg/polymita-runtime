@@ -1,12 +1,13 @@
+import { signal } from '@polymita/signal-model';
 import { CommandOP, VNodeFunctionComponentSymbol, h } from '../../src';
 import { 
   createFunctionComponent, createRSRoot
 } from '../../src/render.new'
 import {
   MockRectFramework,
-  moduleHasMultipleChild
+  moduleHasMultipleChild,
 } from '../mock'
-import { SimpleModuleComponent, moduleHasNested } from '../mocks/render.new';
+import { useStyleInLayout, moduleHasNested } from '../mocks/render.new';
 
 describe('render new', () => {
   it('create function component', () => {
@@ -98,6 +99,31 @@ describe('render new', () => {
           children: 'add p'
         }
       ]
+    })
+  })
+
+  it ('createRSRoot with useStyle and useLogic', () => {
+    const rsRoot = createRSRoot({
+      renderHost: {
+        framework: MockRectFramework
+      }
+    });
+    expect(rsRoot).not.toBeUndefined();
+
+    const Component = createFunctionComponent(useStyleInLayout());
+    const FrameworkComponent = rsRoot.wrap(Component);
+
+    const testName = 'test-name';
+    const ele = FrameworkComponent({ name: signal(testName) });
+    
+    expect(ele).toEqual({
+      type: 'div',
+      props: { style: { color: 'red' }, name: testName },
+      children: {
+        type: 'span',
+        props: {},
+        children: 1
+      }
     })
   })
 
