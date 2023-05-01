@@ -13,7 +13,8 @@ import {
   SignalProps,
   PropTypes,
   HOVER,
-} from '../src/index'
+  createFunctionComponent
+} from '../src'
 import { signal } from '@polymita/signal-model'
 
 export interface MockReactElement {
@@ -74,7 +75,11 @@ export function simpleModule2(): SingleFileModule<{}, any, [], 'unknown'> {
       return {}
     },
     layout() {
-      return <div><p></p></div>
+      return (
+        <div>
+          <p></p>
+        </div>
+      )
     }
   }
 }
@@ -82,7 +87,7 @@ export function simpleModule2(): SingleFileModule<{}, any, [], 'unknown'> {
 export function moduleHasMultipleChild(): SingleFileModule<
   {},
   {
-    type: 'div',
+    type: 'div'
     children: [
       {
         type: 'div'
@@ -620,4 +625,85 @@ export function overridePatchRules() {
   }))
 
   return newModule
+}
+
+export function overrideAtUseModule(): SingleFileModule<
+  SignalProps<{ m2Text: string }>,
+  { type: 'div' },
+  [],
+  'unknown'
+> {
+  const m2 = overrideAtModuleLayer()
+
+  type pc2Arr = (typeof m2)['_pc2Arr']
+
+  const UsedM2 = createFunctionComponent(m2, {
+    patchLayout(props, jsonDraft) {
+      return [
+        {
+          op: CommandOP.addChild,
+          parent: jsonDraft.div.p,
+          child: <text>{123}</text>
+        }
+      ]
+    }
+  })
+  return {
+    layout(props) {
+      return (
+        <usingModule className="at-module">
+          <UsedM2 text={props.m2Text}></UsedM2>
+        </usingModule>
+      )
+    }
+  }
+}
+
+export function overrideAtUseModuleAndRender(): SingleFileModule<
+  SignalProps<{ m2Text: string }>,
+  { type: 'div' },
+  [],
+  'unknown'
+> {
+  const m2 = overrideAtModuleLayer()
+
+  type pc2Arr = (typeof m2)['_pc2Arr']
+
+  const UsedM2 = createFunctionComponent(m2, {
+    patchLayout(props, jsonDraft) {
+      return [
+        {
+          op: CommandOP.addChild,
+          parent: jsonDraft.div.p,
+          child: (<text>123</text>) as unknown as {
+            readonly type: 'text'
+            readonly children: readonly ['123']
+          }
+        }
+      ] as const
+    }
+  })
+  return {
+    layout(props) {
+      return (
+        <usingModule className="at-module">
+          <UsedM2
+            text={props.m2Text}
+            override={{
+              patchLayout(props, jsonDraft) {
+                type Draft = typeof jsonDraft
+                return [
+                  {
+                    op: CommandOP.addChild,
+                    parent: jsonDraft.div.p.text,
+                    child: <label>{456}</label>
+                  }
+                ]
+              }
+            }}
+          ></UsedM2>
+        </usingModule>
+      )
+    }
+  }
 }

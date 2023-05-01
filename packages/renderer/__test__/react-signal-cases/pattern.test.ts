@@ -1,4 +1,4 @@
-import { clearIdIndex, createRHRenderer as createRenderer, createRenderer2, isVirtualNode, VirtualLayoutJSON } from '../../src'
+import { createRHRenderer as createRenderer, createRenderer3 } from '../../src'
 import * as mock from '../mock'
 
 import * as reactSignalManagement from '../../src/extensions/stateManagements/react-signal'
@@ -7,13 +7,13 @@ import * as reactRenderContainer from '../../src/extensions/frameworks/react'
 describe('pattern', () => {
 
   it('has multi matcher 2', () => {
-    const rr = createRenderer2({
+    const rr = createRenderer3({
       module: mock.patternHasMultiMatchers(),
       renderHost: {
         framework: mock.MockRectFramework,
       },
       stateManagement: reactSignalManagement.config,
-      renderContainerCreator: reactRenderContainer.createReactContainer
+      createRenderContainer: reactRenderContainer.createReactContainer
     })
     
     rr.construct({ v1: true, v2: false })

@@ -200,10 +200,7 @@ export interface OverrideModule<
   patches?: DraftPatch[]
   patchRules?: (props: Props, root: ConvertToLayoutTreeDraft<L>) => StyleRule[]
   layout?: (props: Props, layoutDraft: LayoutTreeProxyDraft) => void
-  patchLayout?: (
-    props: Props,
-    root: ConvertToLayoutTreeDraft<L>,
-  ) => PC
+  patchLayout?: (props: Props, root: ConvertToLayoutTreeDraft<L>) => PC
 }
 
 export type Func = (...args: any[]) => any

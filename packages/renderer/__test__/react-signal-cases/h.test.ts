@@ -1,4 +1,4 @@
-import { clearIdIndex, VirtualNodeTypeSymbol } from '../../src'
+import { VirtualNodeTypeSymbol } from '../../src'
 import {
   simpleModule,
   moduleHasMultipleChild,
@@ -8,10 +8,6 @@ import {
 } from '../mock'
 
 describe('h factory and hooks', () => {
-
-  afterEach(() => {
-    clearIdIndex()
-  })
 
   it('simple', () => {
     const r = simpleModule().layout()

@@ -1,4 +1,4 @@
-import { CommandOP, createRHRenderer as createRenderer, extendModule, h, isVirtualNode, LayoutStructTree, VirtualLayoutJSON } from '../../src'
+import { CommandOP, createRHRenderer as createRenderer, extendModule } from '../../src'
 import * as mock from '../mock'
 import { overridePatchRules } from '../mock'
 

@@ -609,7 +609,9 @@ export function get(obj: any, path: string | (number | string)[]) {
   return base[key]
 }
 export const VNodeComponentSymbol = Symbol('VNodeComponentSymbol')
-export const VNodeFunctionComponentSymbol = Symbol('VNodeFunctionComponentSymbol')
+export const VNodeFunctionComponentSymbol = Symbol(
+  'VNodeFunctionComponentSymbol'
+)
 export function isVNodeComponent(target: any): target is Function {
   return !!target?.[VNodeComponentSymbol]
 }
