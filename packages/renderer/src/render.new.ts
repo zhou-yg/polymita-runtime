@@ -109,7 +109,11 @@ function traverseAndAttachRendererContext(
   context: CurrentRenderContext
 ) {
   function dfs(node: VirtualLayoutJSON) {
-    if (node && isVNodeFunctionComponent(node) && !getRendererContext(node.type)) {
+    if (
+      node &&
+      isVNodeFunctionComponent(node) &&
+      !getRendererContext(node.type)
+    ) {
       attachRendererContext(node.type, context)
     }
     node?.children?.forEach(dfs)
