@@ -1,4 +1,5 @@
 import {
+  FunctionComponent,
   ModuleRenderContainer,
   NormalizeProps,
   OverrideModule,
@@ -264,10 +265,7 @@ export function createRSRoot(config: { renderHost: RenderHost }) {
   }
 }
 
-interface FunctionComponent<Props> {
-  (p: Props): VirtualLayoutJSON
-  [VNodeFunctionComponentSymbol]: boolean
-}
+
 
 export function createFunctionComponent<
   P extends Record<string, any>,
