@@ -282,6 +282,7 @@ export function createFunctionComponent<
   >
 ): FunctionComponent<
   P & {
+    key?: string | number | symbol
     override?: OverrideModule<
       P,
       SingleFileModule<
@@ -342,28 +343,12 @@ export function createComposeComponent<
   P extends Record<string, any>,
   L extends LayoutStructTree,
   PCArr extends PatchCommand[][],
-  NewPC,
-  SecondNewPC,
   ModuleName
 >(
-  module: SingleFileModule<P, L, PCArr, ModuleName>,
-  override?: OverrideModule<
-    P,
-    SingleFileModule<P, L, PCArr, ModuleName>['layoutStruct'],
-    NewPC
-  >
+  module: SingleFileModule<P, L, PCArr, ModuleName>
 ): ComposeComponent<
   P & {
-    override?: OverrideModule<
-      P,
-      SingleFileModule<
-        P,
-        SingleFileModule<P, L, PCArr, ModuleName>['layoutStruct'],
-        NewPC,
-        ModuleName
-      >['layoutStruct'],
-      SecondNewPC
-    >
+    key?: string | number | symbol
   }
 > {
   const { name } = module
