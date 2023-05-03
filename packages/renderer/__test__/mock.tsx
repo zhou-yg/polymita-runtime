@@ -99,7 +99,7 @@ export function simpleModule2(): SingleFileModule<
 }
 export type SimpleModule3 = ReturnType<typeof simpleModule3>
 export function simpleModule3(): SingleFileModule<
-  { name: string, children?: VirtualLayoutJSON },
+  { name: string; children?: VirtualLayoutJSON },
   {
     type: 'div'
     children: [
