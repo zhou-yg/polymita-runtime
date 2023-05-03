@@ -1,4 +1,5 @@
 import {
+  ComposeComponent,
   FunctionComponent,
   ModuleRenderContainer,
   NormalizeProps,
@@ -309,9 +310,9 @@ export function createFunctionComponent<
    * 问题：当然渲染器怎么往下传递，用React.Context吗？
    * 应该不行，应该自己的Context机制
    */
-  function frameworkFunctionComponent(props: P): VirtualLayoutJSON {
+  function frameworkComposeComponent(props: P): VirtualLayoutJSON {
     const { override: secondOverride, ...restProps } = props
-    const rendererContext = getRendererContext(frameworkFunctionComponent)
+    const rendererContext = getRendererContext(frameworkComposeComponent)
     const { createRenderContainer, renderHost, stateManagement } =
       rendererContext
 
@@ -327,13 +328,64 @@ export function createFunctionComponent<
 
     return renderer.render()
   }
-  Object.defineProperty(frameworkFunctionComponent, 'name', {
+  Object.defineProperty(frameworkComposeComponent, 'name', {
     get() {
       return name || 'Unknown function component'
     }
   })
-  const componentWithSymbol = Object.assign(frameworkFunctionComponent, {
+  const componentWithSymbol = Object.assign(frameworkComposeComponent, {
     [VNodeFunctionComponentSymbol]: true
+  })
+
+  return componentWithSymbol
+}
+
+export function createComposeComponent<
+  P extends Record<string, any>,
+  L extends LayoutStructTree,
+  PCArr extends PatchCommand[][],
+  NewPC,
+  SecondNewPC,
+  ModuleName
+> (
+  module: SingleFileModule<P, L, PCArr, ModuleName>,
+  override?: OverrideModule<
+    P,
+    SingleFileModule<P, L, PCArr, ModuleName>['layoutStruct'],
+    NewPC
+  >
+): ComposeComponent<
+  P & {
+    override?: OverrideModule<
+      P,
+      SingleFileModule<
+        P,
+        SingleFileModule<P, L, PCArr, ModuleName>['layoutStruct'],
+        NewPC,
+        ModuleName
+      >['layoutStruct'],
+      SecondNewPC
+    >
+}> {
+  const { name } = module
+
+  if (name && /^[a-z]/.test(String(name))) {
+    throw new Error(
+      `First char of module name must be uppercase, but got ${name}.`
+    )
+  }
+  function frameworkComposeComponent (props: P) {
+    const json = module.layout(props)
+    return json;
+  }
+
+  Object.defineProperty(frameworkComposeComponent, 'name', {
+    get() {
+      return name || 'Unknown compose function component'
+    }
+  })
+  const componentWithSymbol = Object.assign(frameworkComposeComponent, {
+    [VNodeComponentSymbol]: true
   })
 
   return componentWithSymbol
@@ -575,3 +627,4 @@ export function useLayout<T extends LayoutStructTree>() {
 
 //   return vLayoutNode
 // }
+
