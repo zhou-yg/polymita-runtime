@@ -9,7 +9,7 @@ import {
   layoutUseLogic,
   moduleHasMultipleChild,
 } from '../mock'
-import { useStyleInLayout, moduleHasNested, otherOtherComponentModule, patchDeepComposeComponent } from '../mocks/render.new';
+import { useStyleInLayout, moduleHasNested, otherOtherComponentModule, patchDeepComposeComponent, composeOtherComponent } from '../mocks/render.new';
 
 describe('render new', () => {
   describe('render container', () => {
@@ -91,6 +91,33 @@ describe('render new', () => {
               children: 'deep'
             }
           ],
+        }
+      })
+    })
+  })
+
+  describe('compose component', () => {
+    it('compose other module', () => {
+      const rsRoot = createRSRoot({
+        renderHost: {
+          framework: MockRectFramework
+        }
+      });
+      const Component = createFunctionComponent(composeOtherComponent());
+      const FrameworkComponent = rsRoot.wrap(Component);
+      const mockTestName = 'test'
+      const ele = FrameworkComponent({ name: mockTestName });
+      expect(ele).toEqual({
+        type: 'row',
+        props: {},
+        children: {
+          type: 'div',
+          props: {},
+          children: {
+            type: 'span',
+            props: {},
+            children: mockTestName
+          }
         }
       })
     })

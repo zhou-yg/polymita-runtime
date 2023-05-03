@@ -69,7 +69,15 @@ export function simpleModule(): SingleFileModule<{}, any, [], 'unknown'> {
     }
   }
 }
-export function simpleModule2(): SingleFileModule<{}, any, [], 'unknown'> {
+export type SimpleModule2 = ReturnType<typeof simpleModule2>
+export function simpleModule2(): SingleFileModule<{}, {
+  type: 'div',
+  children: [
+    {
+      type: 'p'
+    }
+  ]
+}, [], 'unknown'> {
   return {
     logic() {
       return {}
@@ -78,6 +86,28 @@ export function simpleModule2(): SingleFileModule<{}, any, [], 'unknown'> {
       return (
         <div>
           <p></p>
+        </div>
+      )
+    }
+  }
+}
+export type SimpleModule3 = ReturnType<typeof simpleModule3>
+export function simpleModule3(): SingleFileModule<{ name: string }, {
+  type: 'div',
+  children: [
+    {
+      type: 'span'
+    }
+  ]
+}, [], 'unknown'> {
+  return {
+    logic() {
+      return {}
+    },
+    layout(p) {
+      return (
+        <div>
+          <span>{p.name}</span>
         </div>
       )
     }

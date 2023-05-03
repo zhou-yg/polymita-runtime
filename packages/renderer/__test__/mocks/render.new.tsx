@@ -2,7 +2,7 @@ import { CommandOP, PropTypes, SignalProps, SingleFileModule, UseModule } from '
 import * as mock from '../mock'
 import {
   extendModule, h, 
-  createFunctionComponent, useLayout, useLogic
+  createFunctionComponent, useLayout, useLogic, createComposeComponent
 } from '../../src/render.new'
 import { signal } from '@polymita/signal-model';
 
@@ -147,4 +147,27 @@ export function patchDeepComposeComponent() {
   }))
 
   return NewModule
+}
+
+export function composeOtherComponent (): SingleFileModule<
+  { name: string },
+  {
+    type: 'row'
+    children: [UseModule<mock.SimpleModule3>]
+  },
+  [],
+  'unknown'
+> {
+
+  const ComposeFunction = createComposeComponent(mock.simpleModule3());
+
+  return {
+    layout(props) {
+      return (
+        <row>
+          <ComposeFunction {...props} />
+        </row>
+      )
+    }
+  } 
 }

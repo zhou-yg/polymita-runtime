@@ -1,5 +1,5 @@
 import type * as CSS from 'csstype'
-import type { ProxyLayoutHandler, VNodeFunctionComponentSymbol } from './utils'
+import type { ProxyLayoutHandler, VNodeComponentSymbol, VNodeFunctionComponentSymbol } from './utils'
 import type { StateSignal } from '@polymita/signal-model'
 import {
   LayoutStructTree,
@@ -259,3 +259,8 @@ export interface FunctionComponent<Props> {
   (p: Props): VirtualLayoutJSON
   [VNodeFunctionComponentSymbol]: boolean
 }
+export interface ComposeComponent<Props> {
+  (p: Props): VirtualLayoutJSON
+  [VNodeComponentSymbol]: boolean
+}
+
