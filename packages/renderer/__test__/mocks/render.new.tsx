@@ -150,7 +150,7 @@ export function patchDeepComposeComponent() {
 }
 
 export function composeOtherComponent (): SingleFileModule<
-  { name: string },
+  { name: string, childText?: string },
   {
     type: 'row'
     children: [UseModule<mock.SimpleModule3>]
@@ -165,7 +165,9 @@ export function composeOtherComponent (): SingleFileModule<
     layout(props) {
       return (
         <row>
-          <ComposeFunction {...props} />
+          <ComposeFunction {...props} >
+            {props.childText}
+          </ComposeFunction>
         </row>
       )
     }

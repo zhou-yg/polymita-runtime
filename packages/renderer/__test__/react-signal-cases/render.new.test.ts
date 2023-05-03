@@ -113,11 +113,42 @@ describe('render new', () => {
         children: {
           type: 'div',
           props: {},
-          children: {
-            type: 'span',
-            props: {},
-            children: mockTestName
-          }
+          children: [
+              {
+              type: 'span',
+              props: {},
+              children: mockTestName
+            },
+            undefined
+          ]
+        }
+      })
+    })
+    it('compose other module with children', () => {
+      const rsRoot = createRSRoot({
+        renderHost: {
+          framework: MockRectFramework
+        }
+      });
+      const Component = createFunctionComponent(composeOtherComponent());
+      const FrameworkComponent = rsRoot.wrap(Component);
+      const mockTestName = 'test'
+      const mockTestChild = 'test2'
+      const ele = FrameworkComponent({ name: mockTestName, childText: mockTestChild });
+      expect(ele).toEqual({
+        type: 'row',
+        props: {},
+        children: {
+          type: 'div',
+          props: {},
+          children: [
+            {
+              type: 'span',
+              props: {},
+              children: mockTestName
+            },
+            mockTestChild
+          ]
         }
       })
     })

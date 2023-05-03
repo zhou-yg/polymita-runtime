@@ -13,7 +13,8 @@ import {
   SignalProps,
   PropTypes,
   HOVER,
-  createFunctionComponent
+  createFunctionComponent,
+  VirtualLayoutJSON
 } from '../src'
 import { signal } from '@polymita/signal-model'
 
@@ -98,7 +99,7 @@ export function simpleModule2(): SingleFileModule<
 }
 export type SimpleModule3 = ReturnType<typeof simpleModule3>
 export function simpleModule3(): SingleFileModule<
-  { name: string },
+  { name: string, children?: VirtualLayoutJSON },
   {
     type: 'div'
     children: [
@@ -118,6 +119,7 @@ export function simpleModule3(): SingleFileModule<
       return (
         <div>
           <span>{p.name}</span>
+          {p.children}
         </div>
       )
     }

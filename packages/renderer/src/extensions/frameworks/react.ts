@@ -131,6 +131,7 @@ export function createReactContainer<
     if (isVNodeComponent(json)) {
       json = (json.type as any)({
         ...(json.props || {}),
+        children: json.children
       })
     }
 
