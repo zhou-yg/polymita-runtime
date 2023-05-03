@@ -4,7 +4,7 @@ import {
 } from '@polymita/signal-model'
 import {
   isVirtualNode, buildLayoutNestedObj, proxyLayoutJSON, ProxyLayoutHandler, assignRules, assignPattern,
-  SEMATIC_RELATION_HAS, SEMATIC_RELATION_IS, mergeFromProps, renderHTMLProp, runOverrides, shouldNotRender, assignDefaultValueByPropTypes, ShouldRenderAttr, lowerCaseType } from '../../utils'
+  SEMATIC_RELATION_HAS, SEMATIC_RELATION_IS, mergeFromProps, renderHTMLProp, runOverrides, shouldNotRender, assignDefaultValueByPropTypes, ShouldRenderAttr, lowerCaseType, isVNodeComponent } from '../../utils'
 
 import { LayoutStructTree, ConvertToLayoutTreeDraft, PatchCommand } from "../../types-layout";
 import { NormalizeProps } from '../../types';
@@ -128,6 +128,12 @@ export function createReactContainer<
     if (!json) {
       return
     }
+    if (isVNodeComponent(json)) {
+      json = (json.type as any)({
+        ...(json.props || {}),
+      })
+    }
+
     if (!isVirtualNode(json)) {
       return json
     }

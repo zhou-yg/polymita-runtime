@@ -609,11 +609,9 @@ export function get(obj: any, path: string | (number | string)[]) {
   return base[key]
 }
 export const VNodeComponentSymbol = Symbol('VNodeComponentSymbol')
-export const VNodeFunctionComponentSymbol = Symbol(
-  'VNodeFunctionComponentSymbol'
-)
-export function isVNodeComponent(target: any): target is Function {
-  return !!target?.[VNodeComponentSymbol]
+export const VNodeFunctionComponentSymbol = Symbol('VNodeFunctionComponentSymbol')
+export function isVNodeComponent(target: any): target is { type: Function } {
+  return !!target?.type?.[VNodeComponentSymbol]
 }
 export function isVNodeFunctionComponent(
   target: any
@@ -713,7 +711,7 @@ export const ShouldRenderAttr = 'if'
 export function shouldNotRender(json: VirtualLayoutJSON) {
   return (
     typeof json?.type !== 'function' &&
-    (json?.props?.if === false || json?.props?.if === null)
+    (json?.props?.if === false)
   )
 }
 
