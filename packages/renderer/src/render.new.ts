@@ -266,8 +266,6 @@ export function createRSRoot(config: { renderHost: RenderHost }) {
   }
 }
 
-
-
 export function createFunctionComponent<
   P extends Record<string, any>,
   L extends LayoutStructTree,
@@ -347,7 +345,7 @@ export function createComposeComponent<
   NewPC,
   SecondNewPC,
   ModuleName
-> (
+>(
   module: SingleFileModule<P, L, PCArr, ModuleName>,
   override?: OverrideModule<
     P,
@@ -366,7 +364,8 @@ export function createComposeComponent<
       >['layoutStruct'],
       SecondNewPC
     >
-}> {
+  }
+> {
   const { name } = module
 
   if (name && /^[a-z]/.test(String(name))) {
@@ -374,9 +373,9 @@ export function createComposeComponent<
       `First char of module name must be uppercase, but got ${name}.`
     )
   }
-  function frameworkComposeComponent (props: P) {
+  function frameworkComposeComponent(props: P) {
     const json = module.layout(props)
-    return json;
+    return json
   }
 
   Object.defineProperty(frameworkComposeComponent, 'name', {
@@ -627,4 +626,3 @@ export function useLayout<T extends LayoutStructTree>() {
 
 //   return vLayoutNode
 // }
-
