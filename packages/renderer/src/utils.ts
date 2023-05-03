@@ -609,7 +609,9 @@ export function get(obj: any, path: string | (number | string)[]) {
   return base[key]
 }
 export const VNodeComponentSymbol = Symbol('VNodeComponentSymbol')
-export const VNodeFunctionComponentSymbol = Symbol('VNodeFunctionComponentSymbol')
+export const VNodeFunctionComponentSymbol = Symbol(
+  'VNodeFunctionComponentSymbol'
+)
 export function isVNodeComponent(target: any): target is { type: Function } {
   return !!target?.type?.[VNodeComponentSymbol]
 }
@@ -709,10 +711,7 @@ export function assignDefaultValueByPropTypes<T extends Record<string, any>>(
 
 export const ShouldRenderAttr = 'if'
 export function shouldNotRender(json: VirtualLayoutJSON) {
-  return (
-    typeof json?.type !== 'function' &&
-    (json?.props?.if === false)
-  )
+  return typeof json?.type !== 'function' && json?.props?.if === false
 }
 
 export function lowerCaseType(type: LayoutStructTree['type']) {
