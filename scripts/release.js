@@ -40,8 +40,13 @@ function build(cwd) {
 }
 
 function publish (cwd) {
+  if (specificModule && !(new RegExp(`${specificModule}$`).test(cwd))) {
+    console.log(`skip publish ${cwd}`)
+    return Promise.resolve()
+  }
+
   return new Promise(resolve => {
-    console.log('pnpm pulibsh');
+    console.log('pnpm publish');
     exec(`pnpm publish --access=public`, { cwd }, (err, stdout) => {
       if (err) {
         throw err
@@ -71,6 +76,11 @@ function commit () {
 }
 
 function upgradePatch(dirPath) {
+  if (specificModule && !(new RegExp(`${specificModule}$`).test(dirPath))) {
+    console.log(`skip upgradePatch ${dirPath}`)
+    return Promise.resolve()
+  }
+
   const pkgJSONPath = join(dirPath, 'package.json')
   const pkgJSON = loadJSON(pkgJSONPath)
   pkgJSON.version = pkgJSON.version.replace(/\d+$/, (w) => parseInt(w) + 1)
