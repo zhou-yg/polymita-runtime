@@ -63,6 +63,7 @@ function commit () {
   return new Promise(resolve => {
     console.log('git commit');
     const taratPkg = JSON.parse(readFileSync(join(__dirname, '..', PKG)).toString())
+    console.log('taratPkg: ', taratPkg);
     exec(`git commit -a -m "release: polymita v${taratPkg.version} "`, (err, stdout) => {
       if (err) {
         throw err
