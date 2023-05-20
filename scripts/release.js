@@ -62,9 +62,13 @@ function publish (cwd) {
 function commit () {
   return new Promise(resolve => {
     console.log('git commit');
-    const taratPkg = JSON.parse(readFileSync(join(__dirname, '..', PKG)).toString())
-    console.log('taratPkg: ', taratPkg);
-    exec(`git commit -a -m "release: polymita v${taratPkg.version} "`, (err, stdout) => {
+    const rootPkgJSONPath = join(__dirname, '..', PKG)
+    const pkgJSON = JSON.parse(readFileSync(rootPkgJSONPath).toString())
+
+    pkgJSON.version = pkgJSON.version.replace(/\d+$/, (w) => parseInt(w) + 1)
+    writeFileSync(rootPkgJSONPath, JSON.stringify(pkgJSON, null, 2))
+  
+    exec(`git commit -a -m "release: polymita v${pkgJSON.version} "`, (err, stdout) => {
       if (err) {
         throw err
       }
