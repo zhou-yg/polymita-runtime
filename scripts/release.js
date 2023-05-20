@@ -68,7 +68,7 @@ function commit () {
     pkgJSON.version = pkgJSON.version.replace(/\d+$/, (w) => parseInt(w) + 1)
     writeFileSync(rootPkgJSONPath, JSON.stringify(pkgJSON, null, 2))
   
-    exec(`git commit -a -m "release: polymita v${pkgJSON.version} "`, (err, stdout) => {
+    exec(`git commit -a -m "release: polymita-runtime v${pkgJSON.version} "`, (err, stdout) => {
       if (err) {
         throw err
       }
