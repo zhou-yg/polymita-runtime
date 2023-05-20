@@ -90,7 +90,7 @@ export function checkSematic(
 }
 
 export function camelToLine(str: string) {
-  return str.replace(/([A-Z])/g, '-$1').toLowerCase()
+  return str.replace(/^[A-Z]/, firstChar => firstChar.toLocaleLowerCase()).replace(/([A-Z])/g, '-$1').toLowerCase()
 }
 
 function patternResultToEmotionCSS(
