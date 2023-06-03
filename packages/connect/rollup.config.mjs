@@ -24,7 +24,7 @@ const reactBase = {
 
 export default [
   ['connect', base],
-  ['react', reactBase]
+  // ['react', reactBase]
 ].map(([name, config]) => {
   return [
     {

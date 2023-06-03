@@ -769,7 +769,6 @@ export class Runner<T extends Driver> {
     beleiveContext: false,
     updateCallbackSync: false,
     applyComputeParallel: false
-    // modelIndexes: undefined
   }
   constructor(public driver: T, options?: IRunnerOptions) {
     Object.assign(this.options, options)
