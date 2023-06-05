@@ -53,7 +53,6 @@ const driverWeakMap = new Map<Driver, ArgResultMap>()
 
 typeof window !== 'undefined' && (window.driverWeakMap = driverWeakMap)
 
-
 export function useReactHook<T extends Driver>(
   react: typeof ReactTypes,
   hook: T, args: Parameters<T>,

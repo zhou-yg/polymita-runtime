@@ -1,6 +1,6 @@
 {
   "name": "@polymita/connect",
-  "version": "0.0.26",
+  "version": "0.0.27",
   "description": "useHook serverless framework",
   "main": "./dist/connect.js",
   "module": "./dist/connect.esm.js",
@@ -8,7 +8,7 @@
   "scripts": {
     "format": "prettier --write --parser typescript \"*/*.ts?(x)\"",
     "format:commit": "npm run format && git commit -a -m 'feat(core): lint'",
-    "build": "npm run format && rollup --config rollup.config.mjs",
+    "build": "rm -rf dist && npm run format && rollup --config rollup.config.mjs",
     "build:watch": "rm -rf dist/ && npm run format && rollup --config rollup.config.mjs --watch"
   },
   "typesVersions": {
