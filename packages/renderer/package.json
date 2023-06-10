@@ -14,8 +14,7 @@
     "format": "prettier --write --parser typescript \"*/*.ts?(x)\"",
     "build": "rm -rf dist/ && npm run format && rollup --config rollup.config.mjs && sh after-build.sh",
     "build:watch": "rm -rf dist/ && npm run format && rollup --config rollup.config.mjs --watch",
-    "release": "npm run build && npm run test-ci && npm run tsd && bump --commit \"release: @polymita/renderer v%s\"",
-    "prepublishOnly": "npm run release"
+    "release": "npm run build && npm run test-ci && npm run tsd && bump --commit \"release: @polymita/renderer v%s\""
   },
   "tsd": {
     "directory": "__test_types__",
