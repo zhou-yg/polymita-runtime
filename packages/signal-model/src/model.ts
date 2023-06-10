@@ -1306,7 +1306,7 @@ function createModelSetterGetterFunc<T extends any[]>(
   m: Model<T>
 ): {
   (): T
-  (parameter: IModifyFunction<T>): Promise<[T, IPatch[]]>
+  (parameter: IModifyFunction<T>): [T, IPatch[]]
 } {
   return (parameter?: any): any => {
     if (parameter && isFunc(parameter)) {

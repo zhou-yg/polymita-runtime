@@ -1966,7 +1966,7 @@ function mountInputCompute(func: any) {
  */
 type StateGetterAndSetter<T> = {
   (): T
-  (parameter: IModifyFunction<T>): [any, IDataPatch[]]
+  (parameter: IModifyFunction<T>): [T, IDataPatch[]]
 } & { _hook: State<T> }
 
 export function state<T>(initialValue: T): StateGetterAndSetter<T>
