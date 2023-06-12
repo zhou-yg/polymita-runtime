@@ -1,5 +1,7 @@
 import {
-  THookDeps
+  Signal,
+  THookDeps,
+  prisma
 } from '../../src'
 import {
   UNDEF_TAG,
@@ -19,6 +21,26 @@ import {
 import { produceWithPatches, enablePatches } from 'immer'
 
 enablePatches()
+
+export type MessageItem = {
+  id: number
+  link: string
+  title: string | null
+  time: Date | null
+  description: string | null
+  type: string
+  sourceId: number
+  createdAt: Date
+  modifiedAt: Date
+}
+
+function testFn(m2: Signal<MessageItem[]>) {
+}
+
+const m1 = prisma<MessageItem[]>('entity')
+
+testFn(m1)
+
 
 describe('util', () => {
   describe('calculate diff', () => {

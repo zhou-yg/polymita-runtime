@@ -389,7 +389,7 @@ export class RunnerModelScope<T extends Driver = any> extends CurrentRunnerScope
 
 
 
-export abstract class Model<T extends any[]> extends AsyncState<T[]> {
+export abstract class Model<T extends any[]> extends AsyncState<T> {
   queryWhereComputed: Computed<IModelQuery['query'] | void> | null = null
   watcher: Watcher = new Watcher(this)
   entity: string
@@ -400,7 +400,7 @@ export abstract class Model<T extends any[]> extends AsyncState<T[]> {
     public options: IModelOption = {},
     public scope: RunnerModelScope
   ) {
-    super([])
+    super([] as any)
 
     this.entity = scope.getRealEntityName(entity)
 
@@ -466,7 +466,7 @@ export abstract class Model<T extends any[]> extends AsyncState<T[]> {
       }
     }
   }
-  override get value(): T[] {
+  override get value(): T {
     if (this.init) {
       this.query(getCurrentReactiveChain())
     }
@@ -513,7 +513,7 @@ export abstract class Model<T extends any[]> extends AsyncState<T[]> {
 
   abstract updateWithPatches(
     v: T[],
-    patches: IPatch[],
+    patches: IDataPatch[],
     silent: boolean,
     reactiveChain?: ReactiveChain
   ): Promise<void>
@@ -678,7 +678,7 @@ export class Prisma<T extends any[]> extends Model<T> {
         this.entity,
         q
       )
-      let result: T[] = []
+      let result = [] as T
       if (!!q) {
         if (valid()) {
           result = await getPlugin('Model').find(
@@ -714,7 +714,7 @@ export class Prisma<T extends any[]> extends Model<T> {
     await this.executeQuery(getCurrentReactiveChain()?.add(this))
   }
   async updateWithPatches(
-    v: T[],
+    v: T,
     patches: IDataPatch[],
     silent: boolean,
     reactiveChain?: ReactiveChain
@@ -1162,7 +1162,7 @@ function updateCyclePrisma<T extends any[]>(
     const timestamp =
       currentRunnerScope!.runnerContext.initialData![currentIndex]?.[2]
     hook.init = false
-    hook._internalValue = initialValue || []
+    hook._internalValue = initialValue || ([] as T)
     if (timestamp) {
       hook.modifiedTimestamp = timestamp
     }
@@ -1306,7 +1306,7 @@ function createModelSetterGetterFunc<T extends any[]>(
   m: Model<T>
 ): {
   (): T
-  (parameter: IModifyFunction<T>): [T, IPatch[]]
+  (parameter: IModifyFunction<T>): [T, IDataPatch[]]
 } {
   return (parameter?: any): any => {
     if (parameter && isFunc(parameter)) {
