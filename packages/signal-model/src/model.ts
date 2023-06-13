@@ -512,7 +512,7 @@ export abstract class Model<T extends any[]> extends AsyncState<T> {
   }
 
   abstract updateWithPatches(
-    v: T[],
+    v: T,
     patches: IDataPatch[],
     silent: boolean,
     reactiveChain?: ReactiveChain
@@ -524,31 +524,31 @@ type TWriteMethod = 'create' | 'update' | 'remove' | 'find'
 
 export const writeInitialSymbol = Symbol.for('@@writePrismaInitial')
 
-export abstract class WriteModel<T extends Object> extends AsyncState<
+export abstract class WriteModel<T extends any[]> extends AsyncState<
   T | Symbol
 > {
   abstract identifier: string
   entity: string = ''
-  sourceModel?: Model<T[]>
+  sourceModel?: Model<T>
 
-  extraGetters: Record<TWriteMethod, Array<() => T>> = {
+  extraGetters: Record<TWriteMethod, Array<() => T[0]>> = {
     create: [],
     update: [],
     remove: [],
     find: [] // useless
   }
 
-  inputComputeModelPatchesMap:Map<InputCompute, [T, IModelPatch[]]> = new Map()
+  inputComputeModelPatchesMap:Map<InputCompute, [T[0], IModelPatch[]]> = new Map()
 
   constructor(
-    public sourceModelGetter: { _hook: Model<T[]> } | string,
-    public basicGetData: (() => T) | undefined,
+    public sourceModelGetter: { _hook: Model<T> } | string,
+    public basicGetData: (() => T[0]) | undefined,
     protected scope: RunnerModelScope
   ) {
     super(writeInitialSymbol)
 
     if (!basicGetData) {
-      this.setGetter(() => ({} as T))
+      this.setGetter(() => ({} as T[0]))
     }
 
     if (typeof sourceModelGetter !== 'string') {
@@ -572,7 +572,7 @@ export abstract class WriteModel<T extends Object> extends AsyncState<
      */
     return this.sourceModel?.refresh?.()
   }
-  injectGetter(fn: () => T, method: TWriteMethod) {
+  injectGetter(fn: () => T[0], method: TWriteMethod) {
     if (method === 'find') {
       if (this.sourceModel instanceof Model) {
         this.sourceModel.injectFindGetter(fn)
@@ -581,7 +581,7 @@ export abstract class WriteModel<T extends Object> extends AsyncState<
       this.extraGetters[method].push(fn)
     }
   }
-  getData(method: TWriteMethod): T {
+  getData(method: TWriteMethod): T[0] {
     const arr = this.extraGetters[method]
     const base = this.basicGetData()
     // iterate array from tail to head
@@ -594,15 +594,15 @@ export abstract class WriteModel<T extends Object> extends AsyncState<
     }
     return base
   }
-  setGetter(fn: () => T) {
+  setGetter(fn: () => T[0]) {
     this.basicGetData = fn
   }
-  abstract createRow(obj?: Partial<T>): Promise<void>
+  abstract createRow(obj?: Partial<T[0]>): Promise<void>
   abstract updateRow(where: number, obj?: { [k: string]: any }): Promise<void>
   abstract removeRow(where: number): Promise<void>
   abstract executeModelPath(ps: IModelPatch[]): Promise<void>
 
-  addModelPatches(value: T, patches: IModelPatch[]) {
+  addModelPatches(value: T[0], patches: IModelPatch[]) {
     const currentInputCompute = getCurrentInputCompute()
     if (currentInputCompute) {
       let exist = this.inputComputeModelPatchesMap.get(currentInputCompute)
@@ -655,7 +655,7 @@ export abstract class WriteModel<T extends Object> extends AsyncState<
 /** TIP: code for example */
 export abstract class ClientModel<T extends any[]> extends Model<T> {}
 /** TIP: code for example */
-export abstract class ClientWriteModel<T> extends WriteModel<T> {}
+export abstract class ClientWriteModel<T extends any[]> extends WriteModel<T> {}
 
 /**
  * only used in writing data to model entity
@@ -748,7 +748,7 @@ export class Prisma<T extends any[]> extends Model<T> {
   }
 }
 
-export class WritePrisma<T> extends WriteModel<T> {
+export class WritePrisma<T extends any[]> extends WriteModel<T> {
   identifier = 'prisma'
   async executeModelPath(ps: IModelPatch[]) {
     const { applyComputeParallel } = this.scope
@@ -779,7 +779,7 @@ export class WritePrisma<T> extends WriteModel<T> {
       await Promise.all(promiseArr)
     }
   }
-  async createRow(obj?: Partial<T>, include?: { [k in keyof T]: boolean }) {
+  async createRow(obj?: Partial<T[0]>, include?: { [k in keyof T[0]]: boolean }) {
     log('[WritePrisma.createRow]')
 
     const newReactiveChain = getCurrentReactiveChain()?.addCall(this)
@@ -788,7 +788,7 @@ export class WritePrisma<T> extends WriteModel<T> {
     })
 
     if (getCurrentInputCompute()) {
-      const d: T = Object.assign(defaults, obj)
+      const d: T[0] = Object.assign(defaults, obj)
       this.addModelPatches(undefined, [
         {
           op: 'create',
@@ -810,7 +810,7 @@ export class WritePrisma<T> extends WriteModel<T> {
       const defaults = ReactiveChain.withChain(newReactiveChain, () => {
         return this.getData('update')
       })
-      const d: T = Object.assign(defaults, obj)
+      const d: T[0] = Object.assign(defaults, obj)
       this.addModelPatches(undefined, [
         {
           op: 'update',
@@ -893,8 +893,8 @@ export class ClientPrisma<T extends any[]> extends Prisma<T> {
 /**
  * writePrisma in client will record the changing
  */
-export class ClientWritePrisma<T> extends WritePrisma<T> {
-  override async createRow(obj?: Partial<T>): Promise<void> {
+export class ClientWritePrisma<T extends any[]> extends WritePrisma<T> {
+  override async createRow(obj?: Partial<T[0]>): Promise<void> {
     throw new Error(
       '[ClientWritePrisma] cant invoke "create" directly in client'
     )
@@ -1366,7 +1366,7 @@ function mountPrisma<T extends any[]>(
   return newSetterGetter
 }
 // TIP: "function updateWritePrisma" same as mountWritePrisma
-function mountWritePrisma<T>(source: { _hook: Model<T[]> }, q: () => Partial<T>) {
+function mountWritePrisma<T extends any[]>(source: { _hook: Model<T> }, q: () => Partial<T[0]>) {
   const currentRunnerScope = getModelRunnerScope()!
 
   const hook =
@@ -1390,9 +1390,9 @@ function mountWritePrisma<T>(source: { _hook: Model<T[]> }, q: () => Partial<T>)
   return newGetter
 }
 
-function mountCreatePrisma<T>(
-  source: { _hook: Model<T[]> },
-  q: () => Partial<T>
+function mountCreatePrisma<T extends any[]>(
+  source: { _hook: Model<T> },
+  q: () => Partial<T[0]>
 ) {
   const currentRunnerScope = getModelRunnerScope()!
 
@@ -1404,7 +1404,7 @@ function mountCreatePrisma<T>(
   currentRunnerScope!.addHook(hook)
   getCurrentReactiveChain()?.add(hook)
 
-  const caller = (receivedData?: Partial<T>) => {
+  const caller = (receivedData?: Partial<T[0]>) => {
     return hook.createRow(receivedData)
   }
   const newCaller = Object.assign(caller, {
@@ -1414,9 +1414,9 @@ function mountCreatePrisma<T>(
   return newCaller
 }
 
-function mountUpdatePrisma<T>(
-  source: { _hook: Model<T[]> },
-  q: () => Partial<T>
+function mountUpdatePrisma<T extends any[]>(
+  source: { _hook: Model<T> },
+  q: () => Partial<T[0]>
 ) {
   const currentRunnerScope = getModelRunnerScope()!
 
@@ -1428,7 +1428,7 @@ function mountUpdatePrisma<T>(
   currentRunnerScope!.addHook(hook)
   getCurrentReactiveChain()?.add(hook)
 
-  const caller = (where: number, receivedData?: Partial<T>) => {
+  const caller = (where: number, receivedData?: Partial<T[0]>) => {
     return hook.updateRow(where, receivedData)
   }
   const newCaller = Object.assign(caller, {
@@ -1438,9 +1438,9 @@ function mountUpdatePrisma<T>(
   return newCaller
 }
 
-function mountRemovePrisma<T>(
-  source: { _hook: Model<T[]> },
-  q: () => Partial<T>
+function mountRemovePrisma<T extends any[]>(
+  source: { _hook: Model<T> },
+  q: () => Partial<T[0]>
 ) {
   const currentRunnerScope = getModelRunnerScope()!
 
@@ -1525,7 +1525,7 @@ export function model<T extends any[]>(
   }
   return scope.modelHookFactory.prisma<T>(e, q, op)
 }
-export function writeModel<T>(source: { _hook: Model<T[]> }, q: () => T) {
+export function writeModel<T extends any[]>(source: { _hook: Model<T> }, q: () => T[0]) {
   const scope = getModelRunnerScope()
   if (!scope) {
     throw new Error('[writePrisma] must under a signal model runner')
@@ -1546,9 +1546,9 @@ export function prisma<T extends any[]>(
   return scope.modelHookFactory.prisma<T>(e, q, op)
 }
 
-export function writePrisma<T>(
-  source: { _hook: Model<T[]> },
-  q?: () => Partial<T>
+export function writePrisma<T extends any[]>(
+  source: { _hook: Model<T> },
+  q?: () => Partial<T[0]>
 ) {
    const scope = getModelRunnerScope()
   if (!scope) {
@@ -1558,9 +1558,9 @@ export function writePrisma<T>(
   return scope.modelHookFactory.writePrisma<T>(source, q)
 }
 
-export function createPrisma<T>(
-  source: { _hook: Model<T[]> },
-  q?: () => Partial<T>
+export function createPrisma<T extends any[]>(
+  source: { _hook: Model<T> },
+  q?: () => Partial<T[0]>
 ) {
    const scope = getModelRunnerScope()
   if (!scope) {
@@ -1570,9 +1570,9 @@ export function createPrisma<T>(
   return scope.modelHookFactory.createPrisma<T>(source, q)
 }
 
-export function updatePrisma<T>(
-  source: { _hook: Model<T[]> },
-  q?: () => Partial<T>
+export function updatePrisma<T extends any[]>(
+  source: { _hook: Model<T> },
+  q?: () => Partial<T[0]>
 ) {
    const scope = getModelRunnerScope()
   if (!scope) {
@@ -1582,9 +1582,9 @@ export function updatePrisma<T>(
   return scope.modelHookFactory.updatePrisma<T>(source, q)
 }
 
-export function removePrisma<T>(
-  source: { _hook: Model<T[]> },
-  q?: () => Partial<T>
+export function removePrisma<T extends any[]>(
+  source: { _hook: Model<T> },
+  q?: () => Partial<T[0]>
 ) {
   const scope = getModelRunnerScope()
   if (!scope) {

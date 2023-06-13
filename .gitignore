@@ -108,3 +108,4 @@ packages/*/__test__/database/autoPrisma
 packages/*/__test__/database/migrations
 packages/*/__test__/database/dev.db
 packages/*/__test__/database/dev.db-journal
+packages/signal-model/__test__/database/dev.db
