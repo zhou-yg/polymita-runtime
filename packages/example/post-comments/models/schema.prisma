@@ -1,0 +1,40 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+}
+
+model Topic {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  modifiedAt DateTime @default(now())
+
+  title String
+
+  comments Comment[]
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  modifiedAt DateTime @default(now())
+
+  name String
+  authorId Int
+
+  content String
+
+  likeCount Int? @default(0)
+
+  topic Topic @relation(references: [id], fields: [topicId])
+  topicId Int
+
+  replyCommentId Int?
+  replyComment Comment? @relation("reply", references: [id], fields: [replyCommentId])
+
+  appendComments Comment[] @relation("reply")
+}

@@ -24,11 +24,11 @@ exports.Prisma = Prisma
 
 /**
  * Prisma Client JS version: 3.15.2
- * Query Engine version: aead147aa326ccb985dcfed5b065b4fdabd44b19
+ * Query Engine version: 8fde8fef4033376662cad983758335009d522acb
  */
 Prisma.prismaVersion = {
   client: "3.15.2",
-  engine: "aead147aa326ccb985dcfed5b065b4fdabd44b19"
+  engine: "8fde8fef4033376662cad983758335009d522acb"
 }
 
 Prisma.PrismaClientKnownRequestError = PrismaClientKnownRequestError;
@@ -120,7 +120,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/zhouyunge/Documents/polymita-runtime/packages/signal-server/__test__/database/autoPrisma/client",
+      "value": "/Users/zhouyunge/Documents/tarat/packages/polymita-runtime/packages/signal-model/__test__/database/autoPrisma/client",
       "fromEnvVar": null
     },
     "config": {
@@ -138,7 +138,7 @@ const config = {
   },
   "relativePath": "../..",
   "clientVersion": "3.15.2",
-  "engineVersion": "aead147aa326ccb985dcfed5b065b4fdabd44b19",
+  "engineVersion": "8fde8fef4033376662cad983758335009d522acb",
   "datasourceNames": [
     "db"
   ],

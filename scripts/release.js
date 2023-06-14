@@ -13,6 +13,7 @@ const C = join(packagesPath, 'connect')
 const R = join(packagesPath, 'renderer')
 const S = join(packagesPath, 'signal')
 const SM = join(packagesPath, 'signal-model')
+const Server = join(packagesPath, 'server')
 
 const PKG = 'package.json'
 
@@ -100,6 +101,8 @@ Promise.all([
     return build(SM)
   }).then(() => {
     return build(C)
+  }).then(() => {
+    return build(Server)
   }).then(async () => {
     if (SHOULD_RELEASE) {
       upgradePatch(S)
@@ -113,5 +116,6 @@ Promise.all([
       publish(C)
       publish(SM)
       publish(R)
+      publish(Server)
     }
   });

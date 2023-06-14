@@ -1,0 +1,15 @@
+{
+  "extraRelation": [
+    {
+      "from": {
+        "model": "User",
+        "field": "avatar2"
+      },
+      "type": "1:1",
+      "to": {
+        "model": "Tarat_file_uploader_UploaderItem",
+        "field": "userId"
+      }
+    }
+  ]
+}

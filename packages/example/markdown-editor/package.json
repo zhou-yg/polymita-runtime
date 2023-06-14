@@ -1,0 +1,52 @@
+{
+  "name": "tarat-markdown-editor",
+  "version": "0.0.37",
+  "tarat": {},
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tarat dev",
+    "build": "tarat build",
+    "start": "tarat start",
+    "p:dev": "prisma migrate dev && prisma generate",
+    "p:gen": "prisma generate",
+    "p:deploy": "prisma migrate deploy",
+    "p:studio": "prisma studio",
+    "format": "prettier --write --parser typescript \"*/*.js?(x)\""
+  },
+  "prisma": {
+    "schema": "./models/schema.prisma"
+  },
+  "author": "",
+  "license": "ISC",
+  "files": [
+    "dist",
+    "package.json",
+    "types",
+    "README.md"
+  ],
+  "dependencies": {
+    "@emotion/react": "^11.10.4",
+    "@emotion/styled": "^11.10.4",
+    "@mui/lab": "5.0.0-alpha.103",
+    "@mui/material": "^5.10.9",
+    "@vitejs/plugin-react": "^2.1.0",
+    "markdown-it": "^13.0.1",
+    "react": "^18.2.0",
+    "react-markdown-editor-lite": "^1.3.2"
+  },
+  "devDependencies": {
+    "@babel/preset-react": "^7.18.6",
+    "@prisma/client": "4.x.x",
+    "less": "^4.1.2",
+    "prisma": "4.x.x",
+    "tailwindcss": "^3.1.8",
+    "vite": "^3.0.7"
+  },
+  "peerDependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.3.0",
+    "@polymita/server": "workspace:~*"
+  }
+}

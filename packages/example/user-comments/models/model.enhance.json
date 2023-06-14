@@ -1,0 +1,26 @@
+{
+  "extraRelation": [
+    {
+      "from": {
+        "model": "Tarat_user_login_system_User",
+        "field": "topics"
+      },
+      "type":"1:n",
+      "to": {
+        "model": "Tarat_post_comments_Topic",
+        "field": "author"
+      }
+    },
+    {
+      "from": {
+        "model": "Tarat_user_login_system_User",
+        "field": "comments"
+      },
+      "type":"1:n",
+      "to": {
+        "model": "Tarat_post_comments_Comment",
+        "field": "author"
+      }
+    }
+  ]
+}
