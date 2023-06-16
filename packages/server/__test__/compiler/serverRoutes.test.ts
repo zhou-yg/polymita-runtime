@@ -10,8 +10,11 @@ import {
 import { readMockProjectConfig } from '../mockUtil'
 
 jest.setTimeout(10* 1000)
-
 describe('server routes', () => {
+
+  let firstResolve: Function
+  let firstPromise = new Promise((resolve) => firstResolve = resolve)
+
   it('generate routes without compiled driver', async () => {
     const config = await readMockProjectConfig('serverRoutes')
     prepareDir(config)
@@ -30,8 +33,13 @@ describe('server routes', () => {
     // compiled file content
     const jsContent = readFileSync(serverRoutesFile + '.js').toString()
     expect(jsContent.indexOf('autoParser')).toBe(-1)
+
+    firstResolve()
   })
+
   it('generate routes with compiled driver', async () => {
+    await firstPromise
+
     const config = await readMockProjectConfig('serverRoutes')
     prepareDir(config)
 

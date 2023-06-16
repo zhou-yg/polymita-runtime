@@ -26,7 +26,6 @@ const esbuildPluginAliasDriver = (c: IConfig, env: 'server' | 'client'): esbuild
     outputServerDir
   } = c.pointFiles
 
-  console.log('plugin esbuildPluginAliasDriver')
   const defaultFormat = esmDirectory
   const envDriverOutputDir = env === 'server' ? outputServerDir : outputClientDir
   const filterReg = new RegExp(`${project}\\/${driversDirectory}`)
@@ -34,19 +33,25 @@ const esbuildPluginAliasDriver = (c: IConfig, env: 'server' | 'client'): esbuild
   return {
     name: 'alias-driver',
     setup(build) {
-      build.onResolve({ filter: /drivers/ }, (args) => {
-        const complementPath = path.join(args.resolveDir, args.path)
+      build.onLoad({ filter: /drivers/ }, async (args) => {
+        const complementPath = args.path
         if (filterReg.test(complementPath)) {
-
           const aliasSource = complementPath
             .replace(cwd, envDriverOutputDir)
             .replace(new RegExp(`\\/${driversDirectory}\\/`), `/${driversDirectory}/${defaultFormat}/`)
             .replace(/(\.ts)?$/, '.js')
-          return {
-            path: aliasSource
+
+          if (fs.existsSync(aliasSource)) {
+            let text = await fs.promises.readFile(aliasSource, 'utf8')
+            return {
+              contents: text,
+              loader: 'js',
+            }
           }
         }
-        return { path: complementPath }
+        return {
+          contents: undefined, // keep esbuild loading it self
+        }
       })
     }
   }
