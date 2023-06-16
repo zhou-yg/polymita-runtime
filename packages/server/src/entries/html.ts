@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 import { IConfig } from "../config"
-import { ReactAdaptor } from '@polymita/connect'
+import { getReactAdaptor } from '@polymita/connect'
 import { RunnerModelScope, debuggerLog, getPlugin, startdReactiveChain } from "@polymita/signal-model";
 import { renderToString } from 'react-dom/server'
 import React from 'react'
@@ -32,7 +32,7 @@ export function wrapCtx (ctx: PageContext) {
 
 export async function renderPage (ctx: PageContext, config: IConfig) {
 
-  const reactRenderDriver = ReactAdaptor(React)
+  const reactRenderDriver = getReactAdaptor(React)
   
   const { distServerRoutes, distEntryJS, distEntryCSS, distServerRoutesCSS } = config.pointFiles
 

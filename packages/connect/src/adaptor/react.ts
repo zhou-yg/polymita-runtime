@@ -153,7 +153,7 @@ export function useProgress<T extends Driver> (react: any, result: ReturnType<T>
   }
 }
 
-export function ReactAdaptor (React: any) {
+export function getReactAdaptor (React: any) {
   let rd: RenderDriver;
   
   const TopContext = setHookAdaptor(React)
