@@ -153,10 +153,15 @@ export function useProgress<T extends Driver> (react: any, result: ReturnType<T>
   }
 }
 
-export function getReactAdaptor (React: any) {
+export function getReactAdaptor () {
   let rd: RenderDriver;
   
-  const TopContext = setHookAdaptor(React)
+  if (!hookAdaptorContext) {
+    throw new Error('[polymita/connect] must call "setHookAdaptor" before rendering')
+  }
+
+  const TopContext = hookAdaptorContext
+  const React = hookAdaptorRuntime;
 
   return {
     getRoot (e: ReactTypes.ReactElement): ReactTypes.ReactElement {

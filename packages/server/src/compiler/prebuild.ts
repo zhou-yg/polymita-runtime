@@ -32,7 +32,7 @@ import { upperFirst } from 'lodash';
 import { generateHookDeps } from './dependenceGraph';
 import esbuildPluginPostcss from './plugins/esbuild-plugin-postcss';
 
-const templateFile = './routesTemplate.ejs'
+const templateFile = './routesServerTemplate.ejs'
 const templateFilePath = path.join(__dirname, templateFile)
 
 const templateClientFile = './routesClientTemplate.ejs'

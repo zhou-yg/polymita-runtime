@@ -32,8 +32,6 @@ export function wrapCtx (ctx: PageContext) {
 
 export async function renderPage (ctx: PageContext, config: IConfig) {
 
-  const reactRenderDriver = getReactAdaptor(React)
-  
   const { distServerRoutes, distEntryJS, distEntryCSS, distServerRoutesCSS } = config.pointFiles
 
   let entryFunctionModule = (doc: React.ReactElement) => doc
@@ -41,7 +39,12 @@ export async function renderPage (ctx: PageContext, config: IConfig) {
     entryFunctionModule = require(distEntryJS).default
   }
   logFrame(`distServerRoutes:${distServerRoutes}`)
-  const routesEntryModule = require(distServerRoutes).default
+  const {
+    default: routesEntryModule,
+    getReactAdaptor,
+  } = require(distServerRoutes)
+
+  const reactRenderDriver = getReactAdaptor()
 
   const routerLocation = ctx.location
 
