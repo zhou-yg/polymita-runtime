@@ -5,6 +5,7 @@ import { loadJSON, traverseDir } from '../util';
 import { build, IBuildOption, getPlugins, getTSConfigPath, buildDTS, generateExternal } from "./prebuild";
 import * as esbuild from 'esbuild';
 import esbuildPluginPostcss from './plugins/esbuild-plugin-postcss';
+import esbuildPluginAliasDriver from './plugins/esbuild-alias-driver';
 
 export async function buildClientRoutes (c: IConfig) {
   const {
@@ -123,7 +124,8 @@ export async function esbuildServerRoutes(c: IConfig) {
     format: 'cjs',
     bundle: true,
     plugins: [
-      esbuildPluginPostcss({ cwd: c.cwd })
+      esbuildPluginPostcss({ cwd: c.cwd }),
+      esbuildPluginAliasDriver(c, 'server')
     ],
     external: [
       ...generateExternal(c),

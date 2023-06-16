@@ -286,6 +286,8 @@ export async function readConfig (arg: {
     merge(config, configInFile)
   }
 
+  const project = path.parse(cwd).name
+
   const packageJSONPath = path.join(cwd, 'package.json')
   const packageJSON: null | JSONSchemaForNPMPackageJsonFiles = fs.existsSync(packageJSONPath) ? loadJSON(packageJSONPath) : null
 
@@ -337,6 +339,7 @@ export async function readConfig (arg: {
 
   return {
     ...config,
+    project,
     port,
     appRootFile,
     routesTree,

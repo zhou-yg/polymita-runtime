@@ -31,14 +31,16 @@ describe('server routes', () => {
     const jsContent = readFileSync(serverRoutesFile + '.js').toString()
     expect(jsContent.indexOf('autoParser')).toBe(-1)
   })
-  it.only('generate routes with compiled driver', async () => {
+  it('generate routes with compiled driver', async () => {
     const config = await readMockProjectConfig('serverRoutes')
     prepareDir(config)
 
+    await buildDrivers(config),
+
     await Promise.all([
-      buildDrivers(config),
       generateServerRoutes(config)
     ])
+
     await esbuildServerRoutes(config)
     // await buildServerRoutes(config)
 
@@ -53,5 +55,5 @@ describe('server routes', () => {
     // compiled file content
     const jsContent = readFileSync(serverRoutesFile + '.js').toString()
     expect(jsContent.indexOf('autoParser')).toBeGreaterThan(-1)
-  }, 10 * 1000)
+  }, 5 * 1000)
 })
