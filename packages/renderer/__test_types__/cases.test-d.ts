@@ -1,4 +1,4 @@
-import { expectType } from 'tsd'
+import { expectType } from "tsd";
 import {
   Assign,
   CommandOP,
@@ -8,8 +8,8 @@ import {
   PatchLayoutWithCommands,
   PatchToLayoutChildren,
   PrintLayoutStructTree,
-  RemoveItem
-} from '../src/types-layout'
+  RemoveItem,
+} from "../src/types-layout";
 
 // interface BaseModuleL {
 //   type: 'div',
@@ -49,28 +49,28 @@ import {
 // error
 
 interface BaseModuleL2 {
-  type: 'div'
+  type: "div";
   readonly children: readonly [
     string,
     {
-      type: 'p'
+      type: "p";
     }
-  ]
+  ];
 }
 type NewPC2 = {
-  readonly op: CommandOP.addChild
-  readonly parent: readonly ['p']
+  readonly op: CommandOP.addChild;
+  readonly parent: readonly ["p"];
   readonly child: {
-    readonly type: 'text'
-    readonly children: readonly ['123']
-  }
-}
+    readonly type: "text";
+    readonly children: readonly ["123"];
+  };
+};
 
-type NewLError = DoPatchCommand<BaseModuleL2, NewPC2>
-type NewLErrorDisplay = PrintLayoutStructTree<NewLError>
+type NewLError = DoPatchCommand<BaseModuleL2, NewPC2>;
+type NewLErrorDisplay = PrintLayoutStructTree<NewLError>;
 
-type NewLError2 = PatchLayoutWithCommands<BaseModuleL2, [NewPC2]>
-type NewLError2Display = PrintLayoutStructTree<NewLError2>
+type NewLError2 = PatchLayoutWithCommands<BaseModuleL2, [NewPC2]>;
+type NewLError2Display = PrintLayoutStructTree<NewLError2>;
 
-type NewLError3 = PatchToLayoutChildren<BaseModuleL2['children'], NewPC2>
-type NewLError3Display = PrintLayoutStructTree<NewLError3>
+type NewLError3 = PatchToLayoutChildren<BaseModuleL2["children"], NewPC2>;
+type NewLError3Display = PrintLayoutStructTree<NewLError3>;

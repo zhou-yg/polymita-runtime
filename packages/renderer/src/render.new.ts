@@ -11,8 +11,8 @@ import {
   StateManagementConfig,
   VirtualLayoutJSON,
   VNodeComponent,
-  VNodeComponent2
-} from './types'
+  VNodeComponent2,
+} from "./types";
 
 import {
   assignDefaultValueByPropTypes,
@@ -22,20 +22,20 @@ import {
   traverse,
   VirtualNodeTypeSymbol,
   VNodeComponentSymbol,
-  VNodeFunctionComponentSymbol
-} from './utils'
+  VNodeFunctionComponentSymbol,
+} from "./utils";
 
-import * as reactSignalManagement from './extensions/stateManagements/react-signal'
-import * as reactHookManagement from './extensions/stateManagements/react-hook'
-import * as reactRenderContainer from './extensions/frameworks/react'
+import * as reactSignalManagement from "./extensions/stateManagements/react-signal";
+import * as reactHookManagement from "./extensions/stateManagements/react-hook";
+import * as reactRenderContainer from "./extensions/frameworks/react";
 
 import {
   BaseDataType,
   FormatPatchCommands,
   LayoutStructTree,
   MergedPatchCommandsToModule,
-  PatchCommand
-} from './types-layout'
+  PatchCommand,
+} from "./types-layout";
 
 export function h(
   type: string | Function,
@@ -52,10 +52,10 @@ export function h(
   /** compatible with different versions jsx: children in props, and key in children */
   if (props?.children) {
     if (children.length !== 0) {
-      props.key = children
+      props.key = children;
     }
-    children = props.children
-    delete props.children
+    children = props.children;
+    delete props.children;
   }
 
   const result: VirtualLayoutJSON = {
@@ -63,33 +63,40 @@ export function h(
     flags: VirtualNodeTypeSymbol,
     type,
     props: props || {},
-    children: children.flat() /** @TODO it's danger! */
-  }
+    children: children.flat() /** @TODO it's danger! */,
+  };
 
-  let key = props?.key
+  let key = props?.key;
   if (key) {
-    result.key = key
+    result.key = key;
   }
 
-  return result
+  return result;
 }
 
-type GlobalCurrentRenderer = ModuleRenderContainer<any, any, any, any, any, any>
+type GlobalCurrentRenderer = ModuleRenderContainer<
+  any,
+  any,
+  any,
+  any,
+  any,
+  any
+>;
 
-let globalCurrentRenderer: GlobalCurrentRenderer[] = []
+let globalCurrentRenderer: GlobalCurrentRenderer[] = [];
 
 function getCurrentRenderer() {
-  return last(globalCurrentRenderer)
+  return last(globalCurrentRenderer);
 }
 function pushCurrentRenderer(renderer: GlobalCurrentRenderer) {
-  globalCurrentRenderer.push(renderer)
+  globalCurrentRenderer.push(renderer);
 }
 function popCurrentRenderer() {
-  globalCurrentRenderer.pop()
+  globalCurrentRenderer.pop();
 }
 
 interface CurrentRenderContext {
-  renderHost: RenderHost
+  renderHost: RenderHost;
   createRenderContainer: RenderContainerConstructor<
     any,
     any,
@@ -97,13 +104,13 @@ interface CurrentRenderContext {
     any,
     any,
     any
-  >
-  stateManagement: StateManagementConfig
+  >;
+  stateManagement: StateManagementConfig;
 }
 
-const renderContextSymbol = Symbol('renderContextSymbol')
+const renderContextSymbol = Symbol("renderContextSymbol");
 function attachRendererContext(target: any, context: CurrentRenderContext) {
-  target[renderContextSymbol] = context
+  target[renderContextSymbol] = context;
 }
 
 function traverseAndAttachRendererContext(
@@ -116,15 +123,15 @@ function traverseAndAttachRendererContext(
       isVNodeFunctionComponent(node) &&
       !getRendererContext(node.type)
     ) {
-      attachRendererContext(node.type, context)
+      attachRendererContext(node.type, context);
     }
-    node?.children?.forEach(dfs)
+    node?.children?.forEach(dfs);
   }
-  dfs(json)
+  dfs(json);
 }
 
 function getRendererContext(target: any): CurrentRenderContext {
-  return target[renderContextSymbol]
+  return target[renderContextSymbol];
 }
 
 /**
@@ -143,7 +150,7 @@ export function createRHRenderer<
   renderHost: RenderHost,
   override?: OverrideModule<
     P,
-    SingleFileModule<P, L, PCArr, ModuleName>['layoutStruct'],
+    SingleFileModule<P, L, PCArr, ModuleName>["layoutStruct"],
     NewPC
   >
 ) {
@@ -159,10 +166,10 @@ export function createRHRenderer<
     override,
     renderHost,
     stateManagement: reactHookManagement.config,
-    createRenderContainer: reactRenderContainer.createReactContainer
-  })
+    createRenderContainer: reactRenderContainer.createReactContainer,
+  });
 
-  return renderer
+  return renderer;
 }
 /**
  * R: React
@@ -180,7 +187,7 @@ export function createRSRenderer<
   renderHost: RenderHost,
   override?: OverrideModule<
     P,
-    SingleFileModule<P, L, PCArr, ModuleName>['layoutStruct'],
+    SingleFileModule<P, L, PCArr, ModuleName>["layoutStruct"],
     NewPC
   >
 ) {
@@ -189,10 +196,10 @@ export function createRSRenderer<
     override,
     renderHost,
     stateManagement: reactSignalManagement.config,
-    createRenderContainer: reactRenderContainer.createReactContainer // @TODO1
-  })
+    createRenderContainer: reactRenderContainer.createReactContainer, // @TODO1
+  });
 
-  return renderer
+  return renderer;
 }
 /**
  * 组件嵌套
@@ -229,41 +236,41 @@ export function createRHRoot(config: { renderHost: RenderHost }) {
   const currentRendererContext = {
     renderHost: config.renderHost,
     createRenderContainer: reactRenderContainer.createReactContainer,
-    stateManagement: reactHookManagement.config
-  }
+    stateManagement: reactHookManagement.config,
+  };
 
   return {
     wrap<Props>(component: FunctionComponent<Props>) {
       return (props: Props) => {
-        attachRendererContext(component, currentRendererContext)
+        attachRendererContext(component, currentRendererContext);
         const ele = config.renderHost.framework.lib.createElement(
           component,
           props
-        )
-        return ele
-      }
-    }
-  }
+        );
+        return ele;
+      };
+    },
+  };
 }
 export function createRSRoot(config: { renderHost: RenderHost }) {
   const currentRendererContext = {
     renderHost: config.renderHost,
     createRenderContainer: reactRenderContainer.createReactContainer,
-    stateManagement: reactSignalManagement.config
-  }
+    stateManagement: reactSignalManagement.config,
+  };
 
   return {
     wrap<Props>(component: FunctionComponent<Props>) {
       return (props: Props) => {
-        attachRendererContext(component, currentRendererContext)
+        attachRendererContext(component, currentRendererContext);
         const ele = config.renderHost.framework.lib.createElement(
           component,
           props
-        )
-        return ele
-      }
-    }
-  }
+        );
+        return ele;
+      };
+    },
+  };
 }
 
 export function createFunctionComponent<
@@ -277,30 +284,30 @@ export function createFunctionComponent<
   module: SingleFileModule<P, L, PCArr, ModuleName>,
   override?: OverrideModule<
     P,
-    SingleFileModule<P, L, PCArr, ModuleName>['layoutStruct'],
+    SingleFileModule<P, L, PCArr, ModuleName>["layoutStruct"],
     NewPC
   >
 ): FunctionComponent<
   P & {
-    key?: string | number | symbol
+    key?: string | number | symbol;
     override?: OverrideModule<
       P,
       SingleFileModule<
         P,
-        SingleFileModule<P, L, PCArr, ModuleName>['layoutStruct'],
+        SingleFileModule<P, L, PCArr, ModuleName>["layoutStruct"],
         NewPC,
         ModuleName
-      >['layoutStruct'],
+      >["layoutStruct"],
       SecondNewPC
-    >
+    >;
   }
 > {
-  const { name } = module
+  const { name } = module;
 
   if (name && /^[a-z]/.test(String(name))) {
     throw new Error(
       `First char of module name must be uppercase, but got ${name}.`
-    )
+    );
   }
 
   /**
@@ -310,33 +317,33 @@ export function createFunctionComponent<
    * 应该不行，应该自己的Context机制
    */
   function frameworkComposeComponent(props: P): VirtualLayoutJSON {
-    const { override: secondOverride, ...restProps } = props
-    const rendererContext = getRendererContext(frameworkComposeComponent)
+    const { override: secondOverride, ...restProps } = props;
+    const rendererContext = getRendererContext(frameworkComposeComponent);
     const { createRenderContainer, renderHost, stateManagement } =
-      rendererContext
+      rendererContext;
 
     const renderer = createRenderer3({
       module,
       override,
       stateManagement,
       renderHost,
-      createRenderContainer
-    })
+      createRenderContainer,
+    });
 
-    renderer.construct(restProps, secondOverride)
+    renderer.construct(restProps, secondOverride);
 
-    return renderer.render()
+    return renderer.render();
   }
-  Object.defineProperty(frameworkComposeComponent, 'name', {
+  Object.defineProperty(frameworkComposeComponent, "name", {
     get() {
-      return name || 'Unknown function component'
-    }
-  })
+      return name || "Unknown function component";
+    },
+  });
   const componentWithSymbol = Object.assign(frameworkComposeComponent, {
-    [VNodeFunctionComponentSymbol]: true
-  })
+    [VNodeFunctionComponentSymbol]: true,
+  });
 
-  return componentWithSymbol
+  return componentWithSymbol;
 }
 
 export function createComposeComponent<
@@ -348,31 +355,31 @@ export function createComposeComponent<
   module: SingleFileModule<P, L, PCArr, ModuleName>
 ): ComposeComponent<
   P & {
-    key?: string | number | symbol
+    key?: string | number | symbol;
   }
 > {
-  const { name } = module
+  const { name } = module;
 
   if (name && /^[a-z]/.test(String(name))) {
     throw new Error(
       `First char of module name must be uppercase, but got ${name}.`
-    )
+    );
   }
   function frameworkComposeComponent(props: P) {
-    const json = module.layout(props)
-    return json
+    const json = module.layout(props);
+    return json;
   }
 
-  Object.defineProperty(frameworkComposeComponent, 'name', {
+  Object.defineProperty(frameworkComposeComponent, "name", {
     get() {
-      return name || 'Unknown compose function component'
-    }
-  })
+      return name || "Unknown compose function component";
+    },
+  });
   const componentWithSymbol = Object.assign(frameworkComposeComponent, {
-    [VNodeComponentSymbol]: true
-  })
+    [VNodeComponentSymbol]: true,
+  });
 
-  return componentWithSymbol
+  return componentWithSymbol;
 }
 
 /**
@@ -387,13 +394,13 @@ export function createRenderer3<
   ConstructProps,
   ModuleName
 >(config: {
-  module: SingleFileModule<P, L, PCArr2, ModuleName>
-  renderHost: RenderHost
+  module: SingleFileModule<P, L, PCArr2, ModuleName>;
+  renderHost: RenderHost;
   override?: OverrideModule<
     P,
-    SingleFileModule<P, L, PCArr2, ModuleName>['layoutStruct'],
+    SingleFileModule<P, L, PCArr2, ModuleName>["layoutStruct"],
     NewRendererPC
-  >
+  >;
   createRenderContainer: RenderContainerConstructor<
     P,
     L,
@@ -401,33 +408,33 @@ export function createRenderer3<
     NewRendererPC,
     ConstructProps,
     ModuleName
-  >
-  stateManagement: StateManagementConfig
+  >;
+  stateManagement: StateManagementConfig;
 }) {
   const {
     module,
     override,
     renderHost,
     createRenderContainer,
-    stateManagement
-  } = config
+    stateManagement,
+  } = config;
 
   const rendererContext: CurrentRenderContext = {
     renderHost,
     createRenderContainer,
-    stateManagement
-  }
+    stateManagement,
+  };
 
   const rendererContainer = createRenderContainer(
     renderHost.framework.lib,
     module,
     stateManagement,
     {
-      useEmotion: renderHost.useEmotion
+      useEmotion: renderHost.useEmotion,
     }
-  )
+  );
 
-  let layoutJSON: VirtualLayoutJSON = null
+  let layoutJSON: VirtualLayoutJSON = null;
 
   function construct<NewConstructPC>(
     props?: ConstructProps,
@@ -438,39 +445,39 @@ export function createRenderer3<
         L,
         [...PCArr2, NewRendererPC],
         ModuleName
-      >['layoutStruct'],
+      >["layoutStruct"],
       NewConstructPC
     >
   ) {
-    const mergedOverrides: any = [override, secondOverride].filter(Boolean)
+    const mergedOverrides: any = [override, secondOverride].filter(Boolean);
 
-    pushCurrentRenderer(rendererContainer)
+    pushCurrentRenderer(rendererContainer);
     const r = rendererContainer.construct<NewConstructPC>(
       props,
       mergedOverrides
-    )
-    popCurrentRenderer()
+    );
+    popCurrentRenderer();
 
-    traverseAndAttachRendererContext(r, rendererContext)
+    traverseAndAttachRendererContext(r, rendererContext);
 
-    layoutJSON = r
+    layoutJSON = r;
 
-    return r
+    return r;
   }
   function render() {
     if (!layoutJSON) {
-      return
+      return;
     }
-    return rendererContainer.render(layoutJSON)
+    return rendererContainer.render(layoutJSON);
   }
 
   const currentRendererInstance = {
     construct,
     render,
-    rendererContext
-  }
+    rendererContext,
+  };
 
-  return currentRendererInstance
+  return currentRendererInstance;
 }
 
 export function extendModule<
@@ -484,23 +491,23 @@ export function extendModule<
   module: SingleFileModule<Props, L, PCArr, ModuleName>,
   override: () => OverrideModule<
     NewProps,
-    SingleFileModule<NewProps, L, PCArr, ModuleName>['layoutStruct'],
+    SingleFileModule<NewProps, L, PCArr, ModuleName>["layoutStruct"],
     NewPC
   >
 ) {
   return {
     ...module,
     override() {
-      const p1 = module.override?.() || []
-      const p2 = override()
-      return [...p1, p2]
-    }
+      const p1 = module.override?.() || [];
+      const p2 = override();
+      return [...p1, p2];
+    },
   } as unknown as SingleFileModule<
     NewProps,
     L,
     [...PCArr, FormatPatchCommands<NewPC>],
     ModuleName
-  >
+  >;
 }
 
 /**
@@ -508,19 +515,19 @@ export function extendModule<
  */
 
 export function useLogic<T = any>(...args: any[]): T {
-  const renderer = getCurrentRenderer()
+  const renderer = getCurrentRenderer();
   if (!renderer) {
-    throw new Error('useLogic must be called in render function')
+    throw new Error("useLogic must be called in render function");
   }
-  return renderer.runLogic(...args) as T
+  return renderer.runLogic(...args) as T;
 }
 
 export function useLayout<T extends LayoutStructTree>() {
-  const renderer = getCurrentRenderer()
+  const renderer = getCurrentRenderer();
   if (!renderer) {
-    throw new Error('useLayout must be called in render function')
+    throw new Error("useLayout must be called in render function");
   }
-  return renderer.getLayout<T>()
+  return renderer.getLayout<T>();
 }
 
 // export function h2<
