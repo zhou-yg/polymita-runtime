@@ -95,15 +95,16 @@ function upgradePatch(dirPath) {
 
 Promise.all([
   build(S),
-  build(R),
 ])
-  .then(() => {
-    return build(SM)
-  }).then(() => {
-    return build(C)
-  }).then(() => {
-    return build(Server)
-  }).then(async () => {
+  .then(() => (
+    build(SM)
+  )).then(() => (
+    build(R)
+  )).then(() => (
+    build(C)
+  )).then(() => (
+    build(Server)
+  )).then(async () => {
     if (SHOULD_RELEASE) {
       upgradePatch(S)
       upgradePatch(C)
