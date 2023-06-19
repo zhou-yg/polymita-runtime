@@ -531,7 +531,7 @@ export abstract class WriteModel<T extends any[]> extends AsyncState<
   entity: string = ''
   sourceModel?: Model<T>
 
-  extraGetters: Record<TWriteMethod, Array<() => T[0]>> = {
+  extraGetters: Record<TWriteMethod, Array<() => Partial<T[0]>>> = {
     create: [],
     update: [],
     remove: [],
@@ -542,7 +542,7 @@ export abstract class WriteModel<T extends any[]> extends AsyncState<
 
   constructor(
     public sourceModelGetter: { _hook: Model<T> } | string,
-    public basicGetData: (() => T[0]) | undefined,
+    public basicGetData: (() => Partial<T[0]>) | undefined,
     protected scope: RunnerModelScope
   ) {
     super(writeInitialSymbol)
@@ -572,7 +572,7 @@ export abstract class WriteModel<T extends any[]> extends AsyncState<
      */
     return this.sourceModel?.refresh?.()
   }
-  injectGetter(fn: () => T[0], method: TWriteMethod) {
+  injectGetter(fn: () => Partial<T[0]>, method: TWriteMethod) {
     if (method === 'find') {
       if (this.sourceModel instanceof Model) {
         this.sourceModel.injectFindGetter(fn)
@@ -594,7 +594,7 @@ export abstract class WriteModel<T extends any[]> extends AsyncState<
     }
     return base
   }
-  setGetter(fn: () => T[0]) {
+  setGetter(fn: () => Partial<T[0]>) {
     this.basicGetData = fn
   }
   abstract createRow(obj?: Partial<T[0]>): Promise<void>
@@ -1525,7 +1525,7 @@ export function model<T extends any[]>(
   }
   return scope.modelHookFactory.prisma<T>(e, q, op)
 }
-export function writeModel<T extends any[]>(source: { _hook: Model<T> }, q: () => T[0]) {
+export function writeModel<T extends any[]>(source: { _hook: Model<T> }, q: () => Partial<T[0]>) {
   const scope = getModelRunnerScope()
   if (!scope) {
     throw new Error('[writePrisma] must under a signal model runner')
