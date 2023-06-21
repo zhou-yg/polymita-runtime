@@ -69,6 +69,34 @@ export function initContext(arg: {
   }
 }
 
+const sequenceITCache: Record<string, Promise<void>[]> = {}
+
+export function createSequenceIT (name: string, deps?: string[]) {
+  return function newIT (description: string, cb: () => Promise<void>, timeout?: number) {
+    let resolve: Function
+    const lockPromise = new Promise<void>(r => {
+      resolve = r;
+    })
+    if (!sequenceITCache[name]) {
+      sequenceITCache[name] = []
+    }
+    sequenceITCache[name].push(lockPromise)
+    console.log('sequenceITCache: ', sequenceITCache);
+    
+    it(description, async () => {
+      if (deps?.length) {
+        for (const depName of deps) {
+          if (sequenceITCache[depName]) {
+            await Promise.all(sequenceITCache[depName])
+          }
+        }
+      }
+      await cb()
+      resolve()
+    }, timeout)
+  } 
+}
+
 export function initModelConfig(obj: any = {}) {
   loadPlugin('Model', {
     async find(e, w) {

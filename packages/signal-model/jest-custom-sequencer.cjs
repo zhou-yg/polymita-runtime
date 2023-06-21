@@ -40,7 +40,7 @@ class CustomSequencer extends Sequencer {
     });
     console.log('test case sort: ', copyTests.map(p => {
 
-      const file = p.path.split('__test__/core/')[1]
+      const file = p.path.split('__test__/signal-model/')[1]
 
       return file
     }));

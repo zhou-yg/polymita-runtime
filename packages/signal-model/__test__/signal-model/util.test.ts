@@ -34,14 +34,6 @@ export type MessageItem = {
   modifiedAt: Date
 }
 
-function testFn(m2: Signal<MessageItem[]>) {
-}
-
-const m1 = prisma<MessageItem[]>('entity')
-
-testFn(m1)
-
-
 describe('util', () => {
   describe('calculate diff', () => {
     it('object add property', () => {

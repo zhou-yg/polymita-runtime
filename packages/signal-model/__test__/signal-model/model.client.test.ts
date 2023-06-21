@@ -6,6 +6,8 @@ import {
 import prisma, { clearAll } from '../prisma'
 import * as mockBM from '../mockBM'
 
+const modelClientIT = mockBM.createSequenceIT('model.client')
+
 describe('client model', () => {
   beforeAll(() => {
     // make sure the model run in server envirnment
@@ -34,7 +36,7 @@ describe('client model', () => {
       async find (from: string, e: 'item', w: IQueryWhere) {
         return prisma[e].findMany(w as any)
       },
-      async create (from: string, e: 'item', d: Omit<IModelData, 'where'>) {
+      async create (from: string, e: 'item', d: Omit<IModelData<any>, 'where'>) {
         return prisma[e].create(d as any)
       },
       async executeDiff (from: string, entity: 'item', diff: IDiff) {
@@ -102,7 +104,7 @@ describe('client model', () => {
   })
   describe('mount model', () => {
   
-    it('post query to server', async () => {
+    modelClientIT('post query to server', async () => {
       const leave = mockBM.enterClient()
       const runner = new ModelRunner(mockBM.userModelClient)
       const result = runner.init()  
@@ -117,7 +119,7 @@ describe('client model', () => {
       runner.scope.deactivate()
     })
 
-    it('keep active model in realtime', async () => {
+    modelClientIT('keep active model in realtime', async () => {
 
       const leave = mockBM.enterClient()
 
@@ -150,7 +152,7 @@ describe('client model', () => {
     })
   })
   describe('update model', () => {
-    it('query immediate with context still wont send query', async () => {
+    modelClientIT('query immediate with context still wont send query', async () => {
       mockBM.enterClient()
       const runner = new ModelRunner(mockBM.userModelClient)
       const cd: IHookContext['data'] = [
