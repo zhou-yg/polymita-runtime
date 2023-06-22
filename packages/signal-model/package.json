@@ -6,9 +6,8 @@
   "module": "./dist/signal-model.esm.js",
   "types": "./dist/signal-model.d.ts",
   "scripts": {
-    "watch-unit": "jest --watch -- __test__/signal-model/context.test.ts",
     "wu": "sh scripts/dev-unit.sh",
-    "test-unit": "jest",
+    "test-unit": "jest --runInBand",
     "test-ci": "TEST=CI jest",
     "format": "prettier --write --parser typescript \"*/*.ts?(x)\"",
     "build": "rollup --config rollup.config.mjs",

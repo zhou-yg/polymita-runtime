@@ -7,5 +7,5 @@ module.exports = {
   testEnvironment: 'node',
   collectCoverage: isCI,
   collectCoverageFrom: ['./src/**/*.ts'],
-  testSequencer: './jest-custom-sequencer.cjs'
+  testSequencer: './jest-custom-sequencer.cjs',
 };

@@ -6,8 +6,6 @@ import {
 import prisma, { clearAll } from '../prisma'
 import * as mockBM from '../mockBM'
 
-const modelClientIT = mockBM.createSequenceIT('model.client')
-
 describe('client model', () => {
   beforeAll(() => {
     // make sure the model run in server envirnment
@@ -104,7 +102,7 @@ describe('client model', () => {
   })
   describe('mount model', () => {
   
-    modelClientIT('post query to server', async () => {
+    it('post query to server', async () => {
       const leave = mockBM.enterClient()
       const runner = new ModelRunner(mockBM.userModelClient)
       const result = runner.init()  
@@ -119,7 +117,7 @@ describe('client model', () => {
       runner.scope.deactivate()
     })
 
-    modelClientIT('keep active model in realtime', async () => {
+    it('keep active model in realtime', async () => {
 
       const leave = mockBM.enterClient()
 
@@ -152,7 +150,7 @@ describe('client model', () => {
     })
   })
   describe('update model', () => {
-    modelClientIT('query immediate with context still wont send query', async () => {
+    it('query immediate with context still wont send query', async () => {
       mockBM.enterClient()
       const runner = new ModelRunner(mockBM.userModelClient)
       const cd: IHookContext['data'] = [

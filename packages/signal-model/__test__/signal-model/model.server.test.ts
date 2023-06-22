@@ -7,11 +7,6 @@ import {
 import * as mockBM from '../mockBM'
 import prisma, { clearAll } from '../prisma'
 
-const modelServerIT = mockBM.createSequenceIT(
-  'model.server',
-  ['model.client']
-)
-
 describe('model', () => {
   beforeAll(() => {
     // make sure the model run in server envirnment
@@ -83,7 +78,7 @@ describe('model', () => {
   })
   describe('mount model', () => {
   
-    modelServerIT('find immediate', async () => {
+    it('find immediate', async () => {
       const runner = new ModelRunner(mockBM.userPessimisticModel)
       const result = runner.init()
       
@@ -98,7 +93,7 @@ describe('model', () => {
         { id: 2, name: 'b' },
       ])
     })
-    modelServerIT('find with injectModel', async () => {
+    it('find with injectModel', async () => {
       const runner = new ModelRunner(mockBM.userInjectFindModel)
       const result = runner.init()
       
@@ -113,7 +108,7 @@ describe('model', () => {
       ])
     })
   
-    modelServerIT('check exist before create', async () => {
+    it('check exist before create', async () => {
       const runner = new ModelRunner(mockBM.userModelInputeCompute)
       const result = runner.init()
       
@@ -136,7 +131,7 @@ describe('model', () => {
       ])
     })
   
-    modelServerIT('query where computed', async () => {
+    it('query where computed', async () => {
       const runner = new ModelRunner(mockBM.userModelComputedQuery)
       const result = runner.init()
       await runner.ready()
@@ -151,7 +146,7 @@ describe('model', () => {
       expect(result.users()).toEqual([{ id: 2, name: 'b' }])
     })
 
-    modelServerIT('model used in computed (with chain) ', async () => {
+    it('model used in computed (with chain) ', async () => {
       const runner = new ModelRunner(mockBM.modelInComputed)
 
       const initChain = startdReactiveChain()
@@ -200,7 +195,7 @@ describe('model', () => {
     })
   
     describe('modify (default=server) ', () => {
-      modelServerIT('object:update property', async () => {
+      it('object:update property', async () => {
         const runner = new ModelRunner(mockBM.userPessimisticModel)
         const result = runner.init()
         
@@ -221,7 +216,7 @@ describe('model', () => {
           { id: 2, name: 'b' },  
         ])
       })
-      modelServerIT('object:create child', async () => {
+      it('object:create child', async () => {
         const runner = new ModelRunner(mockBM.userPessimisticModel)
         const result = runner.init()
         
@@ -254,7 +249,7 @@ describe('model', () => {
           { id: 2, name: null },  
         ])
       })
-      modelServerIT('array:create new element', async () => {
+      it('array:create new element', async () => {
         const runner = new ModelRunner(mockBM.userPessimisticModel)
         const result = runner.init()
           
@@ -273,7 +268,7 @@ describe('model', () => {
           newObj
         ])
       })
-      modelServerIT('array:remove element', async () => {
+      it('array:remove element', async () => {
         const runner = new ModelRunner(mockBM.userPessimisticModel)
         const result = runner.init()
 
@@ -292,7 +287,7 @@ describe('model', () => {
     })
   })
   describe('update model', () => {
-    modelServerIT('find immediate', async () => {
+    it('find immediate', async () => {
       const runner = new ModelRunner(mockBM.userPessimisticModel)
       const cd: IHookContext['data'] = [
         ['data', { id: 1, name: 'a' }, Date.now()],
@@ -313,7 +308,7 @@ describe('model', () => {
   })
 
   describe('dependent models', () => {
-    modelServerIT('apply compute patches sequence', async () => {
+    it('apply compute patches sequence', async () => {
       const runner = new ModelRunner(mockBM.multiPatchesInputCompute)
       const result = runner.init()
       
@@ -335,7 +330,7 @@ describe('model', () => {
   })
 
   describe('dynamic model indexes', () => {
-    modelServerIT('compose sub package driver', async () => {
+    it('compose sub package driver', async () => {
       const runner = new ModelRunner(mockBM.composeDriverWithNamespace, {
         beleiveContext: true,
         modelIndexes: {
@@ -362,7 +357,7 @@ describe('model', () => {
 
   // writing here temporarily
   describe('write model', () => {
-    modelServerIT('inject write model', async () => {  
+    it('inject write model', async () => {  
       const runner = new ModelRunner(mockBM.writeWritePrisma)
       const result = runner.init()
       
@@ -378,7 +373,7 @@ describe('model', () => {
         { id: 10, name: 'aa'}
       ])
     })
-    modelServerIT('connectModel', async () => {
+    it('connectModel', async () => {
       const runner = new ModelRunner(mockBM.writeModelWithSource)
       const result = runner.init()
 
@@ -397,7 +392,7 @@ describe('model', () => {
       expect(result.items()[3].name).toEqual('ddd')
     })
 
-    modelServerIT('write model by quick command',async () => {
+    it('write model by quick command',async () => {
       const runner = new ModelRunner(mockBM.writeModelByQuickCommand)
       const result = runner.init()
       
