@@ -35,12 +35,12 @@ declare module '@polymita/signal' {
         entity: string,
         query: IModelQuery['query']
       ): Promise<any>
-      update(from: string, entity: string, query: IModelData): Promise<number[]>
-      create(from: string, entity: string, data: IModelCreateData): Promise<any>
+      update(from: string, entity: string, query: IModelData<any>): Promise<number[]>
+      create(from: string, entity: string, data: IModelCreateData<any>): Promise<any>
       remove(
         from: string,
         entity: string,
-        data: Omit<IModelData, 'data'>
+        data: Omit<IModelData<any>, 'data'>
       ): Promise<number[]>
       executeDiff(from: string, entity: string, d: IDiff): Promise<void>
     }
@@ -57,43 +57,43 @@ export interface IModelHookContext extends IHookContext {
   patch?: [string, IModelPatchRecord[]][]
 }
 
-export type IPatch = IDataPatch | IModelPatch
+export type IPatch = IDataPatch | IModelPatch<any>
 
-export type IModelCreateData =
-  | Omit<IModelData, 'where'>
-  | Omit<IModelData, 'where'>[]
+export type IModelCreateData<T> =
+  | Omit<IModelData<T>, 'where'>
+  | Omit<IModelData<T>, 'where'>[]
 
-export interface IModelData {
-  where: { id: number }
+export interface IModelData<T> {
+  where: { id: number } & Partial<T>
   data: {
-    [k: string]:
-      | any
+    [k in keyof T]?:
+      | T[k]
       | {
-          connect?: { id: number }
-          create?: IModelData
+          connect?: Partial<T[k]>
+          create?: Partial<T[k]>
         }
   }
   include?: Record<string, boolean>
 }
 
 // for model
-export type IModelPatchCreate = {
+export type IModelPatchCreate<T> = {
   op: 'create'
-  value: IModelCreateData
+  value: IModelCreateData<T>
 }
-export type IModelPatchUpdate = {
+export type IModelPatchUpdate<T> = {
   op: 'update'
-  value: IModelData
+  value: IModelData<T>
 }
-export type IModelPatchRemove = {
+export type IModelPatchRemove<T> = {
   op: 'remove'
-  value: Omit<IModelData, 'data'>
+  value: Omit<IModelData<T>, 'data'>
 }
 
-export type IModelPatch =
-  | IModelPatchCreate
-  | IModelPatchUpdate
-  | IModelPatchRemove
+export type IModelPatch<T> =
+  | IModelPatchCreate<T>
+  | IModelPatchUpdate<T>
+  | IModelPatchRemove<T>
 
 export interface IModelOption {
   immediate?: boolean
@@ -149,5 +149,5 @@ export interface IModelIndexesBase {
 
 export interface IModelPatchRecord {
   timing: number
-  patch: IModelPatch[]
+  patch: IModelPatch<any>[]
 }

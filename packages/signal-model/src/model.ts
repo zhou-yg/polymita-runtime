@@ -50,7 +50,8 @@ import {
   IModelPatchCreate,
   IModelPatchUpdate,
   IModelPatchRemove,
-  IModelRunnerOptions
+  IModelRunnerOptions,
+  IModelData
 } from './types'
 import { merge } from './lib/merge'
 import {
@@ -115,7 +116,7 @@ export class ModelEvent {
   getRecord(m: { entity: string }) {
     return this.data.get(m.entity)
   }
-  pushPatch(m: { entity: string }, p: IModelPatch[]) {
+  pushPatch(m: { entity: string }, p: IModelPatch<any>[]) {
     let record = this.data.get(m.entity)
     if (!record) {
       record = []
@@ -538,7 +539,7 @@ export abstract class WriteModel<T extends any[]> extends AsyncState<
     find: [] // useless
   }
 
-  inputComputeModelPatchesMap:Map<InputCompute, [T[0], IModelPatch[]]> = new Map()
+  inputComputeModelPatchesMap:Map<InputCompute, [T[0], IModelPatch<T[0]>[]]> = new Map()
 
   constructor(
     public sourceModelGetter: { _hook: Model<T> } | string,
@@ -600,9 +601,9 @@ export abstract class WriteModel<T extends any[]> extends AsyncState<
   abstract createRow(obj?: Partial<T[0]>): Promise<void>
   abstract updateRow(where: number, obj?: { [k: string]: any }): Promise<void>
   abstract removeRow(where: number): Promise<void>
-  abstract executeModelPath(ps: IModelPatch[]): Promise<void>
+  abstract executeModelPath(ps: IModelPatch<T[0]>[]): Promise<void>
 
-  addModelPatches(value: T[0], patches: IModelPatch[]) {
+  addModelPatches(value: T[0], patches: IModelPatch<T[0]>[]) {
     const currentInputCompute = getCurrentInputCompute()
     if (currentInputCompute) {
       let exist = this.inputComputeModelPatchesMap.get(currentInputCompute)
@@ -629,7 +630,7 @@ export abstract class WriteModel<T extends any[]> extends AsyncState<
 
     if (exist) {
       this.inputComputeModelPatchesMap.delete(ic)
-      const patches = exist[1].filter(isModelPatch) as IModelPatch[]
+      const patches = exist[1].filter(isModelPatch) as IModelPatch<T[0]>[]
       const { end, valid } = this.startAsyncGetter()
 
       await this.executeModelPath(patches)
@@ -750,18 +751,18 @@ export class Prisma<T extends any[]> extends Model<T> {
 
 export class WritePrisma<T extends any[]> extends WriteModel<T> {
   identifier = 'prisma'
-  async executeModelPath(ps: IModelPatch[]) {
+  async executeModelPath(ps: IModelPatch<T[0]>[]) {
     const { applyComputeParallel } = this.scope
 
     const opMap: Record<
-      IModelPatch['op'],
-      (p: IModelPatch) => Promise<void | number[]>
+      IModelPatch<T[0]>['op'],
+      (p: IModelPatch<T[0]>) => Promise<void | number[]>
     > = {
-      create: (p: IModelPatchCreate) =>
+      create: (p: IModelPatchCreate<T[0]>) =>
         getPlugin('Model').create(this.identifier, this.entity, p.value),
-      update: (p: IModelPatchUpdate) =>
+      update: (p: IModelPatchUpdate<T[0]>) =>
         getPlugin('Model').update(this.identifier, this.entity, p.value),
-      remove: (p: IModelPatchRemove) =>
+      remove: (p: IModelPatchRemove<T[0]>) =>
         getPlugin('Model').remove(this.identifier, this.entity, p.value)
     }
 
@@ -779,7 +780,7 @@ export class WritePrisma<T extends any[]> extends WriteModel<T> {
       await Promise.all(promiseArr)
     }
   }
-  async createRow(obj?: Partial<T[0]>, include?: { [k in keyof T[0]]: boolean }) {
+  async createRow(obj?: IModelData<T[0]>['data'], include?: { [k in keyof T[0]]: boolean }) {
     log('[WritePrisma.createRow]')
 
     const newReactiveChain = getCurrentReactiveChain()?.addCall(this)
@@ -803,7 +804,7 @@ export class WritePrisma<T extends any[]> extends WriteModel<T> {
     }
   }
 
-  async updateRow(where: number, obj?: { [k: string]: any }) {
+  async updateRow(where: number, obj?: IModelData<T[0]>['data']) {
     log('[WritePrisma.updateRow]')
     if (getCurrentInputCompute()) {
       const newReactiveChain = getCurrentReactiveChain()?.addCall(this)
