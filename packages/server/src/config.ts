@@ -167,6 +167,8 @@ function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) 
   const outputAppServerDir = path.join(outputServerDir, config.appDirectory)
   const outputAppClientDir = path.join(outputClientDir, config.appDirectory)
 
+  const filePostfix = config.ts ? '.tsx' : '.jsx'
+
   return {
     outputDir, 
     outputClientDir,
@@ -186,7 +188,7 @@ function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) 
     // app
     outputAppServerDir,
     // router
-    autoGenerateServerRoutes: path.join(outputAppServerDir, `${config.routesServer}${config.ts ? '.tsx' : '.jsx'}`),    
+    autoGenerateServerRoutes: path.join(outputAppServerDir, `${config.routesServer}${filePostfix}`),    
     distServerRoutes: path.join(outputAppServerDir, `${config.routesServer}.js`),
     distServerRoutesCSS: path.join(outputAppServerDir, `${config.routesServer}.css`),
     // entry
@@ -200,8 +202,9 @@ function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) 
 
     // app
     outputAppClientDir,
+    appClientEntry: path.join(cwd, config.appDirectory, `${config.entry}${filePostfix}`),
     // router
-    autoGenerateClientRoutes: path.join(outputAppClientDir, `${config.routes}${config.ts ? '.tsx' : '.jsx'}`),
+    autoGenerateClientRoutes: path.join(outputAppClientDir, `${config.routes}${filePostfix}`),
     clientRoutes: path.join(outputAppClientDir, 'routes.js'),
     clientRoutesCSS: path.join(outputAppClientDir, 'routes.css'),
     // drivers

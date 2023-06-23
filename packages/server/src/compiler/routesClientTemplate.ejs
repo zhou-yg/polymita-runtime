@@ -14,6 +14,10 @@ import {
   setHookAdaptor,
   registerModelIndexes } from '@polymita/connect'
 
+<% if (clientEntry) { %>
+import <%= clientEntry.name %> from '<%= clientEntry.path %>'
+<% } %>
+
 <% if (rootPath) { %>
 import <%= rootName %> from '<%= rootPath %>'
 <% } %>
@@ -32,15 +36,23 @@ function _TaratRootApplication({
   driver.fromContextMap(window.hookContextMap);
   driver.switchToClientConsumeMode();
   
+  let router = (
+    <BrowserRouter>
+      <%- rootStart %>
+      <Routes>
+        <%- routes %>
+      </Routes>  
+      <%- rootEnd %>
+    </BrowserRouter>
+  );
+
+  <% if (clientEntry) { %>
+    router = React.createElement(<%= clientEntry.name %>, {}, router)
+  <% } %>
+  
   return (
     <TopContext.Provider value={driver}>
-      <BrowserRouter>
-        <%- rootStart %>
-        <Routes>
-          <%- routes %>
-        </Routes>  
-        <%- rootEnd %>
-      </BrowserRouter>
+      {router}
     </TopContext.Provider>
   );
 }
@@ -48,7 +60,7 @@ function _TaratRootApplication({
 render(_TaratRootApplication)
 
 function render (f) {
-  const ele = React.createElement(f)
+  let ele = React.createElement(f)
   const app = ReactDOM.createRoot(document.getElementById('app'))
   app.render(ele)
 }

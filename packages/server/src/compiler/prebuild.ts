@@ -272,13 +272,14 @@ function implicitImportPath (path: string, ts: boolean) {
 export async function generateClientRoutes(c: IConfig) {
   const {
     autoGenerateClientRoutes,
+    appClientEntry,
   } = c.pointFiles
 
   const {
     appRootFile,
     routesTree: routesTreeArr,
   } = c
-  
+  // imports
   const imports = generateRoutesImports(routesTreeArr)
   const r = generateRoutesContent(routesTreeArr)
 
@@ -286,8 +287,8 @@ export async function generateClientRoutes(c: IConfig) {
     return `import ${n} from '${implicitImportPath(path.join(c.cwd, f), c.ts)}'`
   }).join('\n')
 
+  // app info
   const rootName = upperFirstVariable(appRootFile?.name)
-
   const rootAppInfo = {
     rootPath: appRootFile?.path,
     rootName,
@@ -295,17 +296,28 @@ export async function generateClientRoutes(c: IConfig) {
     rootEnd: appRootFile?.name ? `</${rootName}>` : ''
   }
 
+  // model indexes
   const modelIndexesJSON = path.join(c.cwd, c.modelsDirectory, c.schemaIndexes)
   let modelIndexes = '{}'
   if (fs.existsSync(modelIndexesJSON)) {
     modelIndexes = fs.readFileSync(modelIndexesJSON).toString()
   }
 
+  // entry file
+  let clientEntry: {name: string, path: string }
+  if (fs.existsSync(appClientEntry)) {
+    clientEntry = {
+      name: 'ClientEntry',
+      path: appClientEntry.replace(/\.(j|t)s(x?)$/, '')
+    }
+  }
+
   const routesStr2 = routesClientTemplate({
     ...rootAppInfo,
     imports: importsWithAbsolutePathClient,
     routes: r,
-    modelIndexes
+    modelIndexes,
+    clientEntry
   })
   // generate for vite.js so that this file doesn't need to be compiled to js
   fs.writeFileSync(autoGenerateClientRoutes, prettier.format(routesStr2, { parser: 'typescript' }))
