@@ -16,7 +16,4 @@ export default async (cwd: string) => {
   })
 
   prepareDir(config)
-
-  await buildDrivers(config)  
-  await buildViews(config)
 }

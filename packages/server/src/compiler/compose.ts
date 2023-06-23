@@ -121,9 +121,10 @@ async function generateNewSchema (c: IConfig, schemaContentArr: IPrismaFile[], e
           const [selfCustomModel] = models.filter(m => new RegExp(`^${m.name}`).test(columnType)).sort((p, n) => p.name.length - n.name.length)
           if (selfCustomModel) {
             const columnTypePostfix = columnType.replace(new RegExp(`^${selfCustomModel.name}`), '')
+            const newColumnType = `${moduleName ? upperFirst(transformModelName(`${moduleName}_${selfCustomModel.name}`)) : selfCustomModel.name}${columnTypePostfix}`
             return [
               columnName,
-              upperFirst(transformModelName(`${moduleName}_${selfCustomModel.name}`)) + columnTypePostfix,
+              newColumnType,
               ...rest
             ].join(' ')
           }
