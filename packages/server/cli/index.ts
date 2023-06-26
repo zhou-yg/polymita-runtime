@@ -5,6 +5,7 @@ import build from './build'
 import start from './start'
 import any from "./any";
 import bootstrap from "./bootstrap";
+import compose from "./compose";
 const cac = cacFactory('tarat-server')
 
 const cwd = process.cwd()
@@ -39,6 +40,12 @@ cac
   .command('any')
   .action(async () => {
     any(cwd)
+  })
+
+cac
+  .command('compose')
+  .action(async () => {
+    compose(cwd)
   })
 cac.help()
 cac.version(pkg.version)
