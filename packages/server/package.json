@@ -5,7 +5,8 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "tarat": "./dist/cli/index.js"
+    "tarat": "./dist/cli/index.js",
+    "polymita": "./dist/cli/index.js"
   },
   "files": [
     "src",
