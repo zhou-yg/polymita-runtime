@@ -42,19 +42,13 @@ export function h(
   props: Record<string, any> | null,
   ...children: (VirtualLayoutJSON | VirtualLayoutJSON[] | BaseDataType)[]
 ): VirtualLayoutJSON {
-  // if (isVNodeComponent(type)) {
-  //   const json = (type as any)({
-  //     ...(props || {}),
-  //     children
-  //   })
-  //   return json
-  // }
   /** compatible with different versions jsx: children in props, and key in children */
   if (props?.children) {
     if (children.length !== 0) {
+      /** third parameter is key  */
       props.key = children;
     }
-    children = props.children;
+    children = [].concat(props.children);
     delete props.children;
   }
 

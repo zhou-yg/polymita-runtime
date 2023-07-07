@@ -51,6 +51,15 @@ export default [
     },
   },
   {
+    ...base,
+    input: 'jsx-runtime.ts',
+    output: {
+      file: 'dist/jsx-runtime.js',
+      format: 'esm',
+    },
+    external: ['@polymita/renderer'],
+  },
+  {
     input: "src/index.ts",
     output: [
       { file: "dist/renderer.d.ts", format: "es" }
@@ -58,6 +67,15 @@ export default [
     plugins: [
       dts(),
       // json(),
+    ],
+  },
+  {
+    input: "jsx-runtime.ts",
+    output: [
+      { file: "dist/jsx-runtime.d.ts", format: "es" }
+    ],
+    plugins: [
+      dts(),
     ],
   }
 ]

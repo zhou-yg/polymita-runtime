@@ -1,14 +1,14 @@
-import * as CSS from 'csstype'
-import { VirtualLayoutJSON } from './src/types'
-import type { StateSignal, ComputedSignal } from '@polymita/signal-model'
 
-import { h } from './src/index'
+import * as CSS from "csstype";
+import { VirtualLayoutJSON } from "./src/types";
+import type { StateSignal, ComputedSignal } from "@polymita/signal-model";
+
+import { h } from "@polymita/renderer";
 
 export const jsx = h;
 export const jsxs = h;
 
-export interface CSSProperties extends CSS.Properties<string | number> {
-}
+export interface CSSProperties extends CSS.Properties<string | number> {}
 
 export interface Events {
   // clipboard events
@@ -137,14 +137,13 @@ type Numberish = number | string;
 export interface HTMLAttributes extends EventHandlers<Events> {
   // tarat-specific Attributes
   key?: any;
-  _html?: string
-  children?: any
-  name?: string
-  readOnly?: Booleanish
-  selected?: Booleanish
-  disabled?: Booleanish
-  if?: any // boolean
-
+  _html?: string;
+  children?: any;
+  name?: string;
+  readOnly?: Booleanish;
+  selected?: Booleanish;
+  disabled?: Booleanish;
+  if?: any; // boolean
 
   className?: any;
   style?: CSSProperties;
@@ -390,7 +389,13 @@ export interface InputHTMLAttributes extends HTMLAttributes {
   src?: string;
   step?: Numberish;
   type?: string;
-  value?: string | ReadonlyArray<string> | number | undefined | StateSignal<number | string> | ComputedSignal<number | string>
+  value?:
+    | string
+    | ReadonlyArray<string>
+    | number
+    | undefined
+    | StateSignal<number | string>
+    | ComputedSignal<number | string>;
   width?: Numberish;
 }
 
@@ -534,7 +539,13 @@ export interface SelectHTMLAttributes extends HTMLAttributes {
   name?: string;
   required?: Booleanish;
   size?: Numberish;
-  value?: string | ReadonlyArray<string> | number | undefined | StateSignal<number | string> | ComputedSignal<number | string>
+  value?:
+    | string
+    | ReadonlyArray<string>
+    | number
+    | undefined
+    | StateSignal<number | string>
+    | ComputedSignal<number | string>;
 }
 
 export interface SourceHTMLAttributes extends HTMLAttributes {
@@ -572,7 +583,14 @@ export interface TextareaHTMLAttributes extends HTMLAttributes {
   readonly?: boolean;
   required?: Booleanish;
   rows?: Numberish;
-  value?: string[] | string | ReadonlyArray<string> | number | undefined | StateSignal<number | string> | ComputedSignal<number | string>
+  value?:
+    | string[]
+    | string
+    | ReadonlyArray<string>
+    | number
+    | undefined
+    | StateSignal<number | string>
+    | ComputedSignal<number | string>;
   wrap?: string;
 }
 
@@ -633,14 +651,13 @@ export interface WebViewHTMLAttributes extends HTMLAttributes {
   webpreferences?: string;
 }
 
-export interface SVGAttributes
-  extends EventHandlers<Events> {
+export interface SVGAttributes extends EventHandlers<Events> {
   key?: any;
-  _html?: string
-  children?: any
-  readOnly?: Booleanish
-  selected?: Booleanish
-  disabled?: Booleanish
+  _html?: string;
+  children?: any;
+  readOnly?: Booleanish;
+  selected?: Booleanish;
+  disabled?: Booleanish;
   /**
    * SVG Styling Attributes
    * @see https://www.w3.org/TR/SVG/styling.html#ElementSpecificStyling
@@ -1096,15 +1113,13 @@ interface IntrinsicElementAttributes {
 }
 
 type NativeElements = {
-  [K in keyof IntrinsicElementAttributes]: IntrinsicElementAttributes[K]
+  [K in keyof IntrinsicElementAttributes]: IntrinsicElementAttributes[K];
 };
 
 declare global {
-  
   namespace JSX {
-
     interface IntrinsicElements {
-      [elemName: string ]: HTMLAttributes;
+      [elemName: string]: HTMLAttributes;
       a: AnchorHTMLAttributes;
       abbr: HTMLAttributes;
       address: HTMLAttributes;
@@ -1219,10 +1234,10 @@ declare global {
       video: VideoHTMLAttributes;
       wbr: HTMLAttributes;
       webview: WebViewHTMLAttributes;
-    
+
       // SVG
       svg: SVGAttributes;
-    
+
       animate: SVGAttributes;
       animateMotion: SVGAttributes;
       animateTransform: SVGAttributes;
@@ -1281,20 +1296,18 @@ declare global {
       use: SVGAttributes;
       view: SVGAttributes;
     }
-    
+
     // interface IntrinsicAttributes {
     //   _html?: string
     // }
-    // interface IntrinsicClassAttributes<T> { 
+    // interface IntrinsicClassAttributes<T> {
     //   _html?: string
     // }
 
     // interface Element<T extends string | Function> extends VLayoutNode<T> {
     //   type: T;
     // }
-    interface Element extends VirtualLayoutJSON {
-      
-    }
+    interface Element extends VirtualLayoutJSON {}
   }
 }
-export {}
+export {};

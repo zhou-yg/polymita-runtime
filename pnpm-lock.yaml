@@ -258,6 +258,7 @@ importers:
     specifiers:
       '@emotion/css': ^11.10.5
       '@jsdevtools/version-bump-prompt': 6.1.0
+      '@polymita/renderer': workspace:*
       '@polymita/signal-model': workspace:*
       '@rollup/plugin-alias': ^3.1.9
       '@rollup/plugin-node-resolve': ^13.3.0
@@ -280,6 +281,7 @@ importers:
       csstype: registry.npmmirror.com/csstype/3.1.1
     devDependencies:
       '@jsdevtools/version-bump-prompt': registry.npmmirror.com/@jsdevtools/version-bump-prompt/6.1.0
+      '@polymita/renderer': 'link:'
       '@polymita/signal-model': link:../signal-model
       '@rollup/plugin-alias': registry.npmmirror.com/@rollup/plugin-alias/3.1.9_rollup@2.79.1
       '@rollup/plugin-node-resolve': registry.npmmirror.com/@rollup/plugin-node-resolve/13.3.0_rollup@2.79.1
