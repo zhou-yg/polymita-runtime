@@ -3,7 +3,7 @@ import * as CSS from "csstype";
 import { VirtualLayoutJSON } from "./src/types";
 import type { StateSignal, ComputedSignal } from "@polymita/signal-model";
 
-import { h } from "@polymita/renderer";
+import { h } from "./src/index";
 
 export const jsx = h;
 export const jsxs = h;

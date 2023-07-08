@@ -269,7 +269,7 @@ importers:
       csstype: ^3.1.1
       jest: ^29.4.1
       prettier: ^2.8.3
-      rollup: ^2.74.1
+      rollup: ^2.79.1
       rollup-plugin-dts: ^4.2.2
       rollup-plugin-typescript2: ^0.31.2
       test: ^3.2.1
@@ -291,7 +291,7 @@ importers:
       '@types/node': registry.npmmirror.com/@types/node/18.15.5
       jest: registry.npmmirror.com/jest/29.5.0_@types+node@18.15.5
       prettier: registry.npmmirror.com/prettier/2.8.6
-      rollup: registry.npmmirror.com/rollup/2.79.1
+      rollup: 2.79.1
       rollup-plugin-dts: registry.npmmirror.com/rollup-plugin-dts/4.2.3_rollup@2.79.1
       rollup-plugin-typescript2: registry.npmmirror.com/rollup-plugin-typescript2/0.31.2_rollup@2.79.1
       test: registry.npmmirror.com/test/3.3.0

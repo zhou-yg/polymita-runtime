@@ -35,6 +35,23 @@ const base = {
   external: [],
 }
 
+function treatRendererAsRelativeAndExternal () {
+  return {
+    name: 'treatRendererAsRelativeAndExternal',
+    resolveId: {
+      order: 'pre',
+      async handler (id) {
+        if (id === './src/index') {
+          return {
+            id: './renderer.esm', 
+            external: true
+          }
+        }
+      }
+    }
+  }
+}
+
 export default [
   {
     ...base,
@@ -51,22 +68,34 @@ export default [
     },
   },
   {
-    ...base,
-    input: 'jsx-runtime.ts',
-    output: {
-      file: 'dist/jsx-runtime.js',
-      format: 'esm',
-    },
-    external: ['@polymita/renderer'],
-  },
-  {
     input: "src/index.ts",
     output: [
       { file: "dist/renderer.d.ts", format: "es" }
     ],
     plugins: [
       dts(),
-      // json(),
+    ],
+  },
+  {
+    input: 'jsx-runtime.ts',
+    output: {
+      file: 'dist/jsx-runtime.js',
+      format: 'esm',
+      paths: {
+        src: './'
+      }
+    },
+    plugins: [
+      tsPlugin({
+        clean: true,
+        tsconfig: './tsconfig.json',
+      }),
+      json(),  
+      treatRendererAsRelativeAndExternal(),
+    ],
+    external: [
+      // '@polymita/renderer',
+      // resolve('./src/index.ts')
     ],
   },
   {
