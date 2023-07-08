@@ -84,7 +84,9 @@ export async function createDevServer (c: IConfig) {
     plugins: [
       tsconfigPaths(),
       { ...aliasDriverRollupPlugin(c, 'client'), enforce: 'pre' },
-      react(),
+      react({
+        exclude: /modules\/.*\.tsx/
+      }),
     ],
     resolve: {
       extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx', '.json'],
