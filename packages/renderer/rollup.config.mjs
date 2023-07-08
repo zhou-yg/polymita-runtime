@@ -35,7 +35,8 @@ const base = {
   external: [],
 }
 
-function treatRendererAsRelativeAndExternal () {
+function treatRendererAsRelativeAndExternal (format) {
+  const postfix = format === 'esm' ? 'esm.js' : 'js'
   return {
     name: 'treatRendererAsRelativeAndExternal',
     resolveId: {
@@ -43,7 +44,7 @@ function treatRendererAsRelativeAndExternal () {
       async handler (id) {
         if (id === './src/index') {
           return {
-            id: './renderer.esm', 
+            id: `./renderer.${postfix}`, 
             external: true
           }
         }
@@ -79,7 +80,7 @@ export default [
   {
     input: 'jsx-runtime.ts',
     output: {
-      file: 'dist/jsx-runtime.js',
+      file: 'dist/jsx-runtime.esm.js',
       format: 'esm',
       paths: {
         src: './'
@@ -91,12 +92,26 @@ export default [
         tsconfig: './tsconfig.json',
       }),
       json(),  
-      treatRendererAsRelativeAndExternal(),
-    ],
-    external: [
-      // '@polymita/renderer',
-      // resolve('./src/index.ts')
-    ],
+      treatRendererAsRelativeAndExternal('esm'),
+    ]
+  },
+  {
+    input: 'jsx-runtime.ts',
+    output: {
+      file: 'dist/jsx-runtime.js',
+      format: 'cjs',
+      paths: {
+        src: './'
+      }
+    },
+    plugins: [
+      tsPlugin({
+        clean: true,
+        tsconfig: './tsconfig.json',
+      }),
+      json(),  
+      treatRendererAsRelativeAndExternal('cjs'),
+    ]
   },
   {
     input: "jsx-runtime.ts",

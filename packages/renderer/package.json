@@ -22,7 +22,7 @@
       "require": "./dist/renderer.js"
     },
     "./jsx-runtime": {
-      "import": "./dist/jsx-runtime.js",
+      "import": "./dist/jsx-runtime.esm.js",
       "require": "./dist/jsx-runtime.js"
     }
   },
