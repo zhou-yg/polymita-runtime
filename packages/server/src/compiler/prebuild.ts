@@ -20,6 +20,7 @@ import autoExternal from 'rollup-plugin-auto-external';
 import replace from '@rollup/plugin-replace';
 import rollupAlias from '@rollup/plugin-alias'
 import dts from "rollup-plugin-dts"
+import { generateDtsBundle } from 'dts-bundle-generator'
 import { emptyDirectory, loadJSON, logFrame, lowerFirst, readFiles, traverseDir } from "../util";
 import chalk from "chalk";
 import { cp, mkdir, rm } from "shelljs";
@@ -385,6 +386,7 @@ export function contextServerRoutes(c: IConfig) {
       esbuildPluginPostcss({
         cwd: c.cwd
       }),
+      aliasAtCodeToCwd(c.cwd),
     ],
     external: [
       ...generateExternal(c),
@@ -513,6 +515,9 @@ export async function buildEntryServer (c: IConfig) {
       platform: 'node',
       treeShaking: true,
       format: 'cjs',
+      plugins: [
+        aliasAtCodeToCwd(c.cwd),
+      ]
     })
   }
 }
@@ -784,29 +789,64 @@ export function buildDTS (c: IConfig, filePath: string, outputFile: string) {
   return build(c, options)
 }
 
+export async function buildDTSFiles (c: IConfig, filePaths: { filePath: string, outFile: string }[]) {
+  const tsconfigPath = getTSConfigPath(c.cwd)
+  
+  const entries = filePaths.map(({ filePath }) => ({ filePath }))
+
+  const outputTexts = generateDtsBundle(
+    entries,
+    {
+      preferredConfigPath: tsconfigPath,
+      followSymlinks: true,
+    }
+  )
+
+  await Promise.all(outputTexts.map((tsdCode, i) => {
+    return new Promise((resolve, reject) => {
+      fs.writeFile(filePaths[i].outFile, tsdCode, e => {
+        if (e) {
+          reject(e)
+        } else {
+          resolve(0)
+        }
+      })
+    })
+  }))
+}
+
 export async function driversType(c: IConfig, outputDir: string) {
   const { drivers, driversDirectory } = c
   const cwdDirversDir = path.join(c.cwd, driversDirectory)
-  const generateFiles: {
-    name: string,
-    destFile:string,
-    destDir: string
-    relativePath: string
-  }[] = []
 
-  await Promise.all(drivers.filter(({ filePath }) => /\.ts$/.test(filePath)).map(async h => {
+  // await Promise.all(drivers.filter(({ filePath }) => /\.ts$/.test(filePath)).map(async h => {
+  //   const { filePath, name , dir } = h
+  //   const relativePath = path.relative(cwdDirversDir, dir)
+  //   const destDir = path.join(outputDir, relativePath)
+  //   const destFile = path.join(destDir, `${name}.d.ts`)
+  //   generateFiles.push({
+  //     name,
+  //     destDir,
+  //     relativePath,
+  //     destFile,
+  //   })
+  //   await buildDTS(c, filePath, destFile)
+  // }))
+  const generateFiles = drivers.filter(({ filePath }) => /\.ts$/.test(filePath)).map((h) => {
     const { filePath, name , dir } = h
     const relativePath = path.relative(cwdDirversDir, dir)
     const destDir = path.join(outputDir, relativePath)
-    const destFile = path.join(destDir, `${name}.d.ts`)
-    generateFiles.push({
+    const outFile = path.join(destDir, `${name}.d.ts`)
+    return ({
       name,
+      filePath,
       destDir,
       relativePath,
-      destFile,
+      outFile,
     })
-    await buildDTS(c, filePath, destFile)
-  }))
+  })
+
+  await buildDTSFiles(c, generateFiles)
 
   return generateFiles
 }
@@ -853,13 +893,13 @@ export async function buildDrivers (c: IConfig) {
   if (c.ts) {
     try {
       const files = await driversType(c, outputDriversDir)
-      files.forEach(({ name, destFile, relativePath }) => {
+      files.forEach(({ name, outFile, relativePath }) => {
         [outputClientDriversDir, outputServerDriversDir].forEach(outputEnvDir => {
           const dir = path.join(outputEnvDir, relativePath)
           if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir)
           }
-          cp(destFile, dir)
+          cp(outFile, dir)
         })
       })
     } catch (e) {
