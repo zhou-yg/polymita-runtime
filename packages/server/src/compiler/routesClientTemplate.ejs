@@ -27,7 +27,7 @@ import <%= rootName %> from '<%= rootPath %>'
 registerModelIndexes(<%- modelIndexes %>)
 
 preset.clientRuntime()
-const TopContext = setHookAdaptor(React as any)
+const TopContext = setHookAdaptor(React)
 
 function _TaratRootApplication({
   location
