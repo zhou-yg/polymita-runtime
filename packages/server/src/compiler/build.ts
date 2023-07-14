@@ -2,10 +2,11 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { IConfig } from "../config";
 import { loadJSON, traverseDir } from '../util';
-import { build, IBuildOption, getPlugins, getTSConfigPath, buildDTS, generateExternal, aliasAtCodeToCwd } from "./prebuild";
+import { build, IBuildOption, getPlugins, getTSConfigPath, buildDTS, generateExternal } from "./prebuild";
 import * as esbuild from 'esbuild';
 import esbuildPluginPostcss from './plugins/esbuild-plugin-postcss';
 import esbuildPluginAliasDriver from './plugins/esbuild-alias-driver';
+import aliasAtCodeToCwd from './plugins/esbuild-alias-at';
 
 export async function buildClientRoutes (c: IConfig) {
   const {
@@ -80,6 +81,7 @@ export async function buildViews (c: IConfig) {
     ],
     plugins: [
       aliasAtCodeToCwd(c.cwd),
+      esbuildPluginPostcss({ cwd: c.cwd }),
     ]
   })  
 }

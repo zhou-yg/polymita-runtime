@@ -27,11 +27,13 @@ import { cp, mkdir, rm } from "shelljs";
 import { ArrowFunctionExpression, CallExpression, FunctionExpression, Identifier, ImportDeclaration, Program } from 'estree';
 import { traverse, last } from '../util';
 import aliasDriverRollupPlugin from './plugins/rollup-plugin-alias-driver';
-import { removeFunctionBody } from './ast';
 import { findDependentPrisma, readCurrentPrisma, readExsitPrismaPart, transformModelName } from './compose';
 import { upperFirst } from 'lodash';
 import { generateHookDeps } from './dependenceGraph';
 import esbuildPluginPostcss from './plugins/esbuild-plugin-postcss';
+import clearFunctionBodyEsbuildPlugin from './plugins/esbuild-clear-function-body';
+import aliasAtCodeToCwd from './plugins/esbuild-alias-at';
+import esbuildPluginAliasDriver from './plugins/esbuild-alias-driver';
 
 const templateFile = './routesServerTemplate.ejs'
 const templateFilePath = path.join(__dirname, templateFile)
@@ -377,16 +379,18 @@ export function contextServerRoutes(c: IConfig) {
     distServerRoutes,
   } = c.pointFiles
 
+  console.log('autoGenerateServerRoutes: ', autoGenerateServerRoutes);
   let ctxPromise = esbuild.context({
     entryPoints: [autoGenerateServerRoutes],
     outfile: distServerRoutes,
     format: 'cjs',
     bundle: true,
+    platform: 'node',
     plugins: [
+      aliasAtCodeToCwd(c.cwd),
       esbuildPluginPostcss({
         cwd: c.cwd
       }),
-      aliasAtCodeToCwd(c.cwd),
     ],
     external: [
       ...generateExternal(c),
@@ -495,7 +499,7 @@ export async function buildEntryServer (c: IConfig) {
     //     input: r.file,
     //     plugins: getPlugins({
     //       mode: 'dev',
-    //       css: distEntryCss,
+    //       css: c.pointFiles.distEntryCSS,
     //       runtime: 'server'
     //     }, c),
         
@@ -617,68 +621,6 @@ export function removeUnusedImports(sourceFile: string) {
   fs.writeFileSync(sourceFile, newCode)
 }
 
-export function clearFunctionBodyEsbuildPlugin (
-  dir: string,
-  names: string[],cache: string[]
-): esbuild.Plugin {
-  !fs.existsSync(dir) && mkdir(dir)
-
-  return {
-    name: 'clear tarat runtime function body',
-    setup(build) {
-      /** @TODO should match more explicit */
-      build.onResolve({ filter: /drivers\// }, args => {
-        if (!fs.existsSync(args.path)) {
-          return null
-        }
-        const { base, dir: fileDir } = path.parse(args.path)
-        
-        const code = fs.readFileSync(args.path).toString()
-        const newCode2 = removeFunctionBody(code, names)
-
-        const destFile = path.join(fileDir, 'cache_' + base)
-        cache.push(destFile)
-
-        fs.writeFileSync(destFile, newCode2)
-
-        return {
-          path: destFile,
-          sideEffects: false
-        }
-      })
-
-      // build.onLoad({ filter: /drivers\// }, args => {
-      //   console.log('args: ', args);
-      //   const code = fs.readFileSync(args.path).toString()
-
-      //   const newCode2 = removeFunctionBody(code, names)
-      //   console.log('newCode2: ', newCode2);
-
-      //   return {
-      //     contents: newCode2,
-      //     loader: /\.ts$/.test(args.path) ? 'ts' : 'js'
-      //   }
-      // })
-    },
-  }
-}
-
-export function aliasAtCodeToCwd (cwd: string): esbuild.Plugin {
-  return {
-    name: 'aliasAtCodeToCwd',
-    setup(build) {
-      build.onLoad({ filter: /drivers\// }, args => {
-        const code = fs.readFileSync(args.path).toString()
-        const newCode2 = code.replace(/@\//, cwd + '/')
-        return {
-          contents: newCode2,
-          loader: /\.ts$/.test(args.path) ? 'ts' : 'js'
-        }
-      });
-    },
-  };
-};
-
 async function esbuildDrivers (
   config: IConfig,
   inputs: string[],
@@ -703,7 +645,7 @@ async function esbuildDrivers (
       ...Object.keys(packageJSON.devDependencies || {}),
       ...Object.keys(packageJSON.peerDependencies || {}),
       'drivers/*',
-      'tarat',
+      '@polymita/*',
       'node:*',
     ] : undefined,
     allowOverwrite: true,
@@ -819,6 +761,7 @@ export async function driversType(c: IConfig, outputDir: string) {
   const { drivers, driversDirectory } = c
   const cwdDirversDir = path.join(c.cwd, driversDirectory)
 
+  // const generateFiles = []
   // await Promise.all(drivers.filter(({ filePath }) => /\.ts$/.test(filePath)).map(async h => {
   //   const { filePath, name , dir } = h
   //   const relativePath = path.relative(cwdDirversDir, dir)
