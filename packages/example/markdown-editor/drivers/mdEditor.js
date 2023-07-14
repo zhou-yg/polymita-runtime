@@ -6,7 +6,7 @@ import {
   progress,
   state,
   writeModel
-} from 'tarat/core'
+} from '@polymita/signal-model'
 import indexes from '@/models/indexes.json'
 
 export default function mdEditor(q = {}) {

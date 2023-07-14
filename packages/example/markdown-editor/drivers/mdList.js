@@ -3,7 +3,7 @@ import {
   model,
   state,
   writePrisma
-} from 'tarat/core'
+} from '@polymita/signal-model'
 import indexes from '@/models/indexes.json'
 
 export default function mdList(q = {}) {
