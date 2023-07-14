@@ -2,7 +2,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { IConfig } from "../config";
 import { loadJSON, traverseDir } from '../util';
-import { build, IBuildOption, getPlugins, getTSConfigPath, buildDTS, generateExternal } from "./prebuild";
+import { build, IBuildOption, getPlugins, getTSConfigPath, buildDTS, generateExternal, aliasAtCodeToCwd } from "./prebuild";
 import * as esbuild from 'esbuild';
 import esbuildPluginPostcss from './plugins/esbuild-plugin-postcss';
 import esbuildPluginAliasDriver from './plugins/esbuild-alias-driver';
@@ -77,6 +77,9 @@ export async function buildViews (c: IConfig) {
     external: [
       ...generateExternal(c),
       ...externalDrivers,
+    ],
+    plugins: [
+      aliasAtCodeToCwd(c.cwd),
     ]
   })  
 }
@@ -87,6 +90,9 @@ export async function buildModules(c: IConfig) {
 
   const moduleFiles: string[] = []
 
+  if (!fs.existsSync(originalModulesDir)) {
+    return
+  }
   traverseDir(originalModulesDir, f => {
     const wholePath = path.join(originalModulesDir, f.file)
     if (f.isDir) {
@@ -106,7 +112,10 @@ export async function buildModules(c: IConfig) {
     splitting: true,
     tsconfig: getTSConfigPath(c.cwd),
     external: [
-      ...generateExternal(c)
+      ...generateExternal(c),
+    ],
+    plugins: [
+      aliasAtCodeToCwd(c.cwd),
     ]
   })
 }
@@ -125,7 +134,8 @@ export async function esbuildServerRoutes(c: IConfig) {
     bundle: true,
     plugins: [
       esbuildPluginPostcss({ cwd: c.cwd }),
-      esbuildPluginAliasDriver(c, 'server')
+      esbuildPluginAliasDriver(c, 'server'),
+      aliasAtCodeToCwd(c.cwd),
     ],
     external: [
       ...generateExternal(c),
