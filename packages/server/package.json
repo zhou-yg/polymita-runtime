@@ -47,6 +47,7 @@
     "@types/rimraf": "^3.0.2",
     "@types/rollup-plugin-auto-external": "^2.0.2",
     "@types/shelljs": "^0.8.11",
+    "postcss-less": "^6.0.0",
     "tslib": "^2.4.0"
   },
   "dependencies": {
@@ -77,6 +78,7 @@
     "camel-case": "^4.1.2",
     "chalk": "4.x.x",
     "chokidar": "^3.5.3",
+    "dts-bundle-generator": "^8.0.1",
     "ejs": "^3.1.8",
     "electron": "^22.0.3",
     "esbuild": "^0.17.19",

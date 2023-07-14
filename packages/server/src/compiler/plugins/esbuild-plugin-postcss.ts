@@ -4,6 +4,7 @@ import * as fs from 'fs'
 import tailwindcss from 'tailwindcss'
 import autoprefixer from 'autoprefixer';
 import postcss from 'postcss'
+import less from 'postcss-less'
 
 const esbuildPluginPostcss = (options: {
   cwd: string
@@ -12,7 +13,7 @@ const esbuildPluginPostcss = (options: {
   return {
     name: 'postcss',
     setup(build) {
-      build.onLoad({ filter: /\.css$/ }, async (args) => {
+      build.onLoad({ filter: /\.(css|less)$/ }, async (args) => {
         const contents = await fs.promises.readFile(args.path, 'utf8');
         const result = await postcss([
           tailwindcss({
@@ -22,6 +23,7 @@ const esbuildPluginPostcss = (options: {
         ]).process(contents, {
           from: args.path,
           to: args.path,
+          syntax: less,
         });
   
         return {
