@@ -5,8 +5,9 @@
  */
 import * as esbuild from 'esbuild';
 import * as path from 'path'
-import * as fs from 'fs'
+import * as fs from 'fs/promises'
 import { IConfig } from '../../config';
+import { existsSync } from 'fs';
 
 function isDriver (path: string, tag: string) {
   const pathArr = path.split('/')
@@ -41,26 +42,59 @@ const esbuildPluginAliasDriver = (c: IConfig, env: 'server' | 'client'): esbuild
 
   return {
     name: 'alias-driver',
+    
     setup(build) {
-      build.onResolve({ filter: /drivers/ }, (args) => {
-        const complementPath = isRelative(args.path)
-          ? path.join(args.resolveDir, args.path)
-          : path.join(c.cwd, 'node_modules', args.path)
-        console.log('complementPath: ', env, complementPath, filterReg.test(complementPath));
+      build.onLoad({ filter: /drivers/ }, async (args) => {
+        console.log('args: ', args.path);
+        const complementPath = (args.path)
         if (filterReg.test(complementPath)) {
           const aliasSource = complementPath
             .replace(cwd, envDriverOutputDir)
             .replace(new RegExp(`\\/${driversDirectory}\\/`), `/${driversDirectory}/${defaultFormat}/`)
-            .replace(/(\.(t|j)s)?$/, '.js')
-
-          console.log('aliasSource: ', aliasSource, fs.existsSync(aliasSource), '\n');
-          if (fs.existsSync(aliasSource)) {
+            .replace(/(\.(t|j)s)?$/, '.js');
+          
+          console.log('aliasSource: ', aliasSource, existsSync(aliasSource), '\n');
+          if (existsSync(aliasSource)) {
+            const driverJS = await fs.readFile(aliasSource)
             return {
-              path: aliasSource
+              contents: driverJS,
+              loader: 'js'
             }
           }
         }
+
+        return {}
       })
+      // build.onResolve({ filter: /drivers/ }, async (args) => {
+      //   /**
+      //    * 1.import from current project
+      //    * 2.import from node_modules
+      //    */
+      //   console.log('args.path: ', args.path);
+      //   const result = await build.resolve(args.path, {
+      //     kind: 'import-statement',
+      //     resolveDir: args.resolveDir,
+      //   })
+      //   console.log('result: ', result);
+      //   const complementPath = isRelative(args.path)
+      //     ? path.join(args.resolveDir, args.path)
+      //     : path.join(c.cwd, 'node_modules', args.path)
+      //   console.log('\ncomplementPath: ', env, complementPath, filterReg.test(complementPath));
+
+      //   if (filterReg.test(complementPath)) {
+      //     const aliasSource = complementPath
+      //       .replace(cwd, envDriverOutputDir)
+      //       .replace(new RegExp(`\\/${driversDirectory}\\/`), `/${driversDirectory}/${defaultFormat}/`)
+      //       .replace(/(\.(t|j)s)?$/, '.js')
+
+      //     console.log('aliasSource: ', aliasSource, fs.existsSync(aliasSource), '\n');
+      //     if (fs.existsSync(aliasSource)) {
+      //       return {
+      //         path: aliasSource
+      //       }
+      //     }
+      //   }
+      // })
     }
   }
 }

@@ -379,7 +379,7 @@ export function contextServerRoutes(c: IConfig) {
     distServerRoutes,
   } = c.pointFiles
 
-  console.log('autoGenerateServerRoutes: ', autoGenerateServerRoutes);
+  console.log('\nautoGenerateServerRoutes: ', autoGenerateServerRoutes, '\n');
   let ctxPromise = esbuild.context({
     entryPoints: [autoGenerateServerRoutes],
     outfile: distServerRoutes,
@@ -387,6 +387,7 @@ export function contextServerRoutes(c: IConfig) {
     bundle: true,
     platform: 'node',
     plugins: [
+      esbuildPluginAliasDriver(c, 'server'),
       aliasAtCodeToCwd(c.cwd),
       esbuildPluginPostcss({
         cwd: c.cwd

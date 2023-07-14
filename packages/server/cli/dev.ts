@@ -284,8 +284,6 @@ export default async (cwd: string) => {
   
   await startCompile(config)
 
-  console.log('config.platform: ', config.platform);
-
   await http.createDevServer(config)
 
   switch (config.platform) {
