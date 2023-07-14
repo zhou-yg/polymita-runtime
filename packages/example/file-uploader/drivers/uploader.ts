@@ -5,7 +5,7 @@ import {
   prisma,
   writePrisma,
   inputComputeInServer,
-} from 'tarat/core'
+} from '@polymita/signal-model'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import indexes from '@/models/indexes.json'

@@ -1,0 +1,67 @@
+{
+  "uploader": {
+    "names": [
+      [
+        0,
+        "inputFile"
+      ],
+      [
+        1,
+        "OSSLink"
+      ],
+      [
+        2,
+        "fileStorage"
+      ],
+      [
+        3,
+        "writeFileStroage"
+      ],
+      [
+        4,
+        "createStorage"
+      ],
+      [
+        5,
+        "updateStorage"
+      ]
+    ],
+    "deps": [
+      [
+        "h",
+        1,
+        [
+          0
+        ]
+      ],
+      [
+        "ic",
+        3,
+        [
+          1
+        ],
+        [
+          2
+        ]
+      ],
+      [
+        "ic",
+        4,
+        [],
+        [
+          3
+        ]
+      ],
+      [
+        "ic",
+        5,
+        [
+          1
+        ],
+        [
+          3
+        ]
+      ]
+    ]
+  }
+}

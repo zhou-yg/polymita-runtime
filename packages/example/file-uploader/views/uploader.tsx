@@ -1,4 +1,3 @@
-import { useTarat } from 'tarat/connect'
 import React, { useState } from 'react'
 import uploaderHook from '@/drivers/uploader'
 
