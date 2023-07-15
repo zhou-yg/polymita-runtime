@@ -5,7 +5,7 @@ import EditOutlined from '@ant-design/icons/EditOutlined'
 import CloseOutlined from '@ant-design/icons/CloseOutlined'
 
 const UserInfo = (props, ref) => {
-  const loginHook = props; // useTarat(login)
+  const loginHook = props; // useSignal(login)
   
   useImperativeHandle(ref, () => ({
     hook: loginHook

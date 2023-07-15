@@ -5,7 +5,7 @@ import {
   inputComputeInServer,
   progress,
   state,
-} from "tarat/core";
+} from "@polymita/signal-model";
 import login from "./compose/login";
 import topic from "./compose/topic";
 

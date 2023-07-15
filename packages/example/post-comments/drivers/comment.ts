@@ -4,7 +4,7 @@ import {
   model,
   inputComputeInServer,
   computed,
-} from "tarat/core";
+} from "@polymita/signal-model";
 import indexes from '@/models/indexes.json'
 
 interface IComment {

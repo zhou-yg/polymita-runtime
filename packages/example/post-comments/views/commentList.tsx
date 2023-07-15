@@ -1,7 +1,7 @@
 import React, { ReactElement, useEffect, useState } from 'react'
 
 import s from './commentList.module.less'
-import { useTarat } from 'tarat/connect'
+import { useSignal } from '@polymita/connect'
 
 import { Button, Input, List, ListItem } from '@mui/material'
 
@@ -57,9 +57,9 @@ const CommentList: React.FC<{
   authorId: number
 }> = (props) => {
 
-  const topicOne = useTarat(topicOneHook, { id: props.topicId })
+  const topicOne = useSignal(topicOneHook, { id: props.topicId })
 
-  const comment = useTarat(commentHook, {
+  const comment = useSignal(commentHook, {
     topicId: props.topicId,
     name: props.name,
     authorId: props.authorId

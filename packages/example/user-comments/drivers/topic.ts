@@ -1,4 +1,4 @@
-import { compose, computed, progress, state, connectModel } from "tarat/core";
+import { compose, computed, progress, state, connectModel } from "@polymita/signal-model";
 import _topic from "./compose/topic";
 
 export default function topic() {

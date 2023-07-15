@@ -1,6 +1,6 @@
 import mainHook from '../drivers/main'
 import topicDriver from '../drivers/topic'
-import { useTarat, useProgress, useDriver } from 'tarat/connect'
+import { useSignal } from '@polymita/connect'
 import React, { useState } from 'react'
 import s from './comments.module.less'
 import { Link } from 'react-router-dom'
@@ -26,7 +26,7 @@ const Comments: React.FC<{
   onSign?: () => void
 }> = (props) => {
 
-  const main = useTarat(mainHook)
+  const main = useSignal(mainHook)
 
   console.log('main.notLogin(): ', main.notLogin());
 

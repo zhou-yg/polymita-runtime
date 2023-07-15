@@ -6,7 +6,7 @@ import {
   state,
   writeModel,
   writePrisma,
-} from "tarat/core";
+} from "@polymita/signal-model";
 import indexes from '@/models/indexes.json'
 
 export interface ITopic {

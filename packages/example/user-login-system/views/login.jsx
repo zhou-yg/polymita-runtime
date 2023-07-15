@@ -1,11 +1,8 @@
 import React, { useState, forwardRef, useImperativeHandle } from 'react'
-import { useTarat } from 'tarat/connect'
-import login from '../drivers/login'
 import s from './login.module.less'
-import classnames from 'classnames'
 
 const SignFrame = (props) => {
-  const loginHook = props; // useTarat(login)
+  const loginHook = props; // useSignal(login)
 
   const errorContent = loginHook?.errorTip()
 
@@ -56,7 +53,7 @@ const SignFrame = (props) => {
 }
 
 const LoginFrame = (props) => {
-  const loginHook = props; // useTarat(login)
+  const loginHook = props; // useSignal(login)
 
   return (
     <div>
@@ -101,7 +98,7 @@ const LoginTypes = {
 }
 
 const LoginBox = (props, ref) => {
-  const loginHook = props; // useTarat(login)
+  const loginHook = props; // useSignal(login)
   
   useImperativeHandle(ref, () => ({
     hook: loginHook

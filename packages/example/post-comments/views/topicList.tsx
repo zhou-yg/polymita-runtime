@@ -1,7 +1,7 @@
 import React, { ReactElement, useState } from 'react'
 
 import s from './topicList.module.less'
-import { useTarat } from 'tarat/connect'
+import { useSignal } from '@polymita/connect'
 import topicHook, { ITopic } from '../drivers/topic'
 import { Button, Input, List, ListItem, ListItemButton } from '@mui/material'
 
@@ -10,7 +10,7 @@ const TopicList: React.FC<{
 }> = (props) => {
   const { renderItem = (v, i) => `${i}.${v.title}` } = props
 
-  const topic = useTarat(topicHook)
+  const topic = useSignal(topicHook)
   
   function creatTopic () {
     topic.add()

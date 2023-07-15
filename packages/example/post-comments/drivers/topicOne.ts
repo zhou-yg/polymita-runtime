@@ -1,4 +1,4 @@
-import { computed, inputComputeInServer, model, state } from "tarat/core";
+import { computed, inputComputeInServer, model, state } from "@polymita/signal-model";
 import { ITopic } from "./topic";
 import indexes from '@/models/indexes.json'
 

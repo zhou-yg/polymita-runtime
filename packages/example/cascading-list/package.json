@@ -46,8 +46,7 @@
     "prisma": "^4.2.1",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
-    "react-router-dom": "^6.3.0",
-    "@polymita/server": "workspace:~*"
+    "react-router-dom": "^6.3.0"
   },
   "dependencies": {
     "@ant-design/icons": "^4.7.0",

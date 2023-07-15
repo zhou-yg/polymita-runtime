@@ -8,7 +8,7 @@ import {
   inputComputeInServer,
   writePrisma,
   compose,
-} from "tarat/core";
+} from "@polymita/signal-model";
 import { nanoid } from "nanoid";
 import uploaderDriver from './compose/uploader'
 import indexes from '@/models/indexes.json'

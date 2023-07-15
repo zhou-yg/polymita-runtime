@@ -4,7 +4,7 @@ import { useLocation, Navigate, Link } from 'react-router-dom'
 import LoginFrame from 'tarat-user-login-system/dist/views/login'
 import 'tarat-user-login-system/dist/views/login.css'
 
-import { after } from 'tarat/core'
+import { after } from '@polymita/signal-model'
 
 export default function Login () {
   console.log('--- user-comments Login ---')

@@ -1,5 +1,5 @@
 import React from 'react'
-import { useProgress, useTarat } from 'tarat/connect'
+import { useProgress, useSignal } from '@polymita/connect'
 import Login from '../../views/login.jsx'
 import login from '../../drivers/login'
 import { Navigate } from 'react-router-dom'
@@ -12,7 +12,7 @@ export const meta = () => ({
 
 export default () => {
 
-  const loginHook = useTarat(login)
+  const loginHook = useSignal(login)
   const progress = useProgress(loginHook)  
   const alreadyLogin = progress.state === 'idle' && loginHook.alreadyLogin()
   console.log('alreadyLogin: ', progress.state, loginHook.alreadyLogin(), '=>', alreadyLogin);
