@@ -109,6 +109,8 @@ export class Watcher<T = Hook> {
 export class Hook extends EventEmitter {
   /** hook's name for debugging */
   name?: string
+  /** hook's dep index for debugging */
+  index?: number
   freezed?: boolean
   watchers = new Set<Watcher<typeof this>>()
   addWatcher(w: Watcher<Hook>) {
@@ -1168,8 +1170,12 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
     this.watcher.addDep(source, path)
   }
 
+  findHookIndex(hook?: Hook) {
+    return this.hooks.indexOf(hook)
+  }
+
   addHook(v: Hook | undefined) {
-    if (v && this.hooks.indexOf(v) !== -1) {
+    if (this.findHookIndex(v) > -1) {
       throw new Error('[scope.addHook] cant add repeat hook')
     }
     this.hooks.push(v)
@@ -1184,6 +1190,7 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
         )
         if (r?.[1]) {
           v.name = r[1]
+          v.index = r[0]
         }
       }
     }
@@ -1537,7 +1544,7 @@ export class ReactiveChain<T = any> {
 
     if (currentRunnerScope) {
       if (trigger instanceof Hook) {
-        const index = currentRunnerScope.hooks.indexOf(trigger)
+        const index = currentRunnerScope.findHookIndex(trigger)
         if (index > -1) {
           childChain.hookIndex = index
         }

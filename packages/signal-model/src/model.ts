@@ -223,7 +223,7 @@ export class RunnerModelScope<T extends Driver = any> extends CurrentRunnerScope
                   const setterGetterFunc: { _hook: Hook } | undefined =
                     this.composes[composeIndex]?.[variableName]
                   if (setterGetterFunc?._hook) {
-                    return this.hooks.indexOf(setterGetterFunc._hook)
+                    return this.findHookIndex(setterGetterFunc._hook)
                   }
                 }
                 return numOrArr
@@ -317,7 +317,7 @@ export class RunnerModelScope<T extends Driver = any> extends CurrentRunnerScope
     }
     getRelatedIndexesByHook(h: Hook, excludeSelf?: boolean) {
       const { hooks } = this
-      const hookIndex = h ? hooks.indexOf(h) : -1
+      const hookIndex = this.findHookIndex(h)
   
       let deps = this.getRelatedHookIndexes(hookIndex)
       if (excludeSelf) {
@@ -345,7 +345,7 @@ export class RunnerModelScope<T extends Driver = any> extends CurrentRunnerScope
      */
     createActionContext(h?: Hook, args?: any[]): IHookContext {
       const { hooks } = this
-      const hookIndex = h ? hooks.indexOf(h) : -1
+      const hookIndex = this.findHookIndex(h)
   
       let deps = new Set<number>()
       if (h) {
@@ -361,7 +361,7 @@ export class RunnerModelScope<T extends Driver = any> extends CurrentRunnerScope
     }
     createShallowActionContext(h?: Hook, args?: any[]): IHookContext {
       const { hooks } = this
-      const hookIndex = h ? hooks.indexOf(h) : -1
+      const hookIndex = this.findHookIndex(h)
   
       let deps = new Set<number>()
       if (h) {
@@ -864,7 +864,7 @@ export class ClientPrisma<T extends any[]> extends Prisma<T> {
         context
       )
 
-      const index = this.scope.hooks.indexOf(this)
+      const index = this.scope.findHookIndex(this)
       if (result.data) {
         const d = result.data[index]
         if (d.length >= 2) {
@@ -1006,7 +1006,7 @@ export class ClientComputed<T> extends Computed<T> {
       .postComputeToServer(context)
       .then((result: IHookContext) => {
         if (valid()) {
-          const index = this.scope.hooks.indexOf(this)
+          const index = this.scope.findHookIndex(this)
           if (result.data) {
             const d = result.data[index]
             if (d.length >= 2) {
