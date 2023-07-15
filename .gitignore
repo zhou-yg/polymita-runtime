@@ -109,3 +109,8 @@ packages/*/__test__/database/migrations
 packages/*/__test__/database/dev.db
 packages/*/__test__/database/dev.db-journal
 packages/signal-model/__test__/database/dev.db
+packages/example/*/.tarat
+packages/example/*/models/dev.db
+packages/example/*/models/dev.db-*
+packages/example/*/models/migrations
+packages/example/*/models/customPrismaClient
