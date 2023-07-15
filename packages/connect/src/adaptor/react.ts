@@ -146,7 +146,7 @@ const scopeSymbol = Symbol.for('@taratReactScope')
 export interface IProgress {
   state: EScopeState
 }
-export function useProgress<T extends Driver> (react: any, result: ReturnType<T>): IProgress | null {
+export function useProgress<T extends Driver> (result: ReturnType<T>): IProgress | null {
   const state = result[scopeSymbol].getState()
   return {
     state,
