@@ -868,7 +868,7 @@ export class ClientPrisma<T extends any[]> extends Prisma<T> {
       if (result.data) {
         const d = result.data[index]
         if (d.length >= 2) {
-          this.update(d[1])
+          this.update(d[2])
         }
       }
     }
@@ -1010,7 +1010,7 @@ export class ClientComputed<T> extends Computed<T> {
           if (result.data) {
             const d = result.data[index]
             if (d.length >= 2) {
-              this.update(d[1])
+              this.update(d[2])
             }
           }
           end()
@@ -1159,9 +1159,9 @@ function updateCyclePrisma<T extends any[]>(
 
   if (receiveDataFromContext) {
     const initialValue: T =
-      currentRunnerScope!.runnerContext.initialData![currentIndex]?.[1]
-    const timestamp =
       currentRunnerScope!.runnerContext.initialData![currentIndex]?.[2]
+    const timestamp =
+      currentRunnerScope!.runnerContext.initialData![currentIndex]?.[3]
     hook.init = false
     hook._internalValue = initialValue || ([] as T)
     if (timestamp) {
@@ -1227,9 +1227,9 @@ function updateComputedInServer<T>(fn: any): any {
   }
 
   const initialValue: T =
-    currentRunnerScope!.runnerContext.initialData![currentIndex]?.[1]
-  const timestamp =
     currentRunnerScope!.runnerContext.initialData![currentIndex]?.[2]
+  const timestamp =
+    currentRunnerScope!.runnerContext.initialData![currentIndex]?.[3]
 
   const hook =
     process.env.TARGET === 'server'

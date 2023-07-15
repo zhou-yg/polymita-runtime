@@ -659,23 +659,24 @@ export class RunnerContext<T extends Driver> {
     const hooksData: IHookContext['data'] = hooks.map((hook, i) => {
       if (hook && (!enable || enable(i))) {
         if (hook instanceof Computed) {
-          return ['computed', getValueSilently(hook), hook.modifiedTimestamp]
+          return [hook.name, 'computed', getValueSilently(hook), hook.modifiedTimestamp]
         }
         if (hook instanceof InputCompute) {
-          return ['inputCompute']
+          return [hook.name, 'inputCompute']
         }
         if (hook instanceof State) {
           if (hook.needContextValue) {
             return [
+              hook.name,
               hook.contextName,
               getValueSilently(hook),
               hook.modifiedTimestamp
             ]
           }
-          return [hook.contextName]
+          return [hook.name,hook.contextName]
         }
       }
-      return ['unserialized']
+      return [hook.name, 'unserialized']
     })
     return hooksData
   }
@@ -734,7 +735,7 @@ export class RunnerContext<T extends Driver> {
   ) {
     const contextData = c.data
     /** @TODO runContext shouldnt care the update logic */
-    contextData.forEach(([type, value, timestamp], index) => {
+    contextData.forEach(([name, type, value, timestamp], index) => {
       if (isDef(value)) {
         const state = hooks[index] as State
         switch (type) {
@@ -1064,7 +1065,7 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
       /** @TODO belive deps calculation from client.it's maybe dangerous' */
       const s = new Set<number>([runnerContext.triggerHookIndex])
       runnerContext.initialData.forEach((d, i) => {
-        if (d[0] !== 'unserialized') {
+        if (d[1] !== 'unserialized') {
           s.add(i)
         }
       })
@@ -1791,14 +1792,14 @@ function updateState<T>(initialValue?: T) {
   const { valid, currentIndex } = updateValidation()
 
   initialValue =
-    currentRunnerScope!.runnerContext.initialData![currentIndex]?.[1]
+    currentRunnerScope!.runnerContext.initialData![currentIndex]?.[2]
   // undefined means this hook wont needed in this progress
   if (!valid) {
     currentRunnerScope!.addHook(undefined)
     return createUnaccessGetter<T>(currentIndex)
   }
   const timestamp =
-    currentRunnerScope!.runnerContext.initialData![currentIndex]?.[2]
+    currentRunnerScope!.runnerContext.initialData![currentIndex]?.[3]
   const hook = new State(initialValue)
   if (timestamp) {
     hook.modifiedTimestamp = timestamp
@@ -1842,9 +1843,9 @@ function updateCache<T>(key: string, options: ICacheOptions<T>) {
   currentRunnerScope!.addHook(hook)
 
   const initialValue: T =
-    currentRunnerScope!.runnerContext.initialData![currentIndex]?.[1]
-  const timestamp =
     currentRunnerScope!.runnerContext.initialData![currentIndex]?.[2]
+  const timestamp =
+    currentRunnerScope!.runnerContext.initialData![currentIndex]?.[3]
 
   if (initialValue !== undefined) {
     hook._internalValue = initialValue
@@ -1888,9 +1889,9 @@ function updateComputed<T>(fn: any): any {
     return createUnaccessGetter<T>(currentIndex)
   }
   const initialValue: T =
-    currentRunnerScope!.runnerContext.initialData![currentIndex]?.[1]
-  const timestamp =
     currentRunnerScope!.runnerContext.initialData![currentIndex]?.[2]
+  const timestamp =
+    currentRunnerScope!.runnerContext.initialData![currentIndex]?.[3]
 
   const hook = new Computed<T>(fn)
   currentRunnerScope!.addHook(hook)
