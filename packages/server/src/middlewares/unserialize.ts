@@ -56,7 +56,7 @@ export function unserializeObjToJSON (obj: Record<string, any>) {
 export function filterFileType (c: IHookContext): IHookContext {
 
   const data = c.data.map(v => {
-    if (v[1] instanceof SimulateBrowserFile) {
+    if (v[2] instanceof SimulateBrowserFile) {
       return ['unserialized']
     }
     return v

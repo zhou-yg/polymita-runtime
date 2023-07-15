@@ -45,7 +45,7 @@ const esbuildPluginAliasDriver = (c: IConfig, env: 'server' | 'client'): esbuild
     
     setup(build) {
       build.onLoad({ filter: /drivers/ }, async (args) => {
-        console.log('args: ', args.path);
+        console.log('args.path complementPath: ', args.path);
         const complementPath = (args.path)
         if (filterReg.test(complementPath)) {
           const aliasSource = complementPath
