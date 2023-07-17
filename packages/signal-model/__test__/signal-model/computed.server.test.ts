@@ -39,8 +39,8 @@ describe('computed', () => {
       const initContext = mockBM.initContext({
         index: undefined,
         data: [
-          ['data', 0, Date.now()],
-          ['data', 0, Date.now()]
+          ['s1', 'data', 0, Date.now()],
+          ['c', 'data', 0, Date.now()]
         ]
       })
 

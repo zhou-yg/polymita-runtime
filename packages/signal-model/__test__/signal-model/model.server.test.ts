@@ -290,7 +290,7 @@ describe('model', () => {
     it('find immediate', async () => {
       const runner = new ModelRunner(mockBM.userPessimisticModel)
       const cd: IHookContext['data'] = [
-        ['data', { id: 1, name: 'a' }, Date.now()],
+        ['users', 'data', { id: 1, name: 'a' }, Date.now()],
       ]
       const context = mockBM.initContext({
         index: undefined,

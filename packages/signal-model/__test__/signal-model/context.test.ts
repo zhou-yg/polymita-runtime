@@ -16,8 +16,8 @@ describe('initContext', () => {
       initialArgList: [],
       args: [],
       data: [
-        ['state', { numStr: 'from context' }, Date.now()],
-        ['state', null]
+        ['s1', 'state', { numStr: 'from context' }, Date.now()],
+        ['s2', 'state', null]
       ]
     }
     const runner = new ModelRunner(mockBM.plainObjectState)
@@ -36,8 +36,8 @@ describe('initContext', () => {
       initialArgList: [],
       args: [],
       data: [
-        ['state', { numStr: 'from context' }, Date.now()],
-        ['state']
+        ['s1', 'state', { numStr: 'from context' }, Date.now()],
+        ['s2', 'state']
       ]
     }
     const runner = new ModelRunner(mockBM.plainObjectState)
@@ -56,7 +56,7 @@ describe('initContext', () => {
       initialArgList: [],
       args: [],
       data: [
-        ['model']
+        ['m1', 'model']
       ]
     }
     const runner = new ModelRunner(mockBM.oneModel)
@@ -121,10 +121,10 @@ describe('initContext', () => {
       const context = mockBM.initContext({
         index: 4,
         data: [
-          ['state', { num: 1 }, Date.now()],
-          ['unserialized'],
-          ['computed', 3, Date.now()],
-          ['computed', 4, Date.now()],
+          ['s1', 'state', { num: 1 }, Date.now()],
+          ['s2', 'unserialized'],
+          ['c1', 'computed', 3, Date.now()],
+          ['c2', 'computed', 4, Date.now()],
         ]
       })
       const r = clientRunner.init([], context)

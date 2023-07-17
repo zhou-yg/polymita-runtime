@@ -154,8 +154,8 @@ describe('client model', () => {
       mockBM.enterClient()
       const runner = new ModelRunner(mockBM.userModelClient)
       const cd: IHookContext['data'] = [
-        ['data', 3, Date.now()],
-        ['data', [{ id: 3, name: 'c' }], Date.now()]
+        ['num', 'data', 3, Date.now()],
+        ['users', 'data', [{ id: 3, name: 'c' }], Date.now()]
       ]
       const context = mockBM.initContext({
         index: undefined,

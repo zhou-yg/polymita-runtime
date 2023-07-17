@@ -30,8 +30,6 @@ describe('state', () => {
       ]
       const result = runner.init(args)
   
-      
-  
       expect(result.s1()).toEqual(args[0])
       expect(result.s2()).toEqual(args[1])
     })
@@ -45,8 +43,8 @@ describe('state', () => {
         10
       ]
       const cd: IHookContext['data'] = [
-        ['data', { num1: 1 }, Date.now()],
-        ['data', 12, Date.now()]
+        ['s1', 'data', { num1: 1 }, Date.now()],
+        ['s2', 'data', 12, Date.now()]
       ]
       const context = mockBM.initContext({
         index: undefined,
@@ -54,8 +52,8 @@ describe('state', () => {
       })
       const result = runner.init(args, context)
   
-      expect(result.s1()).toEqual(cd[0][1])
-      expect(result.s2()).toEqual(cd[1][1])
+      expect(result.s1()).toEqual(cd[0][2])
+      expect(result.s2()).toEqual(cd[1][2])
     })
   })
 })

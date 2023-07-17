@@ -91,7 +91,7 @@ describe('cache', () => {
     it('initialize simple cache with context', async () => {
       const runner = new Runner(mockBM.onlyCache)
       const cd: IHookContext['data'] = [
-        ['data', 2, Date.now()],
+        ['c', 'data', 2, Date.now()],
       ]
       const context = mockBM.initContext({
         index: 0,
@@ -104,7 +104,7 @@ describe('cache', () => {
       const cVal = result.c()
   
       expect(cVal).toBe(2)
-      expect(result.c._hook.modifiedTimestamp).toBe(cd[0][2])
+      expect(result.c._hook.modifiedTimestamp).toBe(cd[0][3])
     })
   })
 })
