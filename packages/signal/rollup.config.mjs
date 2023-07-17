@@ -26,7 +26,8 @@ export default [
     ],
     output: {
       file: 'dist/signal.js',
-      format: 'commonjs'
+      format: 'commonjs',
+      sourcemap: true,
     },
   },
   {
@@ -40,7 +41,8 @@ export default [
     ],
     output: {
       file: 'dist/signal.esm.js',
-      format: 'esm'
+      format: 'esm',
+      sourcemap: true,
     },
   },
   {
@@ -54,7 +56,8 @@ export default [
     ],
     output: {
       file: 'dist/signal.client.esm.js',
-      format: 'esm'
+      format: 'esm',
+      sourcemap: true,
     }
   },
   {
@@ -68,7 +71,8 @@ export default [
     ],
     output: {
       file: 'dist/signal.client.js',
-      format: 'cjs'
+      format: 'cjs',
+      sourcemap: true,
     }
   },
   {

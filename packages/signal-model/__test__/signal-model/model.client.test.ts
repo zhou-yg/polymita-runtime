@@ -171,7 +171,7 @@ describe('client model', () => {
       expect(result.users()).toEqual([
         { id: 3, name: 'c' },
       ])
-      expect(result.users._hook.modifiedTimestamp).toBe(cd[1][2]!)
+      expect(result.users._hook.modifiedTimestamp).toBe(cd[1][3]!)
       
       result.num(() => 1)
 
@@ -179,7 +179,7 @@ describe('client model', () => {
       expect(result.users()).toEqual([
         { id: 1, name: 'a' },
       ])
-      expect(result.users._hook.modifiedTimestamp).toBeGreaterThan(cd[1][2]!)
+      expect(result.users._hook.modifiedTimestamp).toBeGreaterThan(cd[1][3]!)
     })
   })
 })

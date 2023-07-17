@@ -30,352 +30,360 @@ import {
   shortValue,
   get,
   getNamespace,
-  THookDepUnit
-} from './util'
-import { getPlugin, TCacheFrom } from './plugin'
-import EventEmitter from 'eventemitter3'
-import type { Draft } from 'immer'
-import { produceWithPatches, enablePatches } from 'immer'
-export { produceWithPatches, applyPatches } from 'immer'
+  THookDepUnit,
+} from "./util";
+import { getPlugin, TCacheFrom } from "./plugin";
+import EventEmitter from "eventemitter3";
+import type { Draft } from "immer";
+import { produceWithPatches, enablePatches } from "immer";
+export { produceWithPatches, applyPatches } from "immer";
 
-enablePatches()
+enablePatches();
 
 export function freeze(target: { _hook?: { freezed?: boolean } }) {
   if (target._hook) {
-    target._hook.freezed = true
+    target._hook.freezed = true;
   }
 }
 function unFreeze(target: { _hook?: { freezed?: boolean } }) {
   if (target._hook) {
-    target._hook.freezed = false
+    target._hook.freezed = false;
   }
 }
 export function checkFreeze(target: { _hook?: { freezed?: boolean } }) {
-  return target._hook?.freezed === true
+  return target._hook?.freezed === true;
 }
 
 interface ITarget<T> {
-  watcher: Watcher<T>
-  notify: (hook?: ISource<T>, patches?: IDataPatch[], rc?: ReactiveChain) => void
-  addDep: (source: ISource<T>, path?: (number | string)[]) => void
+  watcher: Watcher<T>;
+  notify: (
+    hook?: ISource<T>,
+    patches?: IDataPatch[],
+    rc?: ReactiveChain,
+  ) => void;
+  addDep: (source: ISource<T>, path?: (number | string)[]) => void;
 }
 
 export interface ISource<U> {
-  watchers: Set<Watcher<U>>
-  addWatcher: (w: Watcher<U>) => void
+  watchers: Set<Watcher<U>>;
+  addWatcher: (w: Watcher<U>) => void;
 }
 
 export class Watcher<T = Hook> {
-  deps: Map<ISource<T>, (string | number)[][]> = new Map()
+  deps: Map<ISource<T>, (string | number)[][]> = new Map();
   constructor(public target: ITarget<ISource<T>>) {}
   notify(
     dep: ISource<T>,
     path: TPath,
     patches?: IDataPatch[],
-    reactiveChain?: ReactiveChain
+    reactiveChain?: ReactiveChain,
   ) {
-    const paths = this.deps.get(dep)
-    const matched = paths?.some(p => isEqual(p, path))
+    const paths = this.deps.get(dep);
+    const matched = paths?.some((p) => isEqual(p, path));
     if (matched) {
-      this.target.notify(dep, patches, reactiveChain)
-      return true
+      this.target.notify(dep, patches, reactiveChain);
+      return true;
     }
   }
   addDep(dep: ISource<T>, path: (number | string)[] = []) {
-    dep.addWatcher(this)
+    dep.addWatcher(this);
     if (path.length === 0) {
-      path = ['']
+      path = [""];
     }
-    let paths = this.deps.get(dep)
+    let paths = this.deps.get(dep);
     if (paths) {
-      const exist = paths.find(p => p === path || isEqual(p, path))
+      const exist = paths.find((p) => p === path || isEqual(p, path));
       if (!exist) {
-        paths.push(path)
+        paths.push(path);
       }
     } else {
-      paths = [path]
-      this.deps.set(dep, [path])
+      paths = [path];
+      this.deps.set(dep, [path]);
     }
     return () => {
-      const paths = this.deps.get(dep)
-      const existIndex = paths?.findIndex(p => isEqual(p, path))
+      const paths = this.deps.get(dep);
+      const existIndex = paths?.findIndex((p) => isEqual(p, path));
       if (paths && existIndex && existIndex > -1) {
-        paths?.splice(existIndex, 1)
+        paths?.splice(existIndex, 1);
       }
-    }
+    };
   }
 }
 
 export class Hook extends EventEmitter {
   /** hook's name for debugging */
-  name?: string
+  name?: string;
   /** hook's dep index for debugging */
-  index?: number
-  freezed?: boolean
-  watchers = new Set<Watcher<typeof this>>()
+  index?: number;
+  freezed?: boolean;
+  watchers = new Set<Watcher<typeof this>>();
   addWatcher(w: Watcher<Hook>) {
-    this.watchers.add(w)
+    this.watchers.add(w);
   }
 }
 export function isState(h: { _hook?: State }) {
-  return h && (h._hook ? h._hook instanceof State : h instanceof State)
+  return h && (h._hook ? h._hook instanceof State : h instanceof State);
 }
 
-export function isSignal(h: { _hook?: State | Computed<any> }): h is Signal<any> {
-  return h?._hook && (h._hook instanceof Computed || h._hook instanceof State)
+export function isSignal(h: {
+  _hook?: State | Computed<any>;
+}): h is Signal<any> {
+  return h?._hook && (h._hook instanceof Computed || h._hook instanceof State);
 }
 
 export enum EHookEvents {
-  change = 'change',
-  beforeCalling = 'beforeCalling',
-  afterCalling = 'afterCalling'
+  change = "change",
+  beforeCalling = "beforeCalling",
+  afterCalling = "afterCalling",
 }
 
 function getValueSilently(s: State) {
-  return s._internalValue
+  return s._internalValue;
 }
 
 export function internalProxy<T>(
   source: State<T>,
   _internalValue: T,
-  path: (string | number)[] = []
+  path: (string | number)[] = [],
 ): T {
   if (underComputed()) {
-    last(currentComputedStack).watcher.addDep(source, path)
+    last(currentComputedStack).watcher.addDep(source, path);
     if (_internalValue && likeObject(_internalValue)) {
-      const copyValue = shallowCopy(_internalValue)
+      const copyValue = shallowCopy(_internalValue);
       return new Proxy(copyValue as any, {
         get(target, p: string) {
-          let value = Reflect.get(target, p)
-          if (typeof value === 'function') {
-            value = value.bind(target)
+          let value = Reflect.get(target, p);
+          if (typeof value === "function") {
+            value = value.bind(target);
           }
-          return internalProxy(source, value, path.concat(p))
-        }
-      })
+          return internalProxy(source, value, path.concat(p));
+        },
+      });
     }
   }
-  return _internalValue
+  return _internalValue;
 }
 
 export class State<T = any> extends Hook {
-  _internalValue: T
-  freezed?: boolean
-  modifiedTimestamp = Date.now()
-  inputComputePatchesMap: Map<InputCompute, [T, IDataPatch[]]> = new Map()
+  _internalValue: T;
+  freezed?: boolean;
+  modifiedTimestamp = Date.now();
+  inputComputePatchesMap: Map<InputCompute, [T, IDataPatch[]]> = new Map();
 
-  contextName = 'state'
-  needContextValue = true
+  contextName = "state";
+  needContextValue = true;
 
-  needCheckAndRefresh = false
+  needCheckAndRefresh = false;
 
-  applyComputeAsync = false
+  applyComputeAsync = false;
 
   constructor(data: T) {
-    super()
-    this._internalValue = data
+    super();
+    this._internalValue = data;
   }
   trigger(
-    path: (number | string)[] = [''],
+    path: (number | string)[] = [""],
     patches?: IDataPatch[],
     reactiveChain?: ReactiveChain<T>,
-    triggeredSet?: Set<Watcher>
+    triggeredSet?: Set<Watcher>,
   ) {
     if (!path || path.length === 0) {
-      path = ['']
+      path = [""];
     }
     if (!triggeredSet) {
-      triggeredSet = new Set()
+      triggeredSet = new Set();
     }
-    this.watchers.forEach(w => {
+    this.watchers.forEach((w) => {
       if (triggeredSet?.has(w)) {
-        return
+        return;
       }
       if (w.notify(this, path, patches, reactiveChain)) {
-        triggeredSet?.add(w)
+        triggeredSet?.add(w);
       }
-    })
-    return triggeredSet
+    });
+    return triggeredSet;
   }
 
-  hasPatches (ic: InputCompute) {
-    const arr = this.inputComputePatchesMap.get(ic)
-    return arr && arr.length > 0
+  hasPatches(ic: InputCompute) {
+    const arr = this.inputComputePatchesMap.get(ic);
+    return arr && arr.length > 0;
   }
 
   get value(): T {
     if (currentInputCompute) {
-      return this.getInputComputeDraftValue()
+      return this.getInputComputeDraftValue();
     }
-    return internalProxy(this, this._internalValue)
+    return internalProxy(this, this._internalValue);
   }
   update(
     v: T,
     patches?: IDataPatch[],
     silent?: boolean,
-    reactiveChain?: ReactiveChain<T>
+    reactiveChain?: ReactiveChain<T>,
   ) {
-    const oldValue = this._internalValue
-    this._internalValue = v
-    const shouldTrigger = oldValue !== v && !isEqual(oldValue, v)
+    const oldValue = this._internalValue;
+    this._internalValue = v;
+    const shouldTrigger = oldValue !== v && !isEqual(oldValue, v);
     if (shouldTrigger) {
-      this.modifiedTimestamp = Date.now()
-      this.emit(EHookEvents.change, this)
+      this.modifiedTimestamp = Date.now();
+      this.emit(EHookEvents.change, this);
     }
-    reactiveChain?.update()
+    reactiveChain?.update();
 
     if (silent) {
-      return
+      return;
     }
 
     // trigger only changed
     if (shouldTrigger) {
-      const triggeredSet = this.trigger(undefined, undefined, reactiveChain)
+      const triggeredSet = this.trigger(undefined, undefined, reactiveChain);
 
       if (patches && patches.length > 0) {
-        const changedPathArr = calculateChangedPath(oldValue, patches)
+        const changedPathArr = calculateChangedPath(oldValue, patches);
         changedPathArr
-          .filter(p => p.length !== 0)
-          .forEach(path =>
-            this.trigger(path, patches, reactiveChain, triggeredSet)
-          )
+          .filter((p) => p.length !== 0)
+          .forEach((path) =>
+            this.trigger(path, patches, reactiveChain, triggeredSet),
+          );
       }
     }
   }
   applyComputePatches(ic: InputCompute, reactiveChain?: ReactiveChain<T>) {
-    let exist = this.inputComputePatchesMap.get(ic)
+    let exist = this.inputComputePatchesMap.get(ic);
     if (exist) {
-      this.inputComputePatchesMap.delete(ic)
+      this.inputComputePatchesMap.delete(ic);
       this.update(
         exist[0],
         exist[1]?.filter(isDataPatch) as IDataPatch[],
         false,
-        reactiveChain
-      )
+        reactiveChain,
+      );
     }
   }
   getInputComputeDraftValue(): T {
-    let exist = this.inputComputePatchesMap.get(currentInputCompute!)
+    let exist = this.inputComputePatchesMap.get(currentInputCompute!);
     if (exist) {
-      return exist[0]
+      return exist[0];
     } else {
       if (isPrimtive(this._internalValue)) {
-        return this._internalValue
+        return this._internalValue;
       }
-      return shallowCopy(this._internalValue)
+      return shallowCopy(this._internalValue);
     }
   }
   addComputePatches(value: T, patches: IDataPatch[]) {
     if (currentInputCompute) {
-      let exist = this.inputComputePatchesMap.get(currentInputCompute)
+      let exist = this.inputComputePatchesMap.get(currentInputCompute);
       if (!exist) {
-        exist = [value, []]
+        exist = [value, []];
       }
-      exist[0] = value
+      exist[0] = value;
       /**
        * @TODO：need merging patches
        */
-      exist[1] = exist[1].concat(patches)
-      this.inputComputePatchesMap.set(currentInputCompute, exist)
+      exist[1] = exist[1].concat(patches);
+      this.inputComputePatchesMap.set(currentInputCompute, exist);
     } else {
       throw new Error(
-        '[Model.addComputePatches] must invoked under a InputCompute'
-      )
+        "[Model.addComputePatches] must invoked under a InputCompute",
+      );
     }
   }
 
   checkAndRefresh() {}
 }
 
-type TStateKey = string
+type TStateKey = string;
 
 interface AsyncHook<T> {
-  init: boolean
-  getterPromise: Promise<T> | null
-  startAsyncGetter: () => { end: () => void; valid: () => boolean }
-  pending: boolean
+  init: boolean;
+  getterPromise: Promise<T> | null;
+  startAsyncGetter: () => { end: () => void; valid: () => boolean };
+  pending: boolean;
 }
 
 export class AsyncState<T> extends State<T> implements AsyncHook<T> {
-  init = true
-  getterPromise: Promise<T> | null = null
-  asyncCount = 0
+  init = true;
+  getterPromise: Promise<T> | null = null;
+  asyncCount = 0;
   startAsyncGetter() {
-    this.asyncCount++
-    const currentCount = this.asyncCount
-    this.init = false
-    let resolve: Function
-    this.getterPromise = new Promise(r => (resolve = r))
+    this.asyncCount++;
+    const currentCount = this.asyncCount;
+    this.init = false;
+    let resolve: Function;
+    this.getterPromise = new Promise((r) => (resolve = r));
 
     return {
       end: () => {
-        resolve()
-        this.getterPromise = null
+        resolve();
+        this.getterPromise = null;
       },
       valid: () => {
-        return this.asyncCount <= currentCount
-      }
-    }
+        return this.asyncCount <= currentCount;
+      },
+    };
   }
   get pending() {
-    return !!this.getterPromise
+    return !!this.getterPromise;
   }
 }
 
 /**
  * check if running inside a computed
  */
-let currentComputedStack: Computed<any>[] = []
+let currentComputedStack: Computed<any>[] = [];
 
 export function underComputed() {
-  return currentComputedStack.length > 0
+  return currentComputedStack.length > 0;
 }
 
 function pushComputed(c: Computed<any>) {
-  currentComputedStack.push(c)
+  currentComputedStack.push(c);
 }
 function popComputed() {
-  currentComputedStack.pop()
+  currentComputedStack.pop();
 }
 // just for unit test
 export function setCurrentComputed(c: Computed<any>[]) {
-  currentComputedStack = c
+  currentComputedStack = c;
 }
 
-export type FComputedFuncGenerator<T> = (prev?: T) => Generator<any, T, unknown>
-export type FComputedFuncAsync<T> = (prev?: T) => T
-export type FComputedFunc<T> = (prev?: T) => T
+export type FComputedFuncGenerator<T> = (
+  prev?: T,
+) => Generator<any, T, unknown>;
+export type FComputedFuncAsync<T> = (prev?: T) => T;
+export type FComputedFunc<T> = (prev?: T) => T;
 
-export const ComputedInitialSymbol = Symbol('@@ComputedInitialSymbol')
+export const ComputedInitialSymbol = Symbol("@@ComputedInitialSymbol");
 export class Computed<T> extends AsyncState<T | Symbol> implements ITarget<T> {
-  batchRunCancel: () => void = () => {}
-  watcher: Watcher<State<any>> = new Watcher<State<any>>(this)
+  batchRunCancel: () => void = () => {};
+  watcher: Watcher<State<any>> = new Watcher<State<any>>(this);
 
-  static underComputed = underComputed
+  static underComputed = underComputed;
 
   // @TODO: maybe here need trigger async optional setting
   constructor(
     public getter:
       | FComputedFunc<T | Symbol>
       | FComputedFuncAsync<T | Symbol>
-      | FComputedFuncGenerator<T | Symbol>
+      | FComputedFuncGenerator<T | Symbol>,
   ) {
-    super(ComputedInitialSymbol)
+    super(ComputedInitialSymbol);
   }
 
   override get value(): T | Symbol {
-    const callChain = currentReactiveChain?.addCall(this)
+    const callChain = currentReactiveChain?.addCall(this);
     if (this._internalValue === ComputedInitialSymbol) {
-      this.tryModify(callChain)
+      this.tryModify(callChain);
     }
-    const v = super.value
-    return v === ComputedInitialSymbol ? undefined : v
+    const v = super.value;
+    return v === ComputedInitialSymbol ? undefined : v;
   }
 
   run(innerReactiveChain?: ReactiveChain) {
-    pushComputed(this)
+    pushComputed(this);
 
-    type ComputedReturnType = T | Symbol
+    type ComputedReturnType = T | Symbol;
     // making sure the hook called by computed can register thier chain
     const r:
       | ComputedReturnType
@@ -383,135 +391,135 @@ export class Computed<T> extends AsyncState<T | Symbol> implements ITarget<T> {
       | Generator<unknown, ComputedReturnType> = ReactiveChain.withChain(
       innerReactiveChain,
       () => {
-        return this.getter(this._internalValue)
-      }
-    )
+        return this.getter(this._internalValue);
+      },
+    );
 
-    popComputed()
+    popComputed();
     if (isPromise(r)) {
-      const { end, valid } = this.startAsyncGetter()
-      ;(r as unknown as Promise<ComputedReturnType>).then(
+      const { end, valid } = this.startAsyncGetter();
+      (r as unknown as Promise<ComputedReturnType>).then(
         (asyncResult: ComputedReturnType) => {
           if (valid()) {
-            this.update(asyncResult, [], false, innerReactiveChain)
-            end()
+            this.update(asyncResult, [], false, innerReactiveChain);
+            end();
           }
-        }
-      )
+        },
+      );
     } else if (isGenerator(r)) {
-      const { end, valid } = this.startAsyncGetter()
-      ;(
+      const { end, valid } = this.startAsyncGetter();
+      (
         runGenerator(
           r as Generator,
           () => pushComputed(this),
-          () => popComputed()
+          () => popComputed(),
         ) as unknown as Promise<ComputedReturnType>
       ).then((asyncResult: ComputedReturnType) => {
         if (valid()) {
-          this.update(asyncResult, [], false, innerReactiveChain)
-          end()
+          this.update(asyncResult, [], false, innerReactiveChain);
+          end();
         }
-      })
+      });
     } else {
       this.update(
         r as unknown as ComputedReturnType,
         [],
         false,
-        innerReactiveChain
-      )
+        innerReactiveChain,
+      );
       /** @TODO this code need consider again.maybe need re-design */
-      this.init = false
+      this.init = false;
     }
   }
   tryModify(reactiveChain?: ReactiveChain) {
-    this.run(reactiveChain?.add(this))
+    this.run(reactiveChain?.add(this));
   }
   notify(h?: ISource<T>, p?: IDataPatch[], reactiveChain?: ReactiveChain) {
     /**
      * trigger synchronism
      */
-    this.run(reactiveChain?.addNotify(this))
+    this.run(reactiveChain?.addNotify(this));
   }
 
   addDep(source: ISource<T>, path: (string | number)[]) {
-    this.watcher.addDep(source, path)
+    this.watcher.addDep(source, path);
   }
 }
 
 /**
  * control global InputCompute while running
  */
-let currentInputCompute: InputCompute | null = null
-const inputComputeStack: InputCompute[] = []
+let currentInputCompute: InputCompute | null = null;
+const inputComputeStack: InputCompute[] = [];
 
-export function getCurrentInputCompute () {
-  return currentInputCompute
+export function getCurrentInputCompute() {
+  return currentInputCompute;
 }
 
 function pushInputComputeStack(ic: InputCompute) {
-  inputComputeStack.push(ic)
-  currentInputCompute = ic
+  inputComputeStack.push(ic);
+  currentInputCompute = ic;
 }
 function popInputComputeStack() {
-  currentInputCompute = inputComputeStack[inputComputeStack.length - 2]
-  return inputComputeStack.pop()
+  currentInputCompute = inputComputeStack[inputComputeStack.length - 2];
+  return inputComputeStack.pop();
 }
 
-export type InputComputeFn<T extends any[]> = (...arg: T) => void
-export type AsyncInputComputeFn<T extends any[]> = (...arg: T) => Promise<void>
+export type InputComputeFn<T extends any[]> = (...arg: T) => void;
+export type AsyncInputComputeFn<T extends any[]> = (...arg: T) => Promise<void>;
 export type GeneratorInputComputeFn<T extends any[]> = (
   ...arg: T
-) => Generator<unknown, void, T>
+) => Generator<unknown, void, T>;
 
 export class InputCompute<P extends any[] = any> extends Hook {
-  commitPromise: Promise<void> | null = null
+  commitPromise: Promise<void> | null = null;
   constructor(
     public getter:
       | InputComputeFn<P>
       | AsyncInputComputeFn<P>
       | GeneratorInputComputeFn<P>,
     /** @TODO should not couple the "scope" */
-    public scope: CurrentRunnerScope
+    public scope: CurrentRunnerScope,
   ) {
-    super()
+    super();
   }
   inputFuncStart() {}
   commitComputePatches(
-    reactiveChain?: ReactiveChain
+    reactiveChain?: ReactiveChain,
   ): (void | Promise<void>)[] | undefined {
     if (this.commitPromise) {
       this.commitPromise = this.commitPromise.then(() => {
-        const r = this.scope.applyAllComputePatches(this, reactiveChain)
-        if (r?.some(p => isPromise(p))) {
-          return Promise.all(r).then()
+        const r = this.scope.applyAllComputePatches(this, reactiveChain);
+        if (r?.some((p) => isPromise(p))) {
+          return Promise.all(r).then();
         }
-      })
-      return [this.commitPromise]
+      });
+      return [this.commitPromise];
     }
-    const r = this.scope.applyAllComputePatches(this, reactiveChain)
-    if (r?.some(p => isPromise(p))) {
-      this.commitPromise = Promise.all(r).then()
+    const r = this.scope.applyAllComputePatches(this, reactiveChain);
+    if (r?.some((p) => isPromise(p))) {
+      this.commitPromise = Promise.all(r).then();
     }
-    return r
+    return r;
   }
   inputFuncEnd(reactiveChain?: ReactiveChain): Promise<void> {
-    const r = this.commitComputePatches(reactiveChain)
-    unFreeze({ _hook: this })
-    this.emit(EHookEvents.afterCalling, this)
+    const r = this.commitComputePatches(reactiveChain);
+    unFreeze({ _hook: this });
+    this.emit(EHookEvents.afterCalling, this);
 
-    if (r?.some(p => isPromise(p))) {
-      return Promise.all(r).then(r => {
-        this.commitPromise = null
-      })
+    if (r?.some((p) => isPromise(p))) {
+      return Promise.all(r).then((r) => {
+        this.commitPromise = null;
+      });
     }
-    return Promise.resolve()
+    return Promise.resolve();
   }
 
   async run(...args: any): Promise<void> {
-    this.emit(EHookEvents.beforeCalling, this)
-    const isFreeze = checkFreeze({ _hook: this })
+    this.emit(EHookEvents.beforeCalling, this);
+    const isFreeze = checkFreeze({ _hook: this });
     if (isFreeze) {
-      return
+      return;
     }
 
     // confirm：the composed inputCompute still running under the parent inputCompute
@@ -521,33 +529,33 @@ export class InputCompute<P extends any[] = any> extends Hook {
 
     // means that current IC is nested in other IC.
     if (currentInputCompute) {
-      const r = currentInputCompute.commitComputePatches(currentReactiveChain)
-      if (r?.some(p => isPromise(p))) {
-        await Promise.all(r)
+      const r = currentInputCompute.commitComputePatches(currentReactiveChain);
+      if (r?.some((p) => isPromise(p))) {
+        await Promise.all(r);
       }
     }
 
-    pushInputComputeStack(this)
+    pushInputComputeStack(this);
 
-    const newReactiveChain = currentReactiveChain?.addCall(this)
+    const newReactiveChain = currentReactiveChain?.addCall(this);
     const funcResult = ReactiveChain.withChain(newReactiveChain, () => {
-      return this.getter(...args)
-    })
+      return this.getter(...args);
+    });
 
-    popInputComputeStack()
+    popInputComputeStack();
 
     // if (currentInputCompute === this) {
     //   currentInputCompute = null
     // }
 
     log(
-      '[InputCompute.run]',
+      "[InputCompute.run]",
       `isGen=${isGenerator(funcResult)}`,
-      `isP=${isPromise(funcResult)}`
-    )
+      `isP=${isPromise(funcResult)}`,
+    );
     // use generator
     if (isGenerator(funcResult)) {
-      let generatorPreservedCurrentReactiveChain: ReactiveChain | undefined
+      let generatorPreservedCurrentReactiveChain: ReactiveChain | undefined;
       await runGenerator(
         funcResult as Generator<void>,
         // enter: start/resume
@@ -555,10 +563,10 @@ export class InputCompute<P extends any[] = any> extends Hook {
           // if (!currentInputCompute) {
           //   currentInputCompute = this
           // }
-          pushInputComputeStack(this)
+          pushInputComputeStack(this);
 
-          generatorPreservedCurrentReactiveChain = currentReactiveChain
-          currentReactiveChain = newReactiveChain
+          generatorPreservedCurrentReactiveChain = currentReactiveChain;
+          currentReactiveChain = newReactiveChain;
         },
         // leave: stop/suspend
         () => {
@@ -566,23 +574,23 @@ export class InputCompute<P extends any[] = any> extends Hook {
           // if (currentInputCompute === this) {
           //   currentInputCompute = null
           // }
-          popInputComputeStack()
+          popInputComputeStack();
 
-          currentReactiveChain = generatorPreservedCurrentReactiveChain
-        }
-      )
-      return this.inputFuncEnd(newReactiveChain)
+          currentReactiveChain = generatorPreservedCurrentReactiveChain;
+        },
+      );
+      return this.inputFuncEnd(newReactiveChain);
     } else if (isPromise(funcResult)) {
       // end compute context in advance
 
-      await funcResult
+      await funcResult;
 
-      return this.inputFuncEnd(newReactiveChain)
+      return this.inputFuncEnd(newReactiveChain);
     }
     if (currentInputCompute === this) {
-      currentInputCompute = null
+      currentInputCompute = null;
     }
-    return this.inputFuncEnd(newReactiveChain)
+    return this.inputFuncEnd(newReactiveChain);
   }
 }
 
@@ -590,28 +598,28 @@ class AsyncInputCompute<T extends any[]>
   extends InputCompute<T>
   implements AsyncHook<T>
 {
-  init = true
-  getterPromise: Promise<T> | null = null
-  asyncCount: number = 0
+  init = true;
+  getterPromise: Promise<T> | null = null;
+  asyncCount: number = 0;
   startAsyncGetter() {
-    this.asyncCount++
-    let currentCount = this.asyncCount
-    this.init = false
-    let resolve: Function
-    this.getterPromise = new Promise(r => (resolve = r))
+    this.asyncCount++;
+    let currentCount = this.asyncCount;
+    this.init = false;
+    let resolve: Function;
+    this.getterPromise = new Promise((r) => (resolve = r));
 
     return {
       end: () => {
-        resolve()
-        this.getterPromise = null
+        resolve();
+        this.getterPromise = null;
       },
       valid: () => {
-        return this.asyncCount <= currentCount
-      }
-    }
+        return this.asyncCount <= currentCount;
+      },
+    };
   }
   get pending(): boolean {
-    return !!this.getterPromise
+    return !!this.getterPromise;
   }
 }
 
@@ -620,51 +628,56 @@ class AsyncInputCompute<T extends any[]>
  */
 export class RunnerContext<T extends Driver> {
   // snapshot
-  initialArgList: Parameters<T>
-  initialData: IHookContext['data'] | null = null
+  initialArgList: Parameters<T>;
+  initialData: IHookContext["data"] | null = null;
 
   // action
-  triggerHookIndex?: number
-  triggerHookName?: string
+  triggerHookIndex?: number;
+  triggerHookName?: string;
 
-  withInitialContext: boolean
+  withInitialContext: boolean;
 
-  scope: CurrentRunnerScope
+  scope: CurrentRunnerScope;
 
   constructor(
     public driverName: string,
     public args?: Parameters<T>,
-    initialContext?: IHookContext
+    initialContext?: IHookContext,
   ) {
-    this.initialArgList = initialContext ? initialContext.initialArgList : args
-    this.withInitialContext = !!initialContext
+    this.initialArgList = initialContext ? initialContext.initialArgList : args;
+    this.withInitialContext = !!initialContext;
     if (initialContext) {
-      this.initialData = initialContext['data']
+      this.initialData = initialContext["data"];
 
-      this.triggerHookIndex = initialContext.index
-      this.triggerHookName = initialContext.indexName
+      this.triggerHookIndex = initialContext.index;
+      this.triggerHookName = initialContext.indexName;
 
       // args in context has higher priority
       if (initialContext.args) {
-        this.args = initialContext.args as any
+        this.args = initialContext.args as any;
       }
     }
   }
 
   bindScope(scope: CurrentRunnerScope) {
-    this.scope = scope
+    this.scope = scope;
   }
 
-  serialize(type: 'current' | 'next') {}
+  serialize(type: "current" | "next") {}
 
   formatContextData(hooks: Hook[], enable?: (i: number) => boolean) {
-    const hooksData: IHookContext['data'] = hooks.map((hook, i) => {
+    const hooksData: IHookContext["data"] = hooks.map((hook, i) => {
       if (hook && (!enable || enable(i))) {
         if (hook instanceof Computed) {
-          return [hook.name, 'computed', getValueSilently(hook), hook.modifiedTimestamp]
+          return [
+            hook.name,
+            "computed",
+            getValueSilently(hook),
+            hook.modifiedTimestamp,
+          ];
         }
         if (hook instanceof InputCompute) {
-          return [hook.name, 'inputCompute']
+          return [hook.name, "inputCompute"];
         }
         if (hook instanceof State) {
           if (hook.needContextValue) {
@@ -672,15 +685,15 @@ export class RunnerContext<T extends Driver> {
               hook.name,
               hook.contextName,
               getValueSilently(hook),
-              hook.modifiedTimestamp
-            ]
+              hook.modifiedTimestamp,
+            ];
           }
-          return [hook.name,hook.contextName]
+          return [hook.name, hook.contextName];
         }
       }
-      return [hook.name, 'unserialized']
-    })
-    return hooksData
+      return [hook?.name, "unserialized"];
+    });
+    return hooksData;
   }
 
   /**
@@ -693,13 +706,16 @@ export class RunnerContext<T extends Driver> {
     hooks: Hook[],
     hookIndex: number,
     args: any[],
-    deps: Set<number>
+    deps: Set<number>,
   ): IHookContext {
-    const h = hooks[hookIndex]
-    const hookName = h?.name || ''
-    const noDeps = deps.size === 0
+    const h = hooks[hookIndex];
+    const hookName = h?.name || "";
+    const noDeps = deps.size === 0;
 
-    const hooksData = this.formatContextData(hooks, i => noDeps || deps.has(i))
+    const hooksData = this.formatContextData(
+      hooks,
+      (i) => noDeps || deps.has(i),
+    );
 
     return {
       initialArgList: this.initialArgList,
@@ -707,258 +723,260 @@ export class RunnerContext<T extends Driver> {
       data: hooksData,
       index: hookIndex === -1 ? undefined : hookIndex,
       indexName: hookName,
-      args: args || []
-    }
+      args: args || [],
+    };
   }
   serializePatch(hooks: Hook[]): IHookContext {
-    const hooksData = this.formatContextData(hooks)
+    const hooksData = this.formatContextData(hooks);
     // const p = statePatchEvents.toArray()
     return {
       initialArgList: this.initialArgList,
       name: this.driverName,
       data: hooksData,
       // patch: p
-    }
+    };
   }
 
   serializeBase(hooks: Hook[]): IHookContext {
-    const hooksData = this.formatContextData(hooks)
+    const hooksData = this.formatContextData(hooks);
     return {
       initialArgList: this.initialArgList,
       name: this.driverName,
       data: hooksData,
-    }
+    };
   }
 
   apply(
     hooks: Hook[],
     c: IHookContext,
-    needUpdateCallback: (h: State, value: any, timestamp: number) => void
+    needUpdateCallback: (h: State, value: any, timestamp: number) => void,
   ) {
-    const contextData = c.data
+    const contextData = c.data;
     /** @TODO runContext shouldnt care the update logic */
     contextData.forEach(([name, type, value, timestamp], index) => {
       if (isDef(value)) {
-        const state = hooks[index] as State
+        const state = hooks[index] as State;
         switch (type) {
-          case 'unserialized':
-            break
+          case "unserialized":
+            break;
           default:
             /**
              * default to keep silent because of deliver total context now
              */
-            needUpdateCallback(state, value, timestamp)
-            break
+            needUpdateCallback(state, value, timestamp);
+            break;
         }
       }
-    })
+    });
   }
 }
 
 export interface IRunnerOptions {
   // scope
-  beleiveContext: boolean
-  updateCallbackSync?: boolean
-  applyComputeParallel?: boolean
+  beleiveContext: boolean;
+  updateCallbackSync?: boolean;
+  applyComputeParallel?: boolean;
   // modelIndexes?: IModelIndexesBase
   //
-  runnerContext?: Symbol
+  runnerContext?: Symbol;
 }
 
 export class Runner<T extends Driver> {
-  ScopeConstructor: typeof CurrentRunnerScope = CurrentRunnerScope
-  scope: CurrentRunnerScope<T>
+  ScopeConstructor: typeof CurrentRunnerScope = CurrentRunnerScope;
+  scope: CurrentRunnerScope<T>;
   options: IRunnerOptions = {
     beleiveContext: false,
     updateCallbackSync: false,
-    applyComputeParallel: false
-  }
-  constructor(public driver: T, options?: IRunnerOptions) {
-    Object.assign(this.options, options)
+    applyComputeParallel: false,
+  };
+  constructor(
+    public driver: T,
+    options?: IRunnerOptions,
+  ) {
+    Object.assign(this.options, options);
   }
 
   prepareScope(args?: Parameters<T>, initialContext?: IHookContext) {
     const context = new RunnerContext(
       getName(this.driver),
       args,
-      initialContext
-    )
+      initialContext,
+    );
 
-    const deps = getDeps(this.driver)
-    const names = getNames(this.driver)
-    const scope = new this.ScopeConstructor<T>(
-      context,
-      deps,
-      names,
-    )
-    scope.setOptions(this.options)
+    const deps = getDeps(this.driver);
+    const names = getNames(this.driver);
+    const scope = new this.ScopeConstructor<T>(context, deps, names);
+    scope.setOptions(this.options);
 
-    return scope
+    return scope;
   }
 
   executeDriver(scope: CurrentRunnerScope<T>) {
-    const { withInitialContext } = scope.runnerContext
+    const { withInitialContext } = scope.runnerContext;
     if (withInitialContext) {
-      currentHookFactory = updateHookFactory
+      currentHookFactory = updateHookFactory;
+    } else {
+      currentHookFactory = mountHookFactory;
     }
 
-    currentRunnerScope = scope
+    currentRunnerScope = scope;
     const result: ReturnType<T> = executeDriver(
       this.driver,
-      scope.runnerContext.args
-    )
-    currentRunnerScope = null
+      scope.runnerContext.args,
+    );
+    currentRunnerScope = null;
 
-    scope.applyDepsMap()
+    scope.applyDepsMap();
     // do execute effect.maybe from model/cache
-    scope.flushEffects()
+    scope.flushEffects();
 
-    currentHookFactory = mountHookFactory
-
-    return result
+    return result;
   }
   /**
    * @TODO need to refact because of this function should both return result and scope
    */
   init(args?: Parameters<T>, initialContext?: IHookContext): ReturnType<T> {
-    const scope = this.prepareScope(args, initialContext)
+    const scope = this.prepareScope(args, initialContext);
 
-    this.scope = scope
+    this.scope = scope;
 
-    const result = this.executeDriver(scope)
+    const result = this.executeDriver(scope);
 
-    return result
+    return result;
   }
   mount(args?: Parameters<T>, initialContext?: IHookContext) {
-    return this.init(args, initialContext)
+    return this.init(args, initialContext);
   }
   update(initialContext: IHookContext) {
-    return this.init(undefined, initialContext)
+    return this.init(undefined, initialContext);
   }
   /**
    * @TODO after init method refactor. shouldnt callHook through runner but scope
    */
   callHook(hookIndex: number, args: any[]) {
-    return this.scope?.callHook(hookIndex, args)
+    return this.scope?.callHook(hookIndex, args);
   }
   state() {
-    return this.scope.getState()
+    return this.scope.getState();
   }
   ready() {
-    return this.scope?.ready()
+    return this.scope?.ready();
   }
-  dispose () {
-    return this.scope?.dispose()
+  dispose() {
+    return this.scope?.dispose();
   }
 }
 
 function executeDriver(f: Driver, args: any = []) {
-  const driverResult = f(...args)
+  const driverResult = f(...args);
 
   if (driverResult) {
   }
 
-  return driverResult
+  return driverResult;
 }
 
 export interface ICacheOptions<T> {
-  source?: { _hook: State<T> }
-  defaultValue?: T
-  from: TCacheFrom
+  source?: { _hook: State<T> };
+  defaultValue?: T;
+  from: TCacheFrom;
 }
 
-export const CacheInitialSymbol = Symbol('@@CacheInitialSymbol')
+export const CacheInitialSymbol = Symbol("@@CacheInitialSymbol");
 export class Cache<T> extends AsyncState<T | Symbol> {
-  getterKey: string
-  watcher: Watcher = new Watcher(this)
-  source: State<T> | undefined
-  getterPromise: Promise<any> | null = null
+  getterKey: string;
+  watcher: Watcher = new Watcher(this);
+  source: State<T> | undefined;
+  getterPromise: Promise<any> | null = null;
 
-  contextName = 'cache'
+  contextName = "cache";
 
   constructor(
     key: string,
     public options: ICacheOptions<T>,
-    public scope: CurrentRunnerScope
+    public scope: CurrentRunnerScope,
   ) {
-    super(CacheInitialSymbol)
-    this.getterKey = key // `tarat_cache_${scope.hookRunnerName}__${key}`
+    super(CacheInitialSymbol);
+    this.getterKey = key; // `tarat_cache_${scope.hookRunnerName}__${key}`
 
     if (this.options.source) {
-      this.source = this.options.source._hook
-      this.watcher.addDep(this.source)
+      this.source = this.options.source._hook;
+      this.watcher.addDep(this.source);
 
-      const { _internalValue } = this.source
+      const { _internalValue } = this.source;
       const initVal = isPrimtive(_internalValue)
         ? _internalValue
-        : shallowCopy(_internalValue)
-      super.update(initVal)
+        : shallowCopy(_internalValue);
+      super.update(initVal);
     }
   }
   notify(hook?: Hook, p?: IDataPatch[], reactiveChain?: ReactiveChain) {
-    const { from } = this.options
-    const { source } = this
+    const { from } = this.options;
+    const { source } = this;
 
     if (hook && source && hook === source) {
-      log('[Cache.notify] source changed')
+      log("[Cache.notify] source changed");
       // not calling update prevent notify the watcher for current cache
-      this._internalValue = CacheInitialSymbol
+      this._internalValue = CacheInitialSymbol;
       /**
        * just clear value in cache not update directly
        * reason 1: for lazy
        * reason 2: prevent writing conflict while coccurent writing at same time
        */
-      getPlugin('Cache').clearValue(this.scope, this.getterKey, from)
+      getPlugin("Cache").clearValue(this.scope, this.getterKey, from);
 
-      const newReactiveChain = reactiveChain?.addNotify(this)
-      this.executeQuery(newReactiveChain)
+      const newReactiveChain = reactiveChain?.addNotify(this);
+      this.executeQuery(newReactiveChain);
     }
   }
   override get value(): T | Symbol {
     /** @TODO should use symbol for initial value */
     if (this._internalValue === CacheInitialSymbol) {
-      this.executeQuery(currentReactiveChain)
+      this.executeQuery(currentReactiveChain);
     }
-    const v = super.value
-    return v === CacheInitialSymbol ? undefined : v
+    const v = super.value;
+    return v === CacheInitialSymbol ? undefined : v;
   }
   async executeQuery(reactiveChain?: ReactiveChain) {
-    const { from } = this.options
-    const { source } = this
+    const { from } = this.options;
+    const { source } = this;
 
-    const { end, valid } = this.startAsyncGetter()
+    const { end, valid } = this.startAsyncGetter();
 
     try {
-      const valueInCache = await getPlugin('Cache').getValue<T>(
+      const valueInCache = await getPlugin("Cache").getValue<T>(
         this.scope,
         this.getterKey,
-        from
-      )
+        from,
+      );
       if (!valid()) {
-        return
+        return;
       }
-      log(`[${this.name || ''} Cache.executeQuery] valueInCache=`, valueInCache)
+      log(
+        `[${this.name || ""} Cache.executeQuery] valueInCache=`,
+        valueInCache,
+      );
       if (valueInCache !== undefined) {
-        super.update(valueInCache, [], false, reactiveChain)
+        super.update(valueInCache, [], false, reactiveChain);
       } else if (source) {
-        const valueInSource = source.value
+        const valueInSource = source.value;
 
-        super.update(valueInSource, [], false, reactiveChain)
+        super.update(valueInSource, [], false, reactiveChain);
         // unconcern the result of remote updateing
-        getPlugin('Cache').setValue(
+        getPlugin("Cache").setValue(
           this.scope,
           this.getterKey,
           valueInSource,
-          from
-        )
+          from,
+        );
       }
     } catch (e) {
-      log(`[Cache.executeQuery] error`)
-      console.error(e)
+      log(`[Cache.executeQuery] error`);
+      console.error(e);
     } finally {
-      log(`[${this.name || ''} Cache.executeQuery]`)
+      log(`[${this.name || ""} Cache.executeQuery]`);
       if (valid()) {
-        end()
+        end();
       }
     }
   }
@@ -974,139 +992,139 @@ export class Cache<T> extends AsyncState<T | Symbol> {
     patches?: IDataPatch[],
 
     silent?: boolean,
-    reactiveChain?: ReactiveChain
+    reactiveChain?: ReactiveChain,
   ) {
-    const { from } = this.options
-    const { source } = this
+    const { from } = this.options;
+    const { source } = this;
     if (source) {
       throw new Error(
-        '[Cache] can not update value directly while the cache has "source" in options '
-      )
+        '[Cache] can not update value directly while the cache has "source" in options ',
+      );
     } else {
       super.update(
         v,
         patches?.filter(isDataPatch) as IDataPatch[],
         silent,
-        reactiveChain
-      )
-      await getPlugin('Cache').setValue(this.scope, this.getterKey, v, from)
+        reactiveChain,
+      );
+      await getPlugin("Cache").setValue(this.scope, this.getterKey, v, from);
 
-      log(`[${this.name} cache.update] end k=${this.getterKey} v=${v}`)
+      log(`[${this.name} cache.update] end k=${this.getterKey} v=${v}`);
     }
   }
 
   addDep(source: ISource<T>, path: (string | number)[]) {
-    this.watcher.addDep(source, path)
+    this.watcher.addDep(source, path);
   }
 }
 
 export enum EScopeState {
-  init = 'init',
-  idle = 'idle',
-  pending = 'pending'
+  init = "init",
+  idle = "idle",
+  pending = "pending",
 }
 
 export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
-  name?: string
-  hooks: (Hook | undefined)[] = []
-  composes: Record<string, any>[] = [] // store the compose execute resutl
+  name?: string;
+  hooks: (Hook | undefined)[] = [];
+  composes: Record<string, any>[] = []; // store the compose execute resutl
 
   // outerListeners: Function[] = []
 
-  stateChangeCallbackRunning = false
-  stateChangeCallbackCancel = () => {}
-  stateChangeWaitHooks: Set<Hook> = new Set<Hook>()
-  watcher: Watcher<Hook> = new Watcher(this)
+  stateChangeCallbackRunning = false;
+  stateChangeCallbackCancel = () => {};
+  stateChangeWaitHooks: Set<Hook> = new Set<Hook>();
+  watcher: Watcher<Hook> = new Watcher(this);
   // static parsed result
-  initialHooksSet?: Set<number>
+  initialHooksSet?: Set<number>;
 
-  reactiveChainStack: ReactiveChain[] = []
+  reactiveChainStack: ReactiveChain[] = [];
 
   /**
    * receive by runner options
    */
-  beleiveContext = false
-  updateCallbackSync = false
-  applyComputeParallel = false
+  beleiveContext = false;
+  updateCallbackSync = false;
+  applyComputeParallel = false;
 
   // modelIndexes: IModelIndexesBase | undefined = undefined
   // modelIndexesPath: string[] = []
 
-  effectFuncArr: Function[] = []
-  disposeFuncArr: Function[] = []
+  effectFuncArr: Function[] = [];
+  disposeFuncArr: Function[] = [];
 
   static events = {
-    enterComposeDriver: 'enterComposeDriver',
-    leaveComposeDriver: 'leaveComposeDriver',
-    update: 'update',
-    effect: 'effect'
-  }
+    enterComposeDriver: "enterComposeDriver",
+    leaveComposeDriver: "leaveComposeDriver",
+    update: "update",
+    effect: "effect",
+  };
 
-  static getCurrent = () => currentRunnerScope
+  static getCurrent = () => currentRunnerScope;
 
   constructor(
     public runnerContext: RunnerContext<T>,
     public intialContextDeps: THookDeps,
     public intialContextNames: THookNames,
   ) {
-    super()
-    runnerContext.bindScope(this)
+    super();
+    runnerContext.bindScope(this);
 
-    this.initializeHookSet()
+    this.initializeHookSet();
   }
   /**
    * copy context value into scope for updateXXX hook
    */
   initializeHookSet() {
-    const { runnerContext } = this
+    const { runnerContext } = this;
     if (
       runnerContext.triggerHookIndex !== undefined &&
-      typeof runnerContext.triggerHookIndex === 'number' &&
+      typeof runnerContext.triggerHookIndex === "number" &&
       runnerContext.initialData.length > 0
     ) {
       /** @TODO belive deps calculation from client.it's maybe dangerous' */
-      const s = new Set<number>([runnerContext.triggerHookIndex])
+      const s = new Set<number>([runnerContext.triggerHookIndex]);
       runnerContext.initialData.forEach((d, i) => {
-        if (d[1] !== 'unserialized') {
-          s.add(i)
+        if (d[1] !== "unserialized") {
+          s.add(i);
         }
-      })
-      this.initialHooksSet = s
+      });
+      this.initialHooksSet = s;
     }
   }
 
   triggerEnterComposeDriver(driverNamespace: string, dirverName: string) {
     this.emit(CurrentRunnerScope.events.enterComposeDriver, {
       driverNamespace,
-      dirverName
-    })
+      dirverName,
+    });
     return () => {
       this.emit(CurrentRunnerScope.events.leaveComposeDriver, {
         driverNamespace,
-        dirverName
-      })
-    }
+        dirverName,
+      });
+    };
   }
 
   setOptions(op: Partial<IRunnerOptions>) {
-    Object.assign(this, op)
+    Object.assign(this, op);
   }
 
   effect(f: Function) {
     this.once(CurrentRunnerScope.events.effect, (rc: ReactiveChain) => {
-      f(rc)
-    })
+      f(rc);
+    });
   }
   flushEffects() {
-    const reactiveChain = currentReactiveChain?.add(this)
-    this.emit(CurrentRunnerScope.events.effect, reactiveChain)
+    const reactiveChain = currentReactiveChain?.add(this);
+    this.emit(CurrentRunnerScope.events.effect, reactiveChain);
   }
 
-  appendDispose (f: Function) {
-    this.disposeFuncArr.push(f)
+  appendDispose(f: Function) {
+    this.disposeFuncArr.push(f);
   }
-  dispose () {
-    this.disposeFuncArr.forEach(f => f())
+  dispose() {
+    this.disposeFuncArr.forEach((f) => f());
   }
 
   /**
@@ -1114,115 +1132,115 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
    * @TODO the executable hook maybe need a abstract base class
    */
   async callHook(hookIndex: number, args: any[]) {
-    log('[Scope.callHook] start')
-    const hook = this.hooks[hookIndex]
+    log("[Scope.callHook] start");
+    const hook = this.hooks[hookIndex];
     if (hook) {
       // if (hook instanceof Model) {
       // } else
       if (hook instanceof Computed) {
-        currentReactiveChain = currentReactiveChain?.add(this)
-        hook.run(currentReactiveChain)
+        currentReactiveChain = currentReactiveChain?.add(this);
+        hook.run(currentReactiveChain);
       } else if (hook instanceof InputCompute) {
-        currentReactiveChain = currentReactiveChain?.add(this)
-        await hook.run(...args)
+        currentReactiveChain = currentReactiveChain?.add(this);
+        await hook.run(...args);
       }
     }
-    log('[Scope.callHook] end')
+    log("[Scope.callHook] end");
   }
 
   /**
    * while enter UI will activate this function
    */
   activate() {
-    this.notifyAllState()
+    this.notifyAllState();
   }
   deactivate() {}
 
   private notifyAllState() {
-    this.hooks.forEach(h => {
+    this.hooks.forEach((h) => {
       if (h instanceof State && h.needCheckAndRefresh) {
-        h.checkAndRefresh()
+        h.checkAndRefresh();
       }
-    })
+    });
   }
 
   onUpdate(fn: (...args: any[]) => void) {
-    this.on(CurrentRunnerScope.events.update, fn)
+    this.on(CurrentRunnerScope.events.update, fn);
 
     return () => {
-      this.off(CurrentRunnerScope.events.update, fn)
-    }
+      this.off(CurrentRunnerScope.events.update, fn);
+    };
   }
   notifyOuter() {
-    this.emit(CurrentRunnerScope.events.update)
+    this.emit(CurrentRunnerScope.events.update);
   }
   notify(s?: Hook) {
     if (this.updateCallbackSync) {
-      this.notifyOuter()
+      this.notifyOuter();
     } else {
-      this.stateChangeCallbackCancel()
+      this.stateChangeCallbackCancel();
       this.stateChangeCallbackCancel = nextTick(() => {
-        this.notifyOuter()
-      })
+        this.notifyOuter();
+      });
     }
   }
   addDep(source: ISource<T>, path: (string | number)[]) {
-    this.watcher.addDep(source, path)
+    this.watcher.addDep(source, path);
   }
 
   findHookIndex(hook?: Hook) {
-    return this.hooks.indexOf(hook)
+    return this.hooks.indexOf(hook);
   }
 
   addHook(v: Hook | undefined) {
-    if (this.findHookIndex(v) > -1) {
-      throw new Error('[scope.addHook] cant add repeat hook')
+    if (v && this.findHookIndex(v) > -1) {
+      throw new Error("[scope.addHook] cant add repeat hook");
     }
-    this.hooks.push(v)
+    this.hooks.push(v);
 
     if (v) {
-      this.watcher.addDep(v)
+      this.watcher.addDep(v);
 
       // assign name by inject deps
       if (this.intialContextNames) {
         const r = this.intialContextNames.find(
-          arr => arr[0] === this.hooks.length - 1
-        )
+          (arr) => arr[0] === this.hooks.length - 1,
+        );
         if (r?.[1]) {
-          v.name = r[1]
-          v.index = r[0]
+          v.name = r[1];
+          v.index = r[0];
         }
       }
     }
   }
 
   applyDepsMap() {
-    const deps = this.intialContextDeps
+    const deps = this.intialContextDeps;
     deps?.forEach(([name, hookIndex, getDeps]) => {
-      getDeps.forEach(triggerHookIndex => {
-        let triggerHook: Hook | undefined | null
+      getDeps.forEach((triggerHookIndex) => {
+        let triggerHook: Hook | undefined | null;
 
         if (Array.isArray(triggerHookIndex)) {
-          const [type, composeIndex, variableName] = triggerHookIndex
-          if (type === 'c') {
+          const [type, composeIndex, variableName] = triggerHookIndex;
+          if (type === "c") {
             const setterGetterFunc: { _hook: Hook } | undefined =
-              this.composes[composeIndex]?.[variableName]
-            triggerHook = this.hooks.find(h => h === setterGetterFunc?._hook)
+              this.composes[composeIndex]?.[variableName];
+            triggerHook = this.hooks.find((h) => h === setterGetterFunc?._hook);
           }
           // @TODO: maybe unknow case
         } else {
-          triggerHook = this.hooks[triggerHookIndex]
+          triggerHook = this.hooks[triggerHookIndex];
         }
         if (triggerHook) {
           // make sure the hook had implement ITarget interface
-          if ('addDep' in this.hooks[hookIndex]) {
-            ;(this.hooks[hookIndex] as unknown as ITarget<any>).addDep(
-              triggerHook
-            )
+          if ("addDep" in this.hooks[hookIndex]) {
+            (this.hooks[hookIndex] as unknown as ITarget<any>).addDep(
+              triggerHook,
+            );
           }
         }
-      })
-    })
+      });
+    });
   }
 
   /**
@@ -1230,64 +1248,64 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
    */
   appendComposeNames(si: number, names?: THookNames) {
     if (!names) {
-      return
+      return;
     }
-    const len = names.length
+    const len = names.length;
 
-    const modifiedNames = (this.intialContextNames || []).map(a => {
-      const arr: THookNames[0] = cloneDeep(a)
+    const modifiedNames = (this.intialContextNames || []).map((a) => {
+      const arr: THookNames[0] = cloneDeep(a);
       if (arr[0] >= si) {
-        arr[0] += len
+        arr[0] += len;
       }
-      return arr
-    })
-    const newOffsetNames: THookNames = names.map(a => {
-      return [a[0] + si, a[1]]
-    })
-    this.intialContextNames = modifiedNames.concat(newOffsetNames)
+      return arr;
+    });
+    const newOffsetNames: THookNames = names.map((a) => {
+      return [a[0] + si, a[1]];
+    });
+    this.intialContextNames = modifiedNames.concat(newOffsetNames);
   }
 
   offsetComposeIndex(
     originalIndex: number,
     newLength: number,
-    icrement: number
+    icrement: number,
   ) {
-    const offset = newLength - originalIndex
-    const endIndex = (this.intialContextDeps || []).length - icrement
+    const offset = newLength - originalIndex;
+    const endIndex = (this.intialContextDeps || []).length - icrement;
     if (offset > 0) {
       const originalDepsBeforeCompose = (this.intialContextDeps || []).slice(
         0,
-        endIndex
-      )
+        endIndex,
+      );
       const icrementDepsAfterCompose = (this.intialContextDeps || []).slice(
-        endIndex
-      )
+        endIndex,
+      );
 
-      const modifiedOriginalDeps = originalDepsBeforeCompose.map(a => {
-        const arr: THookDepUnit = cloneDeep(a)
+      const modifiedOriginalDeps = originalDepsBeforeCompose.map((a) => {
+        const arr: THookDepUnit = cloneDeep(a);
         if (arr[2]) {
-          arr[2] = arr[2].map(b => {
+          arr[2] = arr[2].map((b) => {
             if (Array.isArray(b)) {
-              if (b[0] === 'c' && b[1] === originalIndex) {
-                b[1] += offset
+              if (b[0] === "c" && b[1] === originalIndex) {
+                b[1] += offset;
               }
             }
-            return b
-          })
+            return b;
+          });
         }
         if (arr[3]) {
-          arr[3] = arr[3].map(b => {
-            if (b[0] === 'c' && b[1] === originalIndex) {
-              b[1] += offset
+          arr[3] = arr[3].map((b) => {
+            if (b[0] === "c" && b[1] === originalIndex) {
+              b[1] += offset;
             }
-            return b
-          })
+            return b;
+          });
         }
-        return arr
-      })
+        return arr;
+      });
       this.intialContextDeps = modifiedOriginalDeps.concat(
-        icrementDepsAfterCompose
-      )
+        icrementDepsAfterCompose,
+      );
     }
   }
   /**
@@ -1298,336 +1316,339 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
     si: number,
     ei: number,
     currentComposeLengh: number,
-    deps?: THookDeps
+    deps?: THookDeps,
   ) {
     if (!deps) {
-      return
+      return;
     }
-    const hooksInComposeSize = ei - si
+    const hooksInComposeSize = ei - si;
 
-    const modifiedDeps = (this.intialContextDeps || []).map(a => {
-      const arr: THookDepUnit = cloneDeep(a)
+    const modifiedDeps = (this.intialContextDeps || []).map((a) => {
+      const arr: THookDepUnit = cloneDeep(a);
 
       if (arr[1] >= si) {
-        arr[1] += hooksInComposeSize
+        arr[1] += hooksInComposeSize;
       }
       if (arr[2]) {
-        arr[2] = arr[2].map(v => {
-          return typeof v === 'number' && v >= si ? v + hooksInComposeSize : v
-        })
+        arr[2] = arr[2].map((v) => {
+          return typeof v === "number" && v >= si ? v + hooksInComposeSize : v;
+        });
       }
       if (arr[3]) {
-        arr[3] = arr[3].map(v => {
-          return typeof v === 'number' && v >= si ? v + hooksInComposeSize : v
-        })
+        arr[3] = arr[3].map((v) => {
+          return typeof v === "number" && v >= si ? v + hooksInComposeSize : v;
+        });
       }
-      return arr
-    })
-    const newModifiedDeps: THookDeps = deps.map(a => {
-      const arr: THookDepUnit = cloneDeep(a)
+      return arr;
+    });
+    const newModifiedDeps: THookDeps = deps.map((a) => {
+      const arr: THookDepUnit = cloneDeep(a);
 
-      arr[1] += si
+      arr[1] += si;
       if (arr[2]) {
-        arr[2] = arr[2].map(v =>
-          typeof v === 'number'
+        arr[2] = arr[2].map((v) =>
+          typeof v === "number"
             ? v + si
-            : [v[0], v[1] + currentComposeLengh, v[2]]
-        )
+            : [v[0], v[1] + currentComposeLengh, v[2]],
+        );
       }
       if (arr[3]) {
-        arr[3] = arr[3].map(v =>
-          typeof v === 'number'
+        arr[3] = arr[3].map((v) =>
+          typeof v === "number"
             ? v + si
-            : [v[0], v[1] + currentComposeLengh, v[2]]
-        )
+            : [v[0], v[1] + currentComposeLengh, v[2]],
+        );
       }
-      return arr
-    })
+      return arr;
+    });
 
-    this.intialContextDeps = modifiedDeps.concat(newModifiedDeps)
+    this.intialContextDeps = modifiedDeps.concat(newModifiedDeps);
   }
 
   applyAllComputePatches(
     currentInputCompute: InputCompute,
-    reactiveChain?: ReactiveChain
+    reactiveChain?: ReactiveChain,
   ): (void | Promise<void>)[] {
-    const { applyComputeParallel, hooks } = this
-    const hookModified = hooks.filter(h => {
+    const { applyComputeParallel, hooks } = this;
+    const hookModified = hooks.filter((h) => {
       if (h && (h as State).hasPatches) {
-        return (h as State).hasPatches(currentInputCompute)
+        return (h as State).hasPatches(currentInputCompute);
       }
-    })
+    });
 
     if (hookModified.length) {
-      let prevPromise: Promise<void> | null = null
+      let prevPromise: Promise<void> | null = null;
 
-      return hookModified.map(h => {
-        const newChildChain = reactiveChain?.addUpdate(h as State)
+      return hookModified.map((h) => {
+        const newChildChain = reactiveChain?.addUpdate(h as State);
 
         if (applyComputeParallel || !(h as State).applyComputeAsync) {
           return (h as State).applyComputePatches(
             currentInputCompute,
-            newChildChain
-          )
+            newChildChain,
+          );
         }
 
         prevPromise = prevPromise
           ? prevPromise.then(() =>
               (h as State).applyComputePatches(
                 currentInputCompute,
-                newChildChain
-              )
+                newChildChain,
+              ),
             )
           : Promise.resolve(
               (h as State).applyComputePatches(
                 currentInputCompute,
-                newChildChain
-              )
-            )
-        return prevPromise
-      })
+                newChildChain,
+              ),
+            );
+        return prevPromise;
+      });
     }
-    return []
+    return [];
   }
 
   applyContextFromServer(c: IHookContext) {
-    const { hooks } = this
+    const { hooks } = this;
 
     this.runnerContext.apply(
       hooks,
       c,
       // invoke while the target state is valid for updating
       (state, value, timestamp) => {
-        state.update?.(value, [], true)
+        state.update?.(value, [], true);
         if (value && timestamp) {
-          state.modifiedTimestamp = timestamp
+          state.modifiedTimestamp = timestamp;
         }
-      }
-    )
+      },
+    );
 
-    this.notify()
+    this.notify();
   }
 
   getState() {
     const asyncHooks = this.hooks.filter(
-      h => h && Reflect.has(h, 'getterPromise')
-    ) as unknown as { getterPromise: Promise<any> | null }[]
+      (h) => h && Reflect.has(h, "getterPromise"),
+    ) as unknown as { getterPromise: Promise<any> | null }[];
 
-    let notReadyHooks = asyncHooks.filter(h => {
-      return !!h.getterPromise
-    })
+    let notReadyHooks = asyncHooks.filter((h) => {
+      return !!h.getterPromise;
+    });
 
-    return notReadyHooks.length === 0 ? EScopeState.idle : EScopeState.pending
+    return notReadyHooks.length === 0 ? EScopeState.idle : EScopeState.pending;
   }
 
   ready(specifies?: Set<number>): Promise<void> {
     const asyncHooks = this.hooks.filter(
       (h, i) =>
         (specifies ? specifies.has(i) : true) &&
-        ((h && Reflect.has(h, 'getterPromise')) ||
+        ((h && Reflect.has(h, "getterPromise")) ||
           h instanceof AsyncInputCompute ||
-          h instanceof AsyncState)
-    ) as unknown as (AsyncInputCompute<any> | AsyncState<any>)[]
+          h instanceof AsyncState),
+    ) as unknown as (AsyncInputCompute<any> | AsyncState<any>)[];
 
-    let readyResolve: () => void
-    let readyPromise = new Promise<void>(resolve => (readyResolve = resolve))
+    let readyResolve: () => void;
+    let readyPromise = new Promise<void>((resolve) => (readyResolve = resolve));
 
-    let max = asyncHooks.length * 2
-    let i = 0
+    let max = asyncHooks.length * 2;
+    let i = 0;
     async function wait() {
       if (i++ > max) {
-        throw new Error('[Scope.ready] unexpect loop for ready')
+        throw new Error("[Scope.ready] unexpect loop for ready");
       }
       let notReadyHooks = asyncHooks
-        .filter(h => {
+        .filter((h) => {
           // if (h.getterPromise) {
           //   console.log(h)
           // }
-          return !!h.getterPromise
+          return !!h.getterPromise;
         })
-        .map(h => h.getterPromise)
+        .map((h) => h.getterPromise);
       if (notReadyHooks.length === 0) {
-        readyResolve()
+        readyResolve();
       } else {
-        await Promise.all(notReadyHooks)
-        wait()
+        await Promise.all(notReadyHooks);
+        wait();
       }
     }
-    wait()
+    wait();
 
-    return readyPromise
+    return readyPromise;
   }
 }
 
-let currentRunnerScope: CurrentRunnerScope<Driver> | null = null
+let currentRunnerScope: CurrentRunnerScope<Driver> | null = null;
 
 export function getCurrentRunnerScope() {
-  return currentRunnerScope
+  return currentRunnerScope;
 }
 /**
  *
  */
-let currentReactiveChain: ReactiveChain | undefined = undefined
+let currentReactiveChain: ReactiveChain | undefined = undefined;
 
-export function getCurrentReactiveChain () {
-  return currentReactiveChain
+export function getCurrentReactiveChain() {
+  return currentReactiveChain;
 }
 
-export function startdReactiveChain(name: string = 'root') {
-  currentReactiveChain = new ReactiveChain()
-  currentReactiveChain.isRoot = true
-  currentReactiveChain.name = name
-  return currentReactiveChain
+export function startdReactiveChain(name: string = "root") {
+  currentReactiveChain = new ReactiveChain();
+  currentReactiveChain.isRoot = true;
+  currentReactiveChain.name = name;
+  return currentReactiveChain;
 }
 export function stopReactiveChain() {
-  currentReactiveChain = undefined
+  currentReactiveChain = undefined;
 }
 
 /**
  * collect reactive chain for debug
  */
-type ChainTrigger<T> = CurrentRunnerScope<any> | State<T> | InputCompute<any>
+type ChainTrigger<T> = CurrentRunnerScope<any> | State<T> | InputCompute<any>;
 export class ReactiveChain<T = any> {
-  isRoot = false
-  allLeafCount = 0
-  order: number = 0
-  name?: string
-  hookIndex?: number
-  hookKey?: string
-  oldValue: T | undefined
-  newValue: T | undefined
-  hasNewValue: boolean = false
-  children: ReactiveChain<T>[] = []
-  type?: 'update' | 'notify' | 'call'
+  isRoot = false;
+  allLeafCount = 0;
+  order: number = 0;
+  name?: string;
+  hookIndex?: number;
+  hookKey?: string;
+  oldValue: T | undefined;
+  newValue: T | undefined;
+  hasNewValue: boolean = false;
+  children: ReactiveChain<T>[] = [];
+  type?: "update" | "notify" | "call";
 
-  static getCurrent = () => currentReactiveChain
+  static getCurrent = () => currentReactiveChain;
 
-  constructor(public parent?: ReactiveChain, public hook?: ChainTrigger<T>) {
-    this.order = parent?.plusLeaf() || 0
+  constructor(
+    public parent?: ReactiveChain,
+    public hook?: ChainTrigger<T>,
+  ) {
+    this.order = parent?.plusLeaf() || 0;
 
     if (hook instanceof State) {
-      this.oldValue = hook._internalValue
+      this.oldValue = hook._internalValue;
     }
   }
   static withChain<T extends (...args: any[]) => any>(
     chain: ReactiveChain,
-    fn: T
+    fn: T,
   ): ReturnType<T> {
-    const oldCurrentReactiveChain = currentReactiveChain
-    currentReactiveChain = chain
+    const oldCurrentReactiveChain = currentReactiveChain;
+    currentReactiveChain = chain;
 
-    const r = fn()
+    const r = fn();
 
-    currentReactiveChain = oldCurrentReactiveChain
-    return r
+    currentReactiveChain = oldCurrentReactiveChain;
+    return r;
   }
   plusLeaf() {
     if (this.isRoot) {
-      this.allLeafCount += 1
-      return this.allLeafCount
+      this.allLeafCount += 1;
+      return this.allLeafCount;
     }
-    return this.parent.plusLeaf()
+    return this.parent.plusLeaf();
   }
   stop() {
-    stopReactiveChain()
+    stopReactiveChain();
   }
   update() {
     if (this.hook instanceof State) {
-      this.hasNewValue = true
-      this.newValue = this.hook._internalValue
+      this.hasNewValue = true;
+      this.newValue = this.hook._internalValue;
     }
   }
   add(trigger: ChainTrigger<T>, key?: string): ReactiveChain<T> {
-    const childChain = new ReactiveChain(this, trigger)
-    childChain.hookKey = key
-    this.children.push(childChain)
+    const childChain = new ReactiveChain(this, trigger);
+    childChain.hookKey = key;
+    this.children.push(childChain);
 
     if (currentRunnerScope) {
       if (trigger instanceof Hook) {
-        const index = currentRunnerScope.findHookIndex(trigger)
+        const index = currentRunnerScope.findHookIndex(trigger);
         if (index > -1) {
-          childChain.hookIndex = index
+          childChain.hookIndex = index;
         }
       }
     }
-    return childChain
+    return childChain;
   }
   addCall(trigger: ChainTrigger<T>, key?: string): ReactiveChain<T> {
-    const childChain = this.add(trigger, key)
-    childChain.type = 'call'
-    return childChain
+    const childChain = this.add(trigger, key);
+    childChain.type = "call";
+    return childChain;
   }
   addNotify(trigger: ChainTrigger<T>): ReactiveChain<T> {
-    const childChain = this.add(trigger)
-    childChain.type = 'notify'
-    return childChain
+    const childChain = this.add(trigger);
+    childChain.type = "notify";
+    return childChain;
   }
   addUpdate(child: ChainTrigger<T>): ReactiveChain<T> {
-    const childChain = this.add(child)
-    childChain.type = 'update'
-    return childChain
+    const childChain = this.add(child);
+    childChain.type = "update";
+    return childChain;
   }
   print() {
-    const preLink = '|--> '
-    const preDec = '|-- '
-    const preHasNextSpace = '|  '
-    const preSpace = '   '
+    const preLink = "|--> ";
+    const preDec = "|-- ";
+    const preHasNextSpace = "|  ";
+    const preSpace = "   ";
 
     function dfi(current: ReactiveChain) {
-      const isRunnerScope = current.hook instanceof CurrentRunnerScope
-      let currentName = current.hook?.constructor.name || current.name || ''
+      const isRunnerScope = current.hook instanceof CurrentRunnerScope;
+      let currentName = current.hook?.constructor.name || current.name || "";
       if (isRunnerScope) {
-        currentName = `\x1b[32m${currentName}\x1b[0m`
+        currentName = `\x1b[32m${currentName}\x1b[0m`;
       }
       if (current.hook?.name) {
         currentName = `${currentName}(${current.hook?.name}${
-          current.hookKey ? '.' + current.hookKey : ''
-        })`
+          current.hookKey ? "." + current.hookKey : ""
+        })`;
       } else if (isDef(current.hookIndex)) {
-        currentName = `${currentName}(${current.hookIndex})`
+        currentName = `${currentName}(${current.hookIndex})`;
       }
       if (current.type) {
-        currentName = `${current.type}: ${currentName}`
+        currentName = `${current.type}: ${currentName}`;
       }
-      currentName = `\x1b[32m${current.order}\x1b[0m.${currentName}`
+      currentName = `\x1b[32m${current.order}\x1b[0m.${currentName}`;
 
-      const currentRows = [currentName]
+      const currentRows = [currentName];
       if (shortValue(current.oldValue)) {
-        currentRows.push(`${preDec}cur=${shortValue(current.oldValue)}`)
+        currentRows.push(`${preDec}cur=${shortValue(current.oldValue)}`);
       } else {
-        currentRows.push(`${preDec}cur=${JSON.stringify(current.oldValue)}`)
+        currentRows.push(`${preDec}cur=${JSON.stringify(current.oldValue)}`);
       }
       if (current.hasNewValue) {
         if (shortValue(current.newValue)) {
-          currentRows.push(`${preDec}new=${shortValue(current.newValue)}`)
+          currentRows.push(`${preDec}new=${shortValue(current.newValue)}`);
         } else {
-          currentRows.push(`${preDec}new=${JSON.stringify(current.newValue)}`)
+          currentRows.push(`${preDec}new=${JSON.stringify(current.newValue)}`);
         }
       }
 
       if (current.children.length > 0) {
-        const names = current.children.map(dfi)
-        const rows: string[] = []
+        const names = current.children.map(dfi);
+        const rows: string[] = [];
         names.forEach((arr, i) => {
           arr.forEach((childName, j) => {
             if (j === 0) {
-              rows.push(`${preLink}${childName}`)
+              rows.push(`${preLink}${childName}`);
             } else {
               if (names[i + 1]) {
-                rows.push(`${preHasNextSpace}${childName}`)
+                rows.push(`${preHasNextSpace}${childName}`);
               } else {
-                rows.push(`${preSpace}${childName}`)
+                rows.push(`${preSpace}${childName}`);
               }
             }
-          })
-        })
-        return [...currentRows, ...rows]
+          });
+        });
+        return [...currentRows, ...rows];
       }
-      return [...currentRows]
+      return [...currentRows];
     }
-    const logRows = dfi(this)
+    const logRows = dfi(this);
     // console the chain log
-    console.log(logRows.join('\n'))
+    console.log(logRows.join("\n"));
   }
 }
 
@@ -1655,8 +1676,8 @@ export const mountHookFactory = {
 
   // alias
   signal,
-  action: mountInputCompute
-}
+  action: mountInputCompute,
+};
 export const updateHookFactory = {
   state: updateState,
 
@@ -1665,22 +1686,22 @@ export const updateHookFactory = {
   inputCompute: updateInputCompute,
   // alias
   signal,
-  action: updateInputCompute
-}
+  action: updateInputCompute,
+};
 
 export let currentHookFactory: {
-  state: typeof mountState
+  state: typeof mountState;
 
-  cache: typeof mountCache
-  computed: typeof mountComputed
-  inputCompute: typeof mountInputCompute
+  cache: typeof mountCache;
+  computed: typeof mountComputed;
+  inputCompute: typeof mountInputCompute;
   // alias
-  signal: typeof signal
-  action: typeof mountInputCompute
-} = mountHookFactory
+  signal: typeof signal;
+  action: typeof mountInputCompute;
+} = mountHookFactory;
 
-export function getCurrentHookFactory () {
-  return currentHookFactory
+export function getCurrentHookFactory() {
+  return currentHookFactory;
 }
 
 export const hookFactoryFeatures = {
@@ -1691,280 +1712,282 @@ export const hookFactoryFeatures = {
   /**
    * need other hook as data source
    */
-  withSource: ['cache'],
+  withSource: ["cache"],
   /**
    * manual calling by User or System
    */
-  initiativeCompute: ['inputCompute', 'action']
-}
+  initiativeCompute: ["inputCompute", "action"],
+};
 
 export function updateValidation() {
   if (!currentRunnerScope) {
-    throw new Error('[updateValidation] update hook must under a tarat runner')
+    throw new Error("[updateValidation] update hook must under a tarat runner");
   }
 
-  const { hooks, initialHooksSet } = currentRunnerScope!
-  const currentIndex = hooks.length
-  const valid = !initialHooksSet || initialHooksSet.has(currentIndex)
+  const { hooks, initialHooksSet } = currentRunnerScope!;
+  const currentIndex = hooks.length;
+  const valid = !initialHooksSet || initialHooksSet.has(currentIndex);
 
   return {
     valid,
-    currentIndex
-  }
+    currentIndex,
+  };
 }
 
 function createUnaccessGetter<T>(index: number) {
   const f = () => {
-    throw new Error(`[update getter] cant access un initialized hook(${index})`)
-  }
+    throw new Error(
+      `[update getter] cant access un initialized hook(${index})`,
+    );
+  };
   const newF: (() => any) & { _hook: any } = Object.assign(f, {
-    _hook: null
-  })
-  return newF
+    _hook: null,
+  });
+  return newF;
 }
 
-export type IModifyFunction<T> = ((draft: Draft<T>) => void) | T
+export type IModifyFunction<T> = ((draft: Draft<T>) => void) | T;
 
 function createStateSetterGetterFunc<SV>(s: State<SV>): {
-  (): SV
-  (parameter: IModifyFunction<SV>): [SV, IDataPatch[]]
+  (): SV;
+  (parameter: IModifyFunction<SV>): [SV, IDataPatch[]];
 } {
   return (parameter?: any): any => {
     if (isDef(parameter)) {
-      let result: SV
-      let patches = []
+      let result: SV;
+      let patches = [];
       if (isFunc(parameter)) {
-        const r = produceWithPatches(s.value, parameter)
-        result = r[0]
-        patches = r[1]
+        const r = produceWithPatches(s.value, parameter);
+        result = r[0];
+        patches = r[1];
       } else {
-        result = parameter
+        result = parameter;
       }
       if (currentInputCompute) {
-        s.addComputePatches(result, patches)
+        s.addComputePatches(result, patches);
       } else {
         const reactiveChain: ReactiveChain<SV> | undefined =
-          currentReactiveChain?.addUpdate(s)
+          currentReactiveChain?.addUpdate(s);
 
-        const isUnderComputed = underComputed()
-        s.update(result, patches, isUnderComputed, reactiveChain)
+        const isUnderComputed = underComputed();
+        s.update(result, patches, isUnderComputed, reactiveChain);
       }
-      return [result, patches]
+      return [result, patches];
     }
     if (currentReactiveChain) {
       return ReactiveChain.withChain(currentReactiveChain.addCall(s), () => {
-        return s.value
-      })
+        return s.value;
+      });
     }
-    return s.value
-  }
+    return s.value;
+  };
 }
 
 function createCacheSetterGetterFunc<SV>(c: Cache<SV>): {
-  (): SV
-  (parameter: IModifyFunction<SV>): [SV, IDataPatch[]]
+  (): SV;
+  (parameter: IModifyFunction<SV>): [SV, IDataPatch[]];
 } {
   return (parameter?: any): any => {
     if (isDef(parameter)) {
-      let result: SV | Symbol
-      let patches = []
+      let result: SV | Symbol;
+      let patches = [];
       if (isFunc(parameter)) {
-        const r = produceWithPatches(c.value, parameter)
-        result = r[0]
-        patches = r[1]
+        const r = produceWithPatches(c.value, parameter);
+        result = r[0];
+        patches = r[1];
       } else {
-        result = parameter
+        result = parameter;
       }
 
       if (currentInputCompute) {
-        c.addComputePatches(result, patches)
+        c.addComputePatches(result, patches);
       } else {
-        const reactiveChain = currentReactiveChain?.addUpdate(c)
+        const reactiveChain = currentReactiveChain?.addUpdate(c);
 
-        const isUnderComputed = underComputed()
-        c.update(result, patches, isUnderComputed, reactiveChain)
+        const isUnderComputed = underComputed();
+        c.update(result, patches, isUnderComputed, reactiveChain);
       }
-      return [result, patches]
+      return [result, patches];
     }
     if (currentReactiveChain) {
       return ReactiveChain.withChain(currentReactiveChain.addCall(c), () => {
-        return c.value
-      })
+        return c.value;
+      });
     }
-    return c.value
-  }
+    return c.value;
+  };
 }
 
 function updateState<T>(initialValue?: T) {
-  const { valid, currentIndex } = updateValidation()
+  const { valid, currentIndex } = updateValidation();
 
   initialValue =
-    currentRunnerScope!.runnerContext.initialData![currentIndex]?.[2]
+    currentRunnerScope!.runnerContext.initialData![currentIndex]?.[2];
   // undefined means this hook wont needed in this progress
   if (!valid) {
-    currentRunnerScope!.addHook(undefined)
-    return createUnaccessGetter<T>(currentIndex)
+    currentRunnerScope!.addHook(undefined);
+    return createUnaccessGetter<T>(currentIndex);
   }
   const timestamp =
-    currentRunnerScope!.runnerContext.initialData![currentIndex]?.[3]
-  const hook = new State(initialValue)
+    currentRunnerScope!.runnerContext.initialData![currentIndex]?.[3];
+  const hook = new State(initialValue);
   if (timestamp) {
-    hook.modifiedTimestamp = timestamp
+    hook.modifiedTimestamp = timestamp;
   }
 
-  const setterGetter = createStateSetterGetterFunc(hook)
-  currentRunnerScope!.addHook(hook)
-  currentReactiveChain?.add(hook)
+  const setterGetter = createStateSetterGetterFunc(hook);
+  currentRunnerScope!.addHook(hook);
+  currentReactiveChain?.add(hook);
 
   const newSetterGetter = Object.assign(setterGetter, {
-    _hook: hook
-  })
+    _hook: hook,
+  });
 
-  return newSetterGetter
+  return newSetterGetter;
 }
 
 function mountState<T>(initialValue?: T) {
-  const hook = new State(initialValue)
+  const hook = new State(initialValue);
 
-  const setterGetter = createStateSetterGetterFunc(hook)
-  currentRunnerScope?.addHook(hook)
-  currentReactiveChain?.add(hook)
+  const setterGetter = createStateSetterGetterFunc(hook);
+  currentRunnerScope?.addHook(hook);
+  currentReactiveChain?.add(hook);
 
   const newSetterGetter = Object.assign(setterGetter, {
-    _hook: hook
-  })
+    _hook: hook,
+  });
 
-  return newSetterGetter
+  return newSetterGetter;
 }
 
 function updateCache<T>(key: string, options: ICacheOptions<T>) {
-  const { valid, currentIndex } = updateValidation()
+  const { valid, currentIndex } = updateValidation();
 
   if (!valid) {
-    currentRunnerScope!.addHook(undefined)
-    return createUnaccessGetter<T>(currentIndex)
+    currentRunnerScope!.addHook(undefined);
+    return createUnaccessGetter<T>(currentIndex);
   }
 
   /** @TODO cache maybe should has initial value */
-  const hook = new Cache(key, options, currentRunnerScope!)
-  currentRunnerScope!.addHook(hook)
+  const hook = new Cache(key, options, currentRunnerScope!);
+  currentRunnerScope!.addHook(hook);
 
   const initialValue: T =
-    currentRunnerScope!.runnerContext.initialData![currentIndex]?.[2]
+    currentRunnerScope!.runnerContext.initialData![currentIndex]?.[2];
   const timestamp =
-    currentRunnerScope!.runnerContext.initialData![currentIndex]?.[3]
+    currentRunnerScope!.runnerContext.initialData![currentIndex]?.[3];
 
   if (initialValue !== undefined) {
-    hook._internalValue = initialValue
+    hook._internalValue = initialValue;
     if (timestamp) {
-      hook.modifiedTimestamp = timestamp
+      hook.modifiedTimestamp = timestamp;
     }
   }
 
-  const setterGetter = createCacheSetterGetterFunc(hook)
+  const setterGetter = createCacheSetterGetterFunc(hook);
   const newSetterGetter = Object.assign(setterGetter, {
-    _hook: hook
-  })
-  return newSetterGetter
+    _hook: hook,
+  });
+  return newSetterGetter;
 }
 function mountCache<T>(key: string, options: ICacheOptions<T>) {
-  const hook = new Cache(key, options, currentRunnerScope!)
-  currentRunnerScope?.addHook(hook)
-  currentReactiveChain?.add(hook)
+  const hook = new Cache(key, options, currentRunnerScope!);
+  currentRunnerScope?.addHook(hook);
+  currentReactiveChain?.add(hook);
 
-  const setterGetter = createCacheSetterGetterFunc(hook)
+  const setterGetter = createCacheSetterGetterFunc(hook);
   const newSetterGetter = Object.assign(setterGetter, {
-    _hook: hook
-  })
-  return newSetterGetter
+    _hook: hook,
+  });
+  return newSetterGetter;
 }
 
 function updateComputed<T>(
-  fn: FComputedFuncGenerator<T>
-): (() => T) & { _hook: Computed<T> }
+  fn: FComputedFuncGenerator<T>,
+): (() => T) & { _hook: Computed<T> };
 function updateComputed<T>(
-  fn: FComputedFuncAsync<T>
-): (() => T) & { _hook: Computed<T> }
+  fn: FComputedFuncAsync<T>,
+): (() => T) & { _hook: Computed<T> };
 function updateComputed<T>(
-  fn: FComputedFunc<T>
-): (() => T) & { _hook: Computed<T> }
+  fn: FComputedFunc<T>,
+): (() => T) & { _hook: Computed<T> };
 function updateComputed<T>(fn: any): any {
-  const { valid, currentIndex } = updateValidation()
+  const { valid, currentIndex } = updateValidation();
 
   if (!valid) {
-    currentRunnerScope!.addHook(undefined)
-    return createUnaccessGetter<T>(currentIndex)
+    currentRunnerScope!.addHook(undefined);
+    return createUnaccessGetter<T>(currentIndex);
   }
   const initialValue: T =
-    currentRunnerScope!.runnerContext.initialData![currentIndex]?.[2]
+    currentRunnerScope!.runnerContext.initialData![currentIndex]?.[2];
   const timestamp =
-    currentRunnerScope!.runnerContext.initialData![currentIndex]?.[3]
+    currentRunnerScope!.runnerContext.initialData![currentIndex]?.[3];
 
-  const hook = new Computed<T>(fn)
-  currentRunnerScope!.addHook(hook)
+  const hook = new Computed<T>(fn);
+  currentRunnerScope!.addHook(hook);
   // @TODO: update computed won't trigger
-  hook._internalValue = initialValue
-  hook.init = false
+  hook._internalValue = initialValue;
+  hook.init = false;
   if (timestamp) {
-    hook.modifiedTimestamp = timestamp
+    hook.modifiedTimestamp = timestamp;
   }
 
-  currentReactiveChain?.add(hook)
+  currentReactiveChain?.add(hook);
 
   const getter = () => {
-    return hook.value
-  }
+    return hook.value;
+  };
   const newGetter = Object.assign(getter, {
-    _hook: hook
-  })
-  return newGetter
+    _hook: hook,
+  });
+  return newGetter;
 }
 function mountComputed<T>(
-  fn: FComputedFuncGenerator<T>
-): (() => T) & { _hook: Computed<T> }
+  fn: FComputedFuncGenerator<T>,
+): (() => T) & { _hook: Computed<T> };
 function mountComputed<T>(
-  fn: FComputedFuncAsync<T>
-): (() => T) & { _hook: Computed<T> }
+  fn: FComputedFuncAsync<T>,
+): (() => T) & { _hook: Computed<T> };
 function mountComputed<T>(
-  fn: FComputedFunc<T>
-): (() => T) & { _hook: Computed<T> }
+  fn: FComputedFunc<T>,
+): (() => T) & { _hook: Computed<T> };
 function mountComputed<T>(fn: any): any {
-  const hook = new Computed<T>(fn)
-  currentRunnerScope?.addHook(hook)
+  const hook = new Computed<T>(fn);
+  currentRunnerScope?.addHook(hook);
 
-  currentReactiveChain?.add(hook)
+  currentReactiveChain?.add(hook);
 
   const getter = () => {
-    return hook.value
-  }
+    return hook.value;
+  };
   const newGetter = Object.assign(getter, {
-    _hook: hook
-  })
-  return newGetter
+    _hook: hook,
+  });
+  return newGetter;
 }
 
 function updateInputCompute(func: any) {
-  const { hooks, initialHooksSet } = currentRunnerScope!
-  const currentIndex = hooks.length
-  const valid = !initialHooksSet || initialHooksSet.has(currentIndex)
+  const { hooks, initialHooksSet } = currentRunnerScope!;
+  const currentIndex = hooks.length;
+  const valid = !initialHooksSet || initialHooksSet.has(currentIndex);
 
   if (!valid) {
-    currentRunnerScope!.addHook(undefined)
-    return createUnaccessGetter(currentIndex)
+    currentRunnerScope!.addHook(undefined);
+    return createUnaccessGetter(currentIndex);
   }
 
-  return mountInputCompute(func)
+  return mountInputCompute(func);
 }
 function mountInputCompute(func: any) {
-  const hook = new InputCompute(func, currentRunnerScope)
-  currentRunnerScope?.addHook(hook)
-  currentReactiveChain?.add(hook)
+  const hook = new InputCompute(func, currentRunnerScope);
+  currentRunnerScope?.addHook(hook);
+  currentReactiveChain?.add(hook);
   const wrapFunc = (...args: any) => {
-    return hook.run(...args)
-  }
-  wrapFunc._hook = hook
+    return hook.run(...args);
+  };
+  wrapFunc._hook = hook;
 
-  return wrapFunc
+  return wrapFunc;
 }
 
 /**
@@ -1973,68 +1996,68 @@ function mountInputCompute(func: any) {
  *
  */
 type StateGetterAndSetter<T> = {
-  (): T
-  (parameter: IModifyFunction<T>): [T, IDataPatch[]]
-} & { _hook: State<T> }
+  (): T;
+  (parameter: IModifyFunction<T>): [T, IDataPatch[]];
+} & { _hook: State<T> };
 
-export function state<T>(initialValue: T): StateGetterAndSetter<T>
-export function state<T = undefined>(): StateGetterAndSetter<T | undefined>
+export function state<T>(initialValue: T): StateGetterAndSetter<T>;
+export function state<T = undefined>(): StateGetterAndSetter<T | undefined>;
 export function state(initialValue?: any) {
-  return currentHookFactory.state(initialValue)
+  return currentHookFactory.state(initialValue);
 }
 
-type ComputedGetter<T> = (() => T) & { _hook: Computed<T> }
-export function computed<T>(fn: FComputedFuncGenerator<T>): ComputedGetter<T>
-export function computed<T>(fn: FComputedFuncAsync<T>): ComputedGetter<T>
-export function computed<T>(fn: FComputedFunc<T>): ComputedGetter<T>
+type ComputedGetter<T> = (() => T) & { _hook: Computed<T> };
+export function computed<T>(fn: FComputedFuncGenerator<T>): ComputedGetter<T>;
+export function computed<T>(fn: FComputedFuncAsync<T>): ComputedGetter<T>;
+export function computed<T>(fn: FComputedFunc<T>): ComputedGetter<T>;
 export function computed<T>(fn: any): any {
-  return currentHookFactory.computed<T>(fn)
+  return currentHookFactory.computed<T>(fn);
 }
 
 export function inputCompute<T extends any[]>(
-  func: AsyncInputComputeFn<T>
-): AsyncInputComputeFn<T> & { _hook: Hook }
+  func: AsyncInputComputeFn<T>,
+): AsyncInputComputeFn<T> & { _hook: Hook };
 export function inputCompute<T extends any[]>(
-  func: GeneratorInputComputeFn<T>
-): AsyncInputComputeFn<T> & { _hook: Hook }
+  func: GeneratorInputComputeFn<T>,
+): AsyncInputComputeFn<T> & { _hook: Hook };
 export function inputCompute<T extends any[]>(
-  func: InputComputeFn<T>
-): InputComputeFn<T> & { _hook: Hook }
+  func: InputComputeFn<T>,
+): InputComputeFn<T> & { _hook: Hook };
 export function inputCompute(func: any) {
   if (!currentRunnerScope) {
-    throw new Error('[inputCompute] must under a tarat runner')
+    throw new Error("[inputCompute] must under a tarat runner");
   }
-  const wrapFunc = currentHookFactory.inputCompute(func)
-  return wrapFunc
+  const wrapFunc = currentHookFactory.inputCompute(func);
+  return wrapFunc;
 }
 
 export function cache<T>(key: string, options: ICacheOptions<T>) {
-  return currentHookFactory.cache<T>(key, options)
+  return currentHookFactory.cache<T>(key, options);
 }
 
 // alias
-export type ComputedSignal<T> = ComputedGetter<T>
-export type StateSignal<T> = StateGetterAndSetter<T>
-export type Signal<T> = StateGetterAndSetter<T>
+export type ComputedSignal<T> = ComputedGetter<T>;
+export type StateSignal<T> = StateGetterAndSetter<T>;
+export type Signal<T> = StateGetterAndSetter<T>;
 
-export function signal<T>(fn: FComputedFuncGenerator<T>): ComputedSignal<T>
-export function signal<T>(fn: FComputedFuncAsync<T>): ComputedSignal<T>
-export function signal<T>(fn: FComputedFunc<T>): ComputedSignal<T>
-export function signal<T>(initialValue: T): StateSignal<T>
-export function signal<T>(v: null): StateSignal<T>
+export function signal<T>(fn: FComputedFuncGenerator<T>): ComputedSignal<T>;
+export function signal<T>(fn: FComputedFuncAsync<T>): ComputedSignal<T>;
+export function signal<T>(fn: FComputedFunc<T>): ComputedSignal<T>;
+export function signal<T>(initialValue: T): StateSignal<T>;
+export function signal<T>(v: null): StateSignal<T>;
 // export function signal<T = undefined>(): {
 //   (): T
 //   (parameter: IModifyFunction<T | undefined>): [any, IDataPatch[]]
 // } & { _hook: State<T | undefined> }
 export function signal(v?: any) {
   if (isFunc(v)) {
-    return computed(v)
+    return computed(v);
   } else {
-    return state(v)
+    return state(v);
   }
 }
 
-export const action = inputCompute
+export const action = inputCompute;
 
 /**
  *
@@ -2049,71 +2072,71 @@ export const action = inputCompute
  */
 
 export function after(callback: () => void, targets: { _hook?: Hook }[]) {
-  callback = makeBatchCallback(callback)
+  callback = makeBatchCallback(callback);
 
-  targets.forEach(target => {
+  targets.forEach((target) => {
     if (target._hook) {
       if (target._hook instanceof InputCompute) {
-        target._hook.on(EHookEvents.afterCalling, callback)
+        target._hook.on(EHookEvents.afterCalling, callback);
       } else {
-        target._hook.on(EHookEvents.change, callback)
+        target._hook.on(EHookEvents.change, callback);
       }
     }
-  })
+  });
   return () => {
-    targets.forEach(target => {
+    targets.forEach((target) => {
       if (target._hook) {
         if (target._hook instanceof InputCompute) {
-          target._hook.off(EHookEvents.afterCalling, callback)
+          target._hook.off(EHookEvents.afterCalling, callback);
         } else {
-          target._hook.off(EHookEvents.change, callback)
+          target._hook.off(EHookEvents.change, callback);
         }
       }
-    })
-  }
+    });
+  };
 }
 
 export function before(callback: () => void, targets: { _hook?: Hook }[]) {
-  callback = makeBatchCallback(callback)
+  callback = makeBatchCallback(callback);
 
-  targets.forEach(target => {
+  targets.forEach((target) => {
     if (target._hook) {
       if (target._hook instanceof InputCompute) {
-        target._hook.on(EHookEvents.beforeCalling, callback)
+        target._hook.on(EHookEvents.beforeCalling, callback);
       }
     }
-  })
+  });
   return () => {
-    targets.forEach(target => {
+    targets.forEach((target) => {
       if (target._hook) {
         if (target._hook instanceof InputCompute) {
-          target._hook.off(EHookEvents.beforeCalling, callback)
+          target._hook.off(EHookEvents.beforeCalling, callback);
         }
       }
-    })
-  }
+    });
+  };
 }
 
 export function combineLatest<T>(
-  arr: Array<Function & { _hook: State<T> }>
+  arr: Array<Function & { _hook: State<T> }>,
 ): () => T {
   return () => {
     const latestState = arr.slice(1).reduce((latest, hook) => {
-      const { _hook } = hook
+      const { _hook } = hook;
       if (!_hook) {
-        return latest
+        return latest;
       }
       if (!latest._hook) {
-        return hook
+        return hook;
       }
       if (_hook.modifiedTimestamp > latest._hook.modifiedTimestamp) {
-        return hook
+        return hook;
       }
-      return latest
-    }, arr[0])
+      return latest;
+    }, arr[0]);
 
-    return latestState?.()
-  }
+    return latestState?.();
+  };
 }
 
 /**
@@ -2122,73 +2145,78 @@ export function combineLatest<T>(
  */
 export function compose<T extends Driver>(f: T, args?: any[]) {
   if (!currentRunnerScope) {
-    throw new Error('[compose] must run side of Driver')
+    throw new Error("[compose] must run side of Driver");
   }
 
-  const startIndex = currentRunnerScope.hooks.length
+  const startIndex = currentRunnerScope.hooks.length;
 
-  let names = getNames(f)
-  const driverName = getName(f)
-  const composeIndex = currentRunnerScope.composes.length
+  let names = getNames(f);
+  const driverName = getName(f);
+  const composeIndex = currentRunnerScope.composes.length;
   if (driverName && names) {
-    names = names.map(arr => [
+    names = names.map((arr) => [
       arr[0],
-      `compose.${composeIndex}.${driverName}.${arr[1]}`
-    ])
-    currentRunnerScope.appendComposeNames(startIndex, names)
+      `compose.${composeIndex}.${driverName}.${arr[1]}`,
+    ]);
+    currentRunnerScope.appendComposeNames(startIndex, names);
   }
 
-  const endIndex = startIndex + names.length
-  const deps = getDeps(f)
-  const originalDepsSize = (currentRunnerScope.intialContextDeps || []).length
-  currentRunnerScope.appendComposeDeps(startIndex, endIndex, composeIndex, deps)
+  const endIndex = startIndex + names.length;
+  const deps = getDeps(f);
+  const originalDepsSize = (currentRunnerScope.intialContextDeps || []).length;
+  currentRunnerScope.appendComposeDeps(
+    startIndex,
+    endIndex,
+    composeIndex,
+    deps,
+  );
 
-  const driverNamespace = getNamespace(f)
+  const driverNamespace = getNamespace(f);
   log(
-    '[compose] current = ',
-    currentRunnerScope.runnerContext.driverName
+    "[compose] current = ",
+    currentRunnerScope.runnerContext.driverName,
     // !!currentRunnerScope.modelIndexes
-  )
+  );
   const leaveCompose = currentRunnerScope.triggerEnterComposeDriver(
     driverNamespace,
-    driverName
-  )
-  const insideResult: ReturnType<T> = executeDriver(f, args)
+    driverName,
+  );
+  const insideResult: ReturnType<T> = executeDriver(f, args);
 
-  const afterEnterComposedLength = currentRunnerScope.composes.length
+  const afterEnterComposedLength = currentRunnerScope.composes.length;
   if (afterEnterComposedLength > composeIndex) {
-    const latestDepsSize = (currentRunnerScope.intialContextDeps || []).length
+    const latestDepsSize = (currentRunnerScope.intialContextDeps || []).length;
 
     // tip: there exist deeply composing in child compose driver
     currentRunnerScope.offsetComposeIndex(
       composeIndex,
       afterEnterComposedLength,
-      latestDepsSize - originalDepsSize
-    )
+      latestDepsSize - originalDepsSize,
+    );
   }
 
-  leaveCompose()
-  currentRunnerScope.composes.push(insideResult)
+  leaveCompose();
+  currentRunnerScope.composes.push(insideResult);
 
-  return insideResult
+  return insideResult;
 }
 
 export function progress<T = any>(getter: {
-  _hook: AsyncState<T> | AsyncInputCompute<T[]>
+  _hook: AsyncState<T> | AsyncInputCompute<T[]>;
 }) {
-  const hook = getter._hook
+  const hook = getter._hook;
   return () => ({
     state: hook.init
       ? EScopeState.init
       : hook.pending
       ? EScopeState.pending
-      : EScopeState.idle
-  })
+      : EScopeState.idle,
+  });
 }
 
 export function dispose(f: Function) {
   if (!currentRunnerScope) {
-    throw new Error('[dispose] must run inside of Driver')
+    throw new Error("[dispose] must run inside of Driver");
   }
-  currentRunnerScope.appendDispose(f)
+  currentRunnerScope.appendDispose(f);
 }

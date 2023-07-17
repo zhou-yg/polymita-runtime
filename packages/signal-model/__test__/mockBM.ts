@@ -275,7 +275,7 @@ export function changeStateInputComputeServer3() {
  */
 export function userModelClient() {
   const num = state(1)
-  const users = model(
+  const users = prisma(
     'item',
     () => ({
       where: {
@@ -291,7 +291,7 @@ export function userModelClient() {
   }
 }
 Object.assign(userModelClient, {
-  __deps__: [['h', 1, [0]]]
+  __deps__: [['h', 1, [0]]],
 })
 
 export function writeModelWithSource() {

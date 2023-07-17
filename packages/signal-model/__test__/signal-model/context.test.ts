@@ -23,8 +23,8 @@ describe('initContext', () => {
     const runner = new ModelRunner(mockBM.plainObjectState)
     const result = runner.init(args, context)
 
-    expect(result.s1()).toEqual(context.data[0][1])
-    expect(result.s2()).toEqual(context.data[1][1])
+    expect(result.s1()).toEqual(context.data[0][2])
+    expect(result.s2()).toEqual(context.data[1][2])
   })
   it('access state getter without context', () => {
     const args: [ {num1: number}, number ] = [
@@ -43,7 +43,7 @@ describe('initContext', () => {
     const runner = new ModelRunner(mockBM.plainObjectState)
     const result = runner.init(args, context)
 
-    expect(result.s1()).toEqual(context.data[0][1])
+    expect(result.s1()).toEqual(context.data[0][2])
     try {
       result.s2()
     } catch (e: any) {
@@ -95,8 +95,8 @@ describe('initContext', () => {
           process.env.TARGET = 'server'
           const serverRunner = new ModelRunner(mockBM.changeStateInputComputeServer2)
 
-          expect(c.data[1]).toEqual(['unserialized'])
-          expect(c.data[3]).toEqual(['unserialized'])
+          expect(c.data[1]).toEqual([undefined, 'unserialized'])
+          expect(c.data[3]).toEqual([undefined, 'unserialized'])
 
           const serverR = serverRunner.init([], c)
     
@@ -142,10 +142,10 @@ describe('initContext', () => {
   })
 
   describe('context serialization to server', () => {
-    beforeAll(() => {
+    beforeEach(() => {
       process.env.TARGET = 'client'
     })
-    afterAll(() => {
+    afterEach(() => {
       process.env.TARGET = ''
     })
     it('simple', () => {

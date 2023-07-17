@@ -54,6 +54,7 @@ describe('inputCompute', () => {
     const mt2 = result.s2._hook.modifiedTimestamp
 
     await result.changeS2(10)
+    await mockBM.wait()
 
     expect(mt1).toBe(result.s1._hook.modifiedTimestamp)
     expect(mt2).toBe(result.s2._hook.modifiedTimestamp)

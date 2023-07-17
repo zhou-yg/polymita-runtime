@@ -1,20 +1,20 @@
-import co from './lib/co'
-export const isArray = Array.isArray
+import co from "./lib/co";
+export const isArray = Array.isArray;
 /* copy from immer's common.ts  */
-export type AnyObject = { [key: string]: any }
-export const ownKeys: (target: AnyObject) => PropertyKey[] = Reflect.ownKeys
-export const getOwnPropertyDescriptors = Object.getOwnPropertyDescriptors
+export type AnyObject = { [key: string]: any };
+export const ownKeys: (target: AnyObject) => PropertyKey[] = Reflect.ownKeys;
+export const getOwnPropertyDescriptors = Object.getOwnPropertyDescriptors;
 
 export function shallowCopy(base: any): any {
-  if (isArray(base)) return Array.prototype.slice.call(base)
-  const descriptors = getOwnPropertyDescriptors(base)
-  let keys = ownKeys(descriptors)
+  if (isArray(base)) return Array.prototype.slice.call(base);
+  const descriptors = getOwnPropertyDescriptors(base);
+  let keys = ownKeys(descriptors);
   for (let i = 0; i < keys.length; i++) {
-    const key: any = keys[i]
-    const desc = descriptors[key]
+    const key: any = keys[i];
+    const desc = descriptors[key];
     if (desc.writable === false) {
-      desc.writable = true
-      desc.configurable = true
+      desc.writable = true;
+      desc.configurable = true;
     }
     // like object.assign, we will read any _own_, get/set accessors. This helps in dealing
     // with libraries that trap values, like mobx or vue
@@ -24,199 +24,199 @@ export function shallowCopy(base: any): any {
         configurable: true,
         writable: true, // could live with !!desc.set as well here...
         enumerable: desc.enumerable,
-        value: base[key]
-      }
+        value: base[key],
+      };
   }
-  return Object.create(Object.getPrototypeOf(base), descriptors)
+  return Object.create(Object.getPrototypeOf(base), descriptors);
 }
 /* HELPERS */
-const getKeys = Object.keys
+const getKeys = Object.keys;
 
 export const isEqual = (x: any, y: any): boolean => {
-  if (x === y) return true
+  if (x === y) return true;
 
   if (
-    typeof x === 'object' &&
-    typeof y === 'object' &&
+    typeof x === "object" &&
+    typeof y === "object" &&
     x !== null &&
     y !== null
   ) {
     if (isArray(x)) {
       if (isArray(y)) {
-        let xLength = x.length
-        let yLength = y.length
+        let xLength = x.length;
+        let yLength = y.length;
 
-        if (xLength !== yLength) return false
+        if (xLength !== yLength) return false;
 
         while (xLength--) {
-          if (!isEqual(x[xLength], y[xLength])) return false
+          if (!isEqual(x[xLength], y[xLength])) return false;
         }
 
-        return true
+        return true;
       }
 
-      return false
+      return false;
     } else if (isArray(y)) {
-      return false
+      return false;
     } else {
-      let xKeys = getKeys(x)
-      let xLength = xKeys.length
-      let yKeys = getKeys(y)
-      let yLength = yKeys.length
+      let xKeys = getKeys(x);
+      let xLength = xKeys.length;
+      let yKeys = getKeys(y);
+      let yLength = yKeys.length;
 
-      if (xLength !== yLength) return false
+      if (xLength !== yLength) return false;
 
       while (xLength--) {
-        const key = xKeys[xLength]
-        const xValue = x[key]
-        const yValue = y[key]
+        const key = xKeys[xLength];
+        const xValue = x[key];
+        const yValue = y[key];
 
-        if (!isEqual(xValue, yValue)) return false
+        if (!isEqual(xValue, yValue)) return false;
 
-        if (yValue === undefined && !Reflect.has(y, key)) return false
+        if (yValue === undefined && !Reflect.has(y, key)) return false;
       }
     }
 
-    return true
+    return true;
   }
 
-  return x !== x && y !== y
-}
+  return x !== x && y !== y;
+};
 
 export function last<T>(arr: T[]): T {
-  return arr[arr.length - 1]
+  return arr[arr.length - 1];
 }
 export function cloneDeep(obj?: any) {
-  return obj && JSON.parse(JSON.stringify(obj))
+  return obj && JSON.parse(JSON.stringify(obj));
 }
 
 export function applyPatchesToObject(target: any, patches: IDataPatch[]) {
   patches.forEach((p: IDataPatch) => {
     switch (p.op) {
-      case 'add':
-        set(target, p.path, p.value)
-        break
-      case 'remove':
-        deleteKey(target, p)
-        break
-      case 'replace':
-        set(target, p.path, p.value)
-        break
+      case "add":
+        set(target, p.path, p.value);
+        break;
+      case "remove":
+        deleteKey(target, p);
+        break;
+      case "replace":
+        set(target, p.path, p.value);
+        break;
     }
-  })
+  });
 }
 
 export function isPrimtive(v: any) {
   if (v === null) {
-    return true
+    return true;
   }
-  const type = typeof v
+  const type = typeof v;
   return [
-    'undefined',
-    'number',
-    'symbol',
-    'string',
-    'bigint',
-    'boolean'
-  ].includes(type)
+    "undefined",
+    "number",
+    "symbol",
+    "string",
+    "bigint",
+    "boolean",
+  ].includes(type);
 }
 
 export function deleteKey(obj: any, p: IDataPatch) {
-  const { path, value } = p
-  let tail = path.length > 0 ? get(obj, path.slice(0, -1)) : obj
-  const key = last(path)
+  const { path, value } = p;
+  let tail = path.length > 0 ? get(obj, path.slice(0, -1)) : obj;
+  const key = last(path);
   if (tail instanceof Set) {
-    tail.delete(value)
+    tail.delete(value);
   }
   if (tail instanceof Map) {
-    tail.delete(key)
+    tail.delete(key);
   } else {
-    delete tail[key]
+    delete tail[key];
   }
 }
 
 export function set(obj: any, path: string | (number | string)[], value: any) {
-  let base = obj
+  let base = obj;
   const currentFieldPath = isArray(path)
     ? path.slice(0)
     : path.split
-    ? path.split('.')
-    : [path]
+    ? path.split(".")
+    : [path];
   if (currentFieldPath.length > 0) {
-    const fieldName = currentFieldPath.pop()
+    const fieldName = currentFieldPath.pop();
     currentFieldPath.forEach((p, i) => {
-      if (base[p] === undefined) base[p] = {}
-      base = base[p]
-    })
+      if (base[p] === undefined) base[p] = {};
+      base = base[p];
+    });
     if (base instanceof Map) {
-      base.set(fieldName, value)
+      base.set(fieldName, value);
     } else if (base instanceof Set) {
-      base.add(value)
+      base.add(value);
     } else {
-      base[fieldName!] = value
+      base[fieldName!] = value;
     }
   }
 }
 
 export function get(obj: any, path: string | (number | string)[]) {
-  let base = obj
+  let base = obj;
   const pathArr = isArray(path)
     ? path.slice(0)
     : path.split
-    ? path.split('.')
-    : [path]
+    ? path.split(".")
+    : [path];
   if (pathArr.length === 0) {
-    return obj
+    return obj;
   }
-  const currentPathArr = pathArr.slice(0, -1)
-  const key = last(pathArr)
+  const currentPathArr = pathArr.slice(0, -1);
+  const key = last(pathArr);
   for (const p of currentPathArr) {
-    if (base[p] === undefined) return undefined
-    base = base[p]
+    if (base[p] === undefined) return undefined;
+    base = base[p];
   }
   if (base instanceof Map) {
-    return base.get(key)
+    return base.get(key);
   }
-  return base[key]
+  return base[key];
 }
 
 export function map(
   target: object | any[],
-  callback: (v: any, i: number, self: any[]) => any
+  callback: (v: any, i: number, self: any[]) => any,
 ) {
-  if (!target || typeof target !== 'object') {
-    throw new Error('can not map')
+  if (!target || typeof target !== "object") {
+    throw new Error("can not map");
   }
   if (isArray(target)) {
-    return target.map(callback)
+    return target.map(callback);
   }
-  return Object.values(target).map(callback)
+  return Object.values(target).map(callback);
 }
 
 export function likeObject(target: any): target is Object {
-  return target && typeof target === 'object'
+  return target && typeof target === "object";
 }
 
 export function isDef(v?: any): v is any {
-  return typeof v !== 'undefined'
+  return typeof v !== "undefined";
 }
 export function isUndef(v?: any): v is undefined {
-  return typeof v === 'undefined'
+  return typeof v === "undefined";
 }
 
 export function isFunc(f?: Function | any): f is (...args: any[]) => any {
-  return typeof f === 'function'
+  return typeof f === "function";
 }
 
 export function isAsyncFunc<T>(f?: any): f is () => Promise<T> {
-  return f && f[Symbol.toStringTag] === 'AsyncFunction'
+  return f && f[Symbol.toStringTag] === "AsyncFunction";
 }
 export function isPromise<T>(p?: any): p is Promise<T> {
-  return p && (p instanceof Promise || !!p.then)
+  return p && (p instanceof Promise || !!p.then);
 }
 
 export function isGenerator(g: any): g is Generator {
-  return g && 'function' == typeof g.next && 'function' == typeof g.throw
+  return g && "function" == typeof g.next && "function" == typeof g.throw;
 }
 
 export function nextTick(fn: () => void) {
@@ -227,65 +227,65 @@ export function nextTick(fn: () => void) {
   //     fn()
   //   }
   // })
-  let st = setTimeout(fn, 0)
-  return () => clearTimeout(st)
+  let st = setTimeout(fn, 0);
+  return () => clearTimeout(st);
 }
 
-export type TContextData = string
+export type TContextData = string;
 
 export interface IStatePatchRecord {
-  timing: number
-  patch: IDataPatch[]
+  timing: number;
+  patch: IDataPatch[];
 }
 
 export interface IHookContext {
   // snapshot
-  initialArgList: any
+  initialArgList: any;
   data: Array<
     | [string, TContextData, Promise<any>, number]
     | [string, TContextData, null]
     | [string, TContextData]
     | [string, TContextData, any, number]
-  >
-  name: string
+  >;
+  name: string;
   // action
-  index?: number
-  indexName?: string
-  args?: any[]
+  index?: number;
+  indexName?: string;
+  args?: any[];
 }
 
-export type THookDepUnit =   [
-  'h' | 'ic',
+export type THookDepUnit = [
+  "h" | "ic",
   number,
-  (number | ['c', number, string])[], // get
-  (number | ['c', number, string])[]? // set
-]
+  (number | ["c", number, string])[], // get
+  (number | ["c", number, string])[]?, // set
+];
 
-export type THookDeps = Array<THookDepUnit>
+export type THookDeps = Array<THookDepUnit>;
 
 export function findWithDefault<T>(
   arr: T[],
   fn: (a: T) => boolean,
-  defaults?: T
+  defaults?: T,
 ): T | void {
-  let e = arr.find(fn)
+  let e = arr.find(fn);
   if (!e && defaults) {
-    e = defaults
-    arr.push(e)
+    e = defaults;
+    arr.push(e);
   }
-  return e
+  return e;
 }
 
-export const isDataPatch = (p: IDataPatch) => Reflect.has(p, 'path')
+export const isDataPatch = (p: IDataPatch) => Reflect.has(p, "path");
 
 // for data
 export interface IDataPatch {
-  op: 'replace' | 'add' | 'remove'
-  path: (string | number)[]
-  value?: any
+  op: "replace" | "add" | "remove";
+  path: (string | number)[];
+  value?: any;
 }
 
-export type TPath = (string | number)[]
+export type TPath = (string | number)[];
 /**
  * 修改了对象或数组的patch，计算
  * 如果修改了数组的子元素，就上升到整个数组，因为数组的变化通过patch来反推太不准确了
@@ -295,22 +295,22 @@ export type TPath = (string | number)[]
  */
 export function calculateChangedPath(source: any, ps: IDataPatch[]): TPath[] {
   if (isArray(source)) {
-    return [['']] // root
+    return [[""]]; // root
   }
-  const result: TPath[] = []
-  ps.forEach(p => {
+  const result: TPath[] = [];
+  ps.forEach((p) => {
     const i = p.path.findIndex((v, i) => {
       return (
-        typeof v === 'number' && isArray(get(source, p.path.slice(0, i + 1)))
-      )
-    })
+        typeof v === "number" && isArray(get(source, p.path.slice(0, i + 1)))
+      );
+    });
     if (i > -1) {
-      result.push(p.path.slice(0, i))
+      result.push(p.path.slice(0, i));
     } else {
-      result.push(p.path.slice())
+      result.push(p.path.slice());
     }
-  })
-  return result
+  });
+  return result;
 }
 
 // execute in server side
@@ -322,77 +322,77 @@ export function calculateChangedPath(source: any, ps: IDataPatch[]): TPath[] {
 //   return getModelConfig().postDiffToServer
 // }
 
-let currentEnv: null | string = null
-export function setEnv(env: 'server' | 'client') {
-  currentEnv = env
+let currentEnv: null | string = null;
+export function setEnv(env: "server" | "client") {
+  currentEnv = env;
 }
 
 export function getEnv() {
   return {
-    client: currentEnv === 'client',
-    server: currentEnv === 'server'
-  }
+    client: currentEnv === "client",
+    server: currentEnv === "server",
+  };
 }
 
-export let enableLog: boolean = false
+export let enableLog: boolean = false;
 export function log(pre: string, ...rest: any[]) {
   if (enableLog) {
-    console.log(`[${process.env.TARGET || ''}] [${pre}]`, ...rest)
+    console.log(`[${process.env.TARGET || ""}] [${pre}]`, ...rest);
   }
 }
 export function debuggerLog(open: boolean) {
-  enableLog = open
+  enableLog = open;
 }
 
 export function getDeps(f: Driver) {
-  return f.__deps__
+  return f.__deps__;
 }
 export function getName(f: Driver) {
-  return f.__name__ || f.name
+  return f.__name__ || f.name;
 }
 export function getNamespace(f: Driver) {
-  return f.__namespace__
+  return f.__namespace__;
 }
 export function getNames(f: Driver) {
-  return f.__names__
+  return f.__names__;
 }
 
-export type THookNames = [number, string][]
+export type THookNames = [number, string][];
 
 export interface Driver extends Function {
-  (...prop: any): any
-  __deps__?: THookDeps
-  __names__?: THookNames // hook name by index
-  __name__?: string
-  __namespace__?: string
+  (...prop: any): any;
+  __deps__?: THookDeps;
+  __names__?: THookNames; // hook name by index
+  __name__?: string;
+  __namespace__?: string;
 }
-export type BM = Driver
+export type BM = Driver;
 
 export function runGenerator(
   gen: Generator,
   onResume: () => void,
-  onSuspend: () => void
+  onSuspend: () => void,
 ) {
   return co(gen, {
     onResume: onResume,
-    onSuspend: onSuspend
-  })
+    onSuspend: onSuspend,
+  });
 }
 
 export function makeBatchCallback<T extends (...prop: any[]) => any>(fn: T) {
-  let cancelNotify = () => {}
+  let cancelNotify = () => {};
   return (...args: Parameters<T>) => {
-    cancelNotify()
+    cancelNotify();
     cancelNotify = nextTick(() => {
-      fn(...args)
-    })
-  }
+      fn(...args);
+    });
+  };
 }
 export function shortValue(v: undefined | Symbol | any) {
   if (v === undefined) {
-    return '@undef'
+    return "@undef";
   }
-  if (typeof v === 'symbol') {
-    return '@init'
+  if (typeof v === "symbol") {
+    return "@init";
   }
 }
