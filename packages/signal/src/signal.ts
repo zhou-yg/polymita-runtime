@@ -1064,7 +1064,7 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
 
   constructor(
     public runnerContext: RunnerContext<T>,
-    public intialContextDeps: THookDeps,
+    public initialContextDeps: THookDeps,
     public intialContextNames: THookNames,
   ) {
     super();
@@ -1215,7 +1215,7 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
   }
 
   applyDepsMap() {
-    const deps = this.intialContextDeps;
+    const deps = this.initialContextDeps;
     deps?.forEach(([name, hookIndex, getDeps]) => {
       getDeps.forEach((triggerHookIndex) => {
         let triggerHook: Hook | undefined | null;
@@ -1233,11 +1233,9 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
         }
         if (triggerHook) {
           // make sure the hook had implement ITarget interface
-          if ("addDep" in this.hooks[hookIndex]) {
-            (this.hooks[hookIndex] as unknown as ITarget<any>).addDep(
-              triggerHook,
-            );
-          }
+          (this.hooks[hookIndex] as unknown as ITarget<any>)?.addDep?.(
+            triggerHook,
+          );
         }
       });
     });
@@ -1271,13 +1269,13 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
     icrement: number,
   ) {
     const offset = newLength - originalIndex;
-    const endIndex = (this.intialContextDeps || []).length - icrement;
+    const endIndex = (this.initialContextDeps || []).length - icrement;
     if (offset > 0) {
-      const originalDepsBeforeCompose = (this.intialContextDeps || []).slice(
+      const originalDepsBeforeCompose = (this.initialContextDeps || []).slice(
         0,
         endIndex,
       );
-      const icrementDepsAfterCompose = (this.intialContextDeps || []).slice(
+      const icrementDepsAfterCompose = (this.initialContextDeps || []).slice(
         endIndex,
       );
 
@@ -1303,7 +1301,7 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
         }
         return arr;
       });
-      this.intialContextDeps = modifiedOriginalDeps.concat(
+      this.initialContextDeps = modifiedOriginalDeps.concat(
         icrementDepsAfterCompose,
       );
     }
@@ -1323,7 +1321,7 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
     }
     const hooksInComposeSize = ei - si;
 
-    const modifiedDeps = (this.intialContextDeps || []).map((a) => {
+    const modifiedDeps = (this.initialContextDeps || []).map((a) => {
       const arr: THookDepUnit = cloneDeep(a);
 
       if (arr[1] >= si) {
@@ -1362,7 +1360,7 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
       return arr;
     });
 
-    this.intialContextDeps = modifiedDeps.concat(newModifiedDeps);
+    this.initialContextDeps = modifiedDeps.concat(newModifiedDeps);
   }
 
   applyAllComputePatches(
@@ -2163,7 +2161,7 @@ export function compose<T extends Driver>(f: T, args?: any[]) {
 
   const endIndex = startIndex + names.length;
   const deps = getDeps(f);
-  const originalDepsSize = (currentRunnerScope.intialContextDeps || []).length;
+  const originalDepsSize = (currentRunnerScope.initialContextDeps || []).length;
   currentRunnerScope.appendComposeDeps(
     startIndex,
     endIndex,
@@ -2185,7 +2183,7 @@ export function compose<T extends Driver>(f: T, args?: any[]) {
 
   const afterEnterComposedLength = currentRunnerScope.composes.length;
   if (afterEnterComposedLength > composeIndex) {
-    const latestDepsSize = (currentRunnerScope.intialContextDeps || []).length;
+    const latestDepsSize = (currentRunnerScope.initialContextDeps || []).length;
 
     // tip: there exist deeply composing in child compose driver
     currentRunnerScope.offsetComposeIndex(
