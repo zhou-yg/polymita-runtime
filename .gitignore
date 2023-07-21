@@ -114,3 +114,6 @@ packages/example/*/models/dev.db
 packages/example/*/models/dev.db-*
 packages/example/*/models/migrations
 packages/example/*/models/customPrismaClient
+
+.tarat
+packages/example/file-uploader/.tarat
