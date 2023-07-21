@@ -92,7 +92,7 @@ export async function createDevServer (c: IConfig) {
       extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx', '.json'],
       alias: [
         {
-          find: '@/',
+          find: '@',
           replacement: c.cwd,
         },
         {
