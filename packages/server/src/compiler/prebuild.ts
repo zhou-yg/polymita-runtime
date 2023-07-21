@@ -323,7 +323,7 @@ export async function generateClientRoutes(c: IConfig) {
     clientEntry
   })
   // generate for vite.js so that this file doesn't need to be compiled to js
-  fs.writeFileSync(autoGenerateClientRoutes, prettier.format(routesStr2, { parser: 'typescript' }))
+  fs.writeFileSync(autoGenerateClientRoutes, await prettier.format(routesStr2, { parser: 'typescript' }))
 }
 
 export async function generateServerRoutes(c: IConfig) {
@@ -370,7 +370,7 @@ export async function generateServerRoutes(c: IConfig) {
     routes: r,
     modelIndexes
   })
-  fs.writeFileSync(autoGenerateServerRoutes, prettier.format(routesStr, { parser: 'typescript' }))
+  fs.writeFileSync(autoGenerateServerRoutes, await prettier.format(routesStr, { parser: 'typescript' }))
 }
 
 export function contextServerRoutes(c: IConfig) {

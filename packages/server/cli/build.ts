@@ -64,7 +64,7 @@ export default async (cwd: string) => {
       logFrame((`build ${chalk.green('modules')} end. cost ${chalk.green(cost2())} seconds`))
     }),
     generateModuleTypes(config).then(() => {
-      logFrame((`build ${chalk.green('modules')} end. cost ${chalk.green(cost2())} seconds`))
+      logFrame((`build ${chalk.green('modules types')} end. cost ${chalk.green(cost2())} seconds`))
     })
   ])
 

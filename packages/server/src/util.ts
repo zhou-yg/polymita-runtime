@@ -126,7 +126,9 @@ export function traverseDir (dir: string, callback: (f: IFile) => void, relative
 export function time (sec = true) {
   let st = Date.now()
   return () => {
-    const v = Date.now() - st
+    const now = Date.now()
+    const v = now - st
+    st = now
     return sec ? Math.floor(v / 1000) : v
   }
 }
