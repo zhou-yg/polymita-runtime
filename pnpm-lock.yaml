@@ -20,6 +20,7 @@ importers:
       '@rollup/plugin-typescript': ^6.1.0
       '@types/node': ^18.6.2
       '@types/react': ^18.0.28
+      prettier: ^3.0.0
       rollup: ^2.74.1
       rollup-plugin-dts: ^4.2.2
       rollup-plugin-typescript2: ^0.31.2
@@ -29,6 +30,7 @@ importers:
       '@polymita/signal-model': link:../signal-model
       '@types/node': registry.npmmirror.com/@types/node/18.15.5
       '@types/react': registry.npmmirror.com/@types/react/18.0.28
+      prettier: 3.0.0
       swr: registry.npmmirror.com/swr/2.1.1
     devDependencies:
       '@jsdevtools/version-bump-prompt': registry.npmmirror.com/@jsdevtools/version-bump-prompt/6.1.0
