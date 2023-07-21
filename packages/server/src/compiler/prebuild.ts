@@ -386,6 +386,7 @@ export function contextServerRoutes(c: IConfig) {
     format: 'cjs',
     bundle: true,
     platform: 'node',
+    target: 'node14',
     plugins: [
       esbuildPluginAliasDriver(c, 'server'),
       aliasAtCodeToCwd(c.cwd),
