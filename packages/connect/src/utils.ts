@@ -3,7 +3,7 @@ import { set } from "@polymita/signal-model";
 export function traverse(
   target: Record<string, any>,
   callback: (arrPath: string[], value: any) => void,
-  parentKeys?: string[]
+  parentKeys?: string[],
 ) {
   if (!parentKeys) {
     parentKeys = [];
