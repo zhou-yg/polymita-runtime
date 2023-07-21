@@ -3,7 +3,7 @@ import uploaderHook from '@/drivers/uploader'
 
 const Uploader = (props: ReturnType<typeof uploaderHook>) => {
 
-  const uploader = props; // useTarat(uploaderHook)
+  const uploader = props;
 
   const f = uploader.inputFile()
   const OSSLink = uploader.OSSLink()

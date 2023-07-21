@@ -13,7 +13,7 @@ const mdParser = new MarkdownIt(/* Markdown-it options */)
 export default function Editor(props) {
   const { height = 800, editorProgress, ...rest } = props
 
-  const mdEditorHook = rest // useTarat(mdEditor, query)
+  const mdEditorHook = rest
 
   const defualtMD = mdEditorHook.displayMD()
 

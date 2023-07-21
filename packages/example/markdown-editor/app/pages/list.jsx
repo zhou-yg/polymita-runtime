@@ -1,11 +1,12 @@
 import React from 'react'
 import mdDriver from '../../drivers/mdList'
 import { Link } from 'react-router-dom'
+import { useSignal } from '@polymita/connect'
 
 import LoadingButton from '@mui/lab/LoadingButton'
 
 export default function List () {
-  const md = useTarat(mdDriver)
+  const md = useSignal(mdDriver)
 
   function create () {
     md.addMD()
