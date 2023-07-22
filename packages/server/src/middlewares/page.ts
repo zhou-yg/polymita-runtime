@@ -7,6 +7,7 @@ import { ViteDevServer } from "vite";
 import { IHookContext, RunnerModelScope } from "@polymita/signal-model";
 import { IViewConfig, matchRoute } from "../config/routes";
 import { renderPage } from "../entries/html";
+import { projectRelativePath } from "../util";
 
 const templateFile = './pageTemplate.ejs'
 const templateFilePath = path.join(__dirname, templateFile)
@@ -61,7 +62,7 @@ function transformIndexHtml (html: string, c: IConfig) {
       let html = template({
         title: viewConfig.name,
         hookContextMap: JSON.stringify(context),
-        src,
+        src: projectRelativePath(config, src),
         css: r?.css,
         ssrHTML,
         configJSON: JSON.stringify({

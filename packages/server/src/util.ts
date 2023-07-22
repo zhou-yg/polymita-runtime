@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import rimraf from 'rimraf'
-import { IViewConfig } from './config'
+import { IConfig, IViewConfig } from './config'
 import os from "os";
 import { BM, isEqual } from "@polymita/signal-model";
 import { spawn } from 'child_process';
@@ -224,4 +224,10 @@ export function startElectronProcess () {
 
 export function resolveLib (cwd: string, lib: string) {
   return path.join(cwd, 'node_modules/tarat', lib)
+}
+/**
+ * 将config的一些全局绝对路径转换为当前项目工程的相对路径
+ */
+export function projectRelativePath (c: IConfig, p: string) {
+  return p.replace(c.cwd, '')
 }

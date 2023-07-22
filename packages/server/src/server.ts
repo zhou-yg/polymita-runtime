@@ -14,7 +14,7 @@ import unserializeWithFile from "./middlewares/unserialize";
 import aliasDriverRollupPlugin from './compiler/plugins/rollup-plugin-alias-driver';
 import react from '@vitejs/plugin-react'
 
-import { createServer as createViteServer } from "vite";
+import * as vite from "vite";
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 import { IConfig } from "./config";
@@ -23,6 +23,7 @@ import getPort, { makeRange as portNumbers } from "get-port";
 import pureDevCache from "./middlewares/pureDevCache";
 import { getAddress, getDefaultRoute, logFrame } from "./util";
 import path, { join } from "path";
+import { createReadStream, existsSync, readFileSync } from "fs";
 
 export function setupBasicServer (c: IConfig) {
   const app = new Koa()
@@ -32,6 +33,7 @@ export function setupBasicServer (c: IConfig) {
   app.use(cors())
   app.use(staticServe(c.publicDirectory))
   app.use(async (ctx, next) => {
+    console.log('>> request path=', ctx.request.path)
     await next()
   })
   app.use(unserializeWithFile())
@@ -39,7 +41,23 @@ export function setupBasicServer (c: IConfig) {
   return app
 }
 
+function appendMiddleware (app: Application, c: IConfig) {
+  /**
+   * handle *.css
+   */
+  // app.use(async (ctx, next) => {
+  //   if (!ctx.body && ctx.request.path.endsWith('.css')) {
+  //     if (existsSync(join(ctx.request.path))) {
+  //       ctx.headers['content-type'] = 'text/css'
+  //       ctx.body = readFileSync((ctx.request.path), 'utf-8')
+  //     }
+  //   }
+  //   await next()
+  // })
+}
+
 async function startApp(app: Application, c: IConfig) {
+  appendMiddleware(app, c)
 
   const port = c.port
 
@@ -74,7 +92,7 @@ export async function createDevServer (c: IConfig) {
     config: c
   }))
 
-  const vite = await createViteServer({
+  const viteServer = await vite.createServer({
     clearScreen: false,
     root: c.cwd,
     server:{ middlewareMode: 'ssr' },
@@ -89,7 +107,7 @@ export async function createDevServer (c: IConfig) {
       }),
     ],
     resolve: {
-      extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx', '.json'],
+      extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx', '.json', '.less', '.css'],
       alias: [
         {
           find: '@',
@@ -103,13 +121,13 @@ export async function createDevServer (c: IConfig) {
     }
   })
 
-  app.use(e2k(vite.middlewares))
+  app.use(e2k(viteServer.middlewares))
 
 
   app.use(page({
     config: c,
     pages: c.pages,
-    vite,
+    vite: viteServer,
   }))
 
   await startApp(app, c)

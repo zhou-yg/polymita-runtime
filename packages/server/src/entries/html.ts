@@ -5,7 +5,7 @@ import { RunnerModelScope, debuggerLog, getPlugin, startdReactiveChain } from "@
 import { renderToString } from 'react-dom/server'
 import React from 'react'
 import chalk from 'chalk'
-import { logFrame } from '../util';
+import { logFrame, projectRelativePath } from '../util';
 
 export interface PageContext {
   cookies: {
@@ -111,10 +111,11 @@ export async function renderPage (ctx: PageContext, config: IConfig) {
 
   const cost = Date.now() - st
 
-  const css = []
-  fs.existsSync(distEntryCSS) && css.push(distEntryCSS)
-  fs.existsSync(distServerRoutesCSS) && css.push(distServerRoutesCSS)
-
+  const css = [
+    fs.existsSync(distEntryCSS) && distEntryCSS,
+    fs.existsSync(distServerRoutesCSS) && distServerRoutesCSS,
+  ].filter(Boolean).map(path => projectRelativePath(config, path))
+  
   console.log(`[${routerLocation}] is end. second rendering cost ${chalk.blue(cost)} ms \n ---`)
 
   return {
