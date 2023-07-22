@@ -113,7 +113,7 @@ export function useReactHook<T extends Driver>(
           [scopeSymbol]: scope,
         }, r)
       };
-      (window as any).POLYMITA_RUNNER = init.current;
+      typeof window !== 'undefined' && ((window as any).POLYMITA_RUNNER = init.current);
   
       let m = driverWeakMap.get(hook)
       if (!m) {
