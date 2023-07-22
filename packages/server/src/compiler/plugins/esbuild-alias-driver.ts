@@ -52,7 +52,7 @@ const esbuildPluginAliasDriver = (c: IConfig, env: 'server' | 'client'): esbuild
             .replace(new RegExp(`\\/${driversDirectory}\\/`), `/${driversDirectory}/${defaultFormat}/`)
             .replace(/(\.(t|j)s)?$/, '.js');
           
-          console.log('aliasSource: ', aliasSource, existsSync(aliasSource), '\n');
+          // console.log('aliasSource: ', aliasSource, existsSync(aliasSource), '\n');
           if (existsSync(aliasSource)) {
             const driverJS = await fs.readFile(aliasSource)
             return {
