@@ -1,6 +1,6 @@
 {
   "name": "@polymita/connect",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "useHook serverless framework",
   "main": "./dist/connect.js",
   "module": "./dist/connect.esm.js",
