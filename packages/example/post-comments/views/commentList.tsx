@@ -18,6 +18,11 @@ const CommentChildren: React.FC<{
 }> = props => {
   const { comment, tree } = props
   console.log('tree: ', tree);
+
+  if (tree.length === 0) {
+    return <div style={{ color: '#999' }}> Wish your first comment! </div>
+  }
+
   return (
     <List>
       {tree.map((item) => {
@@ -84,7 +89,7 @@ const CommentList: React.FC<{
         {topicOne.currentTopic()?.title}
 
         <span className={s.sub} style={{ marginLeft: '10px' }}>
-          <UndoOutlined onClick={() => comment.refresh()} />
+          <UndoOutlined size={12} onClick={() => comment.refresh()} />
         </span>
       </header>
       <div className={s.commentInnerList}>

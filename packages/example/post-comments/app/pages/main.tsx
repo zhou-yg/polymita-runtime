@@ -1,7 +1,7 @@
 import React, { createContext, useState } from 'react'
 import s from './main.module.less'
 import TopicList from '../../views/topicList'
-import { Link, Outlet } from 'react-router-dom'
+import { Link, Outlet, useParams } from 'react-router-dom'
 import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -25,6 +25,9 @@ export const RoleContext = createContext<typeof roles['0']>(null)
 
 export default function Main () {
   const [value, setValue] = useState(0);
+  const param = useParams()
+
+  const tid = parseInt(param.tid)
 
   const onChange = (e) => {
     setValue(e.target.value);
@@ -38,10 +41,10 @@ export default function Main () {
         <TopicList renderItem={(v, i) => {
           return (
             <Link to={`topic/${v.id}`} className={s.item}>
-              <span>
+              <span style={{ flex: 1 }}>
                 {i+1}.{v.title}
               </span>
-              <span>&gt;</span>
+              { v.id === tid ? <span style={{ borderRadius: 4, fontSize: 12, background: '#999', color: '#fff', padding: '2px 4px', margin: '0 4px' }}>current</span> : '' }
             </Link>
           )
         }} />
