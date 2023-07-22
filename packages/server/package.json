@@ -81,7 +81,7 @@
     "dts-bundle-generator": "^8.0.1",
     "ejs": "^3.1.8",
     "electron": "^22.0.3",
-    "esbuild": "^0.17.19",
+    "esbuild": "^0.18.15",
     "esbuild-plugin-alias": "^0.2.1",
     "esbuild-plugin-postcss": "^0.2.1",
     "execa": "6.x.x",

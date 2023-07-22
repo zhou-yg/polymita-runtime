@@ -25,9 +25,12 @@ const esbuildPluginPostcss = (options: {
           to: args.path,
           syntax: less,
         });
+
+        const isCssModule = /\.module\./.test(args.path)
   
         return {
           contents: result.css,
+          // loader: isCssModule ? 'local-css' : 'css',
           loader: 'css',
         };
       });
