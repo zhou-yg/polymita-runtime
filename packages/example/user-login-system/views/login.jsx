@@ -1,4 +1,4 @@
-import React, { useState, forwardRef, useImperativeHandle } from 'react'
+import React, { useState, forwardRef, useImperativeHandle, useEffect } from 'react'
 import s from './login.module.less'
 
 const SignFrame = (props) => {
@@ -107,6 +107,10 @@ const LoginBox = (props, ref) => {
   const [loginType, setLoginType] = useState(props.type || LoginTypes.login)
 
   const alreadyLogin = loginHook.alreadyLogin()
+
+  useEffect(() => {
+    loginHook.errorTip2(() => '')
+  }, [loginType])
 
   return (
     <div className={`${s.login} shadow rounded`}>

@@ -230,6 +230,7 @@ export default function login() {
     login,
     logout,
     updateInfo,
+    errorTip2,
   };
 }
 
