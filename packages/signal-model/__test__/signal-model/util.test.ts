@@ -655,6 +655,16 @@ describe('util', () => {
 
       const sn6 = getShallowRelatedIndexes(6, deps)
       expect((sn6)).toEqual(new Set([6, 1, 8]))
+    });
+    it('call ic with referenced signal', () => {
+      const deps: THookDeps = [
+        ['ic', 2, [1], [0]],
+        ['ic', 3, [1], [2, 1]]
+      ];
+      const callICIndex = 3;
+      const indexes = getShallowRelatedIndexes(callICIndex, deps)
+      console.log('indexes: ', indexes);
+      expect(indexes).toEqual(new Set([1, 2, 3, 0]))
     })
   })
 

@@ -31,13 +31,13 @@ export function checkQueryWhere(where: IQueryWhere['where']): boolean {
 
 export class DataGraphNode {
   // relation types
-  toGet = new Set<DataGraphNode>()
+  getBy = new Set<DataGraphNode>()
   toSet = new Set<DataGraphNode>()
   toCall = new Set<DataGraphNode>()
 
   constructor(public id: number, public type: THookDeps[0][0]) {}
-  addToGet(n: DataGraphNode) {
-    this.toGet.add(n)
+  addGetBy(n: DataGraphNode) {
+    this.getBy.add(n)
   }
   addToSet(n: DataGraphNode) {
     this.toSet.add(n)
@@ -47,7 +47,7 @@ export class DataGraphNode {
   }
   get children() {
     return new Set<DataGraphNode>([
-      ...this.toGet,
+      ...this.getBy,
       ...this.toSet,
       ...this.toCall
     ])
@@ -98,7 +98,7 @@ function findReactiveDenpendencies(ancestors: DataGraphNode[]) {
     for (let index = ancestors.length - 1; index > 0; index--) {
       const last = ancestors[index]
       const prevLast = ancestors[index - 1]
-      if (prevLast.toGet.has(last)) {
+      if (prevLast.getBy.has(last)) {
         r.add(prevLast)
       } else {
         break
@@ -185,7 +185,7 @@ export function getDependentPrevNodes(
     while (i >= 0) {
       const last = arr[i]
       const penultimate = arr[i - 1]
-      if (!penultimate || !penultimate.toGet.has(last)) {
+      if (!penultimate || !penultimate.getBy.has(last)) {
         break
       }
       i--
@@ -267,7 +267,17 @@ export function getShallowInfluencedNextNodes(
     }
   )
 }
-
+/**
+ * 根据依赖组构建图数据结构
+ * [
+    ['ic', 2, [1], [0]],
+    ['ic', 3, [1], [2, 1]]
+ * ]
+ * 转化为：
+ *  1 -(get by)-> 2 -(set to)-> 0
+ *             -> 3 -(set to)-> 1
+ *                  -(call to)-> 2 
+ **/
 export function constructDataGraph(contextDeps: THookDeps) {
   const nodesMap = new Map<number, DataGraphNode>()
   const hasParentIds = new Set<number>()
@@ -293,7 +303,8 @@ export function constructDataGraph(contextDeps: THookDeps) {
           nodesMap.set(idOrArr, parent)
         }
         hasParentIds.add(current.id)
-        parent.addToGet(current)
+        parent.addGetBy(current)
+        // 检查环
       }
     })
     set?.forEach(idOrArr => {
@@ -310,11 +321,15 @@ export function constructDataGraph(contextDeps: THookDeps) {
           )
           nodesMap.set(idOrArr, child)
         }
-        hasParentIds.add(child.id)
         if (child.type === 'ic') {
           current.addToCall(child)
         } else {
           current.addToSet(child)
+        }
+        const children = child.getAllChildren();
+        const isCycling = [...children].map(node => node.id).includes(current.id);
+        if (!isCycling) {
+          hasParentIds.add(child.id)
         }
       }
     })
