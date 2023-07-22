@@ -822,7 +822,7 @@ export class Runner<T extends Driver> {
     currentRunnerScope = scope;
     const result: ReturnType<T> = executeDriver(
       this.driver,
-      scope.runnerContext.args,
+      scope.runnerContext.initialArgList,
     );
     currentRunnerScope = null;
 
