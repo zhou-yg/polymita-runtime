@@ -17,7 +17,8 @@
     "types": ["node"],
     "baseUrl": ".",
     "paths": {
-      "immer": ["node_modules/immer"]
+      "immer": ["node_modules/immer"],
+      "@/*": ["./*"]
     }
   }
 }

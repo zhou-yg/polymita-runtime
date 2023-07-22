@@ -1,4 +1,4 @@
-import { compose, computed, progress, state, connectModel } from "@polymita/signal-model";
+import { compose } from "@polymita/signal-model";
 import _topic from "./compose/topic";
 
 export default function topic() {

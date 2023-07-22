@@ -9,6 +9,8 @@ import {
 } from "@polymita/signal-model";
 import indexes from '@/models/indexes.json'
 
+export { EScopeState } from "@polymita/signal-model"
+
 export interface ITopic {
   id?: number;
   title: string;
