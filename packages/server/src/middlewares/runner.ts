@@ -12,7 +12,6 @@ import type { IConfig, IServerHookConfig } from '../config'
 import { setCookies, setPrisma, setRunning, setER  } from '../plugins'
 import { loadJSON, isComposedDriver } from '../util'
 import { filterFileType } from './unserialize'
-import { readFileSync } from 'node:fs'
 
 function matchHookName (p: string) {
   const arr = p.split('/').filter(Boolean)

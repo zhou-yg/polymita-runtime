@@ -54,22 +54,20 @@ export async function setPrisma (config: IConfig)  {
       return prisma[e].findMany(w).then(r => r)
     },
     async update(from: string, e, w) {
-      console.log('update e: ', e, w, 'start');
-      const r = prisma[e].update(w).then(r => r)
-      r.then(() => {
-        console.log('update e: ', e, 'end');
-      })
+      console.log('update start: ', e, w);
+      const r = prisma[e].update(w)
+      await r
+      console.log('update end: ', e);
       return r
     },
     async remove(from: string, e, d) {
       return prisma[e].delete(d).then(r => r)
     },
     async create(from: string, e, q) {
-      console.log('createe: ', e, q, 'start');
+      console.log('create start: ', e, q);
       const r = prisma[e].create(q).then(r => r)
-      r.then(() => {
-        console.log(`create ${e} end`)
-      })
+      await r
+      console.log(`create end:`,e, q)
       return r
     },
     // should check relation here
