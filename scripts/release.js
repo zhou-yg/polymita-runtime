@@ -110,6 +110,7 @@ Promise.all([
       upgradePatch(C)
       upgradePatch(SM)
       upgradePatch(R)
+      upgradePatch(Server)
 
       await commit();
 

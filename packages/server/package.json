@@ -1,6 +1,6 @@
 {
   "name": "@polymita/server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "tarat ssr framework server side",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
