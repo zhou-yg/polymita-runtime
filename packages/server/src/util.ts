@@ -28,7 +28,7 @@ export function isComposedDriver (f: BM) {
 }
 
 export function tryMkdir(dir: string) {
-  !fs.existsSync(dir) && fs.mkdirSync(dir)
+  !fs.existsSync(dir) && fs.mkdirSync(dir, { recursive: true })
 }
 
 export function getDefaultRoute (pages: IViewConfig[]) {

@@ -23,6 +23,7 @@ export const defaultConfig = () => ({
   appDirectory: 'app',
   pageDirectory: 'pages',
   modulesDirectory: 'modules', // for polymita module dir
+  testDirectory: 'test',
 
   publicDirectory: 'public',
 
@@ -38,6 +39,7 @@ export const defaultConfig = () => ({
 
   devCacheDirectory: '.tarat', // in cwd
   buildDirectory: 'dist', // in cwd
+  testCacheDirectory: '.test', // in cwd
 
   clientDir: 'client',
   serverDir: 'server',
@@ -209,6 +211,7 @@ function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) 
     clientRoutesCSS: path.join(outputAppClientDir, 'routes.css'),
     // drivers
     outputClientDriversDir: path.join(outputClientDir, config.driversDirectory, esmDirectory),
+    outputClientDriversCJSDir: path.join(outputClientDir, config.driversDirectory, cjsDirectory),
   }
 }
 
@@ -278,7 +281,7 @@ interface UserCustomConfig {
 
 export async function readConfig (arg: {
   cwd: string,
-  isProd?: boolean
+  isProd?: boolean | 'prod' | 'dev' | 'test'
 }) {
   const { cwd, isProd } = arg
   const configFileInPath = path.join(cwd, configFile)
@@ -327,8 +330,9 @@ export async function readConfig (arg: {
 
   const devPointFiles = getOutputFiles(config, cwd, path.join(cwd, config.devCacheDirectory))
   const buildPointFiles = getOutputFiles(config, cwd, path.join(cwd, config.buildDirectory))
+  const testPointFiles = getOutputFiles(config, cwd, path.join(cwd, config.testCacheDirectory))
   // default to "dev"
-  const pointFiles = isProd ? buildPointFiles : devPointFiles
+  const pointFiles = isProd === 'test' ? testPointFiles : isProd ? buildPointFiles : devPointFiles
 
   const dependencyModules = findDependencies(cwd, packageJSON)
 

@@ -58,8 +58,6 @@ export function prepareDir (c: IConfig) {
   emptyDirectory(c.pointFiles.outputDir)
 
   // append
-  tryMkdir(path.join(c.pointFiles.outputClientDir))
-  tryMkdir(path.join(c.pointFiles.outputServerDir))
   tryMkdir(path.join(c.pointFiles.outputClientDir, c.driversDirectory))
   tryMkdir(path.join(c.pointFiles.outputServerDir, c.driversDirectory))
   
@@ -70,7 +68,7 @@ export function prepareDir (c: IConfig) {
   })
 }
 
-const chokidarOptions = () => ({
+export const chokidarOptions = () => ({
   persistent: true,
   ignoreInitial: true,
   awaitWriteFinish: {
@@ -87,7 +85,7 @@ interface IWatcherConfig {
   callbackMode?: 'cocurrent' | 'sequence'
 }
 
-function watchByConfig (cwd: string, config: IWatcherConfig[]) {
+export function watchByConfig (cwd: string, config: IWatcherConfig[]) {
   const eventCallbackRunningState = new Map<FSWatcher, Map<string, boolean>>()
 
   const eventCalbackLastWaiter = new Map<FSWatcher, Map<string, true>>()
@@ -256,8 +254,6 @@ function watchEverything (c: IConfig) {
 }
 
 async function startCompile (c: IConfig) {
-
-  const cost = time()
 
   logFrame('prepare')
 

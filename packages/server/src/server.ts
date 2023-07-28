@@ -152,3 +152,16 @@ export async function createServer(c: IConfig) {
 
   return app
 }
+
+
+export async function createTestServer(c: IConfig) {
+  const app = setupBasicServer(c)
+ 
+  app.use(taratRunner({
+    config: c
+  }))
+
+  await startApp(app, c)
+
+  return app
+}

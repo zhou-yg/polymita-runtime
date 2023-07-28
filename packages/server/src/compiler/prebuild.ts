@@ -820,7 +820,7 @@ export async function buildDrivers (c: IConfig) {
   const {
     outputClientDriversDir,
     outputServerDriversDir,
-    outputServerDriversESMDir,
+    outputClientDriversCJSDir,
     outputDriversDir,
   } = c.pointFiles
 
@@ -830,17 +830,17 @@ export async function buildDrivers (c: IConfig) {
 
   await Promise.all([
     // cjs
-    esbuildDrivers(c, compiledFiles, path.join(outputServerDriversDir), { format: 'cjs', env: 'server', bundle: true }),
-    esbuildDrivers(c, compiledFiles, outputServerDriversESMDir, { format: 'esm', env: 'server', bundle: true }),
+    esbuildDrivers(c, compiledFiles, outputServerDriversDir, { format: 'cjs', env: 'server', bundle: true }),
+    esbuildDrivers(c, compiledFiles, outputClientDriversCJSDir, { format: 'cjs', env: 'client', bundle: true }),
     // esm
-    esbuildDrivers(c, compiledFiles, path.join(outputClientDriversDir), { format: 'esm', env: 'client', bundle: true }),
+    esbuildDrivers(c, compiledFiles, outputClientDriversDir, { format: 'esm', env: 'client', bundle: true }),
   ])
 
   if (c.ts) {
     try {
       const files = await driversType(c, outputDriversDir)
       files.forEach(({ name, outFile, relativePath }) => {
-        [outputClientDriversDir, outputServerDriversDir].forEach(outputEnvDir => {
+        [outputClientDriversCJSDir, outputClientDriversDir, outputServerDriversDir].forEach(outputEnvDir => {
           const dir = path.join(outputEnvDir, relativePath)
           if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir)
