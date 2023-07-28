@@ -52,8 +52,9 @@ cac
 
 cac
   .command('test')
-  .action(() => {
-    test(cwd)
+  .option('-b, --bootstrap', 'bootstrap the project')
+  .action((options: { b?:boolean, bootstrap?: boolean }) => {
+    test(cwd, options)
   })
 
 cac.help()

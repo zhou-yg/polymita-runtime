@@ -95,6 +95,7 @@ export function generateHookDeps (c: IConfig) {
   const {
     outputClientDriversDir,
     outputServerDriversDir,
+    outputClientDriversCJSDir,
     outputDriversDir,
   } = c.pointFiles
 
@@ -118,8 +119,11 @@ export function generateHookDeps (c: IConfig) {
     
       // modify original hook file
       injectDeps(c, compiledFile);
-
-      [outputClientDriversDir, outputServerDriversDir].forEach(envDir => {
+      [
+        outputClientDriversDir,
+        outputServerDriversDir,
+        outputClientDriversCJSDir,
+      ].forEach(envDir => {
         const cjsOutputFile = path.join(envDir, `${name}.js`)
         injectDeps(c, cjsOutputFile)
       })

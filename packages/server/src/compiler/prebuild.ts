@@ -34,6 +34,7 @@ import esbuildPluginPostcss from './plugins/esbuild-plugin-postcss';
 import clearFunctionBodyEsbuildPlugin from './plugins/esbuild-clear-function-body';
 import aliasAtCodeToCwd from './plugins/esbuild-alias-at';
 import esbuildPluginAliasDriver from './plugins/esbuild-alias-driver';
+import externalRelativeDrivers from './plugins/esbuild-external-drivers';
 
 const templateFile = './routesServerTemplate.ejs'
 const templateFilePath = path.join(__dirname, templateFile)
@@ -656,7 +657,8 @@ async function esbuildDrivers (
     format,
     treeShaking: true,
     plugins: [
-      aliasAtCodeToCwd(cwd)
+      aliasAtCodeToCwd(cwd),
+      externalRelativeDrivers(config),
     ],
 
   }
@@ -831,7 +833,7 @@ export async function buildDrivers (c: IConfig) {
   await Promise.all([
     // cjs
     esbuildDrivers(c, compiledFiles, outputServerDriversDir, { format: 'cjs', env: 'server', bundle: true }),
-    esbuildDrivers(c, compiledFiles, outputClientDriversCJSDir, { format: 'cjs', env: 'client' }),
+    esbuildDrivers(c, compiledFiles, outputClientDriversCJSDir, { format: 'cjs', env: 'client', bundle: true }),
     // esm
     esbuildDrivers(c, compiledFiles, outputClientDriversDir, { format: 'esm', env: 'client', bundle: true }),
   ])

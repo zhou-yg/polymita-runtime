@@ -84,23 +84,29 @@ module.exports = {
 };
 `.trim()
 
-function initializeTestFiles (c: IConfig) {
+function initializeTestFiles (c: IConfig, op:TestOptions) {
   const testDriversDir = path.join(c.testDirectory, c.driversDirectory)
   tryMkdir(testDriversDir)
   
-  c.drivers.forEach((driver) => {
-    const driverFile = path.join(testDriversDir, driver.name + '.test.ts')
-    if (!fs.existsSync(driverFile)) {
-      fs.writeFileSync(driverFile, driverTemplate(driver.name, c.testCacheDirectory))
+  if (op.bootstrap) {
+    c.drivers.forEach((driver) => {
+      const driverFile = path.join(testDriversDir, driver.name + '.test.ts')
+      if (!fs.existsSync(driverFile)) {
+        fs.writeFileSync(driverFile, driverTemplate(driver.name, c.testCacheDirectory))
+      }
+    });
+  
+    if (!fs.existsSync(path.join(c.cwd, 'jest.config.js'))) {
+      fs.writeFileSync(path.join(c.cwd, 'jest.config.js'), jestConfigTemp())
     }
-  });
-
-  if (!fs.existsSync(path.join(c.cwd, 'jest.config.js'))) {
-    fs.writeFileSync(path.join(c.cwd, 'jest.config.js'), jestConfigTemp())
   }
 }
 
-export default async (cwd: string) => {
+interface TestOptions {
+  bootstrap?: boolean
+}
+
+export default async (cwd: string, options: TestOptions) => {
 
   const config = await readConfig({
     cwd,
@@ -109,7 +115,7 @@ export default async (cwd: string) => {
 
   prepareDir(config)
 
-  initializeTestFiles(config)
+  initializeTestFiles(config, options)
 
   await buildForTesting(config)
 
