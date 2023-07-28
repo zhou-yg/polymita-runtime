@@ -14,7 +14,7 @@
     "removeComments": false,
     "jsx": "react",
     "lib": ["esnext", "dom"],
-    "types": ["node"],
+    "types": ["node", "jest"],
     "baseUrl": ".",
     "paths": {
       "immer": ["node_modules/immer"],

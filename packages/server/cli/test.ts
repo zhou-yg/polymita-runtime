@@ -56,9 +56,10 @@ async function buildForTesting(c: IConfig) {
   logFrame(`start watching drivers`)
 }
 
-const driverTemplate = (name: string) => `
-import clientDriver from '@/.tarat/client/drivers/cjs/${name}'
-import serverDriver from '@/.tarat/server/drivers/cjs/${name}'
+const driverTemplate = (name: string, testCacheDir: string) => `
+import clientDriver from '../../${testCacheDir}/client/drivers/cjs/${name}'
+import serverDriver from '../../${testCacheDir}/server/drivers/cjs/${name}'
+
 describe('test driver/${name}', () => {
   describe('client', () => {
     
@@ -67,7 +68,21 @@ describe('test driver/${name}', () => {
 
   })
 })
-`
+`.trim()
+
+const jestConfigTemp = () => `
+const isCI = process.env.TEST === 'CI'
+
+/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
+module.exports = {
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  collectCoverage: isCI,
+  collectCoverageFrom: [
+    './drivers/**/*.ts',
+  ]
+};
+`.trim()
 
 function initializeTestFiles (c: IConfig) {
   const testDriversDir = path.join(c.testDirectory, c.driversDirectory)
@@ -76,9 +91,13 @@ function initializeTestFiles (c: IConfig) {
   c.drivers.forEach((driver) => {
     const driverFile = path.join(testDriversDir, driver.name + '.test.ts')
     if (!fs.existsSync(driverFile)) {
-      fs.writeFileSync(driverFile, driverTemplate(driver.name))
+      fs.writeFileSync(driverFile, driverTemplate(driver.name, c.testCacheDirectory))
     }
-  })
+  });
+
+  if (!fs.existsSync(path.join(c.cwd, 'jest.config.js'))) {
+    fs.writeFileSync(path.join(c.cwd, 'jest.config.js'), jestConfigTemp())
+  }
 }
 
 export default async (cwd: string) => {

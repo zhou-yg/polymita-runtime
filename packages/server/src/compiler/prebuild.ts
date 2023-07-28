@@ -831,7 +831,7 @@ export async function buildDrivers (c: IConfig) {
   await Promise.all([
     // cjs
     esbuildDrivers(c, compiledFiles, outputServerDriversDir, { format: 'cjs', env: 'server', bundle: true }),
-    esbuildDrivers(c, compiledFiles, outputClientDriversCJSDir, { format: 'cjs', env: 'client', bundle: true }),
+    esbuildDrivers(c, compiledFiles, outputClientDriversCJSDir, { format: 'cjs', env: 'client' }),
     // esm
     esbuildDrivers(c, compiledFiles, outputClientDriversDir, { format: 'esm', env: 'client', bundle: true }),
   ])
