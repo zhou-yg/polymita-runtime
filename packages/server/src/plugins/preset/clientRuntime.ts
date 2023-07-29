@@ -89,11 +89,7 @@ export function serializeJSON(obj: Record<string, any>) {
   return stringifyWithUndef(obj)
 }
 
-export const preset = {
-  clientRuntime
-}
-
-function clientRuntime(c: {
+export function clientRuntime(c: {
   modelConfig?: any
   host?: string
 } = {}) {
@@ -113,9 +109,74 @@ function clientRuntime(c: {
   // @ts-ignore
   const diffPath = `${host}${(window as any).taratConfig?.diffPath || '_diff'}`
 
-  /**
-   * @TODO should provide by @tarat-run by default
-   */
+  loadPlugin('Model', {
+    async find(e, w) {
+      return []
+    },
+    async update(e, w) {
+      return []
+    },
+    async remove(e, d) {
+      return []
+    },
+    async create(e, d) {
+      return {}
+    },
+    async executeDiff(d) {},
+  })
+
+  loadPlugin('Context', {
+    async postDiffToServer(entity, diff) {
+      // @ts-ignore
+      await fetch(`${diffPath}`, {
+        method: 'POST',
+        body: stringifyWithUndef({
+          entity,
+          diff
+        })
+      })
+    },
+    async postComputeToServer(c) {
+      // @ts-ignore
+      const newContext = await fetch(`${hostConfig}/${c.name}`, {
+        method: 'POST',
+        body: serializeJSON(c)
+      })
+        .then(r => r.text())
+        .then(parseWithUndef)
+
+      return newContext
+    },
+    async postQueryToServer(c) {
+      // @ts-ignore
+      const newContext = await fetch(`${hostConfig}/${c.name}`, {
+        method: 'POST',
+        body: serializeJSON(c)
+      })
+        .then(r => r.text())
+        .then(parseWithUndef)
+
+      return newContext
+    },
+  })
+
+  loadPlugin('Cache', {
+    async getValue(k, f) {
+      throw new Error('no config cache')
+      return undefined
+    },
+    async setValue(k, v, f) {},
+    clearValue(k, f) {}
+  })
+}
+
+/**
+ * runtime for "test" command
+ */
+function clientTestingRuntime(optiosn: {
+  port: number
+  host?: string // defaults to "localhost"
+}) {
   loadPlugin('Model', {
     async find(e, w) {
       return []

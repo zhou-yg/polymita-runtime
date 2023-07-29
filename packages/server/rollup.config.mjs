@@ -28,9 +28,9 @@ export default [
         tsconfig: './tsconfig.json',
       }),
     ],
-    input: 'src/plugins/clientRuntime.ts',
+    input: 'src/plugins/preset/clientRuntime.ts',
     output: {
-      file: 'dist/clientRuntime.js',
+      file: 'dist/preset.js',
       format: 'esm',
       sourcemap: true,
     },
