@@ -688,19 +688,3 @@ export function calculateDiff(data: any | any[], ps: IDataPatch[]) {
   }
 }
 
-export const UNDEF_TAG = '__tarat_undefined_placeholder_tag__'
-
-export function stringifyWithUndef(data: object) {
-  return JSON.stringify(data, (k, v) => {
-    return v === undefined ? UNDEF_TAG : v
-  })
-}
-
-export function parseWithUndef(str: string) {
-  return JSON.parse(str, (k, v) => {
-    if (v === UNDEF_TAG) {
-      return undefined
-    }
-    return v
-  })
-}
