@@ -1,6 +1,6 @@
 import { get, IHookContext, set } from '@polymita/signal-model'
 import Application from 'koa'
-import { BINARY_FILE_KEY_SPLIT_CHAR, BINARY_FILE_TYPE_PLACEHOLDER, parseWithUndef } from '@polymita/connect'
+import { BINARY_FILE_KEY_SPLIT_CHAR, BINARY_FILE_TYPE_PLACEHOLDER, parseWithUndef } from '../plugins/clientRuntime'
 function hasAnyFiles (req: Application.ExtendableContext['request'] & { body: any, files: any }) {
   return req.files && Object.keys(req.files).length > 0
 }

@@ -5,7 +5,7 @@ import {
   getNamespace,
   ModelRunner
 } from '@polymita/signal-model'
-import { parseWithUndef, stringifyWithUndef } from '@polymita/connect'
+import { parseWithUndef, stringifyWithUndef } from '../plugins/clientRuntime'
 import { join } from 'path'
 import Application from 'koa'
 import type { IConfig, IServerHookConfig } from '../config'

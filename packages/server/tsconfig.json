@@ -3,6 +3,7 @@
   "compilerOptions": {
     "module": "ESNext",
     "lib": ["esnext"],
-    "moduleResolution": "Node"
+    "moduleResolution": "Node",
+    "types": ["node", "jest"]
   },
 }

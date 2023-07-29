@@ -23,6 +23,20 @@ export default [
   },
   {
     plugins: [
+      tsPlugin({
+        clean: true,
+        tsconfig: './tsconfig.json',
+      }),
+    ],
+    input: 'src/plugins/clientRuntime.ts',
+    output: {
+      file: 'dist/clientRuntime.js',
+      format: 'esm',
+      sourcemap: true,
+    },
+  },
+  {
+    plugins: [
       json(),
       tsPlugin({
         clean: true,
