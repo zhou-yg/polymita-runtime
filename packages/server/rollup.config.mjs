@@ -45,7 +45,7 @@ export default [
     input: 'src/plugins/preset/testRuntime.ts',
     output: {
       file: 'dist/test-preset.js',
-      format: 'esm',
+      format: 'cjs',
       sourcemap: true,
     },
   },

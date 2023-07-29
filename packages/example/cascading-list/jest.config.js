@@ -7,5 +7,8 @@ module.exports = {
   collectCoverage: isCI,
   collectCoverageFrom: [
     './drivers/**/*.ts',
+  ],
+  setupFilesAfterEnv: [
+    '@polymita/server/driverTestSetup.ts'
   ]
 };
