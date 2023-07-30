@@ -9,12 +9,18 @@ describe('test driver/cascading', () => {
       clientTestingRuntime({ port: 10088 })
     })
 
-    it('init runner', () => {
+    it('init runner', async () => {
       const runner = new ModelRunner(clientDriver)
       const result = runner.init()
       console.log('result: ', Object.keys(result));
 
       expect(Object.keys(result).length).toBeGreaterThan(0)
+
+      const folders = result.folders()
+      console.log('folders: ', folders);
+      await runner.ready()
+      const folders2 = result.folders()
+      console.log('folders2: ', folders2);
     })
   })
   describe('server', () => {
