@@ -16,6 +16,7 @@ import {
   tryMkdir,
 } from "../src/"
 import { chokidarOptions, prepareDir, watchByConfig } from './dev'
+import { createTestServer } from '../src/server'
 
 async function buildForTesting(c: IConfig) {
   const cost = time()
@@ -102,8 +103,11 @@ function initializeTestFiles (c: IConfig, op:TestOptions) {
   }
 }
 
-interface TestOptions {
-  bootstrap?: boolean
+export interface TestOptions {
+  bootstrap?: boolean,
+  port?: number,
+  watch?: boolean
+  coverage?: boolean
 }
 
 export default async (cwd: string, options: TestOptions) => {
@@ -111,6 +115,7 @@ export default async (cwd: string, options: TestOptions) => {
   const config = await readConfig({
     cwd,
     isProd: 'test',
+    port: options.port,
   })
 
   prepareDir(config)
@@ -120,4 +125,5 @@ export default async (cwd: string, options: TestOptions) => {
   await buildForTesting(config)
 
   // run server & execute jest
+  await createTestServer(config)
 }

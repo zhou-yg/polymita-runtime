@@ -35,6 +35,7 @@ import clearFunctionBodyEsbuildPlugin from './plugins/esbuild-clear-function-bod
 import aliasAtCodeToCwd from './plugins/esbuild-alias-at';
 import esbuildPluginAliasDriver from './plugins/esbuild-alias-driver';
 import externalRelativeDrivers from './plugins/esbuild-external-drivers';
+import resolveSignalModel from './plugins/esbuild-resolve-sm';
 
 const templateFile = './routesServerTemplate.ejs'
 const templateFilePath = path.join(__dirname, templateFile)
@@ -659,7 +660,8 @@ async function esbuildDrivers (
     plugins: [
       aliasAtCodeToCwd(cwd),
       externalRelativeDrivers(config),
-    ],
+      env === 'client' ? resolveSignalModel(format) : undefined,
+    ].filter(Boolean),
 
   }
 

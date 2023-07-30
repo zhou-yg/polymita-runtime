@@ -281,7 +281,8 @@ interface UserCustomConfig {
 
 export async function readConfig (arg: {
   cwd: string,
-  isProd?: boolean | 'prod' | 'dev' | 'test'
+  isProd?: boolean | 'prod' | 'dev' | 'test',
+  port?: number
 }) {
   const { cwd, isProd } = arg
   const configFileInPath = path.join(cwd, configFile)
@@ -341,7 +342,7 @@ export async function readConfig (arg: {
   const routesTree = defineRoutesTree(pages)
 
   const port = await getPort({
-    port: config.port ? config.port : process.env.PORT ? Number(process.env.PORT) : portNumbers(9000, 9100)
+    port: arg.port || (config.port ? config.port : process.env.PORT ? Number(process.env.PORT) : portNumbers(9000, 9100))
   })
 
   return {

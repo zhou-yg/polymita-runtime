@@ -61,24 +61,41 @@ async function startApp(app: Application, c: IConfig) {
 
   const port = c.port
 
-  app.listen(port)
+  app.listen(port, () => {
 
-  let address = getAddress()
+    let address = getAddress()
+    
+    const allList = c.pages.filter(v => !v.dir).map(v => {
+      return `
+        ${v.name}:
+        localhost: ${chalk.green(`http://localhost:${port}${v.path}`)}
+        ${address ? `ip: ${chalk.green(`http://${address}:${port}${v.path}`)}` : ''  }
+      `
+    }).join('\n')
   
-  const allList = c.pages.filter(v => !v.dir).map(v => {
-    return `
-      ${v.name}:
-      localhost: ${chalk.green(`http://localhost:${port}${v.path}`)}
-      ${address ? `ip: ${chalk.green(`http://${address}:${port}${v.path}`)}` : ''  }
-    `
-  }).join('\n')
+  
+    logFrame(`
+      Tarat App Server started at
+  
+      ${allList}
+    `)
+  })
+}
+async function startTestApp(app: Application, c: IConfig) {
+  appendMiddleware(app, c)
 
+  const port = c.port
 
-  logFrame(`
-    Tarat App Server started at
+  app.listen(port, () => {
 
-    ${allList}
-  `)
+    let address = getAddress()
+  
+    logFrame(`
+      Tarat App Server started at 
+        localhost: ${chalk.green(`http://localhost:${port}`)}
+        ${address ? `ip: ${chalk.green(`http://${address}:${port}`)}` : ''  }
+    `)
+  })
 }
 
 export async function createDevServer (c: IConfig) {  
@@ -161,7 +178,7 @@ export async function createTestServer(c: IConfig) {
     config: c
   }))
 
-  await startApp(app, c)
+  await startTestApp(app, c)
 
   return app
 }

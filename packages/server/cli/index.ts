@@ -6,7 +6,7 @@ import start from './start'
 import any from "./any";
 import bootstrap from "./bootstrap";
 import compose from "./compose";
-import test from "./test";
+import test, { TestOptions } from "./test";
 
 const cac = cacFactory('tarat-server')
 
@@ -53,7 +53,10 @@ cac
 cac
   .command('test')
   .option('-b, --bootstrap', 'bootstrap the project')
-  .action((options: { b?:boolean, bootstrap?: boolean }) => {
+  .option('-c, --coverage', 'collect coverage')
+  .option('-w, --watch', 'same as jest --watch')
+  .option('-p, --port <port>', 'test server http listening port')
+  .action((options: TestOptions) => {
     test(cwd, options)
   })
 
