@@ -1,5 +1,4 @@
 import { loadPlugin, set } from "@polymita/signal"
-import { ModelEvent, setGlobalModelEvent } from "@polymita/signal-model"
 import { parseWithUndef, serializeJSON, stringifyWithUndef } from "./clientRuntime"
 import fetch from 'node-fetch'
 
