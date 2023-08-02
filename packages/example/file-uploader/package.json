@@ -27,8 +27,8 @@
     "@polymita/server": "workspace:~*",
     "@types/lodash": "^4.14.182",
     "@types/node": "^18.6.2",
-    "@types/react": "^18.0.15",
-    "@types/react-dom": "^18.0.5",
+    "@types/react": "18.2.18",
+    "@types/react-dom": "18.2.7",
     "axios": "^0.27.2",
     "less": "^4.1.2",
     "prisma": "^5.0.0",
@@ -41,8 +41,8 @@
     "immer": "^9.0.14",
     "lodash": "^4.17.21",
     "prisma": "^4.2.1",
-    "react": "^18.1.0",
-    "react-dom": "^18.1.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
     "react-router-dom": "^6.3.0"
   },
   "dependencies": {
@@ -50,8 +50,8 @@
     "@polymita/signal": "workspace:*",
     "@polymita/signal-model": "workspace:*",
     "@prisma/client": "^5.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
     "react-router-dom": "^6.14.1"
   }
 }
