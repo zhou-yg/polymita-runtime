@@ -128,7 +128,6 @@ export function time (sec = true) {
   return () => {
     const now = Date.now()
     const v = now - st
-    st = now
     return sec ? Math.floor(v / 1000) : v
   }
 }

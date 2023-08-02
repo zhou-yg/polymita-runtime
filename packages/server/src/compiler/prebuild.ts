@@ -967,6 +967,5 @@ export function generateExternal (c: IConfig) {
     );
   }
 
-  console.log('internalPackages: ', internalPackages);
   return internalPackages;
 }

@@ -2,7 +2,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { IConfig } from "../config";
 import { loadJSON, traverseDir } from '../util';
-import { build, IBuildOption, getPlugins, getTSConfigPath, buildDTS, generateExternal } from "./prebuild";
+import { build, IBuildOption, getPlugins, getTSConfigPath, buildDTS, generateExternal, generateClientRoutes } from "./prebuild";
 import * as esbuild from 'esbuild';
 import esbuildPluginPostcss from './plugins/esbuild-plugin-postcss';
 import esbuildPluginAliasDriver from './plugins/esbuild-alias-driver';
@@ -10,35 +10,52 @@ import aliasAtCodeToCwd from './plugins/esbuild-alias-at';
 
 export async function buildClientRoutes (c: IConfig) {
   const {
-    outputDir,
     autoGenerateClientRoutes,
     clientRoutes,
-    outputAppClientDir,
     clientRoutesCSS
   } = c.pointFiles
 
-  const myPlugins = getPlugins({
-    css: clientRoutesCSS,
-    mode: 'build',
-    target: 'browser',
+  await generateClientRoutes(c)
+
+  await esbuild.build({
+    entryPoints: [autoGenerateClientRoutes],
+    platform: 'browser',
     alias: {
       '@polymita/signal-model': '@polymita/signal-model/dist/signal-model.client.esm'
     },
-    runtime: 'client'
-  }, c)
+    outfile: clientRoutes,
+    bundle: true,
+    plugins: [
+      esbuildPluginAliasDriver(c, 'client'),
+      aliasAtCodeToCwd(c.cwd),
+      esbuildPluginPostcss({
+        cwd: c.cwd
+      }),
+    ]
+  })
 
-  const op: IBuildOption = {
-    input: {
-      input: autoGenerateClientRoutes,
-      plugins: myPlugins,
-    },
-    output: {
-      file: clientRoutes,
-      format: 'commonjs',
-    }
-  }
+  // const myPlugins = getPlugins({
+  //   css: clientRoutesCSS,
+  //   mode: 'build',
+  //   target: 'browser',
+  //   alias: {
+  //     '@polymita/signal-model': '@polymita/signal-model/dist/signal-model.client.esm'
+  //   },
+  //   runtime: 'client'
+  // }, c)
+
+  // const op: IBuildOption = {
+  //   input: {
+  //     input: autoGenerateClientRoutes,
+  //     plugins: myPlugins,
+  //   },
+  //   output: {
+  //     file: clientRoutes,
+  //     format: 'commonjs',
+  //   }
+  // }
   
-  await build(c, op)
+  // await build(c, op)
 }
 
 
