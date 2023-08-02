@@ -17,6 +17,8 @@ import {
 } from "../src/"
 import { chokidarOptions, prepareDir, watchByConfig } from './dev'
 import { createTestServer } from '../src/server'
+import { spawn } from 'node:child_process'
+import exitHook from 'exit-hook'
 
 async function buildForTesting(c: IConfig) {
   const cost = time()
@@ -55,6 +57,10 @@ async function buildForTesting(c: IConfig) {
     ]
   );
   logFrame(`start watching drivers`)
+  exitHook(() => {
+    console.log('[buildForTesting] exit hook callback')
+    driversWatcher.close()
+  })
 }
 
 const driverTemplate = (name: string, testCacheDir: string) => `
@@ -108,6 +114,34 @@ export interface TestOptions {
   port?: number,
   watch?: boolean
   coverage?: boolean
+  serverOnly?: boolean
+}
+
+function runJest (c: IConfig) {
+  const instance = spawn(
+    'npx',
+    [
+      "jest",
+      "--runInBand"
+    ],
+    {
+      cwd: c.cwd,
+      stdio: 'inherit',
+      env: {
+        TEST_SERVER_PORT: String(c.port),
+      },
+    }
+  )
+  instance.on('error', e => {
+    console.log('[runJest] e: ', e);
+  })
+  exitHook(() => {
+    console.log('[runJest] exit hook callback')
+    instance.kill()
+  })
+
+
+  return instance
 }
 
 export default async (cwd: string, options: TestOptions) => {
@@ -122,8 +156,12 @@ export default async (cwd: string, options: TestOptions) => {
 
   initializeTestFiles(config, options)
 
-  await buildForTesting(config)
+  // await buildForTesting(config)
 
   // run server & execute jest
-  await createTestServer(config)
+  // await createTestServer(config)
+
+  if (!options.serverOnly) {
+    runJest(config)
+  }
 }

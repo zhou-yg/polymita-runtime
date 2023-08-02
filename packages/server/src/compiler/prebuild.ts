@@ -19,6 +19,7 @@ import { defineRoutesTree, IRouteChild } from "../config/routes";
 import autoExternal from 'rollup-plugin-auto-external';
 import replace from '@rollup/plugin-replace';
 import rollupAlias from '@rollup/plugin-alias'
+import rollupJSON from '@rollup/plugin-json'
 import dts from "rollup-plugin-dts"
 import { generateDtsBundle } from 'dts-bundle-generator'
 import { emptyDirectory, loadJSON, logFrame, lowerFirst, readFiles, traverseDir } from "../util";
@@ -167,6 +168,7 @@ export function getPlugins (input: {
       clean: true,
       tsconfig: getTSConfigPath(c.cwd)
     }) : undefined,
+    rollupJSON(),
   ].filter(Boolean)
 
   return plugins as Plugin[]
@@ -721,6 +723,7 @@ export function buildDTS (c: IConfig, filePath: string, outputFile: string) {
         dts({
           compilerOptions: json,
         }),
+        rollupJSON(),
         rollupAlias({
           entries: {
             '@': c.cwd,
@@ -964,5 +967,6 @@ export function generateExternal (c: IConfig) {
     );
   }
 
+  console.log('internalPackages: ', internalPackages);
   return internalPackages;
 }

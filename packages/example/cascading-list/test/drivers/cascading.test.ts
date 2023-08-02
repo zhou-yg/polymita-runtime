@@ -7,13 +7,13 @@ import serverDriver from '../../.test/server/drivers/cjs/cascading'
 describe('test driver/cascading', () => {
   describe('client', () => {
     beforeAll(() => {
-      clientTestingRuntime({ port: 9100 })
+      console.log('process.env.TEST_SERVER_PORT: ', process.env.TEST_SERVER_PORT);
+      clientTestingRuntime({ port: process.env.TEST_SERVER_PORT })
     })
 
     it('init runner', async () => {
       const runner = new clientSm.ModelRunner(clientDriver)
       const result = runner.init()
-      console.log('result: ', Object.keys(result));
 
       expect(Object.keys(result).length).toBeGreaterThan(0)
 

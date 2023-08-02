@@ -56,6 +56,7 @@ cac
   .option('-c, --coverage', 'collect coverage')
   .option('-w, --watch', 'same as jest --watch')
   .option('-p, --port <port>', 'test server http listening port')
+  .option('-s, --serverOnly', 'only runs a server')
   .action((options: TestOptions) => {
     test(cwd, options)
   })
