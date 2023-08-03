@@ -1,11 +1,12 @@
 import * as fs from 'fs'
 import { IConfig } from "../config"
-import { getReactAdaptor } from '@polymita/connect'
-import { RunnerModelScope, debuggerLog, getPlugin, startdReactiveChain } from "@polymita/signal-model";
+import { RunnerModelScope, debuggerLog, startdReactiveChain } from "@polymita/signal-model";
 import { renderToString } from 'react-dom/server'
 import React from 'react'
 import chalk from 'chalk'
 import { logFrame, projectRelativePath } from '../util';
+import { scopeCtxMapVisitor } from '../middlewares/runner';
+import Application from 'koa';
 
 export interface PageContext {
   cookies: {
@@ -30,8 +31,10 @@ export function wrapCtx (ctx: PageContext) {
   }
 }
 
-export async function renderPage (ctx: PageContext, config: IConfig) {
-
+export async function renderPage (
+  config: IConfig,
+  ctx: Application.ParameterizedContext<Application.DefaultState, Application.DefaultContext, any>,
+) {
   const { distServerRoutes, distEntryJS, distEntryCSS, distServerRoutesCSS } = config.pointFiles
 
   let entryFunctionModule = (doc: React.ReactElement) => doc
@@ -46,7 +49,7 @@ export async function renderPage (ctx: PageContext, config: IConfig) {
 
   const reactRenderDriver = getReactAdaptor()
 
-  const routerLocation = ctx.location
+  const routerLocation = ctx.request.path + ctx.request.search
 
   const chain = startdReactiveChain('[renderWithDriverContext first]')
 
@@ -64,9 +67,9 @@ export async function renderPage (ctx: PageContext, config: IConfig) {
 
   reactRenderDriver.driver.onPush(scope => {
 
-    getPlugin('GlobalRunning').setCurrent(scope, wrapCtx(ctx))
+    scopeCtxMapVisitor.set(scope, ctx)
     cancelGlobalRunning = () => {
-      getPlugin('GlobalRunning').setCurrent(scope, null) 
+      scopeCtxMapVisitor.set(scope, null)
     }
   })
 

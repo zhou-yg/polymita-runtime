@@ -3,13 +3,14 @@ import {
   getPlugin, IDiff, debuggerLog, startdReactiveChain,
   stopReactiveChain,
   getNamespace,
-  ModelRunner
+  ModelRunner,
+  CurrentRunnerScope
 } from '@polymita/signal-model'
 import { parseWithUndef, stringifyWithUndef } from '../plugins/preset'
 import { join } from 'path'
 import Application from 'koa'
 import type { IConfig, IServerHookConfig } from '../config'
-import { setCookies, setPrisma, setRunning, setER  } from '../plugins'
+import { setCookies, setPrisma, setER  } from '../plugins'
 import { loadJSON, isComposedDriver } from '../util'
 import { filterFileType } from './unserialize'
 
@@ -21,24 +22,14 @@ function matchHookName (p: string) {
   }
 }
 
-export function wrapCtx (ctx: {
-  cookies: {
-    set: any
-    get: any
-  }
-}) {
-  return {
-    cookies: {
-      set (name: any, value: any) {
-        console.log('[wrapCtx.cookies] name, value: ', name, value);
-        return ctx.cookies.set(name, value)
-      },
-      get (name: any) {
-        console.log('[wrapCtx.cookies] get name: ', name);
-        const val = ctx.cookies.get(name)
-        return val
-      }
-    }
+const scopeCtxMap: Map<CurrentRunnerScope, Application.ParameterizedContext<Application.DefaultState, Application.DefaultContext, any>> = new Map()
+
+export const scopeCtxMapVisitor = {
+  set (scope: CurrentRunnerScope, ctx: Application.ParameterizedContext<Application.DefaultState, Application.DefaultContext, any>) {
+    scopeCtxMap.set(scope, ctx)
+  },
+  get (scope: CurrentRunnerScope) {
+    return scopeCtxMap.get(scope)
   }
 }
 
@@ -51,8 +42,7 @@ export default function taratMiddleware (args: {
   const { config } = args
   const { drivers, apiPre, diffPath, cwd, model, pointFiles } = config
 
-  setRunning()
-  setCookies()
+  setCookies(scopeCtxMapVisitor)
   if (model?.engine === 'prisma') {
     setPrisma(config)
   } else if (model?.engine === 'er') {
@@ -91,7 +81,7 @@ export default function taratMiddleware (args: {
         })
         
         let scope = runner.prepareScope(c.initialArgList, c)
-        getPlugin('GlobalRunning').setCurrent(scope, wrapCtx(ctx))
+        scopeCtxMapVisitor.set(scope, ctx)
 
         console.log('==== before executeDriver ===============')
 

@@ -42,11 +42,8 @@ function transformIndexHtml (html: string, c: IConfig) {
       console.log('>> start render page path=', pathname)
 
       const r = await renderPage(
-        {
-          cookies: ctx.cookies,
-          location: ctx.request.path + ctx.request.search,
-        },
-        args.config
+        args.config,
+        ctx,
       );
       if (r) {
         for (const v of r.driver.BMValuesMap) {
