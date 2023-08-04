@@ -11,7 +11,7 @@
     "test-unit": "jest",
     "test-ci": "TEST=CI jest",
     "format": "prettier --write --parser typescript \"*/*.ts?(x)\"",
-    "build": "rollup --config rollup.config.mjs",
+    "build": "rm dist/* && rollup --config rollup.config.mjs",
     "build:watch": "npm run format && rollup --config rollup.config.mjs --watch",
     "release": "npm run build && bump --commit \"release: @polymita/signal v%s\" --push && npm publish --access public",
     "p:dev": "prisma migrate dev --schema ./__test__/database/testSchema.prisma && prisma generate",
