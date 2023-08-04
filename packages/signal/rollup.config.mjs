@@ -19,10 +19,6 @@ export default [
     ...base,
     plugins: [
       ...base.plugins,
-      replace({
-        'process.env.TARGET': '"server"',
-        preventAssignment: true
-      }),
     ],
     output: {
       file: 'dist/signal.js',
@@ -34,10 +30,6 @@ export default [
     ...base,
     plugins: [
       ...base.plugins,
-      replace({
-        'process.env.TARGET': '"server"',
-        preventAssignment: true
-      }),
     ],
     output: {
       file: 'dist/signal.esm.js',
@@ -46,39 +38,9 @@ export default [
     },
   },
   {
-    ...base,
-    plugins: [
-      ...base.plugins,
-      replace({
-        'process.env.TARGET': '"client"',
-        preventAssignment: true
-      }),
-    ],
-    output: {
-      file: 'dist/signal.client.esm.js',
-      format: 'esm',
-      sourcemap: true,
-    }
-  },
-  {
-    ...base,
-    plugins: [
-      ...base.plugins,
-      replace({
-        'process.env.TARGET': '"client"',
-        preventAssignment: true
-      }),
-    ],
-    output: {
-      file: 'dist/signal.client.js',
-      format: 'cjs',
-      sourcemap: true,
-    }
-  },
-  {
     input: "src/index.ts",
     output: [
-      { file: "dist/signal.client.d.ts", format: "es" },
+      { file: "dist/signal.esm.d.ts", format: "es" },
       { file: "dist/signal.d.ts", format: "es" },
     ],
     plugins: [

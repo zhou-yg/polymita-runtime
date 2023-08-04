@@ -64,6 +64,12 @@ const defaultCachePlugin: IPlugins["Cache"] = {
 
 loadPlugin("Cache", defaultCachePlugin);
 
+export function clearPlugins () {
+  Object.keys(plugins).forEach(k => {
+    delete plugins[k];
+  })
+}
+
 export function getPlugin<T extends TPluginKey>(k: T) {
   const plugin = plugins[k];
   if (!plugin) {
