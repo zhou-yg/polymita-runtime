@@ -1,15 +1,18 @@
-import { loadPlugin, set } from "@polymita/signal"
+import { clearPlugins, loadPlugin } from "@polymita/signal"
 import { parseWithUndef, serializeJSON, stringifyWithUndef } from "./clientRuntime"
 import fetch from 'node-fetch'
 
 /**
  * runtime for "test" command
  */
-export function clientTestingRuntime(options: {
+export function testClientRuntime(options: {
   port: number
   host?: string // defaults to "localhost"
+  disableChainLog?: boolean
 }) {
-  const { host = 'localhost', port} = options
+  clearPlugins()
+
+  const { host = 'localhost', port, disableChainLog } = options
   // @ts-ignore
   const hostConfig = `http://${host}:${port}/_hook`
   // @ts-ignore
@@ -38,14 +41,20 @@ export function clientTestingRuntime(options: {
         body: stringifyWithUndef({
           entity,
           diff
-        })
+        }),
+        headers: {
+          'disable-chain-log': String(disableChainLog)
+        },
       })
     },
     async postComputeToServer(c) {
       // @ts-ignore
       const newContext = await fetch(`${hostConfig}/${c.name}`, {
         method: 'POST',
-        body: serializeJSON(c)
+        body: serializeJSON(c),
+        headers: {
+          'disable-chain-log': String(disableChainLog)
+        },
       })
         .then(r => r.text())
         .then(parseWithUndef)
@@ -54,6 +63,9 @@ export function clientTestingRuntime(options: {
     },
     async postQueryToServer(c) {
       const newContext = await fetch(`${hostConfig}/${c.name}`, {
+        headers: {
+          'disable-chain-log': String(disableChainLog)
+        },
         method: 'POST',
         body: serializeJSON(c)
       })

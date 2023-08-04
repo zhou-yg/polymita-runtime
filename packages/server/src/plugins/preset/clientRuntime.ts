@@ -1,4 +1,4 @@
-import { loadPlugin, set } from "@polymita/signal"
+import { clearPlugins, loadPlugin, set } from "@polymita/signal"
 import { ModelEvent, setGlobalModelEvent } from "@polymita/signal-model"
 
 export const UNDEF_TAG = '__tarat_undefined_placeholder_tag__'
@@ -93,11 +93,12 @@ export function clientRuntime(c: {
   modelConfig?: any
   host?: string
 } = {}) {
+  clearPlugins()
+
   // @ts-ignore
   if (typeof window === 'undefined') {
     throw new Error('must under browser runtime')
   }
-
 
   const { host = '/' } = c
 

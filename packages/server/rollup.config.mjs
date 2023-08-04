@@ -42,9 +42,9 @@ export default [
         tsconfig: './tsconfig.json',
       }),
     ],
-    input: 'src/plugins/preset/testClientRuntime.ts',
+    input: 'src/plugins/preset/index.ts',
     output: {
-      file: 'dist/test-preset.js',
+      file: 'dist/preset.js',
       format: 'cjs',
       sourcemap: true,
     },

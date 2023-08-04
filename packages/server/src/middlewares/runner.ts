@@ -50,11 +50,12 @@ export default function taratMiddleware (args: {
   }
 
   return async (ctx, next) => {
-    const { path, body } = ctx.request
+    const { path, body, headers } = ctx.request
     const { pre, driverName } = matchHookName(path)
     if (pre === apiPre && ctx.request.method === 'POST') {      
       const hookConfig = drivers.find(h => h.name === driverName)
       if (hookConfig) {
+        const disableChainLog = headers['disable-chain-log'] === 'true'
 
         const driver = config.drivers.find(d => d.name === driverName)
 
@@ -92,7 +93,7 @@ export default function taratMiddleware (args: {
         await scope.ready()
 
         chain1.stop()
-        chain1.print()
+        !disableChainLog && chain1.print()
 
         debuggerLog(config.debugLog)
 
@@ -104,10 +105,10 @@ export default function taratMiddleware (args: {
 
         await scope.ready()
 
-        getPlugin('GlobalRunning').setCurrent(scope, null)
+        scopeCtxMapVisitor.set(scope, null)
 
         chain2.stop()
-        chain2.print()
+        !disableChainLog && chain2.print()
 
         const context = scope.createPatchContext()
         /* @TODO: stringifyWithUndef prevent sending server File to browser */

@@ -469,7 +469,7 @@ export type InputComputeFn<T extends any[]> = (...arg: T) => void;
 export type AsyncInputComputeFn<T extends any[]> = (...arg: T) => Promise<void>;
 export type GeneratorInputComputeFn<T extends any[]> = (
   ...arg: T
-) => Generator<unknown, void, T>;
+) => Generator<T, void, unknown>;
 
 export class InputCompute<P extends any[] = any> extends Hook {
   commitPromise: Promise<void> | null = null;

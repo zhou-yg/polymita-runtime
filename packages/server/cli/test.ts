@@ -122,12 +122,14 @@ function runJest (c: IConfig) {
     'npx',
     [
       "jest",
-      "--runInBand"
+      "--runInBand",
+      "--watch"
     ],
     {
       cwd: c.cwd,
       stdio: 'inherit',
       env: {
+        ...process.env,
         TEST_SERVER_PORT: String(c.port),
       },
     }
@@ -137,7 +139,7 @@ function runJest (c: IConfig) {
   })
   exitHook(() => {
     console.log('[runJest] exit hook callback')
-    instance.kill()
+    instance.kill(9)
   })
 
 
@@ -156,10 +158,10 @@ export default async (cwd: string, options: TestOptions) => {
 
   initializeTestFiles(config, options)
 
-  // await buildForTesting(config)
+  await buildForTesting(config)
 
   // run server & execute jest
-  // await createTestServer(config)
+  await createTestServer(config)
 
   if (!options.serverOnly) {
     runJest(config)

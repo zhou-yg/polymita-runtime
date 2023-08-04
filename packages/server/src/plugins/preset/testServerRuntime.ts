@@ -1,12 +1,34 @@
-import { loadPlugin } from '@polymita/signal-model'
+import { clearPlugins, loadPlugin } from '@polymita/signal-model'
 import { join } from 'path'
-import { IConfig } from '../config'
 import * as prismaInternals from '@prisma/internals'
-import { existsSync, readFileSync } from 'fs'
+import { existsSync } from 'fs'
 
-export async function setPrisma (config: IConfig)  {
-  const { cwd } = config
-  const schemaFile = join(cwd, config.modelsDirectory, config.targetSchemaPrisma)
+/**
+ * runtime for "test" command
+ */
+export async function testServerRuntime(config: {
+  schemaFile: string
+}) {
+  clearPlugins()
+
+  const cookies = new Map()
+  
+  loadPlugin('cookie', {
+    async set(s, k, value) {
+      if (typeof value === 'string'){
+        cookies.set(k, value)
+      }
+    },
+    async get(s, k): Promise<any> {
+      const v = cookies.get(k)
+      return v
+    },
+    clear(s, k) {
+      cookies.set(k, '')
+    },
+  })
+  //---
+  const { schemaFile } = config
 
   let client: any;
   if (existsSync(schemaFile)) {
@@ -27,10 +49,8 @@ export async function setPrisma (config: IConfig)  {
   }
   const prisma = new client.PrismaClient()
   console.log('prisma.$connect: ', prisma.$connect);
-  const connectResult = prisma.$connect();
-  connectResult.then(() => {
-    console.log('connect success', Object.keys(prisma))
-  })
+  await prisma.$connect();
+  console.log('connect success', Object.keys(prisma))
 
   loadPlugin('Model', {
     async find(from: string, e, w) {
