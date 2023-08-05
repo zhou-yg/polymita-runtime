@@ -39,7 +39,7 @@ describe('test driver/cascading', () => {
       await result.removeFolder(newCreated)
     })
   })
-  describe.only('server', () => {
+  describe('server', () => {
     beforeAll(async () => {
       await preset.testServerRuntime({
         schemaFile: path.join(__dirname, '../../models/schema.prisma')
