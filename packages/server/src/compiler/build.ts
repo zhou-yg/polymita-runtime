@@ -129,7 +129,6 @@ export async function buildModules(c: IConfig) {
     outdir: outputModulesDir,
     format: 'esm',
     splitting: true,
-    tsconfig: getTSConfigPath(c.cwd),
     external: [
       ...generateExternal(c),
     ],
@@ -170,7 +169,9 @@ export function generateModuleTypes (c: IConfig) {
 
   const moduleFiles: [string, string][] = []
   
-  modules.forEach(f => {
+  modules
+  .filter(f => /\.ts(x?)$/.test(f.file))
+  .forEach(f => {
     const outPath = path.join(outputModulesDir, f.relativeFile.replace(/\.ts(x?)$/, '.d.ts'))
     moduleFiles.push([f.path, outPath])
   })

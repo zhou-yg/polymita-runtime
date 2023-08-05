@@ -20,6 +20,7 @@ import {
 
 import * as desktop from '../desktopSrc'
 import rimraf from 'rimraf';
+import { existsSync } from 'node:fs';
 
 export async function buildEverything (c: IConfig) {
   
@@ -268,6 +269,11 @@ export default async (cwd: string) => {
   const config = await readConfig({
     cwd,
   })
+
+  const prodDir = config.buildPointFiles.outputDir
+  if (existsSync(prodDir)) {
+    rimraf.sync(prodDir)
+  }
 
   global.React18 = require('react')
   console.log('global.React: ', global.React);
