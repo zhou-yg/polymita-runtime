@@ -118,3 +118,4 @@ packages/example/*/models/customPrismaClient
 .tarat
 .test
 packages/example/file-uploader/.tarat
+.test/

@@ -106,3 +106,5 @@ dist
 __test__/database/dev.db
 __test__/database/autoPrisma
 __test__/database/migrations
+
+.test/
