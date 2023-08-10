@@ -14,7 +14,8 @@
     "p:deploy": "prisma migrate deploy",
     "p:studio": "prisma studio",
     "tailwind:dev": "tailwindcss -i ./app.css -o ./tarat/app.css --watch",
-    "tailwind:build": "tailwindcss -i ./app.css -o ./dist/app.css"
+    "tailwind:build": "tailwindcss -i ./app.css -o ./dist/app.css",
+    "test": "polymita test"
   },
   "prisma": {
     "schema": "./models/schema.prisma"

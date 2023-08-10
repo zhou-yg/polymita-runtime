@@ -12,7 +12,8 @@
     "p:gen": "prisma generate",
     "p:deploy": "prisma migrate deploy",
     "p:studio": "prisma studio",
-    "format": "prettier --write --parser typescript \"*/*.js?(x)\""
+    "format": "prettier --write --parser typescript \"*/*.js?(x)\"",
+    "test": "polymita test"
   },
   "prisma": {
     "schema": "./models/schema.prisma"

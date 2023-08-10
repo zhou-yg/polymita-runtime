@@ -12,7 +12,8 @@
     "p:dev": "prisma migrate dev",
     "p:gen": "prisma generate",
     "p:deploy": "prisma migrate deploy",
-    "p:studio": "prisma studio"
+    "p:studio": "prisma studio",
+    "test": "polymita test"
   },
   "author": "zhouyg",
   "license": "ISC",
