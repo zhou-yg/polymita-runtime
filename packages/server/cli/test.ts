@@ -64,15 +64,44 @@ async function buildForTesting(c: IConfig) {
 }
 
 const driverTemplate = (name: string, testCacheDir: string) => `
+import * as sm from '@polymita/signal-model'
+import * as clientSm from '@polymita/signal-model/dist/signal-model.client'
+import { preset } from '@polymita/server/dist/preset'
+import path from 'node:path'
+
 import clientDriver from '../../${testCacheDir}/client/drivers/cjs/${name}'
 import serverDriver from '../../${testCacheDir}/server/drivers/cjs/${name}'
 
 describe('test driver/${name}', () => {
   describe('client', () => {
-    
+    beforeAll(() => {
+      console.log('process.env.TEST_SERVER_PORT: ', process.env.TEST_SERVER_PORT);
+      preset.testClientRuntime({ 
+        port: process.env.TEST_SERVER_PORT || 9100,
+        disableChainLog: true,
+      })
+    })
+    it('hello client', async () => {
+      const runner = new clientSm.ModelRunner(clientDriver)
+      const result = runner.init()
+
+      expect(Object.keys(result).length).toBeGreaterThan(0)
+    })    
   })
   describe('server', () => {
+    beforeAll(async () => {
+      await preset.testServerRuntime({
+        schemaFile: path.join(__dirname, '../../models/schema.prisma')
+      })
+    })
+    it('hello server', async () => {
+      const runner = new sm.ModelRunner(serverDriver)
+      const result = runner.init()
 
+      expect(Object.keys(result).length).toBeGreaterThan(0)
+
+      await runner.ready()
+    })
   })
 })
 `.trim()
