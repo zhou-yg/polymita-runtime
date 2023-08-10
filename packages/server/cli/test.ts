@@ -93,9 +93,11 @@ module.exports = {
 
 function initializeTestFiles (c: IConfig, op:TestOptions) {
   const testDriversDir = path.join(c.testDirectory, c.driversDirectory)
+  const isFirst = !fs.existsSync(testDriversDir)
+
   tryMkdir(testDriversDir)
   
-  if (op.bootstrap) {
+  if (op.bootstrap || isFirst) {
     c.drivers.forEach((driver) => {
       const driverFile = path.join(testDriversDir, driver.name + '.test.ts')
       if (!fs.existsSync(driverFile)) {
