@@ -27,13 +27,15 @@ async function buildForTesting(c: IConfig) {
     logFrame(`build modelIndexes end. cost ${chalk.green(cost())} sec`)
   })
 
-  await buildDrivers(c).then(() => {
-    generateHookDeps(c)
-    logFrame(`build drivers end. cost ${chalk.green(cost())} sec`)
-  })
+  await rebuild()
 
-  // watching
-  return
+  async function rebuild () {
+    return buildDrivers(c).then(() => {
+      generateHookDeps(c)
+      logFrame(`build drivers end. cost ${chalk.green(cost())} sec`)
+    })
+  }
+
 
   const driversWatcher = chokidar.watch([
     path.join(c.cwd, c.driversDirectory),
@@ -46,13 +48,13 @@ async function buildForTesting(c: IConfig) {
         watcher: driversWatcher,
         name: 'driver',
         event: 'change',
-        callbacks: [buildDrivers]
+        callbacks: [rebuild]
       },
       {
         watcher: driversWatcher,
         name: 'driver',
         event: 'add',
-        callbacks: [buildDrivers]
+        callbacks: [rebuild]
       },
     ]
   );
