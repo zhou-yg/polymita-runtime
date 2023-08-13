@@ -34,8 +34,8 @@ function transform (json: VirtualLayoutJSON) {
         // if support two binding calling
         if (
           isSignal(value) &&
-          (key === 'value' || key === 'checked')&& 
-          node.type === 'input'
+          ['value','checked'].includes(key) && 
+          typeof node.type === 'string' && ['input', 'textarea'].includes(node.type)
         ) {
 
           const eventType = key === 'value' ? 'onInput' : 'onChange'
@@ -53,6 +53,9 @@ function transform (json: VirtualLayoutJSON) {
             fns.forEach(fn => {
               fn(e)
             })
+          }
+          if (node.type === 'textarea') {
+            props.children = value()
           }
         }
       })
