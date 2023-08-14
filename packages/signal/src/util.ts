@@ -143,9 +143,13 @@ export function set(obj: any, path: string | (number | string)[], value: any) {
     ? path.split(".")
     : [path];
   if (currentFieldPath.length > 0) {
-    const fieldName = currentFieldPath.pop();
+    const fieldName = currentFieldPath[currentFieldPath.length - 1];
     currentFieldPath.forEach((p, i) => {
-      if (base[p] === undefined) base[p] = {};
+      if (i >= currentFieldPath.length - 1) return;
+      if (base[p] === undefined) {
+        const nextP = currentFieldPath[i + 1]
+        base[p] = (nextP !== undefined && typeof nextP === 'number') ? [] : {}
+      };
       base = base[p];
     });
     if (base instanceof Map) {

@@ -17,5 +17,12 @@ describe('util', () => {
       const v = get(obj, ['a', 1])
       expect(v).toBe(33)
     })
+    it('set empty obj', () => {
+      const obj: any = {}
+      set(obj, ['k1', 0, 'k2'], 'val3')
+
+      expect(obj.k1[0].k2).toBe('val3')
+      expect(obj.k1).toBeInstanceOf(Array)
+    })
   })
 })
