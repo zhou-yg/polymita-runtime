@@ -144,6 +144,8 @@ export interface HTMLAttributes extends EventHandlers<Events> {
   selected?: Booleanish;
   disabled?: Booleanish;
   if?: any; // boolean
+  'value-path'?: Numberish | Numberish[]
+  'checked-path'?: Numberish | Numberish[]
 
   className?: any;
   style?: CSSProperties;

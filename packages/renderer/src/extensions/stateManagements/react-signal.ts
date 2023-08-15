@@ -10,7 +10,7 @@ import {
   CurrentRunnerScope, Driver, getNamespace, IHookContext, isSignal, Runner, Signal, signal, State, StateSignal
 } from '@polymita/signal-model'
 import { PropTypeValidator, SignalProps, StateManagementConfig, VirtualLayoutJSON } from '../../types'
-import { isFunction, last, traverse, traverseLayoutTree } from '../../utils'
+import { get, set, isFunction, traverseLayoutTree } from '../../utils'
 import { SignalFlag, typeFlagSymbol } from '../../lib/propTypes'
 
 export const config: StateManagementConfig = {
@@ -29,7 +29,7 @@ function transform (json: VirtualLayoutJSON) {
   // ** cant clone, json maybe include React.Element instance
   traverseLayoutTree(json, (node: VirtualLayoutJSON) => {
     if (node.props) {
-      const { props } = node
+      const { props } = node      
       Object.entries(props).forEach(([key, value]) => {
         // if support two binding calling
         if (
@@ -39,23 +39,30 @@ function transform (json: VirtualLayoutJSON) {
         ) {
 
           const eventType = key === 'value' ? 'onInput' : 'onChange'
+          const draftPath = props[key === 'value' ? 'value-path' : 'checked-path']
 
           const fns: ((...args: any[]) => void)[] = [
             (e: { target: { value: number | string } }) => {
-              value(e.target[key])
+              if (draftPath) {
+                value(draft => {
+                  set(draft, draftPath, e.target[key])
+                })
+              } else {
+                value(e.target[key])
+              }
             },
           ]
           if (props[eventType] && isFunction(props[eventType])) {
             fns.push(props[eventType])
           }
-          props[key] = value()
+          props[key] = get(value(), draftPath)
           props[eventType] = function reactSignalTransformOnEventType (e: { target: { value: number | string, checked: boolean } }) {
             fns.forEach(fn => {
               fn(e)
             })
           }
           if (node.type === 'textarea') {
-            props.children = value()
+            props.children = get(value(), draftPath)
           }
         }
       })

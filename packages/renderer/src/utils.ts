@@ -1,4 +1,4 @@
-import { isSignal } from "@polymita/signal-model";
+import { isSignal, get, set } from "@polymita/signal-model";
 import {
   VirtualLayoutJSON,
   LayoutTreeProxyDraft,
@@ -23,6 +23,8 @@ import {
 import { typeDefaultValueFlagSymbol } from "./lib/propTypes";
 
 // (window as any).ecss = css;
+
+export { set, get } from '@polymita/signal-model'
 
 export { isFunction } from "./lib/serialize";
 
@@ -567,50 +569,6 @@ export function last<T>(arr: T[]): T {
   return arr[arr.length - 1];
 }
 
-export function set(obj: any, path: string | (number | string)[], value: any) {
-  let base = obj;
-  const currentFieldPath = isArray(path)
-    ? path.slice(0)
-    : path.split
-    ? path.split(".")
-    : [path];
-  if (currentFieldPath.length > 0) {
-    const fieldName = currentFieldPath.pop();
-    currentFieldPath.forEach((p, i) => {
-      if (base[p] === undefined) base[p] = {};
-      base = base[p];
-    });
-    if (base instanceof Map) {
-      base.set(fieldName, value);
-    } else if (base instanceof Set) {
-      base.add(value);
-    } else {
-      base[fieldName!] = value;
-    }
-  }
-}
-
-export function get(obj: any, path: string | (number | string)[]) {
-  let base = obj;
-  const pathArr = isArray(path)
-    ? path.slice(0)
-    : path.split
-    ? path.split(".")
-    : [path];
-  if (pathArr.length === 0) {
-    return obj;
-  }
-  const currentPathArr = pathArr.slice(0, -1);
-  const key = last(pathArr);
-  for (const p of currentPathArr) {
-    if (base[p] === undefined) return undefined;
-    base = base[p];
-  }
-  if (base instanceof Map) {
-    return base.get(key);
-  }
-  return base[key];
-}
 export const VNodeComponentSymbol = Symbol("VNodeComponentSymbol");
 export const VNodeFunctionComponentSymbol = Symbol(
   "VNodeFunctionComponentSymbol"
