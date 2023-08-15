@@ -162,7 +162,10 @@ export function set(obj: any, path: string | (number | string)[], value: any) {
   }
 }
 
-export function get(obj: any, path: string | (number | string)[]) {
+export function get(obj: any, path?: string | (number | string)[]) {
+  if (!path) {
+    return obj;
+  }
   let base = obj;
   const pathArr = isArray(path)
     ? path.slice(0)

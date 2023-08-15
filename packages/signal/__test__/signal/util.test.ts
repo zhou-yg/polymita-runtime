@@ -17,6 +17,15 @@ describe('util', () => {
       const v = get(obj, ['a', 1])
       expect(v).toBe(33)
     })
+    it ('get with empty path', () => {
+      const a = { a: 1 }
+
+      const v = get(a, undefined)
+      expect(v).toEqual(a)
+
+      const v2 = get(a, [])
+      expect(v2).toEqual(a)
+    })
     it('set empty obj', () => {
       const obj: any = {}
       set(obj, ['k1', 0, 'k2'], 'val3')
