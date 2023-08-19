@@ -129,10 +129,6 @@ export async function createDevServer (c: IConfig) {
         {
           find: '@',
           replacement: c.cwd,
-        },
-        {
-          find: '@polymita/signal-model',
-          replacement: '@polymita/signal-model/dist/signal-model.client.esm.js'
         }
       ]
     }
