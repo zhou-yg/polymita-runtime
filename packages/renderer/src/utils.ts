@@ -24,7 +24,7 @@ import { typeDefaultValueFlagSymbol } from "./lib/propTypes";
 
 // (window as any).ecss = css;
 
-export { set, get } from '@polymita/signal-model'
+export { set, get } from "@polymita/signal-model";
 
 export { isFunction } from "./lib/serialize";
 

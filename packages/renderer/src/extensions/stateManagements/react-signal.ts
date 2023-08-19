@@ -166,6 +166,9 @@ function runReactLogic<T extends Driver>(react: any, hook: T, props: Parameters<
     }
   }, [])
 
+  /**
+   * while props changed, sync latest props value to signal
+   */
   useEffect(() => {
     if (init.current) {
       const { signalProps: signalPropsRef } = init.current
