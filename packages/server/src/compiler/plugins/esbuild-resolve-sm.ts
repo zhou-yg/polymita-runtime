@@ -9,7 +9,7 @@ export default function resolveSignalModel (format: esbuild.Format): esbuild.Plu
     setup(build) {
       build.onResolve({ filter: /^@polymita\/signal-model$/ }, args => {
         return {
-          path: format === 'esm' ? '@polymita/signal-model/dist/signal-model.client.esm' : '@polymita/signal-model/dist/signal-model.client' ,
+          path: format === 'esm' ? 'node_modules/@polymita/signal-model/dist/signal-model.client.esm.js' : 'node_modules/@polymita/signal-model/dist/signal-model.client.js' ,
           external: true,
         }
       })
