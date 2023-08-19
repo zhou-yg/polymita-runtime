@@ -5,7 +5,11 @@ import {
   buildModelIndexes,
   buildViews,
   buildDrivers,
+  buildClientRoutes,
+  logFrame,
+  generateHookDeps,
 } from "../src/"
+import chalk from 'chalk'
 import { prepareDir } from './dev'
 
 export default async (cwd: string) => {
@@ -16,4 +20,14 @@ export default async (cwd: string) => {
   })
 
   prepareDir(config)
+
+  await buildDrivers(config).then(() => {
+    generateHookDeps(config);
+    logFrame(`build drivers end.`)
+  })
+
+  await buildClientRoutes(config).then(() => {
+    logFrame((`build ${chalk.green('clientRoutes')} end.`))    
+  })
+
 }

@@ -20,9 +20,6 @@ export async function buildClientRoutes (c: IConfig) {
   await esbuild.build({
     entryPoints: [autoGenerateClientRoutes],
     platform: 'browser',
-    alias: {
-      '@polymita/signal-model': '@polymita/signal-model/dist/signal-model.client.esm'
-    },
     outfile: clientRoutes,
     bundle: true,
     plugins: [
