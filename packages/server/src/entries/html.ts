@@ -73,7 +73,7 @@ export async function renderPage (
     }
   })
 
-  debuggerLog(true)
+  debuggerLog(config.debugLog)
 
   console.log('[before renderToString] first ');
   const html = renderToString(appRootEntry)

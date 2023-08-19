@@ -349,7 +349,7 @@ export async function composeDriver(c: IConfig) {
     const dir = path.join(c.cwd, 'node_modules', moduleName)
     const distDriversDir = path.join(dir, c.buildDirectory, c.driversDirectory)
     if (!fs.existsSync(distDriversDir)) {
-      console.error(`[composeDriver] hasnt drivers in "${moduleName}/${c.buildDirectory}/${c.driversDirectory}"`)
+      console.error(`[composeDriver] hasn't drivers in "${moduleName}/${c.buildDirectory}/${c.driversDirectory}"`)
       return
     }
 

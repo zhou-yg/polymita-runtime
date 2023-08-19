@@ -1645,8 +1645,12 @@ export class ReactiveChain<T = any> {
       return [...currentRows];
     }
     const logRows = dfi(this);
+    
+    const shortLogRows = logRows.map(text => {
+      return text.length > 100 ? text.substring(0, 100) + '...' : text
+    })
     // console the chain log
-    console.log(logRows.join("\n"));
+    console.log(shortLogRows.join("\n"));
   }
 }
 
