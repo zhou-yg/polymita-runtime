@@ -16,7 +16,7 @@ describe('compile module', () => {
     const originalModulesDir = path.join(c.cwd, c.modulesDirectory);
     const { outputModulesDir } = c.pointFiles;
     traverseDir(originalModulesDir, f => {
-      const wholePath = path.join(outputModulesDir, f.file)
+      const wholePath = path.join(outputModulesDir, f.relativeFile)
 
       const obj = path.parse(wholePath);
       obj.ext = '.js';

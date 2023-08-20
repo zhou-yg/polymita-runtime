@@ -49,24 +49,29 @@ export default async (cwd: string) => {
   
   logFrame((`build routes/entryServer/drivers end. cost ${chalk.green(cost())} seconds`))
 
-  logFrame(('build clientRoutes/views'))
+  logFrame(('start building clientRoutes/views -->'))
 
-  const cost2 = time()
-
-  await Promise.all([
-    buildClientRoutes(config).then(() => {
+  const buildingClientRoutesViewsQueue = ([
+    () => buildClientRoutes(config).then(() => {
       logFrame((`build ${chalk.green('clientRoutes')} end. cost ${chalk.green(cost2())} seconds`))    
     }),
-    buildViews(config).then(() => {
+    () => buildViews(config).then(() => {
       logFrame((`build ${chalk.green('views')} end. cost ${chalk.green(cost2())} seconds`))    
     }),
-    buildModules(config).then(() => {
+    () => buildModules(config).then(() => {
       logFrame((`build ${chalk.green('modules')} end. cost ${chalk.green(cost2())} seconds`))
     }),
-    generateModuleTypes(config).then(() => {
+    () => generateModuleTypes(config).then(() => {
       logFrame((`build ${chalk.green('modules types')} end. cost ${chalk.green(cost2())} seconds`))
     })
   ])
+
+  const cost2 = time()
+
+  for (const fp of buildingClientRoutesViewsQueue) {
+    await fp()
+  }
+  logFrame(('<-- finish building clientRoutes/views'))
 
   logFrame((`build end. cost ${chalk.green(allCost())} seconds`))
 }

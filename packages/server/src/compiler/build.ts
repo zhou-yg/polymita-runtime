@@ -110,7 +110,7 @@ export async function buildModules(c: IConfig) {
     return
   }
   traverseDir(originalModulesDir, f => {
-    const wholePath = path.join(originalModulesDir, f.file)
+    const wholePath = path.join(originalModulesDir, f.relativeFile)
     if (f.isDir) {
       if (!fs.existsSync(wholePath)) {
         fs.mkdirSync(wholePath)
