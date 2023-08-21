@@ -346,8 +346,7 @@ export async function generateServerRoutes(c: IConfig) {
   const importsWithAbsolutePathServer = imports.map(([n, f]) => {
     return `import ${n} from '${implicitImportPath(path.join(c.cwd, f), c.ts)}'`
   }).join('\n')
-
-
+ 
   let entryCSSPath = ''
   if (c.entryCSS) {
     entryCSSPath = `import "${c.entryCSS}"`
@@ -367,6 +366,8 @@ export async function generateServerRoutes(c: IConfig) {
     modelIndexes = fs.readFileSync(modelIndexesJSON).toString()
   }
   
+  
+
   const routesStr = routesTemplate({
     ...rootAppInfo,
     imports: importsWithAbsolutePathServer,
@@ -374,7 +375,10 @@ export async function generateServerRoutes(c: IConfig) {
     routes: r,
     modelIndexes
   })
-  fs.writeFileSync(autoGenerateServerRoutes, await prettier.format(routesStr, { parser: 'typescript' }))
+  fs.writeFileSync(
+    autoGenerateServerRoutes, 
+    await prettier.format(routesStr, { parser: 'typescript' })
+  )
 }
 
 export function contextServerRoutes(c: IConfig) {

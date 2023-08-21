@@ -29,7 +29,10 @@ export const defaultConfig = () => ({
 
   entry: 'entry', // jsx|tsx|css|less|json
 
-  appRoot: '_app', // the app root that is extesntion in jsx|tsx
+  /**
+   * https://nextjs.org/docs/app/building-your-application/upgrading/app-router-migration#migrating-_documentjs-and-_appjs
+   */
+  appRoot: 'layout', // the app root that extension in jsx|tsx
 
   entryServer: 'entry.server', // .(j|t)sx in app
   routesServer: 'routes.server', // serve for tarat self
