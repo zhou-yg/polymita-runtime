@@ -1082,7 +1082,7 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
       typeof runnerContext.triggerHookIndex === "number" &&
       runnerContext.initialData.length > 0
     ) {
-      /** @TODO belive deps calculation from client.it's maybe dangerous' */
+      /** @TODO believe deps calculation from client.it's maybe dangerous' */
       const s = new Set<number>([runnerContext.triggerHookIndex]);
       runnerContext.initialData.forEach((d, i) => {
         if (d[1] !== "unserialized") {
@@ -1093,15 +1093,15 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
     }
   }
 
-  triggerEnterComposeDriver(driverNamespace: string, dirverName: string) {
+  triggerEnterComposeDriver(driverNamespace: string, driverName: string) {
     this.emit(CurrentRunnerScope.events.enterComposeDriver, {
       driverNamespace,
-      dirverName,
+      driverName,
     });
     return () => {
       this.emit(CurrentRunnerScope.events.leaveComposeDriver, {
         driverNamespace,
-        dirverName,
+        driverName,
       });
     };
   }
