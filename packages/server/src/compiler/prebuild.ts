@@ -15,6 +15,7 @@ import postcss from 'rollup-plugin-postcss'
 import tsPlugin from 'rollup-plugin-typescript2'
 import * as prettier from 'prettier'
 import * as esbuild from 'esbuild';
+import * as bundleUtility from './bundleUtility';
 import { defineRoutesTree, IRouteChild } from "../config/routes";
 import autoExternal from 'rollup-plugin-auto-external';
 import replace from '@rollup/plugin-replace';
@@ -522,7 +523,7 @@ export async function buildEntryServer (c: IConfig) {
 
     // await build(c, inputOptions)
 
-    await esbuild.build({
+    await bundleUtility.esbuild({
       entryPoints: [r.file],
       bundle: false,
       outfile: distEntry,
@@ -683,7 +684,7 @@ async function esbuildDrivers (
     buildOptions.tsconfig = getTSConfigPath(cwd)
   }
 
-  await esbuild.build(buildOptions)
+  await bundleUtility.esbuild(buildOptions)
 
   cacheFilesByPlugin.forEach(f => {
     /**

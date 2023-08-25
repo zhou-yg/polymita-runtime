@@ -130,6 +130,7 @@ export async function buildModules(c: IConfig) {
       ...generateExternal(c),
     ],
     plugins: [
+      // esbuildPluginPostcss({ cwd: c.cwd }),
       aliasAtCodeToCwd(c.cwd),
     ]
   })
