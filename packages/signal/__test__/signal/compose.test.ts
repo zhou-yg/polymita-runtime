@@ -52,14 +52,14 @@ describe('compose', () => {
 
     expect(runner.scope.composes.length).toBe(4)
 
-    // console.log('runner.scope.intialContextDeps: ', runner.scope.intialContextDeps);
+    // console.log('runner.scope.initialContextDeps: ', runner.scope.initialContextDeps);
 
-    const rootDeps = runner.scope.intialContextDeps.slice(0, 1)
+    const rootDeps = runner.scope.initialContextDeps.slice(0, 1)
 
     expect(rootDeps[0][2][0][0]).toBe('c')
     expect(rootDeps[0][2][0][1]).toBe(3)
 
-    const composeSS2Deps = runner.scope.intialContextDeps.slice(2, 4)
+    const composeSS2Deps = runner.scope.initialContextDeps.slice(2, 4)
 
     expect(composeSS2Deps[1][2][1][1]).toBe(1)
     expect(composeSS2Deps[1][2][2][1]).toBe(2)

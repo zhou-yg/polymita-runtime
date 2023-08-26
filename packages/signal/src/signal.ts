@@ -350,7 +350,7 @@ export function setCurrentComputed(c: Computed<any>[]) {
 
 export type FComputedFuncGenerator<T> = (
   prev?: T,
-) => Generator<any, T, unknown>;
+) => Generator<any, any, any>;
 export type FComputedFuncAsync<T> = (prev?: T) => T;
 export type FComputedFunc<T> = (prev?: T) => T;
 
@@ -469,7 +469,7 @@ export type InputComputeFn<T extends any[]> = (...arg: T) => void;
 export type AsyncInputComputeFn<T extends any[]> = (...arg: T) => Promise<void>;
 export type GeneratorInputComputeFn<T extends any[]> = (
   ...arg: T
-) => Generator<unknown, any, T>;
+) => Generator<any, any, any>;
 
 export class InputCompute<P extends any[] = any> extends Hook {
   commitPromise: Promise<void> | null = null;
