@@ -682,11 +682,13 @@ export function lowerCaseType(type: LayoutStructTree["type"]) {
  * fork from https://github.com/JedWatson/classnames/blob/main/index.js
  */
 const hasOwn = {}.hasOwnProperty;
-export function classNames() {
+export function classNames(
+  ...args: (string | number | Record<string, boolean> | (string | number)[])[]
+) {
   var classes = [];
 
-  for (var i = 0; i < arguments.length; i++) {
-    var arg = arguments[i];
+  for (var i = 0; i < args.length; i++) {
+    var arg = args[i];
     if (!arg) continue;
 
     var argType = typeof arg;
@@ -709,7 +711,7 @@ export function classNames() {
         continue;
       }
 
-      for (var key in arg) {
+      for (var key in arg as object) {
         if (hasOwn.call(arg, key) && arg[key]) {
           classes.push(key);
         }
