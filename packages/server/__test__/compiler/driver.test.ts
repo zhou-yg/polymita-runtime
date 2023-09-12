@@ -12,7 +12,7 @@ import { readMockProjectConfig } from "../mockUtil"
 jest.setTimeout(10 * 1000)
 
 describe('driver compiler', () => {
-  it('use relative references', async () => {
+  it('use relative references but not bundle', async () => {
     const config = await readMockProjectConfig('someDrivers')
     prepareDir(config)
 
@@ -26,10 +26,13 @@ describe('driver compiler', () => {
       expect(rows.length).toBeLessThan(50)
     })
 
-    const r1 = readFileSync(join(outputClientDriversDir, 'a.js')).toString().match(/var autoParser/g);
-    const r2 = readFileSync(join(outputClientDriversDir, 'b.js')).toString().match(/var autoParser/g);
+    const a = join(outputClientDriversDir, 'a.js');
+    const b = join(outputClientDriversDir, 'b.js');
+
+    const r1 = readFileSync(a).toString().match(/var autoParser/g);
+    const r2 = readFileSync(b).toString().match(/var autoParser/g);
     expect(r1.length).toBe(1)
-    expect(r2.length).toBe(2)
+    expect(r2.length).toBe(1)
   }, 15 * 1000)
 
   it('generate compose driver', async () => {
