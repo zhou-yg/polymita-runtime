@@ -69,7 +69,7 @@ export function getTSConfigPath (cwd: string) {
 }
 
 function getPostCssConfigPath (c: IConfig) {
-  let pp = ''
+  let pp = '';
   fs.readdirSync(c.cwd).forEach(f => {
     if (/postcss\.config/.test(f)) {
       if (pp) {

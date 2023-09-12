@@ -4,7 +4,6 @@ import {
   prisma
 } from '../../src'
 import {
-  UNDEF_TAG,
   calculateDiff,
   checkQueryWhere,
   constructDataGraph,
@@ -15,8 +14,6 @@ import {
   getShallowRelatedIndexes,
   mapGraph,
   mapGraphSetToIds,
-  parseWithUndef,
-  stringifyWithUndef,
 } from '../../src/util'
 import { produceWithPatches, enablePatches } from 'immer'
 
@@ -668,14 +665,5 @@ describe('util', () => {
     })
   })
 
-  describe('JSON including undef', () => {
-    it('stringify', () => {
-      const r = stringifyWithUndef({ a: undefined })
-      expect(r).toBe(`{"a":"${UNDEF_TAG}"}`)
-    })
-    it('parse', () => {
-      const r = parseWithUndef(`{"a": "${UNDEF_TAG}" }`)
-      expect(r).toEqual({ a: undefined })
-    })
-  })
+
 })

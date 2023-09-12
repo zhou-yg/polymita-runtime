@@ -12,7 +12,7 @@ import { readMockProjectConfig } from "../mockUtil"
 jest.setTimeout(10 * 1000)
 
 describe('driver compiler', () => {
-  it.only('use relative references', async () => {
+  it('use relative references', async () => {
     const config = await readMockProjectConfig('someDrivers')
     prepareDir(config)
 

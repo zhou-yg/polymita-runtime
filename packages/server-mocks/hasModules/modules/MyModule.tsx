@@ -50,7 +50,6 @@ export type AddSourceLayout = {
   ]
 }
 
-const ModalCpt = createFunctionComponent(ModalModule)
 const InputCpt = createFunctionComponent(InputModule, {
   patchRules (props, draft) {
     return [
@@ -63,7 +62,6 @@ const InputCpt = createFunctionComponent(InputModule, {
     ]
   }
 })
-const FormCpt = createFunctionComponent(FormModule);
 
 export const layout = (props: AddSourceProps) => {
   const logic = useLogic<LogicReturn>()
@@ -71,28 +69,21 @@ export const layout = (props: AddSourceProps) => {
   const visible = props.visible();
 
   return (
-    h('addSourceContainer', {},
-      visible ? h(ModalCpt, {
-        title: '数据源',
-        onClose () { props.visible(false) },
-        onOk () { props.visible(false); logic.submit() }
-      },
-        h(FormCpt, {
-          layout: { labelWidth: '4em' },
-          form: [
-            {
-              label: '名称',
-              value: logic.form.name,
-            },
-            {
-              label: '链接',
-              value: logic.form.link,
-            }
-          ]
-        })
-      ) : ''
-    )
-  )
+    <firstNode>
+      <secondNode>
+        <subContent>
+          {visible && (
+            <dynamicContent>
+              ha ha ha
+            </dynamicContent>
+          )}
+        </subContent>
+      </secondNode>
+      <thirdNode if={visible}>
+        <InputCpt value={logic.form.name} />
+      </thirdNode>
+    </firstNode>
+  );
 }
 
 export const styleRules = (props: AddSourceProps, layout: ConvertToLayoutTreeDraft<AddSourceLayout>) => {
