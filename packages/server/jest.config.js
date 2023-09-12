@@ -9,6 +9,9 @@ module.exports = {
   // },
   // extensionsToTreatAsEsm: ['.ts'],
   preset: 'ts-jest',
+  transform: {
+    '\\.[jt]sx?$': ['ts-jest'],
+  },
   testEnvironment: 'node',
   collectCoverage: isCI,
   collectCoverageFrom: ['./src/**/*.ts'],
