@@ -15,5 +15,5 @@ module.exports = {
   testEnvironment: 'node',
   collectCoverage: isCI,
   collectCoverageFrom: ['./src/**/*.ts'],
-  modulePathIgnorePatterns: ['/node_modules/', '/dist/', '/mocks/'],
+  modulePathIgnorePatterns: ['/node_modules/', '/dist/', '/mocks/', '/cli/'],
 };

@@ -16,6 +16,10 @@ describe('compile module', () => {
     const originalModulesDir = path.join(c.cwd, c.modulesDirectory);
     const { outputModulesDir } = c.pointFiles;
     traverseDir(originalModulesDir, f => {
+      if (/\.json$/.test(f.file)) {
+        return;
+      }
+
       const wholePath = path.join(outputModulesDir, f.relativeFile)
 
       const obj = path.parse(wholePath);
