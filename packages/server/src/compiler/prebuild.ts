@@ -388,7 +388,6 @@ export function contextServerRoutes(c: IConfig) {
     distServerRoutes,
   } = c.pointFiles
 
-  console.log('\nautoGenerateServerRoutes: ', autoGenerateServerRoutes, '\n');
   let ctxPromise = esbuild.context({
     entryPoints: [autoGenerateServerRoutes],
     outfile: distServerRoutes,
@@ -773,13 +772,13 @@ export async function buildDTSFiles (c: IConfig, filePaths: { filePath: string, 
 
 export async function driversType(c: IConfig, outputDir: string) {
   const { drivers, driversDirectory } = c
-  const cwdDirversDir = path.join(c.cwd, driversDirectory)
+  const cwdDriversDir = path.join(c.cwd, driversDirectory)
 
 
   const generateFiles:{ name: string, destDir: string, relativePath: string, outFile: string }[] = []
   await Promise.all(drivers.filter(({ filePath }) => /\.ts$/.test(filePath)).map(async h => {
     const { filePath, name , dir } = h
-    const relativePath = path.relative(cwdDirversDir, dir)
+    const relativePath = path.relative(cwdDriversDir, dir)
     const destDir = path.join(outputDir, relativePath)
     const outFile = path.join(destDir, `${name}.d.ts`)
     generateFiles.push({
@@ -792,7 +791,7 @@ export async function driversType(c: IConfig, outputDir: string) {
   }))
   // const generateFiles = drivers.filter(({ filePath }) => /\.ts$/.test(filePath)).map((h) => {
   //   const { filePath, name , dir } = h
-  //   const relativePath = path.relative(cwdDirversDir, dir)
+  //   const relativePath = path.relative(cwdDriversDir, dir)
   //   const destDir = path.join(outputDir, relativePath)
   //   const outFile = path.join(destDir, `${name}.d.ts`)
   //   return ({
