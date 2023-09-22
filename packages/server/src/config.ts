@@ -312,7 +312,7 @@ export async function readConfig (arg: {
     c.file = path.join('./', config.viewsDirectory, c.file)
   })
   // polymita modules
-  const modules = readdirDepth(modulesDirectory)
+  const modules = readdirDepth(modulesDirectory).filter(f => /\.(j|t)sx$/.test(f.file))
 
   const pages = readPages(pagesDirectory, '/')
 
