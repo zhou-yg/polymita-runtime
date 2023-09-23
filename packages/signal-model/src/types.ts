@@ -117,9 +117,7 @@ interface IQuerySelect {
 interface IQueryInclude {
   [k: string]:
     | boolean
-    | {
-        include: IQueryInclude
-      }
+    | IQueryWhere
 }
 
 export interface IQueryWhere {

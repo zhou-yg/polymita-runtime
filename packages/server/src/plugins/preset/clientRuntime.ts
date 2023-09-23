@@ -131,6 +131,9 @@ export function clientRuntime(c: {
       // @ts-ignore
       await fetch(`${diffPath}`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: stringifyWithUndef({
           entity,
           diff
@@ -141,6 +144,9 @@ export function clientRuntime(c: {
       // @ts-ignore
       const newContext = await fetch(`${hostConfig}/${c.name}`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: serializeJSON(c)
       })
         .then(r => r.text())
@@ -152,6 +158,9 @@ export function clientRuntime(c: {
       // @ts-ignore
       const newContext = await fetch(`${hostConfig}/${c.name}`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: serializeJSON(c)
       })
         .then(r => r.text())
@@ -199,6 +208,9 @@ function clientTestingRuntime(optiosn: {
       // @ts-ignore
       await fetch(`${diffPath}`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: stringifyWithUndef({
           entity,
           diff
@@ -209,6 +221,9 @@ function clientTestingRuntime(optiosn: {
       // @ts-ignore
       const newContext = await fetch(`${hostConfig}/${c.name}`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: serializeJSON(c)
       })
         .then(r => r.text())
@@ -220,6 +235,9 @@ function clientTestingRuntime(optiosn: {
       // @ts-ignore
       const newContext = await fetch(`${hostConfig}/${c.name}`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: serializeJSON(c)
       })
         .then(r => r.text())

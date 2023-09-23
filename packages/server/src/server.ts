@@ -27,8 +27,16 @@ import { createReadStream, existsSync, readFileSync } from "fs";
 
 export function setupBasicServer (c: IConfig) {
   const app = new Koa()
+  app.use(async (ctx, next) => {
+    const contentLength = ctx.request.headers['content-length'];
+    if (contentLength && parseInt(contentLength)) {
+      console.log('[server on starting] contentLength: ', `${parseInt(contentLength) / 1024 / 1024}mb`);
+    }
+    await next();
+  })
   app.use(koaBody({
-    multipart: true
+    multipart: true,
+    jsonLimit: '1000mb',
   }))
   app.use(cors())
   app.use(staticServe(c.publicDirectory))
