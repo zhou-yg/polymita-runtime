@@ -70,6 +70,7 @@ export const layout = (props: AddSourceProps) => {
 
   return (
     <firstNode>
+      <singleNode />
       <secondNode>
         <subContent>
           {visible && (
