@@ -8,6 +8,7 @@ import {
   buildClientRoutes,
   logFrame,
   generateHookDeps,
+  composeDriver,
 } from "../src/"
 import chalk from 'chalk'
 import { prepareDir } from './dev'
@@ -20,6 +21,11 @@ export default async (cwd: string) => {
   })
 
   prepareDir(config)
+
+  await Promise.all([
+    composeSchema(config),
+    composeDriver(config)  
+  ])
 
   await buildDrivers(config).then(() => {
     generateHookDeps(config);
