@@ -391,6 +391,8 @@ importers:
       '@polymita/connect': workspace:*
       '@polymita/signal': workspace:^1.0.1
       '@polymita/signal-model': workspace:*
+      '@prisma/client': ^4.3.1
+      '@prisma/generator-helper': 4.x.x
       '@prisma/internals': ^4.0.0
       '@prisma/sdk': ^4.0.0
       '@rollup/plugin-alias': ^3.1.9
@@ -476,6 +478,8 @@ importers:
       '@polymita/connect': link:../connect
       '@polymita/signal': link:../signal
       '@polymita/signal-model': link:../signal-model
+      '@prisma/client': 4.3.1
+      '@prisma/generator-helper': 4.15.0
       '@prisma/internals': 4.15.0
       '@prisma/sdk': 4.0.0
       '@rollup/plugin-alias': 3.1.9_rollup@2.79.1
@@ -3209,6 +3213,19 @@ packages:
     dependencies:
       '@prisma/engines-version': 3.15.1-1.461d6a05159055555eb7dfb337c9fb271cbd4d7e
       prisma: 3.15.2
+    dev: false
+
+  /@prisma/client/4.3.1:
+    resolution: {integrity: sha512-FA0/d1VMJNWqzU7WVWTNWJ+lGOLR9JUBnF73GdIPAEVo/6dWk4gHx0EmgeU+SMv4MZoxgOeTBJF2azhg7x0hMw==}
+    engines: {node: '>=14.17'}
+    requiresBuild: true
+    peerDependencies:
+      prisma: '*'
+    peerDependenciesMeta:
+      prisma:
+        optional: true
+    dependencies:
+      '@prisma/engines-version': 4.3.0-32.c875e43600dfe042452e0b868f7a48b817b9640b
     dev: false
 
   /@prisma/client/4.3.1_prisma@4.11.0:

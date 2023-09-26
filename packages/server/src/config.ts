@@ -56,6 +56,7 @@ export const defaultConfig = () => ({
   prismaModelPart: 'part.prisma', // postfix
   targetSchemaPrisma: 'schema.prisma',
   schemaIndexes: 'indexes.json',
+  schemaIndexesTypes: 'indexesTypes.d.ts',
 
   // server side
   apiPre: '_hook',
@@ -306,6 +307,7 @@ export async function readConfig (arg: {
   const appDirectory = path.join(cwd, config.appDirectory)
   const pagesDirectory = path.join(appDirectory, config.pageDirectory)
   const modulesDirectory = path.join(cwd, config.modulesDirectory)
+  const modelsDirectory = path.join(cwd, config.modelsDirectory)
 
   const views = readViews(viewsDirectory, '/')
   views.forEach(c => {
@@ -328,9 +330,19 @@ export async function readConfig (arg: {
     }
   })
 
+  const currentFiles = {
+    viewsDirectory,
+    driversDirectory,
+    appDirectory,
+    pagesDirectory,
+    modulesDirectory,
+    configFile: configFileInPath,
+    schemaIndexes: path.join(modelsDirectory, config.schemaIndexes),
+    schemaIndexesTypes: path.join(modelsDirectory, config.schemaIndexesTypes),
+    targetSchemaPrisma: path.join(modelsDirectory, config.targetSchemaPrisma),
+  }
 
   const entryCSS = readEntryCSS(path.join(cwd, config.appDirectory, config.entry))
-
 
   const devPointFiles = getOutputFiles(config, cwd, path.join(cwd, config.devCacheDirectory))
   const buildPointFiles = getOutputFiles(config, cwd, path.join(cwd, config.buildDirectory))
@@ -358,6 +370,7 @@ export async function readConfig (arg: {
     isProd,
     entryCSS,
     pointFiles,
+    currentFiles,
     devPointFiles,
     buildPointFiles,
     cwd,

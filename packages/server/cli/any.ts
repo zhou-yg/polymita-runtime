@@ -9,6 +9,7 @@ import {
   logFrame,
   generateHookDeps,
   composeDriver,
+  generateModelTypes,
 } from "../src/"
 import chalk from 'chalk'
 import { prepareDir } from './dev'
@@ -26,14 +27,10 @@ export default async (cwd: string) => {
     composeSchema(config),
     composeDriver(config)  
   ])
+  await generateModelTypes(config);
 
   await buildDrivers(config).then(() => {
     generateHookDeps(config);
     logFrame(`build drivers end.`)
   })
-
-  await buildClientRoutes(config).then(() => {
-    logFrame((`build ${chalk.green('clientRoutes')} end.`))    
-  })
-
 }

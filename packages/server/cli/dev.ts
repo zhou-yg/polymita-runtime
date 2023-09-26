@@ -16,6 +16,7 @@ import {
   watchServerRoutes,
   getEntryFile,
   contextServerRoutes,
+  generateModelTypes,
 } from "../src/";
 
 import * as desktop from '../desktopSrc'
@@ -283,6 +284,7 @@ export default async (cwd: string) => {
     composeSchema(config),
     composeDriver(config)  
   ])
+  await generateModelTypes(config);
   
   await startCompile(config)
 
