@@ -13,7 +13,39 @@ describe('layout types', () => {
       const moduleContent = fs.readFileSync(module.path, 'utf-8');
 
       const layoutParseResult = layoutTypes.parse(moduleContent);
-      console.log('layoutParseResult: ', layoutParseResult);
+
+      expect(layoutParseResult).toEqual({
+        "type": "firstNode",
+        "component": false,
+        "children": [
+          {
+            "type": "singleNode",
+            "component": false
+          },
+          {
+            "type": "secondNode",
+            "component": false,
+            "children": [
+              {
+                "type": "subContent",
+                "component": false,
+                "children": []
+              }
+            ]
+          },
+          {
+            "type": "thirdNode",
+            "component": false,
+            "children": [
+              {
+                "type": "InputCpt",
+                "component": true,
+                "ConstructorComponentType": "InputModule"
+              }
+            ]
+          }
+        ]
+      })
     })
   })
 })

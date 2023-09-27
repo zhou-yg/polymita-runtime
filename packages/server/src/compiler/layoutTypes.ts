@@ -1,5 +1,6 @@
 import { log } from 'node:console';
 import ts from 'typescript'
+import { traverse } from '../util';
 
 const LAYOUT_KEYWORD = 'layout'
 
@@ -40,7 +41,7 @@ function pickLayoutAST (fileContent: string) {
   }
   loop(sourceFile)
 
-  return layoutAST;
+  return { sourceFile, layoutAST };
 }
 
 function pickRootJSXFromLayoutDeclaration (layoutAST: ts.VariableDeclaration) {
@@ -67,24 +68,108 @@ function pickRootJSXFromLayoutDeclaration (layoutAST: ts.VariableDeclaration) {
   return rootJSX;
 }
 
-function buildJSONTree (root: ts.JsxElement) {
-  const t1 = root.openingElement.getText()  
-  console.log('t1: ', t1);
-  const t2 = root.closingElement.getText();
-  console.log('t2: ', t2);
+function isCustomComponentType (type: string) {
+  return /^[A-Z]/.test(type)
 }
+
+function isCustomComponentTypeNode(val: any): val is JSONTreeComponent {
+  return val && val.component
+}
+
+function buildJSONTree (root: ts.JsxElement) {
+  
+  function loop (node: ts.Node) {
+    if (ts.isJsxElement(node)) {
+      const type = node.openingElement.tagName.getText();
+      return {
+        type,
+        component: isCustomComponentType(type),
+        children: node.children.map(loop).filter(Boolean),
+      }      
+    }
+    if (ts.isJsxSelfClosingElement(node)) {
+      const type = node.tagName.getText();
+      return {
+        type,
+        component: isCustomComponentType(type),
+      }
+    }
+  }
+
+  const tree: JSONTree = loop(root);
+  
+  return tree;
+}
+
+const CREATE_COMPONENT_METHOD = 'createFunctionComponent'
+
+function appendConstructorComponent (json: JSONTree, file: ts.Node) {
+
+  function search (top: ts.Node, variableName: string) {
+
+    let originConstructorName: string;
+
+    function loop (node: ts.Node) {
+      if (originConstructorName) {
+        return;
+      }
+      node.getChildren().forEach(node => loop(node));
+      
+      if (
+        ts.isVariableDeclaration(node) && 
+        node.initializer &&
+        ts.isCallExpression(node.initializer) && 
+        node.initializer.expression?.getText() === CREATE_COMPONENT_METHOD
+      ) {
+        const moduleName = node.initializer.arguments?.[0].getText();
+        if (moduleName && /Module$/.test(moduleName)) {
+          originConstructorName = moduleName
+        }
+      }
+    }
+
+    loop(top)
+
+    return originConstructorName;
+  }
+  
+  traverse(json, (key, val) => {
+    if (isCustomComponentTypeNode(val)) {
+      val.ConstructorComponentType = search(file, val.type);
+    }
+  })
+
+  return json
+}
+
+
+interface JSONTreeNode {
+  type: string;
+  children?: JSONTree[];
+  component: false;
+}
+interface JSONTreeComponent {
+  type: string;
+  children?: JSONTree[];
+  component: true;
+  ConstructorComponentType: string;
+}
+
+type JSONTree = JSONTreeNode | JSONTreeComponent;
 
 export function parse (fileContent: string) {
   
-  const layoutAST = pickLayoutAST(fileContent)
+  const { sourceFile, layoutAST} = pickLayoutAST(fileContent)
   
   const rootJSX = pickRootJSXFromLayoutDeclaration(layoutAST)
-  console.log('rootJSX: ', rootJSX);
 
-  if (rootJSX) {
-    const jsonTree = buildJSONTree(rootJSX)
-    console.log('jsonTree: ', jsonTree);
+  if (!rootJSX) {
+    return;
   }
 
-  return {}
+  const jsonTree = buildJSONTree(rootJSX)
+  
+  appendConstructorComponent(jsonTree, sourceFile)
+  
+  return jsonTree
 }
