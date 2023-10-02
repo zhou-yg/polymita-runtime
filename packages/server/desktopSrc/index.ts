@@ -23,7 +23,7 @@ export async function createDevClient (c: IConfig) {
   const data = JSON.stringify({
     type: 'config',
     data: c
-  }, null, 2)
+  }, null, 2);
 
   instance.stdin.write(data, () => {
     instance.stdin.end()

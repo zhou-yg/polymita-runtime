@@ -222,7 +222,7 @@ export function startElectronProcess () {
 
 
 export function resolveLib (cwd: string, lib: string) {
-  return path.join(cwd, 'node_modules/tarat', lib)
+  return path.join(cwd, 'node_modules/@polymita/server/dist', lib)
 }
 /**
  * 将config的一些全局绝对路径转换为当前项目工程的相对路径
