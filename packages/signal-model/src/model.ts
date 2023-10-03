@@ -1367,7 +1367,7 @@ function mountPrisma<T extends any[]>(
   return newSetterGetter
 }
 // TIP: "function updateWritePrisma" same as mountWritePrisma
-function mountWritePrisma<T extends any[]>(source: { _hook: Model<T> }, q: () => Partial<T[0]>) {
+function mountWritePrisma<T extends any[]>(source: { _hook: Model<T> } | string, q: () => Partial<T[0]>) {
   const currentRunnerScope = getModelRunnerScope()!
 
   const hook =
