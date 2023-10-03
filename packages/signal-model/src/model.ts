@@ -1392,7 +1392,7 @@ function mountWritePrisma<T extends any[]>(source: { _hook: Model<T> } | string,
 }
 
 function mountCreatePrisma<T extends any[]>(
-  source: { _hook: Model<T> },
+  source: { _hook: Model<T> } | string,
   q: () => Partial<T[0]>
 ) {
   const currentRunnerScope = getModelRunnerScope()!
@@ -1416,7 +1416,7 @@ function mountCreatePrisma<T extends any[]>(
 }
 
 function mountUpdatePrisma<T extends any[]>(
-  source: { _hook: Model<T> },
+  source: { _hook: Model<T> } | string,
   q: () => Partial<T[0]>
 ) {
   const currentRunnerScope = getModelRunnerScope()!
@@ -1548,7 +1548,7 @@ export function prisma<T extends any[]>(
 }
 
 export function writePrisma<T extends any[]>(
-  source: { _hook: Model<T> },
+  source: { _hook: Model<T> } | string,
   q?: () => Partial<T[0]>
 ) {
    const scope = getModelRunnerScope()
@@ -1560,7 +1560,7 @@ export function writePrisma<T extends any[]>(
 }
 
 export function createPrisma<T extends any[]>(
-  source: { _hook: Model<T> },
+  source: { _hook: Model<T> } | string,
   q?: () => Partial<T[0]>
 ) {
    const scope = getModelRunnerScope()
@@ -1572,7 +1572,7 @@ export function createPrisma<T extends any[]>(
 }
 
 export function updatePrisma<T extends any[]>(
-  source: { _hook: Model<T> },
+  source: { _hook: Model<T> } | string,
   q?: () => Partial<T[0]>
 ) {
    const scope = getModelRunnerScope()
