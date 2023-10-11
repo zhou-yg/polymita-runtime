@@ -2073,7 +2073,11 @@ export const action = inputCompute;
  *
  */
 
-export function after(callback: () => void, targets: { _hook?: Hook }[]) {
+export interface AfterOptions {
+  immediate?: boolean
+}
+
+export function after(callback: () => void, targets: { _hook?: Hook }[], options?: AfterOptions) {
   callback = makeBatchCallback(callback);
 
   targets.forEach((target) => {
@@ -2085,6 +2089,9 @@ export function after(callback: () => void, targets: { _hook?: Hook }[]) {
       }
     }
   });
+  if (options?.immediate) {
+    callback();
+  }
   return () => {
     targets.forEach((target) => {
       if (target._hook) {
