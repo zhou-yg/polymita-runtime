@@ -2152,7 +2152,7 @@ export function combineLatest<T>(
  * using another Driver inside of Driver
  * the important thing is that should consider how to compose their depsMap
  */
-export function compose<T extends Driver>(f: T, args?: any[]) {
+export function compose<T extends Driver>(f: T, args?: Parameters<T>) {
   if (!currentRunnerScope) {
     throw new Error("[compose] must run side of Driver");
   }
