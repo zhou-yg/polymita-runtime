@@ -132,6 +132,7 @@ export async function buildModules(c: IConfig) {
     plugins: [
       // esbuildPluginPostcss({ cwd: c.cwd }),
       aliasAtCodeToCwd(c.cwd),
+      esbuildPluginAliasDriver(c, 'client'),
     ]
   })
 }

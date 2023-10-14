@@ -13,6 +13,8 @@ import {
   logFrame,
   time,
   buildModules,
+  buildServerRoutes,
+  esbuildServerRoutes,
 } from "../src/"
 import { buildEverything, prepareDir } from "./dev"
 
@@ -53,17 +55,20 @@ export default async (cwd: string) => {
 
   const buildingClientRoutesViewsQueue = ([
     () => buildClientRoutes(config).then(() => {
-      logFrame((`build ${chalk.green('clientRoutes')} end. cost ${chalk.green(cost2())} seconds`))    
+      logFrame((`build ${chalk.green('clientRoutes')} end. cost ${chalk.green(cost())} seconds`))    
+    }),
+    () => esbuildServerRoutes(config).then(() => {
+      logFrame((`build ${chalk.green('serverRoutes')} end. cost ${chalk.green(cost())} seconds`))
     }),
     () => buildViews(config).then(() => {
-      logFrame((`build ${chalk.green('views')} end. cost ${chalk.green(cost2())} seconds`))    
+      logFrame((`build ${chalk.green('views')} end. cost ${chalk.green(cost())} seconds`))    
     }),
     () => buildModules(config).then(() => {
-      logFrame((`build ${chalk.green('modules')} end. cost ${chalk.green(cost2())} seconds`))
+      logFrame((`build ${chalk.green('modules')} end. cost ${chalk.green(cost())} seconds`))
     }),
     () => generateModuleTypes(config).then(() => {
-      logFrame((`build ${chalk.green('modules types')} end. cost ${chalk.green(cost2())} seconds`))
-    })
+      logFrame((`build ${chalk.green('modules types')} end. cost ${chalk.green(cost())} seconds`))
+    }),
   ])
 
   const cost2 = time()

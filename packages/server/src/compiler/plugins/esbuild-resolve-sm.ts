@@ -8,7 +8,9 @@ export default function resolveSignalModel (format: esbuild.Format): esbuild.Plu
     name: 'resolveSignalModel',
     setup(build) {
       build.onResolve({ filter: /^@polymita\/signal-model$/ }, args => {
-        const newPath = format === 'esm' ? '@polymita/signal-model/dist/signal-model.client.esm' : '@polymita/signal-model/dist/signal-model.client'
+        const newPath = format === 'esm' 
+          ? '@polymita/signal-model/dist/signal-model.client.esm' 
+          : '@polymita/signal-model/dist/signal-model.client'
         return {
           path: newPath,
           external: true,

@@ -36,7 +36,7 @@ const esbuildPluginAliasDriver = (c: IConfig, env: 'server' | 'client'): esbuild
     outputServerDir
   } = c.pointFiles
 
-  const defaultFormat = env === 'server' ? cjsDirectory : esmDirectory
+  const targetFormat = env === 'server' ? cjsDirectory : esmDirectory
   const envDriverOutputDir = env === 'server' ? outputServerDir : outputClientDir
   const filterReg = new RegExp(`(${project}\\/${driversDirectory})|(dist\\/\\w+\\/${driversDirectory})`)
 
@@ -47,12 +47,23 @@ const esbuildPluginAliasDriver = (c: IConfig, env: 'server' | 'client'): esbuild
       build.onLoad({ filter: /drivers/ }, async (args) => {
         const complementPath = (args.path)
         if (filterReg.test(complementPath)) {
-          const aliasSource = complementPath
-            .replace(cwd, envDriverOutputDir)
-            .replace(new RegExp(`\\/${driversDirectory}\\/`), `/${driversDirectory}/${defaultFormat}/`)
-            .replace(/(\.(t|j)s)?$/, '.js');
+          // console.log('complementPath: ', complementPath);
+          /**
+           * un-compiled ts file redirect to local output directory
+           * already compiled file redirect to target formatter in node_modules directory
+           */
+          let aliasSource = '';
+          if (/\.ts$/.test(complementPath)) {
+            aliasSource = complementPath
+              .replace(cwd, envDriverOutputDir)
+              .replace(new RegExp(`\\/${driversDirectory}\\/`), `/${driversDirectory}/${targetFormat}/`)
+              .replace(/(\.(t|j)s)?$/, '.js');
+          } else {
+            aliasSource = complementPath
+              .replace(/drivers\/(esm|cjs)/, `drivers/${targetFormat}`)
+          }
           
-          // console.log('aliasSource: ', aliasSource, existsSync(aliasSource), '\n');
+          // console.log(`aliasSource: ${targetFormat}`, aliasSource, existsSync(aliasSource), '\n');
           if (existsSync(aliasSource)) {
             const driverJS = await fs.readFile(aliasSource)
             return {
