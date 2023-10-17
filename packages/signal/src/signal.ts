@@ -1723,7 +1723,7 @@ export const hookFactoryFeatures = {
 
 export function updateValidation() {
   if (!currentRunnerScope) {
-    throw new Error("[updateValidation] update hook must under a tarat runner");
+    throw new Error("[updateValidation] update hook must under a <Runner>");
   }
 
   const { hooks, initialHooksSet } = currentRunnerScope!;
@@ -2027,7 +2027,7 @@ export function inputCompute<T extends any[]>(
 ): InputComputeFn<T> & { _hook: Hook };
 export function inputCompute(func: any) {
   if (!currentRunnerScope) {
-    throw new Error("[inputCompute] must under a tarat runner");
+    throw new Error("[inputCompute] must under a <Runner>");
   }
   const wrapFunc = currentHookFactory.inputCompute(func);
   return wrapFunc;
@@ -2060,6 +2060,24 @@ export function signal(v?: any) {
 }
 
 export const action = inputCompute;
+
+export function onMount(fn: () => void) {
+  if (!currentRunnerScope) {
+    throw new Error("[onMount] must under a <Runner>");
+  }
+  if (!currentRunnerScope.runnerContext.withInitialContext) {
+    fn();
+  }
+}
+
+export function onUpdate(fn: () => void) {
+  if (!currentRunnerScope) {
+    throw new Error("[onUpdate] must under a <Runner>");
+  }
+  if (currentRunnerScope.runnerContext.withInitialContext) {
+    fn();
+  }
+}
 
 /**
  *

@@ -17,6 +17,8 @@ import {
   signal,
   action,
   dispose,
+  onMount,
+  onUpdate,
 } from "../src/";
 import { loadPlugin } from "../src/plugin";
 
@@ -676,4 +678,12 @@ export function driverWithDispose() {
   return {
     myDisposeFunc,
   };
+}
+
+export function mountAndUpdate ({
+  onMountCallback,
+  onUpdateCallback,
+}: any) {
+  onMount(onMountCallback);
+  onUpdate(onUpdateCallback);
 }

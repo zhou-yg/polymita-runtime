@@ -172,4 +172,5 @@ export function parse (fileContent: string) {
   appendConstructorComponent(jsonTree, sourceFile)
   
   return jsonTree
+
 }
