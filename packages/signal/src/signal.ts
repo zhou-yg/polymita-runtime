@@ -1198,20 +1198,24 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
     }
     this.hooks.push(v);
 
+    // assign name by inject deps
+    let hookNames: THookNames['0'];
+    if (this.intialContextNames) {
+      hookNames = this.intialContextNames.find(
+        (arr) => arr[0] === this.hooks.length - 1,
+      );
+    }
+
     if (v) {
       this.watcher.addDep(v);
 
-      // assign name by inject deps
-      if (this.intialContextNames) {
-        const r = this.intialContextNames.find(
-          (arr) => arr[0] === this.hooks.length - 1,
-        );
-        if (r?.[1]) {
-          v.name = r[1];
-          v.index = r[0];
-        }
+      if (hookNames?.[1]) {
+        v.name = hookNames[1];
+        v.index = hookNames[0];
       }
     }
+
+    return hookNames || []
   }
 
   applyDepsMap() {
@@ -1736,10 +1740,10 @@ export function updateValidation() {
   };
 }
 
-function createUnaccessGetter<T>(index: number) {
+function createUnAccessGetter<T>(index: number, name?: string) {
   const f = () => {
     throw new Error(
-      `[update getter] cant access un initialized hook(${index})`,
+      `[update getter] cant access un initialized hook(${index}, ${name})`,
     );
   };
   const newF: (() => any) & { _hook: any } = Object.assign(f, {
@@ -1827,8 +1831,8 @@ function updateState<T>(initialValue?: T) {
     currentRunnerScope!.runnerContext.initialData![currentIndex]?.[2];
   // undefined means this hook wont needed in this progress
   if (!valid) {
-    currentRunnerScope!.addHook(undefined);
-    return createUnaccessGetter<T>(currentIndex);
+    const [_, name] = currentRunnerScope!.addHook(undefined);
+    return createUnAccessGetter<T>(currentIndex, name);
   }
   const timestamp =
     currentRunnerScope!.runnerContext.initialData![currentIndex]?.[3];
@@ -1866,8 +1870,8 @@ function updateCache<T>(key: string, options: ICacheOptions<T>) {
   const { valid, currentIndex } = updateValidation();
 
   if (!valid) {
-    currentRunnerScope!.addHook(undefined);
-    return createUnaccessGetter<T>(currentIndex);
+    const [_, name] = currentRunnerScope!.addHook(undefined);
+    return createUnAccessGetter<T>(currentIndex, name);
   }
 
   /** @TODO cache maybe should has initial value */
@@ -1917,8 +1921,8 @@ function updateComputed<T>(fn: any): any {
   const { valid, currentIndex } = updateValidation();
 
   if (!valid) {
-    currentRunnerScope!.addHook(undefined);
-    return createUnaccessGetter<T>(currentIndex);
+    const [_, name] = currentRunnerScope!.addHook(undefined);
+    return createUnAccessGetter<T>(currentIndex, name);
   }
   const initialValue: T =
     currentRunnerScope!.runnerContext.initialData![currentIndex]?.[2];
@@ -1974,8 +1978,8 @@ function updateInputCompute(func: any) {
   const valid = !initialHooksSet || initialHooksSet.has(currentIndex);
 
   if (!valid) {
-    currentRunnerScope!.addHook(undefined);
-    return createUnaccessGetter(currentIndex);
+    const [_, name] = currentRunnerScope!.addHook(undefined);
+    return createUnAccessGetter(currentIndex, name);
   }
 
   return mountInputCompute(func);
