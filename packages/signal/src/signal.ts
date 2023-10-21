@@ -31,6 +31,7 @@ import {
   get,
   getNamespace,
   THookDepUnit,
+  mergeInitialArgs,
 } from "./util";
 import { getPlugin, TCacheFrom } from "./plugin";
 import EventEmitter from "eventemitter3";
@@ -648,7 +649,7 @@ export class RunnerContext<T extends Driver> {
     public args?: Parameters<T>,
     initialContext?: IHookContext,
   ) {
-    this.initialArgList = initialContext ? initialContext.initialArgList : args;
+    this.initialArgList = mergeInitialArgs(initialContext?.initialArgList, args)
     this.withInitialContext = !!initialContext;
     if (initialContext) {
       this.initialData = initialContext["data"];

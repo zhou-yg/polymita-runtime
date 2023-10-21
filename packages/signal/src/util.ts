@@ -403,3 +403,39 @@ export function shortValue(v: undefined | Symbol | any) {
     return "@init";
   }
 }
+/**
+ * because of Function in the Record is not serializable, so we need to merge it to initialArgs
+ */
+export function mergeInitialArgs (contextInitialArgs: any | undefined, args: any): any {
+  if (!Array.isArray(contextInitialArgs)) {
+    return args
+  }
+  if (!Array.isArray(args)) {
+    return contextInitialArgs
+  }
+  const len = Math.max(contextInitialArgs.length, args.length);
+  const result = [];
+
+  for (let i = 0; i < len; i++) {
+
+    let contextInitialArg = contextInitialArgs[i];
+    const arg = args[i];
+
+    if (
+      typeof contextInitialArg === 'object' && 
+      typeof arg === 'object'
+    ) {
+      Object.entries(arg).forEach(([k, v]) => {
+        if (typeof v === 'function' && contextInitialArg[k] === undefined) {
+          contextInitialArg = {
+            ...contextInitialArg,
+            [k]: v
+          }
+        }
+      })
+    }
+    result.push(contextInitialArg);
+  }
+
+  return result;
+}
