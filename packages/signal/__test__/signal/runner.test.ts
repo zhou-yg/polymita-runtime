@@ -63,7 +63,7 @@ describe('runner basic', () => {
     try {
       const runner = mockBM.oneState(arg)
     } catch (e: any) {
-      expect(e.message).toBe('[state] must under a tarat runner')
+      expect(e.message).toBe('[state] must under a <Runner>')
     }
   })
 
@@ -79,7 +79,7 @@ describe('runner basic', () => {
     try {
       const runner = mockBM.oneCompute()
     } catch (e: any) {
-      expect(e.message).toBe('[inputCompute] must under a tarat runner')
+      expect(e.message).toBe('[inputCompute] must under a <Runner>')
     }
   })
   it('run oneEffect with nested BM', async () => {

@@ -1485,7 +1485,7 @@ export function computedInServer<T>(
 export function computedInServer<T>(fn: any): any {
   const scope = getModelRunnerScope()
   if (!scope) {
-    throw new Error('[computed] must under a tarat runner')
+    throw new Error('[computed] must under <Runner>')
   }
   return scope.modelHookFactory.computedInServer<T>(fn)
 }
@@ -1502,7 +1502,7 @@ export function inputComputeInServer<T extends any[]>(
 export function inputComputeInServer(func: any) {
   const scope = getModelRunnerScope()
   if (!scope) {
-    throw new Error('[inputComputeServer] must under a tarat runner')
+    throw new Error('[inputComputeServer] must under a <Runner>')
   }
   /**
    * running in client should post request to server

@@ -353,9 +353,12 @@ export type FComputedFuncGenerator<T> = (
 ) => Generator<any, any, any>;
 export type FComputedFuncAsync<T> = (prev?: T) => T;
 export type FComputedFunc<T> = (prev?: T) => T;
+/**
+ * Not real symbol because of the symbol can't be serialized by JSON.stringify
+ */
+export const ComputedInitialSymbol = ("@@ComputedInitialSymbol");
 
-export const ComputedInitialSymbol = Symbol("@@ComputedInitialSymbol");
-export class Computed<T> extends AsyncState<T | Symbol> implements ITarget<T> {
+export class Computed<T> extends AsyncState<T | string> implements ITarget<T> {
   batchRunCancel: () => void = () => {};
   watcher: Watcher<State<any>> = new Watcher<State<any>>(this);
 
@@ -364,15 +367,16 @@ export class Computed<T> extends AsyncState<T | Symbol> implements ITarget<T> {
   // @TODO: maybe here need trigger async optional setting
   constructor(
     public getter:
-      | FComputedFunc<T | Symbol>
-      | FComputedFuncAsync<T | Symbol>
-      | FComputedFuncGenerator<T | Symbol>,
+      | FComputedFunc<T | string>
+      | FComputedFuncAsync<T | string>
+      | FComputedFuncGenerator<T | string>,
   ) {
     super(ComputedInitialSymbol);
   }
 
-  override get value(): T | Symbol {
+  override get value(): T | string {
     const callChain = currentReactiveChain?.addCall(this);
+    // console.log(`[Computed.get] name=${this.name}, isInit=`, this._internalValue === ComputedInitialSymbol);
     if (this._internalValue === ComputedInitialSymbol) {
       this.tryModify(callChain);
     }
@@ -383,7 +387,7 @@ export class Computed<T> extends AsyncState<T | Symbol> implements ITarget<T> {
   run(innerReactiveChain?: ReactiveChain) {
     pushComputed(this);
 
-    type ComputedReturnType = T | Symbol;
+    type ComputedReturnType = T | string;
     // making sure the hook called by computed can register thier chain
     const r:
       | ComputedReturnType
@@ -882,8 +886,8 @@ export interface ICacheOptions<T> {
   from: TCacheFrom;
 }
 
-export const CacheInitialSymbol = Symbol("@@CacheInitialSymbol");
-export class Cache<T> extends AsyncState<T | Symbol> {
+export const CacheInitialSymbol = ("@@CacheInitialSymbol");
+export class Cache<T> extends AsyncState<T | string> {
   getterKey: string;
   watcher: Watcher = new Watcher(this);
   source: State<T> | undefined;
@@ -929,7 +933,7 @@ export class Cache<T> extends AsyncState<T | Symbol> {
       this.executeQuery(newReactiveChain);
     }
   }
-  override get value(): T | Symbol {
+  override get value(): T | string {
     /** @TODO should use symbol for initial value */
     if (this._internalValue === CacheInitialSymbol) {
       this.executeQuery(currentReactiveChain);
@@ -988,7 +992,7 @@ export class Cache<T> extends AsyncState<T | Symbol> {
    * @param reactiveChain
    */
   override async update(
-    v?: T | Symbol,
+    v?: T | string,
     patches?: IDataPatch[],
 
     silent?: boolean,
@@ -1795,7 +1799,7 @@ function createCacheSetterGetterFunc<SV>(c: Cache<SV>): {
 } {
   return (parameter?: any): any => {
     if (isDef(parameter)) {
-      let result: SV | Symbol;
+      let result: SV | string;
       let patches = [];
       if (isFunc(parameter)) {
         const r = produceWithPatches(c.value, parameter);
@@ -1964,6 +1968,7 @@ function mountComputed<T>(fn: any): any {
   currentReactiveChain?.add(hook);
 
   const getter = () => {
+    // console.log(`[mountComputed] name=${hook.name} getter.value=${hook.value}`);
     return hook.value;
   };
   const newGetter = Object.assign(getter, {
