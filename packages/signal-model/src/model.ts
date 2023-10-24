@@ -523,10 +523,10 @@ export abstract class Model<T extends any[]> extends AsyncState<T> {
 
 type TWriteMethod = 'create' | 'update' | 'remove' | 'find'
 
-export const writeInitialSymbol = Symbol.for('@@writePrismaInitial')
+export const writeInitialSymbol = ('@@writePrismaInitial')
 
 export abstract class WriteModel<T extends any[]> extends AsyncState<
-  T | Symbol
+  T | string
 > {
   abstract identifier: string
   entity: string = ''
@@ -990,9 +990,9 @@ class InputComputeInServer<P extends any[]> extends AsyncInputCompute<P> {
 export class ClientComputed<T> extends Computed<T> {
   constructor (
     public getter:
-    | FComputedFunc<T | Symbol>
-    | FComputedFuncAsync<T | Symbol>
-    | FComputedFuncGenerator<T | Symbol>,
+    | FComputedFunc<T | string>
+    | FComputedFuncAsync<T | string>
+    | FComputedFuncGenerator<T | string>,
 
     protected scope: RunnerModelScope
   ) {
