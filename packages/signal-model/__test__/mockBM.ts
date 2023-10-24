@@ -27,6 +27,7 @@ import {
   injectModel,
   loadPlugin,
   ModelRunner,
+  EnumWriteMethods,
 } from '../src'
 import * as immer from 'immer'
 
@@ -337,6 +338,20 @@ export function userPessimisticModel() {
   }
 }
 
+export function useUpdateManyModel () {
+  const users = prisma('item', () => ({}));
+
+  const w = writePrisma(users);
+
+  const updateName = inputCompute(async (ids: number[], name: string) => {
+    await w.updateMany(ids, { name })
+  })
+  return {
+    users,
+    updateName
+  }
+}
+
 export function userInjectFindModel() {
   const users = model<{ id: number; name: string }[]>('item', () => ({}), {
     immediate: true,
@@ -471,7 +486,7 @@ export function writeWritePrisma() {
   const wp1 = writePrisma(p1, () => ({
     id: id()
   }))
-  injectWrite(wp1, 'create', () => ({
+  injectWrite(wp1, EnumWriteMethods.create, () => ({
     name: name()
   }))
 

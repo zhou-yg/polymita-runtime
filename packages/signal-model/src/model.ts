@@ -521,7 +521,13 @@ export abstract class Model<T extends any[]> extends AsyncState<T> {
 }
 
 
-type TWriteMethod = 'create' | 'update' | 'remove' | 'find'
+export enum EnumWriteMethods {
+  create = 'create', 
+  update = 'update', 
+  updateMany = 'updateMany', 
+  remove = 'remove', 
+  find = 'find'
+}
 
 export const writeInitialSymbol = ('@@writePrismaInitial')
 
@@ -532,9 +538,10 @@ export abstract class WriteModel<T extends any[]> extends AsyncState<
   entity: string = ''
   sourceModel?: Model<T>
 
-  extraGetters: Record<TWriteMethod, Array<() => Partial<T[0]>>> = {
+  extraGetters: Record<EnumWriteMethods, Array<() => Partial<T[0]>>> = {
     create: [],
     update: [],
+    updateMany: [],
     remove: [],
     find: [] // useless
   }
@@ -573,7 +580,7 @@ export abstract class WriteModel<T extends any[]> extends AsyncState<
      */
     return this.sourceModel?.refresh?.()
   }
-  injectGetter(fn: () => Partial<T[0]>, method: TWriteMethod) {
+  injectGetter(fn: () => Partial<T[0]>, method: EnumWriteMethods) {
     if (method === 'find') {
       if (this.sourceModel instanceof Model) {
         this.sourceModel.injectFindGetter(fn)
@@ -582,7 +589,7 @@ export abstract class WriteModel<T extends any[]> extends AsyncState<
       this.extraGetters[method].push(fn)
     }
   }
-  getData(method: TWriteMethod): T[0] {
+  getData(method: EnumWriteMethods): T[0] {
     const arr = this.extraGetters[method]
     const base = this.basicGetData()
     // iterate array from tail to head
@@ -600,6 +607,7 @@ export abstract class WriteModel<T extends any[]> extends AsyncState<
   }
   abstract createRow(obj?: Partial<T[0]>): Promise<void>
   abstract updateRow(where: number, obj?: { [k: string]: any }): Promise<void>
+  abstract updateManyRows(where: number[], obj?: { [k: string]: any }): Promise<void>
   abstract removeRow(where: number): Promise<void>
   abstract executeModelPath(ps: IModelPatch<T[0]>[]): Promise<void>
 
@@ -627,12 +635,12 @@ export abstract class WriteModel<T extends any[]> extends AsyncState<
     reactiveChain?: ReactiveChain
   ) {
     const exist = this.inputComputeModelPatchesMap.get(ic)
-
+    
     if (exist) {
       this.inputComputeModelPatchesMap.delete(ic)
       const patches = exist[1].filter(isModelPatch) as IModelPatch<T[0]>[]
       const { end, valid } = this.startAsyncGetter()
-
+      
       await this.executeModelPath(patches)
       if (!valid()) {
         return
@@ -756,18 +764,20 @@ export class WritePrisma<T extends any[]> extends WriteModel<T> {
 
     const opMap: Record<
       IModelPatch<T[0]>['op'],
-      (p: IModelPatch<T[0]>) => Promise<void | number[]>
+      (p: IModelPatch<T[0]>) => Promise<void | number[] | { count: number }>
     > = {
       create: (p: IModelPatchCreate<T[0]>) =>
         getPlugin('Model').create(this.identifier, this.entity, p.value),
       update: (p: IModelPatchUpdate<T[0]>) =>
         getPlugin('Model').update(this.identifier, this.entity, p.value),
+      updateMany: (p: IModelPatchUpdate<T[0]>) =>
+        getPlugin('Model').updateMany(this.identifier, this.entity, p.value),
       remove: (p: IModelPatchRemove<T[0]>) =>
         getPlugin('Model').remove(this.identifier, this.entity, p.value)
     }
 
     let promiseArr: Promise<any>[] = []
-    for (const p of ps) {
+        for (const p of ps) {
       getCurrentReactiveChain()?.addCall(this, p.op)
       const r = opMap[p.op](p)
       if (applyComputeParallel) {
@@ -785,7 +795,7 @@ export class WritePrisma<T extends any[]> extends WriteModel<T> {
 
     const newReactiveChain = getCurrentReactiveChain()?.addCall(this)
     const defaults = ReactiveChain.withChain(newReactiveChain, () => {
-      return this.getData('create')
+      return this.getData(EnumWriteMethods.create)
     })
 
     if (getCurrentInputCompute()) {
@@ -803,13 +813,33 @@ export class WritePrisma<T extends any[]> extends WriteModel<T> {
       throw new Error('[WritePrisma] must invoke "createRow" in a InputCompute')
     }
   }
-
-  async updateRow(where: number, obj?: IModelData<T[0]>['data']) {
-    log('[WritePrisma.updateRow]')
+  async updateManyRows(whereIds: number[], obj?: IModelData<T[0]>['data']) {
+    log('[WritePrisma.updateManyRows]');
     if (getCurrentInputCompute()) {
       const newReactiveChain = getCurrentReactiveChain()?.addCall(this)
       const defaults = ReactiveChain.withChain(newReactiveChain, () => {
-        return this.getData('update')
+        return this.getData(EnumWriteMethods.updateMany)
+      })
+      const d: T[0] = Object.assign(defaults, obj)
+      this.addModelPatches(undefined, [
+        {
+          op: 'updateMany',
+          value: {
+            where: { id: { in: whereIds } },
+            data: d
+          }
+        }
+      ])
+    } else {
+      throw new Error('[WritePrisma] must invoke "updateManyRows" in a InputCompute')
+    }
+  }
+  async updateRow(where: number, obj?: IModelData<T[0]>['data']) {
+        log('[WritePrisma.updateRow]')
+    if (getCurrentInputCompute()) {
+      const newReactiveChain = getCurrentReactiveChain()?.addCall(this)
+      const defaults = ReactiveChain.withChain(newReactiveChain, () => {
+        return this.getData(EnumWriteMethods.update)
       })
       const d: T[0] = Object.assign(defaults, obj)
       this.addModelPatches(undefined, [
@@ -830,7 +860,7 @@ export class WritePrisma<T extends any[]> extends WriteModel<T> {
     if (getCurrentInputCompute()) {
       const newReactiveChain = getCurrentReactiveChain()?.addCall(this)
       const defaults = ReactiveChain.withChain(newReactiveChain, () => {
-        return this.getData('remove')
+        return this.getData(EnumWriteMethods.remove)
       })
       this.addModelPatches(undefined, [
         {
@@ -906,6 +936,14 @@ export class ClientWritePrisma<T extends any[]> extends WritePrisma<T> {
   ): Promise<void> {
     throw new Error(
       '[ClientWritePrisma] cant invoke "update" directly in client'
+    )
+  }
+  override async updateManyRows(
+    whereId: number[],
+    obj?: { [k: string]: any }
+  ): Promise<void> {
+    throw new Error(
+      '[ClientWritePrisma] cant invoke "updateManyRows" directly in client'
     )
   }
   override async removeRow(whereId: number): Promise<void> {
@@ -1385,6 +1423,7 @@ function mountWritePrisma<T extends any[]>(source: { _hook: Model<T> } | string,
     _hook: hook,
     create: hook.createRow.bind(hook) as typeof hook.createRow,
     update: hook.updateRow.bind(hook) as typeof hook.updateRow,
+    updateMany: hook.updateManyRows.bind(hook) as typeof hook.updateManyRows,
     remove: hook.removeRow.bind(hook) as typeof hook.removeRow
   })
 
@@ -1625,7 +1664,7 @@ export function injectWrite<T>(
 ): void
 export function injectWrite<T>(
   modelGetter: ReturnType<typeof writeModel>,
-  method: TWriteMethod,
+  method: EnumWriteMethods,
   dataGetter: TGetterData<T>
 ): void
 export function injectWrite<T>(...args: any[]) {

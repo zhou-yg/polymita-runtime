@@ -36,6 +36,7 @@ declare module '@polymita/signal' {
         query: IModelQuery['query']
       ): Promise<any>
       update(from: string, entity: string, query: IModelData<any>): Promise<number[]>
+      updateMany(from: string, entity: string, query: IModelData<any>): Promise<{ count: number }>
       create(from: string, entity: string, data: IModelCreateData<any>): Promise<any>
       remove(
         from: string,
@@ -63,8 +64,32 @@ export type IModelCreateData<T> =
   | Omit<IModelData<T>, 'where'>
   | Omit<IModelData<T>, 'where'>[]
 
+export type Enumerable<T> = T | Array<T>;
+
+export type NestedIntFilter = {
+  equals?: number
+  in?: Enumerable<number> | number
+  notIn?: Enumerable<number> | number
+  lt?: number
+  lte?: number
+  gt?: number
+  gte?: number
+  not?: NestedIntFilter | number
+}
+
+export type IntFilter = {
+  equals?: number
+  in?: Enumerable<number> | number
+  notIn?: Enumerable<number> | number
+  lt?: number
+  lte?: number
+  gt?: number
+  gte?: number
+  not?: NestedIntFilter | number
+}
+
 export interface IModelData<T> {
-  where: { id: number } & Partial<T>
+  where: { id: number | IntFilter } & Partial<T>
   data: {
     [k in keyof T]?:
       | T[k]
@@ -85,6 +110,10 @@ export type IModelPatchUpdate<T> = {
   op: 'update'
   value: IModelData<T>
 }
+export type IModelPatchUpdateMany<T> = {
+  op: 'updateMany'
+  value: IModelData<T>
+}
 export type IModelPatchRemove<T> = {
   op: 'remove'
   value: Omit<IModelData<T>, 'data'>
@@ -93,6 +122,7 @@ export type IModelPatchRemove<T> = {
 export type IModelPatch<T> =
   | IModelPatchCreate<T>
   | IModelPatchUpdate<T>
+  | IModelPatchUpdateMany<T>
   | IModelPatchRemove<T>
 
 export interface IModelOption {

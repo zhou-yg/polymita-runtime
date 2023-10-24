@@ -53,6 +53,9 @@ describe('model', () => {
       async update (from: string, e: 'item', w: IQueryWhere) {
         return prisma[e].update(w as any)
       },
+      async updateMany (from: string, e: 'item', w: IQueryWhere) {
+        return prisma[e].updateMany(w as any)
+      },
       async remove (from: string, e: 'item', w: IQueryWhere) {
         return prisma[e].delete(w as any)
       },
@@ -78,8 +81,29 @@ describe('model', () => {
   })
   describe('mount model', () => {
   
+    it('update many', async () => {
+      const runner = new ModelRunner(mockBM.useUpdateManyModel)
+      const result = runner.init()
+
+      await runner.ready();
+      expect(result.users()).toEqual([
+        { id: 1, name: 'a' },
+        { id: 2, name: 'b' },
+      ]);
+      const newName = 'ccc';
+      const p = result.updateName([1,2], newName);
+      expect(runner.state()).toBe('idle');
+      await p;
+      expect(runner.state()).toBe('idle');
+
+      expect(result.users()).toEqual([
+        { id: 1, name: newName },
+        { id: 2, name: newName },
+      ]);
+    })
+
     it('find immediate', async () => {
-      const runner = new ModelRunner(mockBM.userPessimisticModel)
+      const runner = new ModelRunner(mockBM.userPessimisticModel);
       const result = runner.init()
       
       expect(runner.state()).toBe('pending')
