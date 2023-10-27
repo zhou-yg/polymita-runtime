@@ -524,7 +524,8 @@ export abstract class Model<T extends any[]> extends AsyncState<T> {
 export enum EnumWriteMethods {
   create = 'create', 
   update = 'update', 
-  updateMany = 'updateMany', 
+  updateMany = 'updateMany',
+  upsert = 'upsert',
   remove = 'remove', 
   find = 'find'
 }
@@ -542,6 +543,7 @@ export abstract class WriteModel<T extends any[]> extends AsyncState<
     create: [],
     update: [],
     updateMany: [],
+    upsert: [],
     remove: [],
     find: [] // useless
   }
@@ -608,6 +610,7 @@ export abstract class WriteModel<T extends any[]> extends AsyncState<
   abstract createRow(obj?: Partial<T[0]>): Promise<void>
   abstract updateRow(where: number, obj?: { [k: string]: any }): Promise<void>
   abstract updateManyRows(where: number[], obj?: { [k: string]: any }): Promise<void>
+  abstract upsertRow(where: number | { [k: string]: any }, obj?: { [k: string]: any }): Promise<void>
   abstract removeRow(where: number): Promise<void>
   abstract executeModelPath(ps: IModelPatch<T[0]>[]): Promise<void>
 
@@ -772,6 +775,8 @@ export class WritePrisma<T extends any[]> extends WriteModel<T> {
         getPlugin('Model').update(this.identifier, this.entity, p.value),
       updateMany: (p: IModelPatchUpdate<T[0]>) =>
         getPlugin('Model').updateMany(this.identifier, this.entity, p.value),
+      upsert: (p: IModelPatchUpdate<T[0]>) =>
+        getPlugin('Model').upsert(this.identifier, this.entity, p.value),
       remove: (p: IModelPatchRemove<T[0]>) =>
         getPlugin('Model').remove(this.identifier, this.entity, p.value)
     }
@@ -832,6 +837,31 @@ export class WritePrisma<T extends any[]> extends WriteModel<T> {
       ])
     } else {
       throw new Error('[WritePrisma] must invoke "updateManyRows" in a InputCompute')
+    }
+  }
+  async upsertRow(where: (number | Record<string, any>), obj?: IModelData<T[0]>['data']) {
+    log('[WritePrisma.upsertRow]');
+    if (getCurrentInputCompute()) {
+      const newReactiveChain = getCurrentReactiveChain()?.addCall(this)
+      const defaults = ReactiveChain.withChain(newReactiveChain, () => {
+        return this.getData(EnumWriteMethods.upsert)
+      })
+      const d: T[0] = Object.assign(defaults, obj);
+
+      const upsertWhere = typeof where === 'number' ? { id: where } : where
+
+      this.addModelPatches(undefined, [
+        {
+          op: 'upsert',
+          value: {
+            where: upsertWhere,
+            create: d,
+            update: d
+          }
+        }
+      ])
+    } else {
+      throw new Error('[WritePrisma] must invoke "upsertRow" in a InputCompute')
     }
   }
   async updateRow(where: number, obj?: IModelData<T[0]>['data']) {
@@ -944,6 +974,14 @@ export class ClientWritePrisma<T extends any[]> extends WritePrisma<T> {
   ): Promise<void> {
     throw new Error(
       '[ClientWritePrisma] cant invoke "updateManyRows" directly in client'
+    )
+  }
+  override async upsertRow(
+    whereId: number | { [k: string]: any },
+    obj?: { [k: string]: any }
+  ): Promise<void> {
+    throw new Error(
+      '[ClientWritePrisma] cant invoke "upsertRow" directly in client'
     )
   }
   override async removeRow(whereId: number): Promise<void> {
@@ -1424,6 +1462,7 @@ function mountWritePrisma<T extends any[]>(source: { _hook: Model<T> } | string,
     create: hook.createRow.bind(hook) as typeof hook.createRow,
     update: hook.updateRow.bind(hook) as typeof hook.updateRow,
     updateMany: hook.updateManyRows.bind(hook) as typeof hook.updateManyRows,
+    upsert: hook.upsertRow.bind(hook) as typeof hook.upsertRow,
     remove: hook.removeRow.bind(hook) as typeof hook.removeRow
   })
 

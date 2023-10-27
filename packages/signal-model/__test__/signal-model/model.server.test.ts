@@ -56,6 +56,9 @@ describe('model', () => {
       async updateMany (from: string, e: 'item', w: IQueryWhere) {
         return prisma[e].updateMany(w as any)
       },
+      async upsert (from: string, e: 'item', w: IQueryWhere) {
+        return prisma[e].upsert(w as any)
+      },
       async remove (from: string, e: 'item', w: IQueryWhere) {
         return prisma[e].delete(w as any)
       },
@@ -81,6 +84,32 @@ describe('model', () => {
   })
   describe('mount model', () => {
   
+    it('upsert', async () => {
+      const runner = new ModelRunner(mockBM.useUpsertManyModel)
+      const result = runner.init()
+
+      await runner.ready();
+      expect(result.users()).toEqual([
+        { id: 1, name: 'a' },
+        { id: 2, name: 'b' },
+      ]);
+      const newName = 'ccc';
+      const newId = 3;
+      const p = result.updateName(newId, newName);
+      expect(runner.state()).toBe('idle');
+      await p;
+      expect(runner.state()).toBe('idle');
+
+      expect(result.users()[2].name).toEqual(newName);
+
+      const newName3 = 'eee';
+      const p3 = result.updateName(1, newName3);
+      expect(runner.state()).toBe('idle');
+      await p3;
+      expect(runner.state()).toBe('idle');
+
+      expect(result.users()[0].name).toEqual(newName3);
+    })
     it('update many', async () => {
       const runner = new ModelRunner(mockBM.useUpdateManyModel)
       const result = runner.init()

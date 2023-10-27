@@ -37,6 +37,7 @@ declare module '@polymita/signal' {
       ): Promise<any>
       update(from: string, entity: string, query: IModelData<any>): Promise<number[]>
       updateMany(from: string, entity: string, query: IModelData<any>): Promise<{ count: number }>
+      upsert(from: string, entity: string, query: IModelData<any>): Promise<{ count: number }>
       create(from: string, entity: string, data: IModelCreateData<any>): Promise<any>
       remove(
         from: string,
@@ -101,6 +102,12 @@ export interface IModelData<T> {
   include?: Record<string, boolean>
 }
 
+export interface UpsertModelData<T> {
+  where: { id?: number | IntFilter } & Partial<T>
+  create: IModelData<T>['data']
+  update: IModelData<T>['data']
+}
+
 // for model
 export type IModelPatchCreate<T> = {
   op: 'create'
@@ -114,6 +121,10 @@ export type IModelPatchUpdateMany<T> = {
   op: 'updateMany'
   value: IModelData<T>
 }
+export type IModelPatchUpsert<T> = {
+  op: 'upsert'
+  value: UpsertModelData<T>
+}
 export type IModelPatchRemove<T> = {
   op: 'remove'
   value: Omit<IModelData<T>, 'data'>
@@ -124,6 +135,7 @@ export type IModelPatch<T> =
   | IModelPatchUpdate<T>
   | IModelPatchUpdateMany<T>
   | IModelPatchRemove<T>
+  | IModelPatchUpsert<T>
 
 export interface IModelOption {
   immediate?: boolean

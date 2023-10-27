@@ -338,6 +338,21 @@ export function userPessimisticModel() {
   }
 }
 
+export function useUpsertManyModel () {
+  const users = prisma('item', () => ({}));
+
+  const w = writePrisma(users);
+
+  const updateName = inputCompute(async (id: any, name: string) => {
+    await w.upsert(id, { name })
+  })
+  return {
+    users,
+    updateName
+  }
+}
+
+
 export function useUpdateManyModel () {
   const users = prisma('item', () => ({}));
 
