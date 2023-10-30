@@ -124,6 +124,12 @@ export function clientRuntime(c: {
       return {}
     },
     async executeDiff(d) {},
+    async upsert(from, entity, query) {
+      return {}
+    },
+    async updateMany(from, entity, query) {
+      return { count: 0 }
+    },
   })
 
   loadPlugin('Context', {
@@ -201,6 +207,12 @@ function clientTestingRuntime(optiosn: {
       return {}
     },
     async executeDiff(d) {},
+    async upsert(from, entity, query) {
+      return { count: 0}
+    },
+    async updateMany(from, entity, query) {
+      return {count: 0}
+    },
   })
 
   loadPlugin('Context', {

@@ -25,6 +25,12 @@ export function testClientRuntime(options: {
     async update(e, w) {
       return []
     },
+    async updateMany(e, w) {
+      return { count: 0 }
+    },
+    async upsert(e, w) {
+      return {}
+    },
     async remove(e, d) {
       return []
     },

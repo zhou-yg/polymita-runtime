@@ -67,6 +67,12 @@ export async function testServerRuntime(config: {
     async remove(from: string, e, d) {
       return prisma[e].delete(d).then(r => r)
     },
+    async upsert(from, entity, query) {
+      return {}
+    },
+    async updateMany(from, entity, query) {
+      return {count: 0}
+    },
     async create(from: string, e, q) {
       console.log('create start: ', e, q);
       const r = prisma[e].create(q).then(r => r)

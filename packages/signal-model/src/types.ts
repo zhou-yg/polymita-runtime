@@ -37,7 +37,7 @@ declare module '@polymita/signal' {
       ): Promise<any>
       update(from: string, entity: string, query: IModelData<any>): Promise<number[]>
       updateMany(from: string, entity: string, query: IModelData<any>): Promise<{ count: number }>
-      upsert(from: string, entity: string, query: IModelData<any>): Promise<{ count: number }>
+      upsert(from: string, entity: string, query: IModelData<any>): Promise<any>
       create(from: string, entity: string, data: IModelCreateData<any>): Promise<any>
       remove(
         from: string,

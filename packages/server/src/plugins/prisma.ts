@@ -54,6 +54,12 @@ export async function setPrisma (config: IConfig)  {
       console.log(`create end:`,e, q)
       return r
     },
+    async updateMany(from, entity, query) {
+      return prisma[entity].updateMany(query).then(r => r)
+    },
+    async upsert(from, entity, query) {
+      return prisma[entity].upsert(query).then(r => r)
+    },
     // should check relation here
     async executeDiff(from: string, e, d) {
       await Promise.all(d.create.map(async obj => {
