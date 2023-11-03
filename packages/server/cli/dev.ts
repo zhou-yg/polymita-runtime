@@ -1,6 +1,7 @@
 import * as path from 'path'
 import exitHook from 'exit-hook'
 import chokidar, { FSWatcher } from 'chokidar'
+import * as prismaInternals from '@prisma/internals'
 import chalk from 'chalk'
 import {
   IConfig,
@@ -17,11 +18,13 @@ import {
   getEntryFile,
   contextServerRoutes,
   generateModelTypes,
+  runPrismaDev,
 } from "../src/";
 
 import * as desktop from '../desktopSrc'
 import rimraf from 'rimraf';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { exec, spawn } from 'child_process'
 
 export async function buildEverything (c: IConfig) {
   
@@ -266,6 +269,32 @@ async function startCompile (c: IConfig) {
   watchEverything(c)
 }
 
+async function preCheckSchema(c: IConfig) {
+  const schemaFile = path.join(c.cwd, c.modelsDirectory, c.targetSchemaPrisma)
+  const schemaContent = readFileSync(schemaFile, 'utf-8');
+  const model = await prismaInternals.getDMMF({
+    datamodel: schemaContent
+  })
+  const gen = await prismaInternals.getGenerator({
+    schemaPath: schemaFile,
+    dataProxy: false
+  })
+
+  const config = await prismaInternals.getConfig({
+    datamodel: schemaContent
+  })
+  const file = config.datasources[0].url.value;
+  const relativeDbPath = file?.replace('file:', '')
+  if (relativeDbPath) {
+    const dbPath = path.join(c.cwd, c.modelsDirectory, relativeDbPath)
+    const dbExists = existsSync(dbPath)
+    if (!dbExists) {
+      console.log(`[preCheckSchema] error, db file not found: ${dbPath}`)
+      await runPrismaDev(c)
+    }
+  }
+}
+
 export default async (cwd: string) => {
   const config = await readConfig({
     cwd,
@@ -276,14 +305,12 @@ export default async (cwd: string) => {
     rimraf.sync(prodDir)
   }
 
-  global.React18 = require('react')
-  console.log('global.React: ', global.React);
-  console.log('global.React: ', global.React === global.React18);
-
   await Promise.all([
     composeSchema(config),
     composeDriver(config)  
   ])
+  await preCheckSchema(config);
+
   await generateModelTypes(config);
   
   await startCompile(config)

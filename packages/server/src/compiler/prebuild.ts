@@ -39,6 +39,7 @@ import aliasAtCodeToCwd from './plugins/esbuild-alias-at';
 import esbuildPluginAliasDriver from './plugins/esbuild-alias-driver';
 import externalRelativeDrivers from './plugins/esbuild-external-drivers';
 import resolveSignalModel from './plugins/esbuild-resolve-sm';
+import { spawn } from 'child_process'
 
 const templateFile = './routesServerTemplate.ejs'
 const templateFilePath = path.join(__dirname, templateFile)
@@ -1026,4 +1027,21 @@ export function generateExternal (c: IConfig) {
   }
 
   return internalPackages;
+}
+
+
+export function runPrismaDev (c: IConfig) {
+  return new Promise<void>((resolve, reject) => {
+    const ps = spawn('npm', ['run', 'p:dev'], {
+      stdio: 'inherit',
+      cwd: c.cwd,
+    });
+
+    ps.on('close', () => {
+      resolve();
+    });
+    ps.on('error', (e) => {
+      reject(e)
+    })
+  })
 }
