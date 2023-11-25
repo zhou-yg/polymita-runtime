@@ -1,10 +1,11 @@
-import acorn, { parse as acornParse } from 'acorn'
+import acorn, { parse as acornParse, Node } from 'acorn'
 import * as walk from 'acorn-walk'
 import { set, get } from 'lodash'
 import type {
   ArrowFunctionExpression,
   AssignmentExpression,
-  CallExpression, FunctionDeclaration,
+  CallExpression,
+  FunctionDeclaration,
   Identifier,
   MemberExpression,
   ObjectPattern,

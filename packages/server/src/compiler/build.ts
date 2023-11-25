@@ -7,6 +7,7 @@ import * as esbuild from 'esbuild';
 import esbuildPluginPostcss from './plugins/esbuild-plugin-postcss';
 import esbuildPluginAliasDriver from './plugins/esbuild-alias-driver';
 import aliasAtCodeToCwd from './plugins/esbuild-alias-at';
+import * as layoutTypes from './layoutTypes'
 
 export async function buildClientRoutes (c: IConfig) {
   const {
@@ -176,5 +177,27 @@ export function generateModuleTypes (c: IConfig) {
   })
   
   return Promise.all(moduleFiles.map(([input, output]) => buildDTS(c, input, output)))
+}
+
+export function generateModuleLayoutTypes (c: IConfig) {
+  const { outputModulesDir } = c.pointFiles;
+  const { modules } = c;
+
+  const files: [string, string][] = []
+
+  modules
+  .filter(f => /\.ts(x?)$/.test(f.file))
+  .forEach(f => {
+    const outPath = path.join(outputModulesDir, f.relativeFile.replace(/\.ts(x?)$/, '.d.ts'))
+    files.push([f.path, outPath])
+  })
+
+  return Promise.all(files.map(async ([inputPath, outputPath]) => {
+    const content = fs.readFileSync(inputPath, 'utf-8');
+    const { name } = path.parse(inputPath);
+    const json = layoutTypes.parse(content);
+    const tsdCode = layoutTypes.toTSD(json);
+    fs.writeFileSync(outputPath, `type ${name}Layout = ${tsdCode}`)
+  }))
 }
 

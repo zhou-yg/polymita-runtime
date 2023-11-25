@@ -1,4 +1,3 @@
-import { log } from 'node:console';
 import ts from 'typescript'
 import { traverse } from '../util';
 
@@ -172,5 +171,17 @@ export function parse (fileContent: string) {
   appendConstructorComponent(jsonTree, sourceFile)
   
   return jsonTree
+}
 
+export function toTSD (json: JSONTree) {
+  return JSON.stringify(json, (k, v) => {
+    if (
+      typeof v === 'object' ||
+      k === '' ||
+      k === 'type' || 
+      k === 'children'
+    ) {
+      return v;
+    }
+  }, 2)
 }
