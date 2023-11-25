@@ -15,6 +15,7 @@ import {
   buildModules,
   buildServerRoutes,
   esbuildServerRoutes,
+  generateModuleLayoutTypes,
 } from "../src/"
 import { buildEverything, prepareDir } from "./dev"
 
@@ -68,6 +69,9 @@ export default async (cwd: string) => {
     }),
     () => generateModuleTypes(config).then(() => {
       logFrame((`build ${chalk.green('modules types')} end. cost ${chalk.green(cost())} seconds`))
+    }),
+    () => generateModuleLayoutTypes(config).then(() => {
+      logFrame((`build ${chalk.green('modules layout types')} end. cost ${chalk.green(cost())} seconds`))
     }),
   ])
 

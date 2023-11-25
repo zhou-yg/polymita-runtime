@@ -188,7 +188,7 @@ export function generateModuleLayoutTypes (c: IConfig) {
   modules
   .filter(f => /\.ts(x?)$/.test(f.file))
   .forEach(f => {
-    const outPath = path.join(outputModulesDir, f.relativeFile.replace(/\.ts(x?)$/, '.d.ts'))
+    const outPath = path.join(outputModulesDir, f.relativeFile.replace(/\.ts(x?)$/, '.layout.d.ts'))
     files.push([f.path, outPath])
   })
 
@@ -197,6 +197,7 @@ export function generateModuleLayoutTypes (c: IConfig) {
     const { name } = path.parse(inputPath);
     const json = layoutTypes.parse(content);
     const tsdCode = layoutTypes.toTSD(json);
+    console.log('outputPath: ', outputPath);
     fs.writeFileSync(outputPath, `type ${name}Layout = ${tsdCode}`)
   }))
 }
