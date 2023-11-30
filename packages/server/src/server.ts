@@ -74,11 +74,9 @@ async function startApp(app: Application, c: IConfig) {
     let address = getAddress()
     
     const allList = c.pages.filter(v => !v.dir).map(v => {
-      return `
-        ${v.name}:
+      return `${v.name}:
         localhost: ${chalk.green(`http://localhost:${port}${v.path}`)}
-        ${address ? `ip: ${chalk.green(`http://${address}:${port}${v.path}`)}` : ''  }
-      `
+        ${address ? `ip: ${chalk.green(`http://${address}:${port}${v.path}`)}` : ''  }`
     }).join('\n')
   
   
