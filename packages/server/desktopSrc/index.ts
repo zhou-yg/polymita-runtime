@@ -1,10 +1,10 @@
 import { spawn } from 'child_process'
 import * as desktop from './desktop'
-import { IConfig, resolveLib } from '../src'
+import { IConfig, resolveNodeModulesLib } from '../src'
 
 
 export async function createDevClient (c: IConfig) {
-  const desktopEntry = resolveLib(c.cwd, 'desktop.js')
+  const desktopEntry = resolveNodeModulesLib(c.cwd, 'desktop.js')
   console.log('desktopEntry: ', desktopEntry);
 
   const instance = spawn(

@@ -221,7 +221,7 @@ export function startElectronProcess () {
 }
 
 
-export function resolveLib (cwd: string, lib: string) {
+export function resolveNodeModulesLib (cwd: string, lib: string) {
   return path.join(cwd, 'node_modules/@polymita/server/dist', lib)
 }
 /**
