@@ -49,7 +49,7 @@ export function useStyleInLayout(): SingleFileModule<
     layout(props) {
       const logic = useLogic<{ num: number }>()
       return (
-        <div name={props.name()}>
+        <div name={props.name()} className='old-cls'>
           <span>{logic.num}</span>
         </div>
       )
@@ -61,7 +61,8 @@ export function useStyleInLayout(): SingleFileModule<
           target: root.div,
           style: {
             color: 'red'
-          }
+          },
+          className: ' new-cls'
         }
       ]
     }

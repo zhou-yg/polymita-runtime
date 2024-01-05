@@ -48,18 +48,24 @@ export function mergeFromProps(
 
 export function assignRules(draft: LayoutTreeProxyDraft, rules: StyleRule[]) {
   for (const rule of rules) {
-    const { condition, target: draftTarget, style } = rule;
+    const { condition, target: draftTarget, style, className } = rule;
     if (!!condition || condition === undefined) {
       const pathInDraft: string[] = getPathsFromDraft(draftTarget);
-      const stylePath = pathInDraft.concat(["props", "style"]);
+      if (style) {
+        const stylePath = pathInDraft.concat(["props", "style"]);
 
-      const styleObj = get(draft, stylePath);
-      if (isFake(styleObj)) {
-        set(draft, stylePath, {});
+        const styleObj = get(draft, stylePath);
+        if (isFake(styleObj)) {
+          set(draft, stylePath, {});
+        }
+        Object.entries(style).forEach(([k, v]) => {
+          set(draft, stylePath.concat(k), v);
+        });
       }
-      Object.entries(style).forEach(([k, v]) => {
-        set(draft, stylePath.concat(k), v);
-      });
+      if (className) {
+        const classNamePath = pathInDraft.concat(["props", "className"]);
+        set(draft, classNamePath, className);
+      }
     }
   }
 }
@@ -290,13 +296,27 @@ export function isFunctionVNode(node: VirtualLayoutJSON) {
   return typeof node.type === "function";
 }
 
+function mergeLayoutAttributes(exist: any, value: any) {
+  const type = typeof value;
+  if (typeof exist !== type) {
+    return value;
+  }
+  switch (type) {
+    case "string":
+      return exist + value;
+    case "object":
+      return Object.assign({}, exist, value);
+    default:
+      return value;
+  }
+}
+
 function assignPatchToNode(
   current: VirtualLayoutJSON[],
   i: number,
   patch: DraftPatch
 ) {
   const { op, path, value } = patch;
-
   switch (op) {
     case DraftOperatesEnum.replace:
       const restKeys = path.slice(i + 1);
@@ -394,8 +414,9 @@ export function proxyLayoutJSON(json: VirtualLayoutJSON) {
 
   const jsonTree = buildLayoutNestedObj(json);
 
-  function createProxy(target: LayoutTreeDraft, pathArr: string[] = []) {
-    const proxy = new Proxy(target, {
+  function createProxy(source: LayoutTreeDraft, pathArr: string[] = []) {
+    const clonedTarget = deepClone(source);
+    const proxy = new Proxy(clonedTarget, {
       get(target, key: string | symbol | DraftOperatesEnum) {
         if (key === handlerPathKeySymbol) {
           return pathArr;
@@ -417,14 +438,14 @@ export function proxyLayoutJSON(json: VirtualLayoutJSON) {
         }
         return v;
       },
-      set(target, key: string, value: any) {
+      set(source, key: string, value: any) {
         const currentPathArr = pathArr.concat(key);
         patches.push({
           op: DraftOperatesEnum.replace,
           path: currentPathArr,
-          value,
+          value: deepClone(value),
         });
-        Reflect.set(target, key, value);
+        Reflect.set(source, key, value);
         return true;
       },
       apply(target: any, thisArg, argArray) {
@@ -464,6 +485,7 @@ export function proxyLayoutJSON(json: VirtualLayoutJSON) {
 
   function applyPatches() {
     const newObj = applyJSONTreePatches(json, patches);
+
     return newObj;
   }
 

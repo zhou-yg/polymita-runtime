@@ -40,7 +40,8 @@ export type LayoutTreeProxyDraft = {
 export interface StyleRule {
   target: ProxyLayoutHandler["draft"];
   condition?: boolean;
-  style: CSS.Properties;
+  style?: CSS.Properties;
+  className?: string;
 }
 
 export interface PatternStructureResult {

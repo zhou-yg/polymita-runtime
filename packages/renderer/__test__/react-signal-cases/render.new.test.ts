@@ -247,7 +247,7 @@ describe('render new', () => {
       })
     })
   
-    it ('createRSRoot with useStyle and useLogic', () => {
+    it('createRSRoot with useStyle and useLogic', () => {
       const rsRoot = createRSRoot({
         renderHost: {
           framework: MockRectFramework
@@ -263,7 +263,7 @@ describe('render new', () => {
       
       expect(ele).toEqual({
         type: 'div',
-        props: { style: { color: 'red' }, name: testName },
+        props: { style: { color: 'red' }, name: testName, className: ' new-cls' },
         children: {
           type: 'span',
           props: {},

@@ -7,7 +7,7 @@
   "types": "./dist/renderer.d.ts",
   "scripts": {
     "tsd": "tsd",
-    "watch-unit": "jest --watch -- __test__/core/context.test.ts",
+    "watch-unit": "jest --watch -- __test__/react-signal-cases/render.new.test.ts",
     "wu": "sh scripts/dev-unit.sh",
     "test-unit": "jest",
     "test-ci": "jest --coverage",
