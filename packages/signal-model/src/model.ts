@@ -198,7 +198,7 @@ export class RunnerModelScope<T extends Driver = any> extends CurrentRunnerScope
 
   override applyContextFromServer(c: IModelHookContext) {
     super.applyContextFromServer(c)
-    if (c.patch) {
+    if (c.patch?.length) {
       this.modelPatchEvents.from(c.patch)
     }
   }

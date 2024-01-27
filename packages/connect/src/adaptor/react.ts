@@ -129,7 +129,9 @@ export function useReactHook<T extends Driver>(
   // release event
   useEffect(() => {
     function fn() {
-      setHookResult({ ...init.current.result })
+      setTimeout(() => {
+        setHookResult({ ...init.current.result })
+      })
     }
     init.current.scope.onUpdate(fn)
     init.current.scope.activate()

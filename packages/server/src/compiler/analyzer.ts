@@ -51,7 +51,8 @@ function getMemberExpressionKeys (m: MemberExpression, keys: string[] = []): str
         return keys.concat(m.object.name).concat(cur)
         break
       default:
-        console.error('[getMemberExpressionKeys] unexpect node type', (m as any))
+        const c = getCurrentContext()
+        console.error(`[${c.file}][getMemberExpressionKeys] unExpect node type`, (m as any))
         break
     }
   }
@@ -82,7 +83,7 @@ interface IScopeMap {
 /**
  * all drivers must be called at top
  */
-function collectHookVaraibles (BMNode: TBMNode) {
+function collectHookVariables (BMNode: TBMNode) {
   const scopeMap: IScopeMap = {}
 
   let hookIndex = 0
@@ -375,7 +376,7 @@ function genIndexNameMap (scope: IScopeMap) {
 
 
 function generateBMDepMaps (BMNode: TBMNode) {
-  const scopeMap = collectHookVaraibles(BMNode)
+  const scopeMap = collectHookVariables(BMNode)
   
   // console.log('scopeMap: ', scopeMap);
 
@@ -430,8 +431,18 @@ function matchBMFunction (ast: ReturnType<typeof acornParse>) {
   return BMNodes
 }
 
-export function parseDeps (hookCode: string) {
-  
+interface AnalyzerContext {
+  file: string
+}
+
+let currentContext: AnalyzerContext = null
+
+function getCurrentContext () {
+  return currentContext;
+}
+
+export function parseDeps (hookCode: string, context: AnalyzerContext) {
+  currentContext = context
   // const ast: any = babelParse(hookCode, {
   //   sourceType: 'module'
   // });

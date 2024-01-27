@@ -30,7 +30,7 @@ export function setupBasicServer (c: IConfig) {
   app.use(async (ctx, next) => {
     const contentLength = ctx.request.headers['content-length'];
     if (contentLength && parseInt(contentLength)) {
-      console.log('[server on starting] contentLength: ', `${parseInt(contentLength) / 1024 / 1024}mb`);
+      console.log('[@polymita/server] request payload contentLength: ', `${parseInt(contentLength) / 1024 / 1024}mb`);
     }
     await next();
   })
