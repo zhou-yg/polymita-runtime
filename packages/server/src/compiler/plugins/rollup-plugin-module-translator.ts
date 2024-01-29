@@ -10,6 +10,14 @@ function isType (path: string, tag: string) {
   
   return pathArr.includes(tag)
 }
+
+function getTsConfig (id: string) {
+  const parsedId = path.parse(id)
+  const tsconfigPath = path.join(parsedId.dir, 'tsconfig.json')
+  if (fs.existsSync(tsconfigPath)) {
+    return loadJSON(tsconfigPath)
+  }
+}
 /**
  * redirect drivers imports to already compiled drivers in client runtime
  * eg: from 'drivers/login.js' -> from './tarat/client/drivers/login.js'
@@ -31,11 +39,12 @@ export default function moduleTranslatorRollupPlugin (c: IConfig): Plugin {
 
     async transform (code: string, id: string) {
       if (isType(id, modulesDirectory)) {
-        console.log('code:', id)
+
+        const tsconfig = getTsConfig(id)
 
         const newCode = esbuild.transformSync(code, {
           loader: 'tsx',
-          jsxFactory: 'h'
+          jsxFactory: tsconfig.jsxFactory
         })
 
         return newCode.code
