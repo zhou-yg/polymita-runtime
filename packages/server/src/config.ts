@@ -179,6 +179,13 @@ function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) 
     outputDir, 
     outputClientDir,
     outputServerDir,
+    // source
+    viewsDir: path.join(cwd, config.viewsDirectory),
+    modulesDir: path.join(cwd, config.modulesDirectory),
+    modelsDir: path.join(cwd, config.modelsDirectory),
+    driversDir: path.join(cwd, config.driversDirectory),
+    appDir: path.join(cwd, config.appDirectory),
+
     // prisma
     outputModelsDir: path.join(outputDir, config.modelsDirectory),
     outputModelSchema: path.join(outputDir, config.modelsDirectory, config.targetSchemaPrisma),

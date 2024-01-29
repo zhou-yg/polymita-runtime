@@ -24,6 +24,7 @@ import pureDevCache from "./middlewares/pureDevCache";
 import { getAddress, getDefaultRoute, logFrame } from "./util";
 import path, { join } from "path";
 import { createReadStream, existsSync, readFileSync } from "fs";
+import moduleTranslatorRollupPlugin from "./compiler/plugins/rollup-plugin-module-translator";
 
 export function setupBasicServer (c: IConfig) {
   const app = new Koa()
@@ -124,8 +125,15 @@ export async function createDevServer (c: IConfig) {
       force: true
     },
     plugins: [
-      tsconfigPaths(),
-      { ...aliasDriverRollupPlugin(c, 'client'), enforce: 'pre' },
+      // tsconfigPaths(),
+      {
+        ...moduleTranslatorRollupPlugin(c),
+        enforce: 'pre' 
+      },
+      { 
+        ...aliasDriverRollupPlugin(c, 'client'), 
+        enforce: 'pre' 
+      },
       react({
         exclude: /modules\/.*\.tsx/
       }),
