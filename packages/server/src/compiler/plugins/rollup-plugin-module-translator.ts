@@ -44,7 +44,7 @@ export default function moduleTranslatorRollupPlugin (c: IConfig): Plugin {
 
         const newCode = esbuild.transformSync(code, {
           loader: 'tsx',
-          jsxFactory: tsconfig.jsxFactory
+          jsxFactory: tsconfig.compilerOptions.jsxFactory
         })
 
         return newCode.code
