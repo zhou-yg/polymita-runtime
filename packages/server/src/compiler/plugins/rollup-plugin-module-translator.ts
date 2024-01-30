@@ -5,17 +5,19 @@ import { IConfig } from '../../config'
 import { loadJSON } from '../../util'
 import * as esbuild from 'esbuild'
 
-function isType (path: string, tag: string) {
+function isType (path: string, build: string, tag: string) {
   const pathArr = path.split('/')
   
-  return pathArr.includes(tag)
+  return pathArr.includes(tag) && !path.includes(`${build}/${tag}`)
 }
 
-function getTsConfig (id: string) {
-  const parsedId = path.parse(id)
+function getTsConfig (modulesDir: string) {  
+  const parsedId = path.parse(modulesDir)
   const tsconfigPath = path.join(parsedId.dir, 'tsconfig.json')
   if (fs.existsSync(tsconfigPath)) {
     return loadJSON(tsconfigPath)
+  } else {
+    console.log('[polymita-module-translator] tsconfig not found ', id)
   }
 }
 /**
@@ -27,26 +29,30 @@ export default function moduleTranslatorRollupPlugin (c: IConfig): Plugin {
     cwd,
     cjsDirectory,
     esmDirectory,
-    modulesDirectory
+    modulesDirectory,
+    buildDirectory
   } = c
   const {
     outputClientDir,
     outputServerDir
   } = c.pointFiles
 
+  const modulesDir = path.join(c.cwd, modulesDirectory)
+  const tsconfigPath = path.join(modulesDir, 'tsconfig.json')
+  const tsconfig = loadJSON(tsconfigPath)
+
   return {
-    name: 'polymita-module-translator',
+    name: 'polymita-modules-translator',
 
     async transform (code: string, id: string) {
-      if (isType(id, modulesDirectory)) {
-
-        const tsconfig = getTsConfig(id)
-
+      if (
+        isType(id, buildDirectory , modulesDirectory) && 
+        tsconfig.compilerOptions.jsxFactory
+      ) {
         const newCode = esbuild.transformSync(code, {
           loader: 'tsx',
           jsxFactory: tsconfig.compilerOptions.jsxFactory
         })
-
         return newCode.code
       }
     },
