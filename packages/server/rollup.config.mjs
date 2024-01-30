@@ -64,5 +64,21 @@ export default [
       format: 'commonjs',
       sourcemap: true,     
     }
+  },
+  {
+    plugins: [
+      json(),
+      tsPlugin({
+        clean: true,
+        tsconfig: './tsconfig.json',
+      }),
+      commonjs(),     
+    ],
+    input: 'desktopSrc/start.ts',
+    output: {
+      file: 'dist/startDesktop.js',
+      format: 'commonjs',
+      sourcemap: true,     
+    }
   }
 ]

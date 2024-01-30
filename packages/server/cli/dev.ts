@@ -21,7 +21,7 @@ import {
   runPrismaDev,
 } from "../src/";
 
-import * as desktop from '../desktopSrc/devDesktop'
+import * as desktop from '../desktopSrc/dev'
 import rimraf from 'rimraf';
 import { existsSync, readFileSync } from 'node:fs';
 import { exec, spawn } from 'child_process'

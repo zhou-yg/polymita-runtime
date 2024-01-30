@@ -11,15 +11,6 @@ function isType (path: string, build: string, tag: string) {
   return pathArr.includes(tag) && !path.includes(`${build}/${tag}`)
 }
 
-function getTsConfig (modulesDir: string) {  
-  const parsedId = path.parse(modulesDir)
-  const tsconfigPath = path.join(parsedId.dir, 'tsconfig.json')
-  if (fs.existsSync(tsconfigPath)) {
-    return loadJSON(tsconfigPath)
-  } else {
-    console.log('[polymita-module-translator] tsconfig not found ', id)
-  }
-}
 /**
  * redirect drivers imports to already compiled drivers in client runtime
  * eg: from 'drivers/login.js' -> from './tarat/client/drivers/login.js'

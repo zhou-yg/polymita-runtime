@@ -16,8 +16,17 @@ import {
   buildServerRoutes,
   esbuildServerRoutes,
   generateModuleLayoutTypes,
+  resolveNodeModulesLib,
+  IConfig,
 } from "../src/"
 import { buildEverything, prepareDir } from "./dev"
+
+function copyStartDesktopEntry (c: IConfig) {
+  if (c.platform === 'desktop') {
+    const desktopEntry = resolveNodeModulesLib(c.cwd, 'startDesktop.js')
+    cp(desktopEntry, c.pointFiles.outputDir)
+  }
+}
 
 export default async (cwd: string) => {
 
@@ -40,6 +49,8 @@ export default async (cwd: string) => {
   const cost = time()
 
   await buildEverything(config)
+
+  copyStartDesktopEntry(config)
 
   const modelSchema = path.join(cwd, config.modelsDirectory, config.targetSchemaPrisma)
   const modelIndexes = path.join(cwd, config.modelsDirectory, config.schemaIndexes)
