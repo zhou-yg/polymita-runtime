@@ -21,7 +21,7 @@ function transformIndexHtml (html: string, c: IConfig) {
       'href="'
     ).replace(
       new RegExp(`src="/${c.buildDirectory}`, 'g'),
-      'href="'
+      'src="'
     )
 }
 
