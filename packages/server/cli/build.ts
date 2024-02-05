@@ -25,7 +25,16 @@ function copyStartDesktopEntry (c: IConfig) {
   if (c.platform === 'desktop') {
     const desktopEntry = resolveNodeModulesLib(c.cwd, 'startDesktop.js')
     cp(desktopEntry, c.pointFiles.outputDir)
+
+    const sd = path.join(c.pointFiles.outputDir, 'sd.js')
+    fs.writeFileSync(sd, `require('@polymita/server/dist/startDesktop')`)
   }
+
+  cp(
+    path.join(c.cwd, c.publicDirectory),
+    c.pointFiles.outputDir,
+    '-r'
+  )
 }
 
 export default async (cwd: string) => {

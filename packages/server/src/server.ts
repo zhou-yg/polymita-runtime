@@ -175,6 +175,7 @@ export async function createServer(c: IConfig) {
     config: c
   }))
 
+  // depends on dist/{distServerRoutes, distEntryJS}
   app.use(page({
     config: c,
     pages: c.pages,

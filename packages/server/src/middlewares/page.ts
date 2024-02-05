@@ -15,10 +15,14 @@ const templateFilePath = path.join(__dirname, templateFile)
 const template = compile(fs.readFileSync(templateFilePath).toString())
 
 function transformIndexHtml (html: string, c: IConfig) {
-  return html.replace(
-    new RegExp(`${c.pointFiles.outputDir}`, 'g'),
-    ''
-  )
+  return html
+    .replace(
+      new RegExp(`href="/${c.buildDirectory}`, 'g'),
+      'href="'
+    ).replace(
+      new RegExp(`src="/${c.buildDirectory}`, 'g'),
+      'href="'
+    )
 }
 
 /**
@@ -47,7 +51,10 @@ function transformIndexHtml (html: string, c: IConfig) {
       );
       if (r) {
         for (const v of r.driver.BMValuesMap) {
-          context[v[0]] = v[1].map((scope: RunnerModelScope<any>) => scope.createBaseContext())
+          context[v[0]] = v[1].map((scope: RunnerModelScope<any>) => {
+            const bc = scope.createBaseContext()
+            return bc
+          })
         }
         ssrHTML = r.html2
       }

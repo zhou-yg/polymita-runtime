@@ -149,6 +149,7 @@ export async function esbuildServerRoutes(c: IConfig) {
     entryPoints: [autoGenerateServerRoutes],
     outfile: distServerRoutes,
     format: 'cjs',
+    platform: 'node',
     bundle: true,
     plugins: [
       esbuildPluginPostcss({ cwd: c.cwd }),

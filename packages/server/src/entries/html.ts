@@ -63,12 +63,11 @@ export async function renderPage (
 
   let cancelGlobalRunning = () => {}
 
-  console.log('[before driver.onPush] : ');
-
   reactRenderDriver.driver.onPush(scope => {
 
     scopeCtxMapVisitor.set(scope, ctx)
     cancelGlobalRunning = () => {
+      reactRenderDriver.driver.pushListener = undefined
       scopeCtxMapVisitor.set(scope, null)
     }
   })
@@ -78,7 +77,6 @@ export async function renderPage (
   console.log('[before renderToString] first ');
   const html = renderToString(appRootEntry)
 
-  reactRenderDriver.driver.pushListener = undefined
   cancelGlobalRunning()
 
   let allRunedHook: RunnerModelScope<any>[] = []

@@ -71,6 +71,7 @@ export function useReactHook<T extends Driver>(
       result: ReturnType<T>
     } = driverWeakMap.get(hook)?.get(serializedArgs)
 
+    const bmName: string = hook.__name__ || hook.name
     // match the cache
     if (cachedDriverResult) {
       init.current = {
@@ -79,8 +80,9 @@ export function useReactHook<T extends Driver>(
           [scopeSymbol]: cachedDriverResult.scope,
         }, cachedDriverResult.result),
       }
+      driver?.push(cachedDriverResult.scope, bmName)
+
     } else {
-      const bmName: string = hook.__name__ || hook.name
       let ssrContext: IHookContext[] = []
       if (driver) {
         ssrContext = driver.getContext(bmName) || []
