@@ -2,9 +2,9 @@
   "name": "polymita-runtime",
   "version": "1.0.2",
   "scripts": {
-    "build": "node scripts/release.js",
+    "build:all": "node scripts/release.js",
     "build:example": "node scripts/build-example.js",
-    "release": "RELEASE=true node scripts/release.js"
+    "release:all": "RELEASE=true node scripts/release.js"
   },
   "repository": {
     "type": "git",
