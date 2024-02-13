@@ -1,7 +1,7 @@
 /**
  * run in electron runtime
  */
-import electron from 'electron'
+import * as electron from 'electron'
 import { IConfig } from '../src/config';
 import { connectModel, getDefaultRoute } from '../src/util';
 
