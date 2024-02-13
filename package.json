@@ -1,6 +1,6 @@
 {
   "name": "polymita-runtime",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "scripts": {
     "build:all": "node scripts/release.js",
     "build:example": "node scripts/build-example.js",
