@@ -119,3 +119,6 @@ packages/example/*/models/customPrismaClient
 .test
 packages/example/file-uploader/.tarat
 .test/
+
+
+docs/.vitepress/cache
