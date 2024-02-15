@@ -75,7 +75,7 @@ export default defineConfig({
   },
   themeConfig: {
     logo: {
-      light: '/polymita.png', 
+      light: '/polymita.png',
       dark: '/polymita-white.png'
     },
     // https://vitepress.dev/reference/default-theme-config
@@ -95,7 +95,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
+      { icon: 'github', link: 'https://github.com/zhou-yg/polymita-runtime' }
     ]
   }
 })
