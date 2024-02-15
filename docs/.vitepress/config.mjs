@@ -74,6 +74,10 @@ export default defineConfig({
     }
   },
   themeConfig: {
+    logo: {
+      light: '/polymita.png', 
+      dark: '/polymita-white.png'
+    },
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
