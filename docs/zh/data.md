@@ -28,16 +28,18 @@
 
 ```
 [
-  [row],
-  [row],
-  [row],
+  [column, column2],
+  [column, column2],
 ]
 ```
 
 列模式存储
 
 ```
-[column, column, column], [column2, column2, column2]
+[
+  [column, column], 
+  [column2, column2]
+]
 ```
 
 
