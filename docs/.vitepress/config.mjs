@@ -15,8 +15,9 @@ export default defineConfig({
       link: '/zh/',
       themeConfig: {
         nav: [
-          { text: 'Home', link: '/' },
-          { text: 'Reference', link: '/summary' },
+          { text: '首页', link: '/zh' },
+          { text: '文档', link: '/zh/summary' },
+          { text: '博客', link: '/zh/blog' },
         ],
     
         sidebar: [
@@ -38,9 +39,9 @@ export default defineConfig({
           {
             text: '核心概念',
             items: [
-              { text: '逻辑' },
-              { text: '数据' },
-              { text: '视图' },
+              { text: '逻辑', link: '/zh/logic' },
+              { text: '数据', link: '/zh/data' },
+              { text: '视图', link: '/zh/vision' },
             ]
           },
           {
@@ -82,6 +83,7 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Reference', link: '/summary' },
+      { text: 'Blog', link: '/blog' },
     ],
 
     sidebar: [
