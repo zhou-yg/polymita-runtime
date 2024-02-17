@@ -60,7 +60,7 @@ export default defineConfig({
           {
             text: 'Prompt',
             items: [
-              { text: '基本单元' },
+              { text: '基本单元', link: '/zh/basic-schema' },
               { text: '逻辑CRUD' },
               { text: '数据CRUD' },
               { text: '视图CRUD' },
