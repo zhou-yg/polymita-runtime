@@ -198,7 +198,6 @@ export function generateModuleLayoutTypes (c: IConfig) {
     const { name } = path.parse(inputPath);
     const json = layoutTypes.parse(content);
     const tsdCode = layoutTypes.toTSD(json);
-    console.log('outputPath: ', outputPath);
     fs.writeFileSync(outputPath, `type ${name}Layout = ${tsdCode}`)
   }))
 }
