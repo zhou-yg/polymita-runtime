@@ -30,11 +30,13 @@ function copyStartDesktopEntry (c: IConfig) {
     fs.writeFileSync(sd, `require('@polymita/server/dist/startDesktop')`)
   }
 
-  cp(
-    path.join(c.cwd, c.publicDirectory),
-    c.pointFiles.outputDir,
-    '-r'
-  )
+  if (fs.existsSync(path.join(c.cwd, c.publicDirectory))) {
+    cp(
+      path.join(c.cwd, c.publicDirectory),
+      c.pointFiles.outputDir,
+      '-r'
+    )
+  }
 }
 
 export default async (cwd: string) => {

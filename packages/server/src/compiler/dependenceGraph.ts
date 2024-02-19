@@ -105,7 +105,7 @@ export function generateHookDeps (c: IConfig) {
     if (/\.js$/.test(f)) {
       const code = fs.readFileSync(compiledFile).toString()
 
-      const deps = parseDeps(code, { file: compiledFile })      
+      const deps = parseDeps({ file: compiledFile, code })      
 
       const devDriversDir = path.join(c.pointFiles.outputDriversDir)
       if (!fs.existsSync(devDriversDir)) {

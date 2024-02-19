@@ -53,7 +53,8 @@ function getMemberExpressionKeys (m: MemberExpression, keys: string[] = []): str
       default:
         const c = getCurrentContext()
         // console.error(`[${c.file}][getMemberExpressionKeys] unExpect node type`, (m as any))
-        console.log(`[${c.file}][getMemberExpressionKeys] unexpected object type m.object.type="${m.object.type}"`, )
+        const pieceCode = 'start' in m.object ? `code=${c.code.substring((m.object as any).start, (m.object as any).end).replace(/\n/g, '')}` : ''
+        console.log(`[${c.file}][getMemberExpressionKeys] unexpected object type m.object.type="${m.object.type}" ${pieceCode}`, )
         break
     }
   }
@@ -434,6 +435,7 @@ function matchBMFunction (ast: ReturnType<typeof acornParse>) {
 
 interface AnalyzerContext {
   file: string
+  code: string
 }
 
 let currentContext: AnalyzerContext = null
@@ -442,11 +444,12 @@ function getCurrentContext () {
   return currentContext;
 }
 
-export function parseDeps (hookCode: string, context: AnalyzerContext) {
+export function parseDeps (context: AnalyzerContext) {
   currentContext = context
   // const ast: any = babelParse(hookCode, {
   //   sourceType: 'module'
   // });
+  const hookCode = context.code
   const ast = acornParse(hookCode, {
     ecmaVersion: 'latest',
     sourceType: 'module'
