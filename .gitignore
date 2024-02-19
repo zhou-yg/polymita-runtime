@@ -122,3 +122,4 @@ packages/example/file-uploader/.tarat
 
 
 docs/.vitepress/cache
+.npmrc
