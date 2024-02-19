@@ -52,7 +52,8 @@ function getMemberExpressionKeys (m: MemberExpression, keys: string[] = []): str
         break
       default:
         const c = getCurrentContext()
-        console.error(`[${c.file}][getMemberExpressionKeys] unExpect node type`, (m as any))
+        // console.error(`[${c.file}][getMemberExpressionKeys] unExpect node type`, (m as any))
+        console.log(`[${c.file}][getMemberExpressionKeys] unexpected object type m.object.type="${m.object.type}"`, )
         break
     }
   }

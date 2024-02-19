@@ -1,8 +1,8 @@
 import { h, SignalProps, PropTypes, useLogic, ConvertToLayoutTreeDraft, createFunctionComponent, createComposeComponent } from '@polymita/renderer';
 import { after, inputCompute, Signal, signal } from '@polymita/signal-model'
-import * as ModalModule from '@polymita/ui'/components/modal'
-import * as InputModule from '@polymita/ui'/components/input'
-import * as FormModule from '@polymita/ui'/components/schema-form'
+import * as ModalModule from '@polymita/ui/components/modal'
+import * as InputModule from '@polymita/ui/components/input'
+import * as FormModule from '@polymita/ui/components/schema-form'
 
 export const name = 'AddSource' as const
 export let meta: {
