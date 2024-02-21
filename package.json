@@ -1,10 +1,11 @@
 {
   "name": "polymita-runtime",
-  "version": "1.0.6",
+  "version": "1.0.5",
   "scripts": {
     "build:all": "node scripts/release.js",
     "build:example": "node scripts/build-example.js",
     "release:all": "RELEASE=true node scripts/release.js",
+    "patch:all": "node scripts/patch.js",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs"
