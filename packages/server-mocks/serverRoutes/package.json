@@ -1,10 +1,10 @@
 {
   "name": "some-routes",
   "dependencies": {
-    "@polymita/connect": "workspace:*",
-    "@polymita/renderer": "workspace:*",
-    "@polymita/signal": "workspace:*",
-    "@polymita/signal-model": "workspace:*",
+    "@polymita/connect": "workspace:^",
+    "@polymita/renderer": "workspace:^",
+    "@polymita/signal": "workspace:^",
+    "@polymita/signal-model": "workspace:^",
     "@prisma/client": "^4.2.1",
     "@types/lodash": "^4.14.182",
     "@types/node": "^18.6.2",
@@ -15,7 +15,7 @@
     "lodash": "^4.17.21",
     "polymita": "*",
     "prisma": "^4.2.1",
-    "tarat-cascading-list": "workspace:*",
+    "tarat-cascading-list": "workspace:^",
     "tslib": "^2.4.0"
   },
   "devDependencies": {

@@ -62,12 +62,12 @@
     "csstype": "^3.1.1"
   },
   "peerDependencies": {
-    "@polymita/signal-model": "workspace:*"
+    "@polymita/signal-model": "workspace:^"
   },
   "devDependencies": {
     "@jsdevtools/version-bump-prompt": "6.1.0",
-    "@polymita/renderer": "workspace:*",
-    "@polymita/signal-model": "workspace:*",
+    "@polymita/renderer": "workspace:^",
+    "@polymita/signal-model": "workspace:^",
     "@rollup/plugin-alias": "^3.1.9",
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@rollup/plugin-replace": "^4.0.0",

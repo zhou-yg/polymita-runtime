@@ -36,9 +36,9 @@
     "prisma": "4.x.x",
     "@polymita/server": "workspace:~*",
     "tarat-file-uploader": "workspace:~*",
-    "@polymita/connect": "workspace:*",
-    "@polymita/signal": "workspace:*",
-    "@polymita/signal-model": "workspace:*"
+    "@polymita/connect": "workspace:^",
+    "@polymita/signal": "workspace:^",
+    "@polymita/signal-model": "workspace:^"
   },
   "devDependencies": {
     "@babel/core": "^7.18.6",

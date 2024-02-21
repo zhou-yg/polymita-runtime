@@ -29,10 +29,10 @@
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
     "@mui/material": "^5.10.9",
-    "@polymita/connect": "workspace:*",
+    "@polymita/connect": "workspace:^",
     "@polymita/server": "workspace:~*",
-    "@polymita/signal": "workspace:*",
-    "@polymita/signal-model": "workspace:*",
+    "@polymita/signal": "workspace:^",
+    "@polymita/signal-model": "workspace:^",
     "@prisma/client": "^5.0.0",
     "@types/node": "^18.6.2",
     "@types/react": "18.2.18",
