@@ -14,6 +14,9 @@ function createWindow (winOptions: {
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    webPreferences: {
+      webviewTag: true,
+    }
   })
   mainWindow.loadURL(winOptions.site)
 }
