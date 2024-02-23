@@ -31,7 +31,7 @@ import { ArrowFunctionExpression, CallExpression, FunctionExpression, Identifier
 import { traverse, last } from '../util';
 import aliasDriverRollupPlugin from './plugins/rollup-plugin-alias-driver';
 import { findDependentPrisma, readCurrentPrisma, readExsitPrismaPart, transformModelName } from './compose';
-import { upperFirst } from 'lodash';
+import { merge, upperFirst } from 'lodash';
 import { generateHookDeps } from './dependenceGraph';
 import esbuildPluginPostcss from './plugins/esbuild-plugin-postcss';
 import clearFunctionBodyEsbuildPlugin from './plugins/esbuild-clear-function-body';
@@ -39,7 +39,7 @@ import aliasAtCodeToCwd from './plugins/esbuild-alias-at';
 import esbuildPluginAliasDriver from './plugins/esbuild-alias-driver';
 import externalRelativeDrivers from './plugins/esbuild-external-drivers';
 import resolveSignalModel from './plugins/esbuild-resolve-sm';
-import { spawn } from 'child_process'
+import { exec, spawn } from 'child_process'
 
 const templateFile = './routesServerTemplate.ejs'
 const templateFilePath = path.join(__dirname, templateFile)
@@ -744,6 +744,21 @@ export function buildDTS (c: IConfig, filePath: string, outputFile: string) {
   }
 
   return build(c, options)
+}
+
+export function buildDTS2(c: IConfig, filePath: string, outputFile: string) {
+  const tsconfigPath = getTSConfigPath(c.cwd)
+  const json = loadJSON(tsconfigPath)
+  
+  const tmpTsConfig = filePath + tsconfigPath
+  merge(json, {
+    compilerOptions: {
+      
+    },
+    include: [filePath]
+  })
+
+  exec(`npx tsc -p ${tmpTsConfig} --declaration`)
 }
 
 export async function buildDTSFiles (c: IConfig, filePaths: { filePath: string, outFile: string }[]) {

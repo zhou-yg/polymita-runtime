@@ -39,6 +39,7 @@ export default defineConfig({
           {
             text: '核心概念',
             items: [
+              { text: '范式', link: '/zh/paradigm' },
               { text: '逻辑', link: '/zh/logic' },
               { text: '数据', link: '/zh/data' },
               { text: '视图', link: '/zh/vision' },
