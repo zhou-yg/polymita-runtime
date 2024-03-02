@@ -7,6 +7,46 @@ import {
 import * as mockBM from '../mockBM'
 import prisma, { clearAll } from '../prisma'
 
+const plugin = mockBM.initModelConfig({
+  async find (from: string, e: 'item', w: IQueryWhere) {
+    return prisma[e].findMany(w as any)
+  },
+  async create (from: string, e: 'item', w: IQueryWhere) {
+    return prisma[e].create(w as any)
+  },
+  async update (from: string, e: 'item', w: IQueryWhere) {
+    return prisma[e].update(w as any)
+  },
+  async updateMany (from: string, e: 'item', w: IQueryWhere) {
+    return prisma[e].updateMany(w as any)
+  },
+  async upsert (from: string, e: 'item', w: IQueryWhere) {
+    return prisma[e].upsert(w as any)
+  },
+  async remove (from: string, e: 'item', w: IQueryWhere) {
+    return prisma[e].delete(w as any)
+  },
+  async executeDiff (from: string, entity: 'item', diff: IDiff) {
+    await Promise.all(diff.create.map(async (obj) => {
+      const r = await prisma[entity].create({
+        data: obj.value as any
+      })
+    }))
+    await Promise.all(diff.update.map(async (obj) => {
+      await prisma[entity].update({
+        where: { id: obj.source.id },
+        data: obj.value
+      })
+    }))
+    await Promise.all(diff.remove.map(async (obj) => {
+      await prisma[entity].delete({
+        where: { id: obj.value.id },
+      })
+    }))
+  }
+})
+
+
 describe('model', () => {
   beforeAll(() => {
     // make sure the model run in server envirnment
@@ -43,49 +83,11 @@ describe('model', () => {
         data: { ...data, name: `sub-${data.name}` }
       })  
     }
-    mockBM.initModelConfig({
-      async find (from: string, e: 'item', w: IQueryWhere) {
-        return prisma[e].findMany(w as any)
-      },
-      async create (from: string, e: 'item', w: IQueryWhere) {
-        return prisma[e].create(w as any)
-      },
-      async update (from: string, e: 'item', w: IQueryWhere) {
-        return prisma[e].update(w as any)
-      },
-      async updateMany (from: string, e: 'item', w: IQueryWhere) {
-        return prisma[e].updateMany(w as any)
-      },
-      async upsert (from: string, e: 'item', w: IQueryWhere) {
-        return prisma[e].upsert(w as any)
-      },
-      async remove (from: string, e: 'item', w: IQueryWhere) {
-        return prisma[e].delete(w as any)
-      },
-      async executeDiff (from: string, entity: 'item', diff: IDiff) {
-        await Promise.all(diff.create.map(async (obj) => {
-          const r = await prisma[entity].create({
-            data: obj.value as any
-          })
-        }))
-        await Promise.all(diff.update.map(async (obj) => {
-          await prisma[entity].update({
-            where: { id: obj.source.id },
-            data: obj.value
-          })
-        }))
-        await Promise.all(diff.remove.map(async (obj) => {
-          await prisma[entity].delete({
-            where: { id: obj.value.id },
-          })
-        }))
-      }
-    })
   })
   describe('mount model', () => {
   
     it('upsert', async () => {
-      const runner = new ModelRunner(mockBM.useUpsertManyModel)
+      const runner = new ModelRunner(mockBM.useUpsertManyModel, { plugin })
       const result = runner.init()
 
       await runner.ready();
@@ -111,7 +113,7 @@ describe('model', () => {
       expect(result.users()[0].name).toEqual(newName3);
     })
     it('update many', async () => {
-      const runner = new ModelRunner(mockBM.useUpdateManyModel)
+      const runner = new ModelRunner(mockBM.useUpdateManyModel, { plugin })
       const result = runner.init()
 
       await runner.ready();
@@ -132,7 +134,7 @@ describe('model', () => {
     })
 
     it('find immediate', async () => {
-      const runner = new ModelRunner(mockBM.userPessimisticModel);
+      const runner = new ModelRunner(mockBM.userPessimisticModel, { plugin });
       const result = runner.init()
       
       expect(runner.state()).toBe('pending')
@@ -147,7 +149,7 @@ describe('model', () => {
       ])
     })
     it('find with injectModel', async () => {
-      const runner = new ModelRunner(mockBM.userInjectFindModel)
+      const runner = new ModelRunner(mockBM.userInjectFindModel, { plugin })
       const result = runner.init()
       
       expect(runner.state()).toBe('pending')
@@ -162,7 +164,7 @@ describe('model', () => {
     })
   
     it('check exist before create', async () => {
-      const runner = new ModelRunner(mockBM.userModelInputeCompute)
+      const runner = new ModelRunner(mockBM.userModelInputeCompute, { plugin })
       const result = runner.init()
       
       result.createItem(3, 'a')
@@ -185,7 +187,7 @@ describe('model', () => {
     })
   
     it('query where computed', async () => {
-      const runner = new ModelRunner(mockBM.userModelComputedQuery)
+      const runner = new ModelRunner(mockBM.userModelComputedQuery, { plugin })
       const result = runner.init()
       await runner.ready()
       expect(result.users()).toEqual([])
@@ -200,7 +202,7 @@ describe('model', () => {
     })
 
     it('model used in computed (with chain) ', async () => {
-      const runner = new ModelRunner(mockBM.modelInComputed)
+      const runner = new ModelRunner(mockBM.modelInComputed, { plugin })
 
       const initChain = startdReactiveChain()
 
@@ -249,7 +251,7 @@ describe('model', () => {
   
     describe('modify (default=server) ', () => {
       it('object:update property', async () => {
-        const runner = new ModelRunner(mockBM.userPessimisticModel)
+        const runner = new ModelRunner(mockBM.userPessimisticModel, { plugin })
         const result = runner.init()
         
         const newName = 'updated a'
@@ -270,7 +272,7 @@ describe('model', () => {
         ])
       })
       it('object:create child', async () => {
-        const runner = new ModelRunner(mockBM.userPessimisticModel)
+        const runner = new ModelRunner(mockBM.userPessimisticModel, { plugin })
         const result = runner.init()
         
   
@@ -285,8 +287,8 @@ describe('model', () => {
         //   { id: 2, name: 'b', childObj: { ...childObj, id: 1 } },
         // ])
       })
-      it( 'object:remove property', async () => {
-        const runner = new ModelRunner(mockBM.userPessimisticModel)
+      it('object:remove property', async () => {
+        const runner = new ModelRunner(mockBM.userPessimisticModel, { plugin })
         const result = runner.init()
   
         await runner.ready()
@@ -303,7 +305,7 @@ describe('model', () => {
         ])
       })
       it('array:create new element', async () => {
-        const runner = new ModelRunner(mockBM.userPessimisticModel)
+        const runner = new ModelRunner(mockBM.userPessimisticModel, { plugin })
         const result = runner.init()
           
         const newObj = { name: 'c', id: 3 }
@@ -322,7 +324,7 @@ describe('model', () => {
         ])
       })
       it('array:remove element', async () => {
-        const runner = new ModelRunner(mockBM.userPessimisticModel)
+        const runner = new ModelRunner(mockBM.userPessimisticModel, { plugin })
         const result = runner.init()
 
         await runner.ready()
@@ -341,7 +343,7 @@ describe('model', () => {
   })
   describe('update model', () => {
     it('find immediate', async () => {
-      const runner = new ModelRunner(mockBM.userPessimisticModel)
+      const runner = new ModelRunner(mockBM.userPessimisticModel, { plugin })
       const cd: IHookContext['data'] = [
         ['users', 'data', { id: 1, name: 'a' }, Date.now()],
       ]
@@ -362,7 +364,7 @@ describe('model', () => {
 
   describe('dependent models', () => {
     it('apply compute patches sequence', async () => {
-      const runner = new ModelRunner(mockBM.multiPatchesInputCompute)
+      const runner = new ModelRunner(mockBM.multiPatchesInputCompute, { plugin })
       const result = runner.init()
       
       await runner.scope.ready()
@@ -385,13 +387,14 @@ describe('model', () => {
   describe('dynamic model indexes', () => {
     it('compose sub package driver', async () => {
       const runner = new ModelRunner(mockBM.composeDriverWithNamespace, {
-        beleiveContext: true,
+        believeContext: true,
         modelIndexes: {
           item: 'item',
           'sub/package': {
             item: 'sub_package_Item'
           }
-        }
+        },
+        plugin
       })
       const result = runner.init()
       
@@ -411,7 +414,7 @@ describe('model', () => {
   // writing here temporarily
   describe('write model', () => {
     it('inject write model', async () => {  
-      const runner = new ModelRunner(mockBM.writeWritePrisma)
+      const runner = new ModelRunner(mockBM.writeWritePrisma, { plugin })
       const result = runner.init()
       
       await runner.scope.ready()
@@ -427,7 +430,7 @@ describe('model', () => {
       ])
     })
     it('connectModel', async () => {
-      const runner = new ModelRunner(mockBM.writeModelWithSource)
+      const runner = new ModelRunner(mockBM.writeModelWithSource, { plugin })
       const result = runner.init()
 
       await runner.ready()
@@ -446,7 +449,7 @@ describe('model', () => {
     })
 
     it('write model by quick command',async () => {
-      const runner = new ModelRunner(mockBM.writeModelByQuickCommand)
+      const runner = new ModelRunner(mockBM.writeModelByQuickCommand, { plugin })
       const result = runner.init()
       
       await runner.ready()

@@ -25,9 +25,10 @@ import {
   removePrisma,
   injectWrite,
   injectModel,
-  loadPlugin,
   ModelRunner,
   EnumWriteMethods,
+  IModelRunnerOptions,
+  Plugin,
 } from '../src'
 import * as immer from 'immer'
 
@@ -40,8 +41,6 @@ function injectExternalDescription(f: Function, arr: [any, any]) {
     __deps__: arr[1]
   })
 }
-
-initModelConfig()
 
 export function enterClient() {
   process.env.TARGET = 'client'
@@ -98,8 +97,18 @@ export function createSequenceIT (name: string, deps?: string[]) {
   } 
 }
 
+export const getRunnerWithPlugin = (driver: any, op?: Partial<IModelRunnerOptions>) => {
+
+  return new ModelRunner(driver, {
+    plugin: initModelConfig(),
+    ...op,
+  })
+}
+
 export function initModelConfig(obj: any = {}) {
-  loadPlugin('Model', {
+  const plugin = new Plugin()
+
+  plugin.loadPlugin('Model', {
     async find(e, w) {
       return []
     },
@@ -115,7 +124,7 @@ export function initModelConfig(obj: any = {}) {
     async executeDiff(d) {},
     ...obj
   })
-  loadPlugin('Context', {
+  plugin.loadPlugin('Context', {
     async postDiffToServer(d) {},
     async postComputeToServer(c) {
       return []
@@ -127,7 +136,7 @@ export function initModelConfig(obj: any = {}) {
   })
   const cacheMap = new Map<CurrentRunnerScope<any> | null, Map<string, any>>()
   const cacheKVMap = new Map<CurrentRunnerScope<any> | null, Map<string, any>>()
-  loadPlugin('cookie', {
+  plugin.loadPlugin('cookie', {
     async get(scope, key) {
       return cacheMap.get(scope)?.get(key)
     },
@@ -141,7 +150,7 @@ export function initModelConfig(obj: any = {}) {
       cacheMap.clear()
     }
   })
-  loadPlugin('regularKV', {
+  plugin.loadPlugin('regularKV', {
     async get(scope, key) {
       return cacheKVMap.get(scope)?.get(key)
     },
@@ -155,13 +164,14 @@ export function initModelConfig(obj: any = {}) {
       cacheKVMap.clear()
     }
   })
+  return plugin
 }
 
-export function useSimpleServerMiddleware(bm: BM) {
-  initModelConfig({
+export function getSimpleServerMiddlewareRunner(bm: BM) {
+  const plugin = initModelConfig({
     async postComputeToServer(c: IHookContext) {
       process.env.TARGET = 'server'
-      const serverRunner = new ModelRunner(bm)
+      const serverRunner = getRunnerWithPlugin(bm)
       serverRunner.init(c.initialArgList as [any, any], c)
 
       if (c.index) {
@@ -173,6 +183,10 @@ export function useSimpleServerMiddleware(bm: BM) {
 
       return context
     }
+  })
+  
+  return new ModelRunner(bm, {
+    plugin,
   })
 }
 

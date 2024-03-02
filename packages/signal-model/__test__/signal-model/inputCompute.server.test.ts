@@ -8,12 +8,10 @@ import * as mockBM from '../mockBM'
 describe('inputCompute', () => {
 
   it('post inputCompute to Server', async () => {
-    const runner = new ModelRunner(mockBM.changeStateInputComputeServer)
+    const runner = mockBM.getSimpleServerMiddlewareRunner(mockBM.changeStateInputComputeServer)
 
     const onRunnerUpdate = jest.fn(() => {
     })
-
-    mockBM.useSimpleServerMiddleware(mockBM.changeStateInputComputeServer)
 
     const initArgs: [any, number] = [
       { num1: 0 },
@@ -34,10 +32,10 @@ describe('inputCompute', () => {
     expect(onRunnerUpdate).toHaveBeenCalledTimes(1)  
   })
   it('post with timestamp', async () => {
-    mockBM.initModelConfig({
+    const plugin = mockBM.initModelConfig({
       async postComputeToServer (c: IHookContext) {
         process.env.TARGET = 'server'
-        const runner = new ModelRunner(mockBM.changeStateInputComputeServer3)
+        const runner = new ModelRunner(mockBM.changeStateInputComputeServer3, { plugin })
         runner.init([], c)
         if (c.index) {
           await runner.callHook(c.index, c.args)
@@ -47,7 +45,7 @@ describe('inputCompute', () => {
       }  
     })
     
-    const runner = new ModelRunner(mockBM.changeStateInputComputeServer3)
+    const runner = new ModelRunner(mockBM.changeStateInputComputeServer3, { plugin })
     const result = runner.init()
     
     let mt1 = result.s1._hook.modifiedTimestamp

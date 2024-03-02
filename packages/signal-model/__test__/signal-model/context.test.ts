@@ -3,7 +3,7 @@ import {
   IHookContext
  } from '../../src/index'
 
-import * as mockBM from '../mockBM'
+import * as   mockBM from '../mockBM'
 
 describe('initContext', () => {
   it('init context to state', () => {
@@ -69,13 +69,11 @@ describe('initContext', () => {
     }
   })
   it('callHook remote', async () => {
-    mockBM.useSimpleServerMiddleware(mockBM.changeStateInputComputeServer)
-
     const args: [ {num1: number}, number ] = [
       { num1: 0 },
       1
     ]
-    const clientRunner = new ModelRunner(mockBM.changeStateInputComputeServer)
+    const clientRunner = mockBM.getSimpleServerMiddlewareRunner(mockBM.changeStateInputComputeServer)
     const r = clientRunner.init(args)
 
     expect(r.s1()).toEqual(args[0])
@@ -89,8 +87,8 @@ describe('initContext', () => {
   })
 
   describe('with depsMap', () => {
-    it('call remote compute with deps', async () => {
-      mockBM.initModelConfig({
+    it ('call remote compute with deps', async () => {
+      const plugin = mockBM.initModelConfig({
         async postComputeToServer (c: IHookContext) {
           process.env.TARGET = 'server'
           const serverRunner = new ModelRunner(mockBM.changeStateInputComputeServer2)
@@ -112,7 +110,7 @@ describe('initContext', () => {
           return context
         }
       })
-      const clientRunner = new ModelRunner(mockBM.changeStateInputComputeServer2)
+      const clientRunner = mockBM.getRunnerWithPlugin(mockBM.changeStateInputComputeServer2, { plugin })
   
       /**
        * call ic which hook index equal 4

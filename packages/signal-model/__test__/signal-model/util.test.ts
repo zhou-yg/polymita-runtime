@@ -660,7 +660,6 @@ describe('util', () => {
       ];
       const callICIndex = 3;
       const indexes = getShallowRelatedIndexes(callICIndex, deps)
-      console.log('indexes: ', indexes);
       expect(indexes).toEqual(new Set([1, 2, 3, 0]))
     })
   })

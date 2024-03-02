@@ -18,7 +18,6 @@ import {
   RunnerContext,
   Driver,
   IHookContext,
-  getPlugin,
   getCurrentInputCompute,
   getCurrentRunnerScope,
   EHookEvents,
@@ -38,7 +37,8 @@ import {
   inputCompute,
   Runner,
   produceWithPatches,
-  applyPatches
+  applyPatches,
+  Plugin
 } from '@polymita/signal'
 import { 
   IModelIndexesBase, IModelOption,
@@ -66,7 +66,7 @@ import {
 export class ModelRunner<T extends Driver> extends Runner<T> {
   ScopeConstructor: typeof RunnerModelScope = RunnerModelScope
   scope: RunnerModelScope = null
-  constructor(public driver: T, options?: IModelRunnerOptions) {
+  constructor(public driver: T, options?: Partial<IModelRunnerOptions>) {
     super(driver, options)
   }
   override prepareScope (args?: Parameters<T>, initialContext?: IHookContext) {
@@ -146,8 +146,9 @@ export class RunnerModelScope<T extends Driver = any> extends CurrentRunnerScope
     public runnerContext: RunnerContext<T>,
     public initialContextDeps: THookDeps,
     public initialContextNames: THookNames,
+    public plugin: Plugin,
   ) {
-    super(runnerContext, initialContextDeps, initialContextNames)
+    super(runnerContext, initialContextDeps, initialContextNames, plugin)
 
     this.modelPatchEvents =
       process.env.TARGET === 'server' || !GlobalModelEvent
@@ -693,7 +694,7 @@ export class Prisma<T extends any[]> extends Model<T> {
       let result = [] as T
       if (!!q) {
         if (valid()) {
-          result = await getPlugin('Model').find(
+          result = await this.scope.plugin.getPlugin('Model').find(
             this.identifier,
             this.entity,
             q
@@ -707,6 +708,7 @@ export class Prisma<T extends any[]> extends Model<T> {
     } catch (e) {
       log(`[${this.name || ''} Model.executeQuery] error`)
       console.error(e)
+      throw e
     } finally {
       log(`[${this.name || ''} Model.executeQuery] end`)
       if (valid()) {
@@ -715,7 +717,7 @@ export class Prisma<T extends any[]> extends Model<T> {
     }
   }
   async exist(obj: Partial<T[0]>) {
-    const result: T[] = await getPlugin('Model').find(
+    const result: T[] = await this.scope.plugin.getPlugin('Model').find(
       this.identifier,
       this.entity,
       { where: obj }
@@ -743,7 +745,7 @@ export class Prisma<T extends any[]> extends Model<T> {
     try {
       const diff = calculateDiff(oldValue, patches)
       log('[Model.updateWithPatches] diff: ', diff)
-      await getPlugin('Model').executeDiff(this.identifier, entity, diff)
+      await this.scope.plugin.getPlugin('Model').executeDiff(this.identifier, entity, diff)
     } catch (e) {
       console.info('[updateWithPatches] postPatches fail', e)
       // @TODO autoRollback value
@@ -770,15 +772,15 @@ export class WritePrisma<T extends any[]> extends WriteModel<T> {
       (p: IModelPatch<T[0]>) => Promise<void | number[] | { count: number }>
     > = {
       create: (p: IModelPatchCreate<T[0]>) =>
-        getPlugin('Model').create(this.identifier, this.entity, p.value),
+        this.scope.plugin.getPlugin('Model').create(this.identifier, this.entity, p.value),
       update: (p: IModelPatchUpdate<T[0]>) =>
-        getPlugin('Model').update(this.identifier, this.entity, p.value),
+        this.scope.plugin.getPlugin('Model').update(this.identifier, this.entity, p.value),
       updateMany: (p: IModelPatchUpdate<T[0]>) =>
-        getPlugin('Model').updateMany(this.identifier, this.entity, p.value),
+        this.scope.plugin.getPlugin('Model').updateMany(this.identifier, this.entity, p.value),
       upsert: (p: IModelPatchUpdate<T[0]>) =>
-        getPlugin('Model').upsert(this.identifier, this.entity, p.value),
+        this.scope.plugin.getPlugin('Model').upsert(this.identifier, this.entity, p.value),
       remove: (p: IModelPatchRemove<T[0]>) =>
-        getPlugin('Model').remove(this.identifier, this.entity, p.value)
+        this.scope.plugin.getPlugin('Model').remove(this.identifier, this.entity, p.value)
     }
 
     let promiseArr: Promise<any>[] = []
@@ -920,7 +922,7 @@ export class ClientPrisma<T extends any[]> extends Prisma<T> {
     if (valid || this.options.ignoreClientEnable) {
       const context = this.scope.createActionContext(this)
       log('[ClientModel.executeQuery] before post')
-      const result: IHookContext = await getPlugin('Context').postQueryToServer(
+      const result: IHookContext = await this.scope.plugin.getPlugin('Context').postQueryToServer(
         context
       )
 
@@ -1050,7 +1052,7 @@ class InputComputeInServer<P extends any[]> extends AsyncInputCompute<P> {
 
       getCurrentReactiveChain()?.add(this)
       const context = this.scope.createShallowActionContext(this, args)
-      const result = await getPlugin('Context').postComputeToServer(context)
+      const result = await this.scope.plugin.getPlugin('Context').postComputeToServer(context)
       if (valid()) {
         this.scope.applyContextFromServer(result)
       }
@@ -1078,7 +1080,7 @@ export class ClientComputed<T> extends Computed<T> {
     const { end, valid } = this.startAsyncGetter()
     const context = this.scope.createActionContext(this)
     log('[ComputedInServer.run] before post')
-    getPlugin('Context')
+    this.scope.plugin.getPlugin('Context')
       .postComputeToServer(context)
       .then((result: IHookContext) => {
         if (valid()) {
@@ -1218,9 +1220,9 @@ function updateCyclePrisma<T extends any[]>(
     return createUnaccessibleModelGetter<T>(currentIndex, e)
   }
   const inServer = process.env.TARGET === 'server'
-  const { beleiveContext } = currentRunnerScope!
+  const { believeContext } = currentRunnerScope!
 
-  const receiveDataFromContext = beleiveContext || !inServer
+  const receiveDataFromContext = believeContext || !inServer
 
   op = Object.assign({}, op, {
     immediate: !receiveDataFromContext

@@ -14,9 +14,7 @@ describe('computed', () => {
   describe('mount computed',  () => {
 
     it('simple', async () => {
-      mockBM.useSimpleServerMiddleware(mockBM.simpleComputedInServer)
-  
-      const runner = new ModelRunner(mockBM.simpleComputedInServer)
+      const runner = mockBM.getSimpleServerMiddlewareRunner(mockBM.simpleComputedInServer)
       const result = runner.init()
 
       // debuggerLog(true)
@@ -32,9 +30,7 @@ describe('computed', () => {
   })
   describe('update computed', () => {
     it('simple', async () => {
-      mockBM.useSimpleServerMiddleware(mockBM.simpleComputedInServer)
-  
-      const runner = new ModelRunner(mockBM.simpleComputedInServer)
+      const runner = mockBM.getSimpleServerMiddlewareRunner(mockBM.simpleComputedInServer)
 
       const initContext = mockBM.initContext({
         index: undefined,
