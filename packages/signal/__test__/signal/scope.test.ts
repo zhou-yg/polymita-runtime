@@ -1,10 +1,3 @@
-import {
-  Runner,
-  getPlugin,
-  IHookContext, 
-  CacheInitialSymbol
-} from '../../src/index'
-
 import * as mockBM from '../mockBM'
 
 
@@ -14,7 +7,7 @@ describe('scope', () => {
     const fn1 = jest.fn();
     const fn2 = jest.fn();
 
-    const runner = new Runner(mockBM.mountAndUpdate);
+    const runner = mockBM.getRunnerWithPlugin(mockBM.mountAndUpdate);
     runner.init([{
       onMountCallback: fn1,
       onUpdateCallback: fn2
@@ -41,7 +34,7 @@ describe('scope', () => {
       }  
     ]
 
-    const runner = new Runner(mockBM.mountAndUpdate);
+    const runner = mockBM.getRunnerWithPlugin(mockBM.mountAndUpdate);
     runner.init([{}], mockContext);
 
     expect(fn1).toBeCalledTimes(0)

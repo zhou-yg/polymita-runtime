@@ -33,10 +33,10 @@ import {
   THookDepUnit,
   mergeInitialArgs,
 } from "./util";
-import { getPlugin, TCacheFrom } from "./plugin";
 import EventEmitter from "eventemitter3";
 import type { Draft } from "immer";
 import { produceWithPatches, enablePatches } from "immer";
+import { Plugin, TCacheFrom } from "./plugin2";
 export { produceWithPatches, applyPatches } from "immer";
 
 enablePatches();
@@ -778,30 +778,33 @@ export class RunnerContext<T extends Driver> {
 
 export interface IRunnerOptions {
   // scope
-  beleiveContext: boolean;
+  believeContext: boolean;
   updateCallbackSync?: boolean;
   applyComputeParallel?: boolean;
   // modelIndexes?: IModelIndexesBase
   //
   runnerContext?: Symbol;
+
+  plugin: Plugin;
 }
 
 export class Runner<T extends Driver> {
   ScopeConstructor: typeof CurrentRunnerScope = CurrentRunnerScope;
   scope: CurrentRunnerScope<T>;
   options: IRunnerOptions = {
-    beleiveContext: false,
+    believeContext: false,
     updateCallbackSync: false,
     applyComputeParallel: false,
+    plugin: null,
   };
   constructor(
     public driver: T,
-    options?: IRunnerOptions,
+    options?: Partial<IRunnerOptions>,
   ) {
     Object.assign(this.options, options);
   }
 
-  prepareScope(args?: Parameters<T>, initialContext?: IHookContext) {
+  prepareScope(args?: Parameters<T>, initialContext?: IHookContext, plugin?: Plugin) {
     const context = new RunnerContext(
       getName(this.driver),
       args,
@@ -810,7 +813,7 @@ export class Runner<T extends Driver> {
 
     const deps = getDeps(this.driver);
     const names = getNames(this.driver);
-    const scope = new this.ScopeConstructor<T>(context, deps, names);
+    const scope = new this.ScopeConstructor<T>(context, deps, names, plugin);
     scope.setOptions(this.options);
 
     return scope;
@@ -928,7 +931,7 @@ export class Cache<T> extends AsyncState<T | string> {
        * reason 1: for lazy
        * reason 2: prevent writing conflict while coccurent writing at same time
        */
-      getPlugin("Cache").clearValue(this.scope, this.getterKey, from);
+      this.scope.plugin.getPlugin("Cache").clearValue(this.scope, this.getterKey, from);
 
       const newReactiveChain = reactiveChain?.addNotify(this);
       this.executeQuery(newReactiveChain);
@@ -949,7 +952,7 @@ export class Cache<T> extends AsyncState<T | string> {
     const { end, valid } = this.startAsyncGetter();
 
     try {
-      const valueInCache = await getPlugin("Cache").getValue<T>(
+      const valueInCache = await this.scope.plugin.getPlugin("Cache").getValue<T>(
         this.scope,
         this.getterKey,
         from,
@@ -967,8 +970,8 @@ export class Cache<T> extends AsyncState<T | string> {
         const valueInSource = source.value;
 
         super.update(valueInSource, [], false, reactiveChain);
-        // unconcern the result of remote updateing
-        getPlugin("Cache").setValue(
+        // unconcern the result of remote updating
+        this.scope.plugin.getPlugin("Cache").setValue(
           this.scope,
           this.getterKey,
           valueInSource,
@@ -1012,7 +1015,7 @@ export class Cache<T> extends AsyncState<T | string> {
         silent,
         reactiveChain,
       );
-      await getPlugin("Cache").setValue(this.scope, this.getterKey, v, from);
+      await this.scope.plugin.getPlugin("Cache").setValue(this.scope, this.getterKey, v, from);
 
       log(`[${this.name} cache.update] end k=${this.getterKey} v=${v}`);
     }
@@ -1048,7 +1051,7 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
   /**
    * receive by runner options
    */
-  beleiveContext = false;
+  believeContext = false;
   updateCallbackSync = false;
   applyComputeParallel = false;
 
@@ -1070,13 +1073,15 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
   constructor(
     public runnerContext: RunnerContext<T>,
     public initialContextDeps: THookDeps,
-    public intialContextNames: THookNames,
+    public initialContextNames: THookNames,
+    public plugin: Plugin
   ) {
     super();
     runnerContext.bindScope(this);
 
     this.initializeHookSet();
   }
+
   /**
    * copy context value into scope for updateXXX hook
    */
@@ -1205,8 +1210,8 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
 
     // assign name by inject deps
     let hookNames: THookNames['0'];
-    if (this.intialContextNames) {
-      hookNames = this.intialContextNames.find(
+    if (this.initialContextNames) {
+      hookNames = this.initialContextNames.find(
         (arr) => arr[0] === this.hooks.length - 1,
       );
     }
@@ -1259,7 +1264,7 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
     }
     const len = names.length;
 
-    const modifiedNames = (this.intialContextNames || []).map((a) => {
+    const modifiedNames = (this.initialContextNames || []).map((a) => {
       const arr: THookNames[0] = cloneDeep(a);
       if (arr[0] >= si) {
         arr[0] += len;
@@ -1269,7 +1274,7 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
     const newOffsetNames: THookNames = names.map((a) => {
       return [a[0] + si, a[1]];
     });
-    this.intialContextNames = modifiedNames.concat(newOffsetNames);
+    this.initialContextNames = modifiedNames.concat(newOffsetNames);
   }
 
   offsetComposeIndex(

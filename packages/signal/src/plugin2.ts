@@ -9,7 +9,52 @@ export interface IRunningContext {
   };
 }
 
-const plugins: IPlugins = {};
+
+/**
+ * provide a default CachePlugin for distribution different cahce type
+ */
+const defaultCachePlugin: (plugin: Plugin) => IPlugins["Cache"] = (plugin: Plugin) => ({
+  async getValue(scope, k, from) {
+    return plugin.getPlugin(from).get(scope, k);
+  },
+  setValue(scope, k, v, from) {
+    return plugin.getPlugin(from).set(scope, k, v);
+  },
+  clearValue(scope, k, from) {
+    plugin.getPlugin(from).clear(scope, k);
+  },
+});
+
+export class Plugin {
+  plugins: IPlugins = {};
+
+  constructor () {
+    const cachePlugin = defaultCachePlugin(this)
+    this.loadPlugin('Cache', cachePlugin)
+  }
+
+  clearPlugins () {
+    const { plugins } = this
+    Object.keys(plugins).forEach(k => {
+      delete plugins[k];
+    })
+  }
+  
+  getPlugin<T extends TPluginKey>(k: T) {
+    const { plugins } = this
+    const plugin = plugins[k];
+    if (!plugin) {
+      throw new Error(`[getPlugin] name=${k} is not found`);
+    }
+    return plugin as Exclude<IPlugins[T], undefined>;
+  }
+  
+  loadPlugin<T extends TPluginKey>(k: T, p: IPlugins[T]) {
+    const { plugins } = this
+    plugins[k] = p;
+  }
+}
+
 
 export interface IPlugins {
   Cache?: {
@@ -46,38 +91,3 @@ export interface IPlugins {
 }
 
 type TPluginKey = keyof IPlugins;
-
-/**
- * provide a default CachePlugin for distribution different cahce type
- */
-const defaultCachePlugin: IPlugins["Cache"] = {
-  async getValue(scope, k, from) {
-    return getPlugin(from).get(scope, k);
-  },
-  setValue(scope, k, v, from) {
-    return getPlugin(from).set(scope, k, v);
-  },
-  clearValue(scope, k, from) {
-    getPlugin(from).clear(scope, k);
-  },
-};
-
-loadPlugin("Cache", defaultCachePlugin);
-
-export function clearPlugins () {
-  Object.keys(plugins).forEach(k => {
-    delete plugins[k];
-  })
-}
-
-export function getPlugin<T extends TPluginKey>(k: T) {
-  const plugin = plugins[k];
-  if (!plugin) {
-    throw new Error(`[getPlugin] name=${k} is not found`);
-  }
-  return plugin as Exclude<IPlugins[T], undefined>;
-}
-
-export function loadPlugin<T extends TPluginKey>(k: T, p: IPlugins[T]) {
-  plugins[k] = p;
-}

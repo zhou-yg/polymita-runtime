@@ -7,14 +7,14 @@ import * as mockBM from '../mockBM'
 describe('runner basic', () => {
 
   it('run blank', () => {
-    const runner = new Runner(mockBM.blank)
+    const runner = mockBM.getRunnerWithPlugin(mockBM.blank)
     const initResult = runner.init()
 
     expect(initResult).toEqual(undefined)
     expect(runner.scope.hooks).toStrictEqual([])
   })
   it('run returnArg', () => {
-    const runner = new Runner(mockBM.returnArg)
+    const runner = mockBM.getRunnerWithPlugin(mockBM.returnArg)
 
     const arg = { a: 1 }
 
@@ -24,7 +24,7 @@ describe('runner basic', () => {
     expect(runner.scope.hooks).toStrictEqual([])
   })
   it('run oneState', () => {
-    const runner = new Runner(mockBM.oneState)
+    const runner = mockBM.getRunnerWithPlugin(mockBM.oneState)
 
     const arg = { a: 1 }
 
@@ -36,7 +36,7 @@ describe('runner basic', () => {
     expect((scope.hooks[0] as any).value).toBe(arg.a)
   })
   it('run onUpdate', async () => {
-    const runner = new Runner(mockBM.oneState)
+    const runner = mockBM.getRunnerWithPlugin(mockBM.oneState)
     const onUpdate = jest.fn(() => {
     })
 
@@ -68,7 +68,7 @@ describe('runner basic', () => {
   })
 
   it('run oneCompute', () => {
-    const runner = new Runner(mockBM.oneCompute)
+    const runner = mockBM.getRunnerWithPlugin(mockBM.oneCompute)
 
     const initResult = runner.init()
 
@@ -83,7 +83,7 @@ describe('runner basic', () => {
     }
   })
   it('run oneEffect with nested BM', async () => {
-    const runner = new Runner(mockBM.oneEffect)
+    const runner = mockBM.getRunnerWithPlugin(mockBM.oneEffect)
 
     const onRunnerUpdate = jest.fn(() => {
     })
@@ -112,7 +112,7 @@ describe('runner basic', () => {
   })
 
   it('runner dispose', () => {
-    const runner = new Runner(mockBM.driverWithDispose)
+    const runner = mockBM.getRunnerWithPlugin(mockBM.driverWithDispose)
     const { myDisposeFunc } = runner.init()
 
     runner.dispose()

@@ -1,3 +1,3 @@
 export * from "./signal";
 export * from "./util";
-export * from "./plugin";
+export * from "./plugin2";

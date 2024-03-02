@@ -8,7 +8,7 @@ import * as mockBM from '../mockBM'
 describe('state', () => {
   describe('mount state', () => {
     it('use plain object', () => {
-      const runner = new Runner(mockBM.plainObjectState)
+      const runner = mockBM.getRunnerWithPlugin(mockBM.plainObjectState)
       const args: [{num1: number}, number] = [
         { num1: 0 },
         10
@@ -23,7 +23,7 @@ describe('state', () => {
       expect(result.s1()).toEqual({ num1: 1 })
     })
     it('watch state changing', () => {
-      const runner = new Runner(mockBM.plainObjectState)
+      const runner = mockBM.getRunnerWithPlugin(mockBM.plainObjectState)
       const args: [{num1: number}, number] = [
         { num1: 0 },
         10
@@ -37,7 +37,7 @@ describe('state', () => {
 
   describe('update state', () => {
     it('init with context', () => {
-      const runner = new Runner(mockBM.plainObjectState)
+      const runner = mockBM.getRunnerWithPlugin(mockBM.plainObjectState)
       const args: [{num1: number}, number] = [
         { num1: 0 },
         10

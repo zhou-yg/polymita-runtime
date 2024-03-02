@@ -1,4 +1,3 @@
-import { sign } from "crypto";
 import {
   state,
   inputCompute,
@@ -19,8 +18,9 @@ import {
   dispose,
   onMount,
   onUpdate,
+  IRunnerOptions,
 } from "../src/";
-import { loadPlugin } from "../src/plugin";
+import { Plugin } from "../src/plugin2";
 
 function injectExternalDescription(f: Function, arr: [any, any]) {
   Object.assign(f, {
@@ -28,8 +28,6 @@ function injectExternalDescription(f: Function, arr: [any, any]) {
     __deps__: arr[1],
   });
 }
-
-initModelConfig();
 
 export function enterClient() {
   process.env.TARGET = "client";
@@ -58,13 +56,23 @@ export function initContext(arg: {
   };
 }
 
-export function initModelConfig(obj: any = {}) {
+export const testPlugin = initModelConfig()
+
+export function getRunnerWithPlugin (driver: any, op?: Partial<IRunnerOptions>) {
+  return new Runner(driver, {
+    ...op,
+    plugin: testPlugin,
+  })
+}
+
+function initModelConfig() {
   const cacheMap = new Map<CurrentRunnerScope<any> | null, Map<string, any>>();
   const cacheKVMap = new Map<
     CurrentRunnerScope<any> | null,
     Map<string, any>
   >();
-  loadPlugin("cookie", {
+  const plugin = new Plugin()
+  plugin.loadPlugin("cookie", {
     async get(scope, key) {
       return cacheMap.get(scope)?.get(key);
     },
@@ -78,7 +86,7 @@ export function initModelConfig(obj: any = {}) {
       cacheMap.clear();
     },
   });
-  loadPlugin("regularKV", {
+  plugin.loadPlugin("regularKV", {
     async get(scope, key) {
       return cacheKVMap.get(scope)?.get(key);
     },
@@ -92,6 +100,8 @@ export function initModelConfig(obj: any = {}) {
       cacheKVMap.clear();
     },
   });
+
+  return plugin
 }
 
 export function wait(ms: number = 15) {

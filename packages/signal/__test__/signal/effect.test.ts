@@ -8,7 +8,7 @@ import * as mockBM from '../mockBM'
 
 describe('effect', () => {
   it('before inputCompute with freeze', async () => {
-    const runner = new Runner(mockBM.beforeWithFreeze)
+    const runner = mockBM.getRunnerWithPlugin(mockBM.beforeWithFreeze)
     const onRunnerUpdate = jest.fn(() => {
     })
 
@@ -38,7 +38,7 @@ describe('effect', () => {
     expect(onRunnerUpdate).toHaveBeenCalledTimes(1)
   })
   it('after inputCompute', async () => {
-    const runner = new Runner(mockBM.effectAfter)
+    const runner = mockBM.getRunnerWithPlugin(mockBM.effectAfter)
     const onRunnerUpdate = jest.fn(() => {
     })
   
@@ -66,7 +66,7 @@ describe('effect', () => {
   })
 
   it('after state', async () => {
-    const runner = new Runner(mockBM.plainObjectState)
+    const runner = mockBM.getRunnerWithPlugin(mockBM.plainObjectState)
     const result = runner.init([
       { num: 0 },
       1

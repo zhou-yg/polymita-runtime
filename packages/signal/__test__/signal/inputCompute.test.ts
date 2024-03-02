@@ -4,7 +4,7 @@ import * as mockBM from '../mockBM'
 
 describe('inputCompute', () => {
   it('basic continous plus', () => {
-    const runner = new Runner(mockBM.basicInputCompute)
+    const runner = mockBM.getRunnerWithPlugin(mockBM.basicInputCompute)
     const { s1, ic1 } = runner.init()
 
     expect(s1()).toBe(0)
@@ -13,7 +13,7 @@ describe('inputCompute', () => {
   })
 
   it('multi apply with nested inputCompute', async () => {
-    const runner = new Runner(mockBM.nestedIC)
+    const runner = mockBM.getRunnerWithPlugin(mockBM.nestedIC)
 
     const { s1, s2, ic2 } = runner.init()
 
@@ -34,7 +34,7 @@ describe('inputCompute', () => {
   })
 
   it('change state in inputCompute', async () => {
-    const runner = new Runner(mockBM.changeStateInputCompute)
+    const runner = mockBM.getRunnerWithPlugin(mockBM.changeStateInputCompute)
 
     const onRunnerUpdate = jest.fn(() => {
     })
@@ -70,7 +70,7 @@ describe('inputCompute', () => {
     expect(onRunnerUpdate).toHaveBeenCalledTimes(1 + 1)
   })
   it('access inputCompute draft', () => {
-    const runner = new Runner(mockBM.changeMultiByInputCompute)
+    const runner = mockBM.getRunnerWithPlugin(mockBM.changeMultiByInputCompute)
     const { s1, changeS1 } = runner.init()
 
     expect(s1().num).toBe(0)
@@ -83,7 +83,7 @@ describe('inputCompute', () => {
 
   })
   it('bad case: async/await inputCompute', async () => {
-    const runner = new Runner(mockBM.changeStateAsyncInputCompute)
+    const runner = mockBM.getRunnerWithPlugin(mockBM.changeStateAsyncInputCompute)
 
     const onRunnerUpdate = jest.fn(() => {
     })
@@ -118,7 +118,7 @@ describe('inputCompute', () => {
     expect(onRunnerUpdate).toHaveBeenCalledTimes(2)
   })
   it('good case: generator inputCompute', async () => {
-    const runner = new Runner(mockBM.changeStateGeneratorInputCompute)
+    const runner = mockBM.getRunnerWithPlugin(mockBM.changeStateGeneratorInputCompute)
 
     const onRunnerUpdate = jest.fn(() => {
     })

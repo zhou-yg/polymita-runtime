@@ -6,7 +6,7 @@
   "module": "./dist/signal.esm.js",
   "types": "./dist/signal.d.ts",
   "scripts": {
-    "watch-unit": "jest --watch -- __test__/signal/context.test.ts",
+    "watch-unit": "jest --watch -- __test__/signal/cache.test.ts",
     "wu": "sh scripts/dev-unit.sh",
     "test-unit": "jest",
     "test-ci": "TEST=CI jest",

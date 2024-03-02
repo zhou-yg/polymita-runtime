@@ -9,7 +9,7 @@ import * as mockBM from '../mockBM'
 describe('signal', () => {
 
   it('one signal', () => {
-    const runner = new Runner(mockBM.oneSignal)
+    const runner = mockBM.getRunnerWithPlugin(mockBM.oneSignal)
     const initResult = runner.init()
 
     expect(initResult.s1._hook).toBeInstanceOf(State)

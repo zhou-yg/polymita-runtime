@@ -19,7 +19,7 @@ describe('chain', () => {
 
   describe('callHook', () => {
     it('init state -> 1 computed', () => {
-      const runner = new Runner(mockBM.stateInComputed)
+      const runner = mockBM.getRunnerWithPlugin(mockBM.stateInComputed)
     
       const { s2, c1 } = runner.init()      
   
@@ -42,7 +42,7 @@ describe('chain', () => {
   describe('directly call', () => {
 
     it('state -> nested computed', () => {
-      const runner = new Runner(mockBM.stateInNestedComputed)
+      const runner = mockBM.getRunnerWithPlugin(mockBM.stateInNestedComputed)
       const { s2, c1, c2 } = runner.init()
   
       const chain = startdReactiveChain()
@@ -78,7 +78,7 @@ describe('chain', () => {
     })
   
     it('inputCompute -> state', () => {
-      const runner = new Runner(mockBM.statesWithInputCompute)
+      const runner = mockBM.getRunnerWithPlugin(mockBM.statesWithInputCompute)
       const { s1, s2, c1, c2, ic } = runner.init()
   
       const chain = startdReactiveChain()

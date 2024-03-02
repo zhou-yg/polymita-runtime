@@ -10,7 +10,7 @@ describe('computed', () => {
   describe('mount computed', () => {
     it('blank', () => {
       const cv = 1
-      const runner = new Runner(mockBM.blankComputed)
+      const runner = mockBM.getRunnerWithPlugin(mockBM.blankComputed)
       const result = runner.init([cv])
   
       expect(result.c()).toBe(cv)
@@ -18,7 +18,7 @@ describe('computed', () => {
     it('use primitive state', () => {
       const num1 = 1
       const num2 = 2
-      const runner = new Runner(mockBM.onePrimitiveStateComputed)
+      const runner = mockBM.getRunnerWithPlugin(mockBM.onePrimitiveStateComputed)
       const result = runner.init([num1, num2])
   
       expect(result.c()).toBe(num1 + num2)
@@ -30,7 +30,7 @@ describe('computed', () => {
     it('use primitive state', async () => {
       const num1 = 1
       const num2 = 2
-      const runner = new Runner(mockBM.asyncComputed)
+      const runner = mockBM.getRunnerWithPlugin(mockBM.asyncComputed)
       const result = runner.init([num1, num2])
   
       const c1 = result.c()
@@ -47,7 +47,7 @@ describe('computed', () => {
     it('use primitive state, change one time', async () => {
       const num1 = 1
       const num2 = 2
-      const runner = new Runner(mockBM.onePrimitiveStateComputed)
+      const runner = mockBM.getRunnerWithPlugin(mockBM.onePrimitiveStateComputed)
       const result = runner.init([num1, num2])
   
       expect(result.c()).toBe(num1 + num2)
@@ -64,7 +64,7 @@ describe('computed', () => {
       expect(result.s._hook.watchers.has(result.c._hook.watcher)).toBe(true)
     })
     it('use array', async () => {
-      const runner = new Runner(mockBM.computedWithArray)
+      const runner = mockBM.getRunnerWithPlugin(mockBM.computedWithArray)
       const result = runner.init()
   
       expect(result.arr()).toEqual([{ num: 0 }, { num: 1 }, { num: 2 }, { num: 3 }, { num: 4 }])
@@ -80,7 +80,7 @@ describe('computed', () => {
     })
 
     it('nested simple', () => {
-      const runner = new Runner(mockBM.nestedSimpleComputed)
+      const runner = mockBM.getRunnerWithPlugin(mockBM.nestedSimpleComputed)
       const result = runner.init()
 
       expect(result.s1()).toBe(1)
@@ -97,7 +97,7 @@ describe('computed', () => {
     it('bad case: async/await getter',async () => {
       const num1 = 1
       const num2 = 2
-      const runner = new Runner(mockBM.asyncComputed2)
+      const runner = mockBM.getRunnerWithPlugin(mockBM.asyncComputed2)
       const result = runner.init([num1, num2])
   
       const c1 = result.c()
@@ -114,7 +114,7 @@ describe('computed', () => {
     it('good case: generator getter',async () => {
       const num1 = 1
       const num2 = 2
-      const runner = new Runner(mockBM.generatorComputed)
+      const runner = mockBM.getRunnerWithPlugin(mockBM.generatorComputed)
       const result = runner.init([num1, num2])
   
       const c1 = result.c()
@@ -128,7 +128,7 @@ describe('computed', () => {
       expect(result.s._hook.watchers.has(result.c._hook.watcher)).toBe(true)
     })
     it('change state inside of computed',async () => {
-      const runner = new Runner(mockBM.setterInComputed)
+      const runner = mockBM.getRunnerWithPlugin(mockBM.setterInComputed)
       const { s1, c1 } = runner.init()
 
       const v1 = s1()
@@ -143,7 +143,7 @@ describe('computed', () => {
     // it ('use primitive state, getter still run again', () => {
     //   const num1 = 1
     //   const num2 = 2
-    //   const runner = new Runner(mockBM.onePrimitiveStateComputed)
+    //   const runner = mockBM.getRunnerWithPlugin(mockBM.onePrimitiveStateComputed)
     //   const cd: IHookContext['data'] = [
     //     ['data', 2],
     //     ['data', 10]  
@@ -164,7 +164,7 @@ describe('computed', () => {
       const num1 = 1
       const num2 = 2
 
-      const runner = new Runner(mockBM.onePrimitiveStateComputed)
+      const runner = mockBM.getRunnerWithPlugin(mockBM.onePrimitiveStateComputed)
 
       const cd: IHookContext['data'] = [
         ['s', 'data', 2, Date.now()],
@@ -195,7 +195,7 @@ describe('computed', () => {
     it ('use primitive state with depsMap , getter wont run but has dep relation', () => {
       const num1 = 1
       const num2 = 2
-      const runner = new Runner(mockBM.onePrimitiveStateComputed)
+      const runner = mockBM.getRunnerWithPlugin(mockBM.onePrimitiveStateComputed)
       const cd: IHookContext['data'] = [
         ['s', 'data', 2, Date.now()],
         ['c', 'data', 10, Date.now()]  
