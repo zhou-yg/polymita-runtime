@@ -96,7 +96,7 @@ export function useReactHook<T extends Driver>(
       const runner = new ModelRunner(
         hook,
         {
-          beleiveContext: driver.believeContext,
+          believeContext: driver.believeContext,
           updateCallbackSync: driver.updateCallbackSync,
           modelIndexes: namespace && currentModelIndexes && isComposedDriver ? currentModelIndexes[namespace] as IModelIndexesBase : currentModelIndexes
         }

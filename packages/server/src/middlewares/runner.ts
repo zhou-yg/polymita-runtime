@@ -77,7 +77,7 @@ export default function taratMiddleware (args: {
         const c: IHookContext = typeof body === 'string' ? parseWithUndef(body) : body;
 
         let runner = new ModelRunner(BM, {
-          beleiveContext: false,
+          believeContext: false,
           modelIndexes,
         })
         

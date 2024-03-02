@@ -123,7 +123,7 @@ function runReactLogic<T extends Driver>(react: any, hook: T, props: Parameters<
       hook,
       {
         updateCallbackSync: true,
-        beleiveContext: true,
+        believeContext: true,
       }
     )
 
