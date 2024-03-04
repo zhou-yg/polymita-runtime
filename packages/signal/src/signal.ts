@@ -813,8 +813,7 @@ export class Runner<T extends Driver> {
 
     const deps = getDeps(this.driver);
     const names = getNames(this.driver);
-    const scope = new this.ScopeConstructor<T>(context, deps, names, plugin);
-    scope.setOptions(this.options);
+    const scope = new this.ScopeConstructor<T>(context, deps, names, plugin, this.options);
 
     return scope;
   }
@@ -1074,12 +1073,15 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
     public runnerContext: RunnerContext<T>,
     public initialContextDeps: THookDeps,
     public initialContextNames: THookNames,
-    public plugin: Plugin
+    public plugin: Plugin,
+    op: Partial<IRunnerOptions>
   ) {
     super();
     runnerContext.bindScope(this);
 
     this.initializeHookSet();
+
+    Object.assign(this, op);
   }
 
   /**
@@ -1114,10 +1116,6 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
         driverName,
       });
     };
-  }
-
-  setOptions(op: Partial<IRunnerOptions>) {
-    Object.assign(this, op);
   }
 
   effect(f: Function) {
