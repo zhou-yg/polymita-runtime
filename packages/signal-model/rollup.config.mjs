@@ -22,41 +22,12 @@ export default [
     plugins: [
       ...base.plugins,
       replace({
-        'process.env.TARGET': '"server"',
-        preventAssignment: true
-      }),
-    ],
-    output: {
-      file: `dist/${libName}.js`,
-      format: 'commonjs'
-    },
-  },
-  {
-    ...base,
-    plugins: [
-      ...base.plugins,
-      replace({
-        'process.env.TARGET': '"server"',
         preventAssignment: true
       }),
     ],
     output: {
       file: `dist/${libName}.esm.js`,
       format: 'esm'
-    },
-  },
-  {
-    ...base,
-    plugins: [
-      ...base.plugins,
-      replace({
-        'process.env.TARGET': '"client"',
-        preventAssignment: true
-      }),
-    ],
-    output: {
-      file: `dist/${libName}.client.esm.js`,
-      format: 'esm'
     }
   },
   {
@@ -64,19 +35,18 @@ export default [
     plugins: [
       ...base.plugins,
       replace({
-        'process.env.TARGET': '"client"',
         preventAssignment: true
       }),
     ],
     output: {
-      file: `dist/${libName}.client.js`,
+      file: `dist/${libName}.js`,
       format: 'cjs'
     }
   },
   {
     input: "src/index.ts",
     output: [
-      { file: `dist/${libName}.client.d.ts`, format: "es" },
+      { file: `dist/${libName}.esm.d.ts`, format: "es" },
       { file: `dist/${libName}.d.ts`, format: "es" },
     ],
     plugins: [

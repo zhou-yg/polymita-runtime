@@ -6,6 +6,7 @@ import {
 
 export interface IModelRunnerOptions extends IRunnerOptions {
   modelIndexes?: IModelIndexesBase
+  runtime?: 'nodejs' | 'edge'
 }
 
 export interface IStackUnit {

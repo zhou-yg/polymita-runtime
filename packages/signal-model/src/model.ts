@@ -66,6 +66,7 @@ import {
 export class ModelRunner<T extends Driver> extends Runner<T> {
   ScopeConstructor: typeof RunnerModelScope = RunnerModelScope
   scope: RunnerModelScope = null
+
   constructor(public driver: T, options?: Partial<IModelRunnerOptions>) {
     super(driver, options)
   }
@@ -142,6 +143,8 @@ export class RunnerModelScope<T extends Driver = any> extends CurrentRunnerScope
 
   modelHookFactory = mountModelHookFactory
 
+  runtime?: 'nodejs' | 'edge' = 'nodejs'
+
   constructor (
     public runnerContext: RunnerContext<T>,
     public initialContextDeps: THookDeps,
@@ -151,7 +154,7 @@ export class RunnerModelScope<T extends Driver = any> extends CurrentRunnerScope
     super(runnerContext, initialContextDeps, initialContextNames, plugin)
 
     this.modelPatchEvents =
-      process.env.TARGET === 'server' || !GlobalModelEvent
+      this.runtime  === 'nodejs' || !GlobalModelEvent
         ? new ModelEvent()
         : GlobalModelEvent
 
@@ -1219,7 +1222,8 @@ function updateCyclePrisma<T extends any[]>(
     currentRunnerScope!.addHook(undefined)
     return createUnaccessibleModelGetter<T>(currentIndex, e)
   }
-  const inServer = process.env.TARGET === 'server'
+
+  const inServer = currentRunnerScope.runtime === 'nodejs'
   const { believeContext } = currentRunnerScope!
 
   const receiveDataFromContext = believeContext || !inServer
@@ -1310,7 +1314,7 @@ function updateComputedInServer<T>(fn: any): any {
     currentRunnerScope!.runnerContext.initialData![currentIndex]?.[3]
 
   const hook =
-    process.env.TARGET === 'server'
+    currentRunnerScope.runtime === 'nodejs'
       ? new Computed<T>(fn)
       : new ClientComputed<T>(fn, currentRunnerScope)
 
@@ -1347,7 +1351,7 @@ function mountComputedInServer<T>(fn: any): any {
   const currentRunnerScope = getModelRunnerScope()!
 
   const hook =
-    process.env.TARGET === 'server'
+    currentRunnerScope.runtime === 'nodejs'
       ? new Computed<T>(fn)
       : new ClientComputed<T>(fn, currentRunnerScope)
   currentRunnerScope!.addHook(hook)
@@ -1428,7 +1432,7 @@ function mountPrisma<T extends any[]>(
 ) {
   const currentRunnerScope = getModelRunnerScope()!
   const hook =
-    process.env.TARGET === 'server'
+    currentRunnerScope.runtime === 'nodejs'
       ? new Prisma<T>(e, q, op, currentRunnerScope!)
       : new ClientPrisma<T>(e, q, op, currentRunnerScope!)
 
@@ -1449,7 +1453,7 @@ function mountWritePrisma<T extends any[]>(source: { _hook: Model<T> } | string,
   const currentRunnerScope = getModelRunnerScope()!
 
   const hook =
-    process.env.TARGET === 'server'
+    currentRunnerScope.runtime === 'nodejs'
       ? new WritePrisma(source, q, currentRunnerScope)
       : new ClientWritePrisma(source, q, currentRunnerScope)
 
@@ -1478,7 +1482,7 @@ function mountCreatePrisma<T extends any[]>(
   const currentRunnerScope = getModelRunnerScope()!
 
   const hook =
-    process.env.TARGET === 'server'
+    currentRunnerScope.runtime === 'nodejs'
       ? new WritePrisma(source, q, currentRunnerScope)
       : new ClientWritePrisma(source, q, currentRunnerScope)
 
@@ -1502,7 +1506,7 @@ function mountUpdatePrisma<T extends any[]>(
   const currentRunnerScope = getModelRunnerScope()!
 
   const hook =
-    process.env.TARGET === 'server'
+    currentRunnerScope.runtime === 'nodejs'
       ? new WritePrisma(source, q, currentRunnerScope)
       : new ClientWritePrisma(source, q, currentRunnerScope)
 
@@ -1526,7 +1530,7 @@ function mountRemovePrisma<T extends any[]>(
   const currentRunnerScope = getModelRunnerScope()!
 
   const hook =
-    process.env.TARGET === 'server'
+    currentRunnerScope.runtime === 'nodejs'
       ? new WritePrisma(source, q, currentRunnerScope)
       : new ClientWritePrisma(source, q, currentRunnerScope)
 
@@ -1588,7 +1592,7 @@ export function inputComputeInServer(func: any) {
    * running in client should post request to server
    * if already in server, should execute directly
    */
-  if (process.env.TARGET === 'server') {
+  if (scope.runtime === 'nodejs') {
     return inputCompute(func)
   }
   const wrapFunc = scope.modelHookFactory.inputComputeInServer(func)
