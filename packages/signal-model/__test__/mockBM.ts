@@ -167,10 +167,11 @@ export function initModelConfig(obj: any = {}) {
   return plugin
 }
 
-export function getSimpleServerMiddlewareRunner(bm: BM) {
+export function getSimpleServerMiddlewareRunner(bm: BM, op: { isEdge?: boolean } = {}) {
+  const { isEdge } = op
+
   const plugin = initModelConfig({
     async postComputeToServer(c: IHookContext) {
-      process.env.TARGET = 'server'
       const serverRunner = getRunnerWithPlugin(bm)
       serverRunner.init(c.initialArgList as [any, any], c)
 
@@ -179,14 +180,13 @@ export function getSimpleServerMiddlewareRunner(bm: BM) {
       }
       const context = serverRunner.scope.createActionContext()
 
-      process.env.TARGET = ''
-
       return context
     }
   })
   
   return new ModelRunner(bm, {
     plugin,
+    runtime: isEdge ? 'edge' : 'nodejs'
   })
 }
 

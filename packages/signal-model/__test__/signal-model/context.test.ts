@@ -20,7 +20,7 @@ describe('initContext', () => {
         ['s2', 'state', null]
       ]
     }
-    const runner = new ModelRunner(mockBM.plainObjectState)
+    const runner = mockBM.getSimpleServerMiddlewareRunner(mockBM.plainObjectState)
     const result = runner.init(args, context)
 
     expect(result.s1()).toEqual(context.data[0][2])
@@ -59,7 +59,7 @@ describe('initContext', () => {
         ['m1', 'model']
       ]
     }
-    const runner = new ModelRunner(mockBM.oneModel)
+    const runner = mockBM.getSimpleServerMiddlewareRunner(mockBM.oneModel)
     const result = runner.init([], context)
 
     try {
@@ -73,7 +73,7 @@ describe('initContext', () => {
       { num1: 0 },
       1
     ]
-    const clientRunner = mockBM.getSimpleServerMiddlewareRunner(mockBM.changeStateInputComputeServer)
+    const clientRunner = mockBM.getSimpleServerMiddlewareRunner(mockBM.changeStateInputComputeServer, { isEdge: true })
     const r = clientRunner.init(args)
 
     expect(r.s1()).toEqual(args[0])
@@ -87,11 +87,10 @@ describe('initContext', () => {
   })
 
   describe('with depsMap', () => {
-    it ('call remote compute with deps', async () => {
+    it('call remote compute with deps', async () => {
       const plugin = mockBM.initModelConfig({
         async postComputeToServer (c: IHookContext) {
-          process.env.TARGET = 'server'
-          const serverRunner = new ModelRunner(mockBM.changeStateInputComputeServer2)
+          const serverRunner = new ModelRunner(mockBM.changeStateInputComputeServer2, { plugin })
 
           expect(c.data[1]).toEqual([undefined, 'unserialized'])
           expect(c.data[3]).toEqual([undefined, 'unserialized'])
@@ -110,7 +109,7 @@ describe('initContext', () => {
           return context
         }
       })
-      const clientRunner = mockBM.getRunnerWithPlugin(mockBM.changeStateInputComputeServer2, { plugin })
+      const clientRunner = mockBM.getRunnerWithPlugin(mockBM.changeStateInputComputeServer2, { plugin, runtime: 'edge' })
   
       /**
        * call ic which hook index equal 4
@@ -140,16 +139,10 @@ describe('initContext', () => {
   })
 
   describe('context serialization to server', () => {
-    beforeEach(() => {
-      process.env.TARGET = 'client'
-    })
-    afterEach(() => {
-      process.env.TARGET = ''
-    })
     it('simple', () => {
-      const clientRunner = new ModelRunner(mockBM.changeOver3ChainDriver)
+      const clientRunner = mockBM.getSimpleServerMiddlewareRunner(mockBM.changeOver3ChainDriver)
       const scope = clientRunner.prepareScope()
-      const result = clientRunner.executeDriver(scope)
+      clientRunner.executeDriver(scope)
       
       const context = scope.createShallowActionContext(scope.hooks[11]);
 

@@ -8,7 +8,7 @@
   "scripts": {
     "wu": "sh scripts/dev-unit.sh",
     "test-unit": "jest --runInBand",
-    "test-ci": "TEST=CI jest",
+    "test-ci": "TEST=CI jest --runInBand",
     "format": "prettier --write --parser typescript \"*/*.ts?(x)\"",
     "build": "rollup --config rollup.config.mjs",
     "build:watch": "npm run format && rollup --config rollup.config.mjs --watch",

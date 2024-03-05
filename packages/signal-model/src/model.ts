@@ -70,8 +70,8 @@ export class ModelRunner<T extends Driver> extends Runner<T> {
   constructor(public driver: T, options?: Partial<IModelRunnerOptions>) {
     super(driver, options)
   }
-  override prepareScope (args?: Parameters<T>, initialContext?: IHookContext) {
-    return super.prepareScope(args, initialContext) as RunnerModelScope;
+  override prepareScope (args?: Parameters<T>, initialContext?: IHookContext, plugin?: Plugin) {
+    return super.prepareScope(args, initialContext, plugin) as RunnerModelScope;
   }
 }
 
@@ -136,22 +136,27 @@ export function getModelRunnerScope () {
 
 export class RunnerModelScope<T extends Driver = any> extends CurrentRunnerScope<T> {
   // set by this.setOptions
-  modelIndexes: IModelIndexesBase | undefined = undefined
+  modelIndexes: IModelIndexesBase
   modelIndexesPath: string[] = []
 
   modelPatchEvents: ModelEvent
 
   modelHookFactory = mountModelHookFactory
 
-  runtime?: 'nodejs' | 'edge' = 'nodejs'
+  runtime: 'nodejs' | 'edge'
 
   constructor (
     public runnerContext: RunnerContext<T>,
     public initialContextDeps: THookDeps,
     public initialContextNames: THookNames,
     public plugin: Plugin,
+    op: Partial<IModelRunnerOptions>
   ) {
-    super(runnerContext, initialContextDeps, initialContextNames, plugin)
+    super(runnerContext, initialContextDeps, initialContextNames, plugin, op)
+
+    if (!this.runtime) {
+      this.runtime = 'nodejs'
+    }
 
     this.modelPatchEvents =
       this.runtime  === 'nodejs' || !GlobalModelEvent
@@ -193,7 +198,7 @@ export class RunnerModelScope<T extends Driver = any> extends CurrentRunnerScope
     }
 
     log(
-      `[getRealEntityName] entityKey=${entityKey} mi=${!!this
+      `[getRealEntityName] entityKey=${entityKey} modelIndexes=${!!this
         .modelIndexes} result=${result}`
     )
 

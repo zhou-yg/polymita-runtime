@@ -37,7 +37,9 @@ const plugin = mockBM.initModelConfig({
   async postComputeToServer(c: IHookContext) {
 
     const leave = mockBM.enterServer()
-    const serverRunner = new ModelRunner(mockBM[c.name as keyof typeof mockBM], { plugin })
+    const serverRunner = new ModelRunner(mockBM[c.name as keyof typeof mockBM], {
+      plugin,
+    })
     serverRunner.init(c.initialArgList as [any, any], c)
 
     if (c.index) {
@@ -108,12 +110,9 @@ describe('client model', () => {
   describe('mount model', () => {
   
     it('post query to server', async () => {
-      const leave = mockBM.enterClient()
-      const runner = new ModelRunner(mockBM.userModelClient, { plugin })
+      const runner = new ModelRunner(mockBM.userModelClient, { plugin, runtime: 'edge' })
       const result = runner.init()  
       
-      leave()
-
       await runner.ready()
 
       expect(result.users()).toEqual([
@@ -125,15 +124,11 @@ describe('client model', () => {
 
     it('keep active model in realtime', async () => {
 
-      const leave = mockBM.enterClient()
-
-      const runner1 = new ModelRunner(mockBM.writeModelWithSource, { plugin })
+      const runner1 = new ModelRunner(mockBM.writeModelWithSource, { plugin, runtime: 'edge' })
       const result1 = runner1.init()
 
-      const runner2 = new ModelRunner(mockBM.writeModelWithSource, { plugin })
+      const runner2 = new ModelRunner(mockBM.writeModelWithSource, { plugin, runtime: 'edge' })
       const result2 = runner2.init()
-
-      leave()
 
       await Promise.all([
         runner1.ready(),
@@ -157,8 +152,8 @@ describe('client model', () => {
   })
   describe('update model', () => {
     it('query immediate with context still wont send query', async () => {
-      mockBM.enterClient()
-      const runner = new ModelRunner(mockBM.userModelClient, { plugin })
+      
+      const runner = new ModelRunner(mockBM.userModelClient, { plugin, runtime: 'edge' })
       const cd: IHookContext['data'] = [
         ['num', 'data', 3, Date.now()],
         ['users', 'data', [{ id: 3, name: 'c' }], Date.now()]

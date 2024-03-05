@@ -49,12 +49,7 @@ const plugin = mockBM.initModelConfig({
 
 describe('model', () => {
   beforeAll(() => {
-    // make sure the model run in server envirnment
-    process.env.TARGET = 'server'
     clearAll()
-  })
-  afterAll(() => {
-    process.env.TARGET = ''
   })
   beforeEach(async () => {
     await prisma.item.deleteMany({})
@@ -386,6 +381,7 @@ describe('model', () => {
 
   describe('dynamic model indexes', () => {
     it('compose sub package driver', async () => {
+
       const runner = new ModelRunner(mockBM.composeDriverWithNamespace, {
         believeContext: true,
         modelIndexes: {

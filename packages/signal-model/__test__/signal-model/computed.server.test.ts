@@ -1,23 +1,18 @@
 import {
   ModelRunner,
+  debuggerLog,
 } from '../../src'
 
 import * as mockBM from '../mockBM'
 
 describe('computed', () => {
-  beforeAll(() => {
-    process.env.target = 'client'
-  })
-  afterAll(() => {
-    process.env.target = ''
-  })
   describe('mount computed',  () => {
 
     it('simple', async () => {
-      const runner = mockBM.getSimpleServerMiddlewareRunner(mockBM.simpleComputedInServer)
-      const result = runner.init()
-
       // debuggerLog(true)
+
+      const runner = mockBM.getSimpleServerMiddlewareRunner(mockBM.simpleComputedInServer, { isEdge: true })
+      const result = runner.init()
       
       const v1 = result.c()
   
@@ -30,7 +25,7 @@ describe('computed', () => {
   })
   describe('update computed', () => {
     it('simple', async () => {
-      const runner = mockBM.getSimpleServerMiddlewareRunner(mockBM.simpleComputedInServer)
+      const runner = mockBM.getSimpleServerMiddlewareRunner(mockBM.simpleComputedInServer, { isEdge: true })
 
       const initContext = mockBM.initContext({
         index: undefined,
