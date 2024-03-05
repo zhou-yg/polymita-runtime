@@ -813,7 +813,13 @@ export class Runner<T extends Driver> {
 
     const deps = getDeps(this.driver);
     const names = getNames(this.driver);
-    const scope = new this.ScopeConstructor<T>(context, deps, names, plugin, this.options);
+    const scope = new this.ScopeConstructor<T>(
+      context,
+      deps,
+      names,
+      plugin || this.options.plugin,
+      this.options
+    );
 
     return scope;
   }
