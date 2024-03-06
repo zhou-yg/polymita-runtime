@@ -1,0 +1,38 @@
+{
+  "name": "@polymita/server",
+  "version": "0.0.1",
+  "description": "tarat ssr framework server side",
+  "bin": {
+    "polymita": "./dist/cli/index.js"
+  },
+  "files": [
+    "src",
+    "cli",
+    "adaptors",
+    "package.json",
+    "dist"
+  ],
+  "scripts": {
+    "update:core": "pnpm update tarat@latest @polymita/connect@latest @polymita/renderer@latest @polymita/signal-model@latest @polymita/signal@latest polymita@latest",
+    "wu": "sh scripts/compiler-unit.sh",
+    "test": "jest",
+    "test-unit": "jest --runInBand --detectOpenHandles",
+    "test-ci": "TEST=CI jest",
+    "build": "rm -rf dist/ && node scripts/build.mjs",
+    "build:watch": "npm run build && rollup --config rollup.config.mjs --watch"
+  },
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhou-yg/tarat.git"
+  },
+  "author": "zhouyg",
+  "bugs": {
+    "url": "https://github.com/zhou-yg/tarat/issues"
+  },
+  "homepage": "https://github.com/zhou-yg/tarat#readme",
+  "devDependencies": {
+  },
+  "dependencies": {
+  }
+}
