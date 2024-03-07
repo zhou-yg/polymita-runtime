@@ -5,6 +5,9 @@
   "bin": {
     "polymita": "./dist/cli/index.js"
   },
+  "volta": {
+    "node": "20.11.1"
+  },
   "files": [
     "src",
     "cli",
@@ -31,8 +34,16 @@
     "url": "https://github.com/zhou-yg/tarat/issues"
   },
   "homepage": "https://github.com/zhou-yg/tarat#readme",
-  "devDependencies": {
-  },
   "dependencies": {
+    "@prisma/internals": "^4.0.0",
+    "cac": "^6.7.12",
+    "chokidar": "^3.5.3",
+    "esbuild": "^0.18.15",
+    "exit-hook": "2.x.x",
+    "shelljs": "^0.8.5"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.4.0",
+    "@types/node": "^18.6.2"
   }
 }
