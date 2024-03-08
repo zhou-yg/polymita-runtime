@@ -495,6 +495,9 @@ importers:
       '@prisma/internals':
         specifier: ^4.0.0
         version: 4.15.0
+      '@schemastore/package':
+        specifier: ^0.0.6
+        version: 0.0.6
       cac:
         specifier: ^6.7.12
         version: 6.7.14
@@ -507,6 +510,12 @@ importers:
       exit-hook:
         specifier: 2.x.x
         version: 2.2.1
+      get-port:
+        specifier: 5.1.1
+        version: 5.1.1
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
       shelljs:
         specifier: ^0.8.5
         version: 0.8.5

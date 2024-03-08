@@ -550,14 +550,14 @@ export function replaceImportDriverPath (
   const reg = /from (?:'|")([@\w\/-]*)(?:'|")/g
   const reg2 = /require\((?:'|")([@\w\/-]*)(?:'|")/g
 
-  const { dependencyModules, buildDirectory, driversDirectory } = config
+  const { dependencyModules, buildDirectory, signalsDirectory } = config
 
   const code = fs.readFileSync(sourceFile).toString()
   const r = code.match(reg)
   const r2 = code.match(reg2)
   const importModules = r || r2
 
-  const modulePathRegExp = new RegExp(`(${dependencyModules.join('|')})/(${buildDirectory})/(${driversDirectory})/([\\w-]+)`, 'g')
+  const modulePathRegExp = new RegExp(`(${dependencyModules.join('|')})/(${buildDirectory})/(${signalsDirectory})/([\\w-]+)`, 'g')
 
   const condition = 
     importModules && importModules.length > 0 &&
@@ -788,8 +788,8 @@ export async function buildDTSFiles (c: IConfig, filePaths: { filePath: string, 
 }
 
 export async function driversType(c: IConfig, outputDir: string) {
-  const { drivers, driversDirectory } = c
-  const cwdDriversDir = path.join(c.cwd, driversDirectory)
+  const { drivers, signalsDirectory } = c
+  const cwdDriversDir = path.join(c.cwd, signalsDirectory)
 
 
   const generateFiles:{ name: string, destDir: string, relativePath: string, outFile: string }[] = []

@@ -28,7 +28,7 @@ const esbuildPluginAliasDriver = (c: IConfig, env: 'server' | 'client'): esbuild
     cwd,
     cjsDirectory,
     esmDirectory,
-    driversDirectory,
+    signalsDirectory,
     project
   } = c
   const {
@@ -38,7 +38,7 @@ const esbuildPluginAliasDriver = (c: IConfig, env: 'server' | 'client'): esbuild
 
   const targetFormat = env === 'server' ? cjsDirectory : esmDirectory
   const envDriverOutputDir = env === 'server' ? outputServerDir : outputClientDir
-  const filterReg = new RegExp(`(${project}\\/${driversDirectory})|(dist\\/\\w+\\/${driversDirectory})`)
+  const filterReg = new RegExp(`(${project}\\/${signalsDirectory})|(dist\\/\\w+\\/${signalsDirectory})`)
 
   return {
     name: 'alias-driver',
@@ -56,7 +56,7 @@ const esbuildPluginAliasDriver = (c: IConfig, env: 'server' | 'client'): esbuild
           if (/\.ts$/.test(complementPath)) {
             aliasSource = complementPath
               .replace(cwd, envDriverOutputDir)
-              .replace(new RegExp(`\\/${driversDirectory}\\/`), `/${driversDirectory}/${targetFormat}/`)
+              .replace(new RegExp(`\\/${signalsDirectory}\\/`), `/${signalsDirectory}/${targetFormat}/`)
               .replace(/(\.(t|j)s)?$/, '.js');
           } else {
             aliasSource = complementPath
@@ -94,7 +94,7 @@ const esbuildPluginAliasDriver = (c: IConfig, env: 'server' | 'client'): esbuild
       //   if (filterReg.test(complementPath)) {
       //     const aliasSource = complementPath
       //       .replace(cwd, envDriverOutputDir)
-      //       .replace(new RegExp(`\\/${driversDirectory}\\/`), `/${driversDirectory}/${defaultFormat}/`)
+      //       .replace(new RegExp(`\\/${signalsDirectory}\\/`), `/${signalsDirectory}/${defaultFormat}/`)
       //       .replace(/(\.(t|j)s)?$/, '.js')
 
       //     console.log('aliasSource: ', aliasSource, fs.existsSync(aliasSource), '\n');

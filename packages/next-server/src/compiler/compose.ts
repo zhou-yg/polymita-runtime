@@ -314,7 +314,7 @@ Object.assign(d, { __tarat_compose__: true })
 export { default } from '${arg.path}'
 `
 async function generateReferrenceDrivers (c: IConfig, h: IDependencyHook[]) {
-  const curDriversDir = path.join(c.cwd, c.driversDirectory, c.composeDriversDirectory)
+  const curDriversDir = path.join(c.cwd, c.signalsDirectory, c.composeDriversDirectory)
 
   if (!fs.existsSync(curDriversDir) && h.length > 0) {
     fs.mkdirSync(curDriversDir)
@@ -347,9 +347,9 @@ export async function composeDriver(c: IConfig) {
   
   c.dependencyModules.forEach(moduleName => {
     const dir = path.join(c.cwd, 'node_modules', moduleName)
-    const distDriversDir = path.join(dir, c.buildDirectory, c.driversDirectory)
+    const distDriversDir = path.join(dir, c.buildDirectory, c.signalsDirectory)
     if (!fs.existsSync(distDriversDir)) {
-      console.error(`[composeDriver] drivers not found in "${moduleName}/${c.buildDirectory}/${c.driversDirectory}"`)
+      console.error(`[composeDriver] drivers not found in "${moduleName}/${c.buildDirectory}/${c.signalsDirectory}"`)
       return
     }
 
@@ -366,7 +366,7 @@ export async function composeDriver(c: IConfig) {
         }
         dependencyDrivers.push({
           name: driverName,
-          modulePath: `${moduleName}/${c.buildDirectory}/${c.driversDirectory}/${name}`
+          modulePath: `${moduleName}/${c.buildDirectory}/${c.signalsDirectory}/${name}`
         })
       })
   })

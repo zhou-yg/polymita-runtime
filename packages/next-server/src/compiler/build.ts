@@ -66,9 +66,9 @@ export async function buildViews (c: IConfig) {
 
   const queue: Promise<void>[] = []
 
-  const originDriverDir = path.join(c.cwd, c.driversDirectory)
+  const originDriverDir = path.join(c.cwd, c.signalsDirectory)
   const externalDrivers = fs.existsSync(originDriverDir) ? fs.readdirSync(originDriverDir).map(f => {
-    return path.join(c.cwd, c.driversDirectory, f)
+    return path.join(c.cwd, c.signalsDirectory, f)
   }) : []
 
   const entryViewFiles: string[] = []

@@ -17,7 +17,7 @@ export const defaultConfig = () => ({
 
   // client about
   viewsDirectory: 'views', // in tarat the display unit maybe page or component, they should belong to "views"
-  driversDirectory: 'drivers',
+  signalsDirectory: 'drivers',
   composeDriversDirectory: 'compose',
   modelsDirectory: 'models',
   appDirectory: 'app',
@@ -183,7 +183,7 @@ function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) 
     viewsDir: path.join(cwd, config.viewsDirectory),
     modulesDir: path.join(cwd, config.modulesDirectory),
     modelsDir: path.join(cwd, config.modelsDirectory),
-    driversDir: path.join(cwd, config.driversDirectory),
+    driversDir: path.join(cwd, config.signalsDirectory),
     appDir: path.join(cwd, config.appDirectory),
 
     // prisma
@@ -193,7 +193,7 @@ function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) 
     modelTargetFile: path.join(cwd, config.modelsDirectory, config.targetSchemaPrisma),
     // views/modules/drivers
     outputViewsDir: path.join(outputDir, config.viewsDirectory),
-    outputDriversDir: path.join(outputDir, config.driversDirectory),
+    outputDriversDir: path.join(outputDir, config.signalsDirectory),
     outputModulesDir: path.join(outputDir, config.modulesDirectory),
     
     /** server */
@@ -208,8 +208,8 @@ function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) 
     distEntryJS: path.join(outputAppServerDir, `${config.entryServer}.js`),
     distEntryCSS: path.join(outputAppServerDir, `${config.entryServer}.css`),
     // drivers
-    outputServerDriversDir: path.join(outputServerDir, config.driversDirectory, cjsDirectory),
-    outputServerDriversESMDir: path.join(outputServerDir, config.driversDirectory, esmDirectory),
+    outputServerDriversDir: path.join(outputServerDir, config.signalsDirectory, cjsDirectory),
+    outputServerDriversESMDir: path.join(outputServerDir, config.signalsDirectory, esmDirectory),
 
     /** client */
 
@@ -221,8 +221,8 @@ function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) 
     clientRoutes: path.join(outputAppClientDir, 'routes.js'),
     clientRoutesCSS: path.join(outputAppClientDir, 'routes.css'),
     // drivers
-    outputClientDriversDir: path.join(outputClientDir, config.driversDirectory, esmDirectory),
-    outputClientDriversCJSDir: path.join(outputClientDir, config.driversDirectory, cjsDirectory),
+    outputClientDriversDir: path.join(outputClientDir, config.signalsDirectory, esmDirectory),
+    outputClientDriversCJSDir: path.join(outputClientDir, config.signalsDirectory, cjsDirectory),
   }
 }
 
@@ -310,7 +310,7 @@ export async function readConfig (arg: {
   const packageJSON: null | JSONSchemaForNPMPackageJsonFiles = fs.existsSync(packageJSONPath) ? loadJSON(packageJSONPath) : null
 
   const viewsDirectory = path.join(cwd, config.viewsDirectory)
-  const driversDirectory = path.join(cwd, config.driversDirectory)
+  const signalsDirectory = path.join(cwd, config.signalsDirectory)
   const appDirectory = path.join(cwd, config.appDirectory)
   const pagesDirectory = path.join(appDirectory, config.pageDirectory)
   const modulesDirectory = path.join(cwd, config.modulesDirectory)
@@ -330,16 +330,16 @@ export async function readConfig (arg: {
     c.file = path.join('./', config.appDirectory, config.pageDirectory, c.file)
   })
 
-  const drivers = readDrivers(driversDirectory).map(d => {
+  const drivers = readDrivers(signalsDirectory).map(d => {
     return {
       ...d,
-      relativeDir: path.relative(driversDirectory, d.dir)
+      relativeDir: path.relative(signalsDirectory, d.dir)
     }
   })
 
   const currentFiles = {
     viewsDirectory,
-    driversDirectory,
+    signalsDirectory,
     appDirectory,
     pagesDirectory,
     modulesDirectory,

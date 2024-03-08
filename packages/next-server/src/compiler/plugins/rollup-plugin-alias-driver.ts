@@ -18,7 +18,7 @@ export default function aliasDriverRollupPlugin (c: IConfig, env: 'server' | 'cl
     cwd,
     cjsDirectory,
     esmDirectory,
-    driversDirectory
+    signalsDirectory
   } = c
   const {
     outputClientDir,
@@ -36,14 +36,14 @@ export default function aliasDriverRollupPlugin (c: IConfig, env: 'server' | 'cl
       if (!importer) {
         return null
       }
-      if (isDriver(source, driversDirectory)) {
+      if (isDriver(source, signalsDirectory)) {
         const resolution = await this.resolve(source, importer, { skipSelf: true, ...options })
         if (!resolution || resolution.external) {
           return resolution
         }
         const aliasSource = resolution.id
           .replace(cwd, envDriverOutputDir)
-          .replace(new RegExp(`\\/${driversDirectory}\\/`), `/${driversDirectory}/${defaultFormat}/`)
+          .replace(new RegExp(`\\/${signalsDirectory}\\/`), `/${signalsDirectory}/${defaultFormat}/`)
           .replace(/\.ts$/, '.js')
         
         const r2 = await this.resolve(aliasSource, importer, { skipSelf: true, ...options })

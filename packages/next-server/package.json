@@ -36,10 +36,13 @@
   "homepage": "https://github.com/zhou-yg/tarat#readme",
   "dependencies": {
     "@prisma/internals": "^4.0.0",
+    "@schemastore/package": "^0.0.6",
     "cac": "^6.7.12",
     "chokidar": "^3.5.3",
     "esbuild": "^0.18.15",
     "exit-hook": "2.x.x",
+    "get-port": "5.1.1",
+    "lodash": "^4.17.21",
     "shelljs": "^0.8.5"
   },
   "devDependencies": {
