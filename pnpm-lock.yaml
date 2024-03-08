@@ -504,15 +504,27 @@ importers:
       '@schemastore/package':
         specifier: ^0.0.6
         version: 0.0.6
+      '@types/estree':
+        specifier: ^0.0.52
+        version: 0.0.52
       '@types/rimraf':
         specifier: ^3.0.2
         version: 3.0.2
       '@types/shelljs':
         specifier: ^0.8.11
         version: 0.8.12
+      acorn:
+        specifier: ^8.7.1
+        version: 8.8.2
+      acorn-walk:
+        specifier: ^8.2.0
+        version: 8.2.0
       cac:
         specifier: ^6.7.12
         version: 6.7.14
+      camel-case:
+        specifier: ^4.1.2
+        version: 4.1.2
       chokidar:
         specifier: ^3.5.3
         version: 3.5.3

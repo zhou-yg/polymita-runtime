@@ -10,17 +10,8 @@ const instance = spawn('rollup', ['--config', 'rollup.config.mjs'], {
 
 instance.on('close', () => {
   
-  cp('src/middlewares/pageTemplate.ejs', 'dist/cli/')
-  cp('src/middlewares/pageTemplate.ejs', 'dist/')
-
-  cp('src/compiler/routesServerTemplate.ejs', 'dist/cli/')
-  cp('src/compiler/routesServerTemplate.ejs', 'dist/')
-  
-  cp('src/compiler/routesClientTemplate.ejs', 'dist/cli/')
-  cp('src/compiler/routesClientTemplate.ejs', 'dist/')
-
-  cp('src/compiler/defaultTsconfig.json', 'dist/cli/')
-  cp('src/compiler/defaultTsconfig.json', 'dist/')
+  cp('src/compiler/signalsMapTemplate.ejs', 'dist/cli/')
+  cp('src/compiler/signalsMapTemplate.ejs', 'dist/')
 
   console.log('build end')
 })
