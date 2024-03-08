@@ -87,6 +87,11 @@ export function isFileEmpty (code: string) {
 }
 
 export interface IFile {
+  /**
+   * pure name without ext
+   */
+  name: string
+
   isDir: boolean
   /**
    * absolute path
@@ -112,6 +117,7 @@ export function traverseDir (dir: string, callback: (f: IFile) => void, relative
     const isDir = fs.lstatSync(p).isDirectory()
     callback({
       isDir,
+      name: f.replace(/\.\w+$/, ''),
       dir,
       file: f,
       relativeFile: path.join(relativeBase, f),

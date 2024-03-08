@@ -2,7 +2,6 @@ import cacFactory from "cac";
 import pkg from '../package.json'
 import dev from "./dev";
 import build from "./build";
-import start from './start'
 import any from "./any";
 const cac = cacFactory('tarat-server')
 
@@ -21,12 +20,6 @@ cac
   .command('build', 'compile current project')
   .action(async () => {
     build(cwd)
-  })
-
-cac
-  .command('start', 'starting project as service')
-  .action(async () => {
-    start(cwd)
   })
 
 cac

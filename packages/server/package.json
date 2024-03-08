@@ -54,7 +54,7 @@
     "@deanc/esbuild-plugin-postcss": "^1.0.2",
     "@koa/cors": "^3.3.0",
     "@polymita/connect": "workspace:^",
-    "@polymita/signal": "workspace:^1.0.1",
+    "@polymita/signal": "workspace:^",
     "@polymita/signal-model": "workspace:^",
     "@prisma/generator-helper": "4.x.x",
     "@prisma/internals": "^4.0.0",

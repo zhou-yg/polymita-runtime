@@ -40,7 +40,7 @@ function cleanOriginalCodeTag (code: string) {
 
 let i = 0;
 
-export function injectDeps (c: IConfig, targetFile: string) {
+export async function injectDeps (c: IConfig, targetFile: string) {
   // check file exist
   if (!fs.existsSync(targetFile)) {
     return
@@ -73,7 +73,7 @@ export function injectDeps (c: IConfig, targetFile: string) {
       `// location at:${targetFile}`
     )
 
-    const codeIncludingDepsWithFormat = prettier.format(codeIncludingDeps, { 
+    const codeIncludingDepsWithFormat = await prettier.format(codeIncludingDeps, { 
       parser: 'typescript'
     })
 

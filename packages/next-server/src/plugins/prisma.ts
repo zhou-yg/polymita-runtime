@@ -1,10 +1,9 @@
-import { loadPlugin } from '@polymita/signal-model'
 import { join } from 'path'
 import { IConfig } from '../config'
 import * as prismaInternals from '@prisma/internals'
 import { existsSync, readFileSync } from 'fs'
 
-export async function setPrisma (config: IConfig)  {
+export async function getPrismaConfig (config: IConfig)  {
   const { cwd } = config
   const schemaFile = join(cwd, config.modelsDirectory, config.targetSchemaPrisma)
 
@@ -32,7 +31,7 @@ export async function setPrisma (config: IConfig)  {
     console.log('connect success', Object.keys(prisma))
   })
 
-  loadPlugin('Model', {
+  return ({
     async find(from: string, e, w) {
       console.log('find e: ', e);
       return prisma[e].findMany(w).then(r => r)

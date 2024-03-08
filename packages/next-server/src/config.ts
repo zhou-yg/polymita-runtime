@@ -34,6 +34,9 @@ export const defaultConfig = () => ({
    */
   appRoot: 'layout', // the app root that extension in jsx|tsx
 
+  generateRoot: 'polymita',
+  generateSignalsMap: 'signalsMap',
+
   entryServer: 'entry.server', // .(j|t)sx in app
   routesServer: 'routes.server', // serve for tarat self
   routes: 'routes', // serve for tarat self
@@ -226,6 +229,18 @@ function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) 
   }
 }
 
+function getGenerateFiles(config: IDefaultConfig, cwd:string) {
+
+  const generateRootPath = path.join(cwd, config.appDirectory, config.generateRoot)
+
+  const ext = config.ts ? '.ts' : '.js'
+
+  return {
+    root: generateRootPath,
+    signalMap: path.join(generateRootPath, `${config.generateSignalsMap}${ext}`),
+  }
+}
+
 function readEntryCSS (pre: string, ) {
   const postfix = ['less', 'css']
   let r = ''
@@ -357,6 +372,8 @@ export async function readConfig (arg: {
   // default to "dev"
   const pointFiles = isProd === 'test' ? testPointFiles : isProd ? buildPointFiles : devPointFiles
 
+  const generateFiles = getGenerateFiles(config, cwd)
+
   const dependencyModules = findDependencies(cwd, packageJSON)
 
   const appRootFile = getAppRootFile(cwd, config)
@@ -377,6 +394,7 @@ export async function readConfig (arg: {
     isProd,
     entryCSS,
     pointFiles,
+    generateFiles,
     currentFiles,
     devPointFiles,
     buildPointFiles,
