@@ -866,7 +866,7 @@ export class Runner<T extends Driver> {
   /**
    * @TODO after init method refactor. shouldnt callHook through runner but scope
    */
-  callHook(hookIndex: number, args: any[]) {
+  callHook(hookIndex: number, args?: any[]) {
     return this.scope?.callHook(hookIndex, args);
   }
   state() {
@@ -1145,7 +1145,7 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
    * call the executable hook: Model, InputCompute
    * @TODO the executable hook maybe need a abstract base class
    */
-  async callHook(hookIndex: number, args: any[]) {
+  async callHook(hookIndex: number, args?: any[]) {
     log("[Scope.callHook] start");
     const hook = this.hooks[hookIndex];
     if (hook) {
