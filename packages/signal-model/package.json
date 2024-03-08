@@ -64,5 +64,8 @@
   },
   "peerDependencies": {
     "@polymita/signal": "workspace:^"
+  },
+  "volta": {
+    "node": "20.11.1"
   }
 }
