@@ -1,9 +1,9 @@
 import * as prismaInternals from '@prisma/internals'
-import { IConfig, IViewConfig } from "../config";
+import { IConfig, IViewConfig } from "../../config";
 import * as fs from 'fs'
 import * as path from 'path'
 import { compile } from 'ejs'
-import { traverseDir } from "../util";
+import { traverseDir } from "../../util";
 
 const signalMapTemplateFile = './signalsMapTemplate.ejs'
 const signalMapTemplateFilePath = path.join(__dirname, signalMapTemplateFile)
@@ -19,14 +19,13 @@ export function generateSignalMap (c: IConfig) {
   const relativeSignals: { name: string, filePath: string }[] = []
 
   traverseDir(signalsDir,(f) => {
-    const destFilePath = path.join(c.generateFiles.root, f.relativeFile);
-
-    const relativePath = path.relative(signalsDir, destFilePath)
-
-    relativeSignals.push({
-      name: f.name,
-      filePath: relativePath
-    })
+    if (!f.isDir) {
+      const relativePath = path.relative(c.generateFiles.root, f.path)
+      relativeSignals.push({
+        name: f.name,
+        filePath: relativePath.replace(/\.\w+$/, '')
+      })
+    }
   })
 
   const signalMapFileContent = signalMapTemplate({ files: relativeSignals })

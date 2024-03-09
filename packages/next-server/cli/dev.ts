@@ -1,8 +1,5 @@
 import * as path from 'path'
-import exitHook from 'exit-hook'
-import chokidar, { FSWatcher } from 'chokidar'
-import * as prismaInternals from '@prisma/internals'
-import chalk from 'chalk'
+import chokidar from 'chokidar'
 import { IConfig, IWatcherConfig, generateSignalMap, readConfig, watchByConfig } from '../src'
 
 const chokidarOptions = () => ({
@@ -14,6 +11,10 @@ const chokidarOptions = () => ({
   },
 })
 
+async function buildEverything (c: IConfig) {
+  generateSignalMap(c)
+}
+
 function watchEverything (c: IConfig) {
   const driversGroup = [
     path.join(c.cwd, c.signalsDirectory),
@@ -23,7 +24,7 @@ function watchEverything (c: IConfig) {
   const config: IWatcherConfig[] = [
     {
       watcher: driversWatcher,
-      name: 'drivers',
+      name: 'signals',
       event: 'change',
       callbackMode: 'sequence',
       callbacks: [generateSignalMap],
@@ -37,6 +38,8 @@ export default async (cwd: string) => {
   const config = await readConfig({
     cwd,
   })
+
+  await buildEverything(config)
 
   watchEverything(config)
 }

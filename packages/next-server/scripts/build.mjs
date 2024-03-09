@@ -10,8 +10,8 @@ const instance = spawn('rollup', ['--config', 'rollup.config.mjs'], {
 
 instance.on('close', () => {
   
-  cp('src/compiler/signalsMapTemplate.ejs', 'dist/cli/')
-  cp('src/compiler/signalsMapTemplate.ejs', 'dist/')
+  cp('src/compiler/prebuild/signalsMapTemplate.ejs', 'dist/cli/')
+  cp('src/compiler/prebuild/signalsMapTemplate.ejs', 'dist/')
 
   console.log('build end')
 })

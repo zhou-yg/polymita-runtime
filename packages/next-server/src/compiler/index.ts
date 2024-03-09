@@ -1,6 +1,6 @@
 export * from './constants'
 export * from './analyzer'
 export * from './compose'
-export * from './prebuild'
+export * from './prebuild/index'
 export * from './dependenceGraph'
 export * from './watchFiles'

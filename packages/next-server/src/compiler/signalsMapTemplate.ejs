@@ -1,9 +1,0 @@
-<% files.map(file => { %>
-import <%= file.name %> from '<%= file.filePath %>'
-<% }) %>
-
-export const signalMap = {
-  <% files.map(file => { %>
-  <%= file.name %>,
-  <% }) %>    
-}

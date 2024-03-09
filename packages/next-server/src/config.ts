@@ -17,7 +17,7 @@ export const defaultConfig = () => ({
 
   // client about
   viewsDirectory: 'views', // in tarat the display unit maybe page or component, they should belong to "views"
-  signalsDirectory: 'drivers',
+  signalsDirectory: 'signals',
   composeDriversDirectory: 'compose',
   modelsDirectory: 'models',
   appDirectory: 'app',
@@ -84,7 +84,7 @@ export type IDefaultConfig = ReturnType<typeof defaultConfig> & {
 } & UserCustomConfig
 
 
-const configFile = 'tarat.config.js'
+const configFile = 'polymita.config.js'
 
 function readPages (viewDir: string, dir: string) {
   const pages = readViews(viewDir, dir)
