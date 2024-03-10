@@ -71,7 +71,8 @@ export default [
   {
     input: "src/index.ts",
     output: [
-      { file: "dist/renderer.d.ts", format: "es" }
+      { file: "dist/renderer.d.ts", format: "es" },
+      { file: "dist/renderer.esm.d.ts", format: "es" }
     ],
     plugins: [
       dts(),
