@@ -21,3 +21,7 @@ export function esbuild (op: officialEsbuild.BuildOptions) {
     }
   })
 }
+
+export function buildDTS () {
+  
+}

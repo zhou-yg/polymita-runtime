@@ -1,5 +1,5 @@
 import ts from 'typescript'
-import { traverse } from '../util';
+import { traverse } from '../../util';
 
 const LAYOUT_KEYWORD = 'layout'
 

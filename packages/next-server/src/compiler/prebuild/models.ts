@@ -1,10 +1,10 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as prismaInternals from '@prisma/internals'
-import { readCurrentPrisma, readExsitPrismaPart, transformModelName } from './compose';
+import { readCurrentPrisma, readExsitPrismaPart, transformModelName } from '../compose';
 
-import { IConfig } from "../config"
-import { loadJSON, lowerFirst, traverse } from '../util'
+import { IConfig } from "../../config"
+import { loadJSON, lowerFirst, traverse } from '../../util'
 import { set, upperFirst } from 'lodash';
 import { spawn } from 'child_process';
 
