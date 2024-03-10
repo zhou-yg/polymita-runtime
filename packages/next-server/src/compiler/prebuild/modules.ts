@@ -5,6 +5,7 @@ import * as layoutTypes from './layoutTypes'
 import * as esbuild from 'esbuild';
 
 import { compile } from 'ejs'
+import { buildDTS } from '../bundleUtility';
 
 const moduleViewTemplateFile = './moduleViewTemplate.ejs'
 const moduleViewTemplateFilePath = path.join(__dirname, moduleViewTemplateFile)

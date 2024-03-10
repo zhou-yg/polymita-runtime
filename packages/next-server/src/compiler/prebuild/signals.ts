@@ -10,10 +10,6 @@ const signalMapTemplateFilePath = path.join(__dirname, signalMapTemplateFile)
 
 const signalMapTemplate = compile(fs.readFileSync(signalMapTemplateFilePath).toString())
 
-export function buildDTS () {
-  
-}
-
 export function generateSignalMap (c: IConfig) {
   const signalsDir = path.join(c.cwd, c.signalsDirectory)
   const relativeSignals: { name: string, filePath: string }[] = []
