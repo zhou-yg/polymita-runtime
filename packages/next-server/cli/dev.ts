@@ -1,6 +1,6 @@
 import * as path from 'path'
 import chokidar from 'chokidar'
-import { IConfig, IWatcherConfig, generateSignalMap, readConfig, watchByConfig } from '../src'
+import { IConfig, IWatcherConfig, generateSignalMap, generateViewFromModule, readConfig, watchByConfig } from '../src'
 
 const chokidarOptions = () => ({
   persistent: true,
@@ -13,6 +13,8 @@ const chokidarOptions = () => ({
 
 async function buildEverything (c: IConfig) {
   generateSignalMap(c)
+
+  await generateViewFromModule(c)
 }
 
 function watchEverything (c: IConfig) {

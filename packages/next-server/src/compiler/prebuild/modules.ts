@@ -2,15 +2,9 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { IConfig } from "../../config";
 import * as layoutTypes from './layoutTypes'
-import * as esbuild from 'esbuild';
 
-import { compile } from 'ejs'
-import { buildDTS } from '../bundleUtility';
-
-const moduleViewTemplateFile = './moduleViewTemplate.ejs'
-const moduleViewTemplateFilePath = path.join(__dirname, moduleViewTemplateFile)
-
-const moduleViewTemplate = compile(fs.readFileSync(moduleViewTemplateFilePath).toString())
+import { buildDTS, esbuild } from '../bundleUtility';
+import loadModuleToView from '../plugins/esbuild-load-module';
 
 /**
  * generate modules/*.d.ts
@@ -53,6 +47,19 @@ export function generateModuleLayoutTypes (c: IConfig) {
   }))
 }
 
-export function generateViewFromModule (c: IConfig) {
+export async function generateViewFromModule (c: IConfig) {
+  const moduleFilesDir = path.join(c.cwd, c.modulesDirectory)
 
+  const moduleFiles = fs.readdirSync(moduleFilesDir).map(f => path.join(moduleFilesDir, f))
+
+  await esbuild({
+    entryPoints: moduleFiles.slice(0,1),
+    outdir: c.generateFiles.viewsDir,
+    platform: 'browser',
+    format: 'esm',
+    treeShaking: true,
+    plugins: [
+      loadModuleToView(c.cwd),
+    ]
+  })  
 }

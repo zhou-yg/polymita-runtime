@@ -238,6 +238,7 @@ function getGenerateFiles(config: IDefaultConfig, cwd:string) {
   return {
     root: generateRootPath,
     signalMap: path.join(generateRootPath, `${config.generateSignalsMap}${ext}`),
+    viewsDir: path.join(generateRootPath, config.viewsDirectory),
   }
 }
 

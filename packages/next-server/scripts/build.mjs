@@ -12,6 +12,9 @@ instance.on('close', () => {
   
   cp('src/compiler/prebuild/signalsMapTemplate.ejs', 'dist/cli/')
   cp('src/compiler/prebuild/signalsMapTemplate.ejs', 'dist/')
+  
+  cp('src/compiler/plugins/esbuildLoadViewTemplate.ejs', 'dist/cli/')
+  cp('src/compiler/plugins/esbuildLoadViewTemplate.ejs', 'dist/')
 
   console.log('build end')
 })
