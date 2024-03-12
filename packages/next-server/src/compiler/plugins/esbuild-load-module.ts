@@ -28,28 +28,43 @@ const splitImports = (code: string) => {
   }
 }
 
-export default function loadModuleToView (cwd: string): esbuild.Plugin {
+function getName () {
+
+}
+
+export default function loadModuleToView (arg: {
+  cwd?: string
+  onFile: (f: string) => void
+}): esbuild.Plugin {
 
   return {
     name: 'loadModuleToView',
     setup(build) {
       build.onResolve({ filter: /modules\/.*/ }, async (args) => {
-        console.log('resolve modules args: ', args);
         return null
       })
       build.onLoad({ filter: /modules\/.*/ }, async (args) => {
-        const { name } = path.parse(args.path)
+        const parsed = path.parse(args.path)
+        let { name } = parsed
+        if (name === 'index') {
+          name = path.parse(parsed.dir).name
+        }
         const moduleCode = await fs.promises.readFile(args.path, 'utf8')
 
         const moduleCodeParts = splitImports(moduleCode)
 
-        const viewContent = moduleViewTemplate({
+        const viewContentTS = moduleViewTemplate({
           name,
           moduleImports: moduleCodeParts.imports,
           moduleCode: moduleCodeParts.codes,
         })
+
+        const tsFile = path.join(build.initialOptions.outdir, `${name}.tsx`)
+        fs.writeFileSync(tsFile, viewContentTS)
+        arg.onFile(tsFile)
+      
         return {
-          contents: viewContent,
+          contents: viewContentTS,
           loader: 'tsx'
         }
       })

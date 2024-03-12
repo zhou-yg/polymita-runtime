@@ -50,16 +50,28 @@ export function generateModuleLayoutTypes (c: IConfig) {
 export async function generateViewFromModule (c: IConfig) {
   const moduleFilesDir = path.join(c.cwd, c.modulesDirectory)
 
-  const moduleFiles = fs.readdirSync(moduleFilesDir).map(f => path.join(moduleFilesDir, f))
+  const moduleFiles = fs.readdirSync(moduleFilesDir).map(f => {
+    if (f !== 'tsconfig.json') {
+      return path.join(moduleFilesDir, f)
+    }
+  }).filter(Boolean)
+
+  const tsFiles: string[] = []
 
   await esbuild({
-    entryPoints: moduleFiles.slice(0,1),
+    entryPoints: moduleFiles,
     outdir: c.generateFiles.viewsDir,
     platform: 'browser',
     format: 'esm',
     treeShaking: true,
     plugins: [
-      loadModuleToView(c.cwd),
+      loadModuleToView({
+        cwd: c.cwd,
+        onFile(f) {
+          tsFiles.push(f)
+        },
+      }),
     ]
-  })  
+  })
+  console.log('tsFiles: ', tsFiles);
 }
