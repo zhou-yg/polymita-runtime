@@ -74,4 +74,6 @@ export async function generateViewFromModule (c: IConfig) {
     ]
   })
   console.log('tsFiles: ', tsFiles);
+
+  await Promise.all(tsFiles.map(f => buildDTS(c, f)))
 }
