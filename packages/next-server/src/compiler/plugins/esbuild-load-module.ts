@@ -34,7 +34,7 @@ function getName () {
 
 export default function loadModuleToView (arg: {
   cwd?: string
-  onFile: (f: string) => void
+  onFile: (f: [string, string]) => void
 }): esbuild.Plugin {
 
   return {
@@ -60,8 +60,7 @@ export default function loadModuleToView (arg: {
         })
 
         const tsFile = path.join(build.initialOptions.outdir, `${name}.tsx`)
-        fs.writeFileSync(tsFile, viewContentTS)
-        arg.onFile(tsFile)
+        arg.onFile([tsFile, viewContentTS])
       
         return {
           contents: viewContentTS,

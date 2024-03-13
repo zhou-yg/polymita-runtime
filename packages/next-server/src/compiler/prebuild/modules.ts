@@ -56,7 +56,7 @@ export async function generateViewFromModule (c: IConfig) {
     }
   }).filter(Boolean)
 
-  const tsFiles: string[] = []
+  const tsFiles: [string, string][] = []
 
   await esbuild({
     entryPoints: moduleFiles,
@@ -67,12 +67,20 @@ export async function generateViewFromModule (c: IConfig) {
     plugins: [
       loadModuleToView({
         cwd: c.cwd,
-        onFile(f) {
-          tsFiles.push(f)
+        onFile([f, content]) {
+          tsFiles.push([f, content])
         },
       }),
     ]
   })
 
-  await buildDTS(c, tsFiles, c.generateFiles.viewsDir)
+  await Promise.all(tsFiles.map(([f, content]) => {
+    return fs.promises.writeFile(f, content)
+  }))
+
+  await buildDTS(c, tsFiles.map(f => f[0]), c.generateFiles.viewsDir)
+
+  await Promise.all(tsFiles.map(([f]) => {
+    return fs.promises.unlink(f)
+  }))  
 }
