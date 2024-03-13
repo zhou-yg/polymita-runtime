@@ -2,7 +2,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import l from 'lodash'
 import { defineRoutesTree, readViews } from './config/routes'
-import { IFile, isFileEmpty, loadJSON, logFrame, traverseDir } from './util'
+import { IFile, isFileEmpty, loadJSON, logFrame, traverse, traverseDir } from './util'
 import chalk from 'chalk'
 import { findDependencies } from './config/deps'
 import type { JSONSchemaForNPMPackageJsonFiles } from '@schemastore/package'
@@ -306,6 +306,18 @@ interface UserCustomConfig {
   debugLog?: boolean
 }
 
+function readModules (dir: string) {
+  const modules: IFile[] = []
+
+  traverseDir(dir, f => {
+    if (/\.tsx/.test(f.path)) {
+      modules.push(f)
+    }
+  })
+
+  return modules
+}
+
 export async function readConfig (arg: {
   cwd: string,
   isProd?: boolean | 'prod' | 'dev' | 'test',
@@ -336,10 +348,10 @@ export async function readConfig (arg: {
   views.forEach(c => {
     c.file = path.join('./', config.viewsDirectory, c.file)
   })
-  // polymita modules
-  const modules = readdirDepth(modulesDirectory).filter(f => /\.(j|t)sx$/.test(f.file))
 
   const pages = readPages(pagesDirectory, '/')
+
+  const modules = readModules(modulesDirectory)
 
   // complement page file with page directory
   pages.forEach(c => {

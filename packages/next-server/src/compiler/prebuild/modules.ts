@@ -25,36 +25,10 @@ function generateModuleTypes (c: IConfig) {
   // return Promise.all(moduleFiles.map(([input, output]) => buildDTS(c, input, output)))
 }
 
-export function generateModuleLayoutTypes (c: IConfig) {
-  const { outputModulesDir } = c.pointFiles;
-  const { modules } = c;
-
-  const files: [string, string][] = []
-
-  modules
-  .filter(f => /\.ts(x?)$/.test(f.file))
-  .forEach(f => {
-    const outPath = path.join(outputModulesDir, f.relativeFile.replace(/\.ts(x?)$/, '.layout.d.ts'))
-    files.push([f.path, outPath])
-  })
-
-  return Promise.all(files.map(async ([inputPath, outputPath]) => {
-    const content = fs.readFileSync(inputPath, 'utf-8');
-    const { name } = path.parse(inputPath);
-    const json = layoutTypes.parse(content);
-    const tsdCode = layoutTypes.toTSD(json);
-    fs.writeFileSync(outputPath, `type ${name}Layout = ${tsdCode}`)
-  }))
-}
-
 export async function generateViewFromModule (c: IConfig) {
-  const moduleFilesDir = path.join(c.cwd, c.modulesDirectory)
-
-  const moduleFiles = fs.readdirSync(moduleFilesDir).map(f => {
-    if (f !== 'tsconfig.json') {
-      return path.join(moduleFilesDir, f)
-    }
-  }).filter(Boolean)
+  const moduleFiles = c.modules.map(f => {
+    return f.path
+  })
 
   const tsFiles: [string, string][] = []
 
@@ -83,4 +57,5 @@ export async function generateViewFromModule (c: IConfig) {
   await Promise.all(tsFiles.map(([f]) => {
     return fs.promises.unlink(f)
   }))  
+
 }

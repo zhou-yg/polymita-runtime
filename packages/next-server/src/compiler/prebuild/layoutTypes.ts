@@ -1,5 +1,8 @@
+import * as path from 'path'
+import * as fs from 'fs'
 import ts from 'typescript'
 import { traverse } from '../../util';
+import { IConfig } from '../../config';
 
 const LAYOUT_KEYWORD = 'layout'
 
@@ -156,7 +159,7 @@ interface JSONTreeComponent {
 
 type JSONTree = JSONTreeNode | JSONTreeComponent;
 
-export function parse (fileContent: string) {
+function parse (fileContent: string) {
   
   const { sourceFile, layoutAST} = pickLayoutAST(fileContent)
   
@@ -173,7 +176,7 @@ export function parse (fileContent: string) {
   return jsonTree
 }
 
-export function toTSD (json: JSONTree) {
+function toDTS (json: JSONTree) {
   return JSON.stringify(json, (k, v) => {
     if (
       typeof v === 'object' ||
@@ -184,4 +187,21 @@ export function toTSD (json: JSONTree) {
       return v;
     }
   }, 2)
+}
+
+export function generateLayoutTypes (c: IConfig) {
+  const destDir = c.generateFiles.viewsDir
+
+  c.modules.forEach(f => {
+
+    const content = fs.readFileSync(f.path, 'utf-8')
+    const jsonTree = parse(content)
+
+    const dts = toDTS(jsonTree)
+
+    fs.writeFileSync(
+      path.join(destDir, `${f.name}.d.ts`),
+      `type ${f.name}Layout = ${dts}`
+    )
+  })
 }

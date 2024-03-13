@@ -1,6 +1,6 @@
 import * as path from 'path'
 import chokidar from 'chokidar'
-import { IConfig, IWatcherConfig, generateSignalMap, generateViewFromModule, readConfig, watchByConfig } from '../src'
+import { IConfig, IWatcherConfig, buildModelIndexes, composeDriver, composeSchema, generateLayoutTypes, generateModelTypes, generateSignalMap, generateViewFromModule, preCheckSchema, readConfig, watchByConfig } from '../src'
 
 const chokidarOptions = () => ({
   persistent: true,
@@ -15,6 +15,13 @@ async function buildEverything (c: IConfig) {
   generateSignalMap(c)
 
   await generateViewFromModule(c)
+  
+  generateLayoutTypes(c)
+
+  await Promise.all([
+    buildModelIndexes(c),
+    generateModelTypes(c),
+  ])
 }
 
 function watchEverything (c: IConfig) {
@@ -40,6 +47,12 @@ export default async (cwd: string) => {
   const config = await readConfig({
     cwd,
   })
+
+  await Promise.all([
+    composeSchema(config),
+    composeDriver(config)  
+  ])
+  await preCheckSchema(config);
 
   await buildEverything(config)
 

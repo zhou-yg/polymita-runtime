@@ -159,3 +159,29 @@ export function runPrismaDev (c: IConfig) {
     })
   })
 }
+
+export async function preCheckSchema(c: IConfig) {
+  const schemaFile = path.join(c.cwd, c.modelsDirectory, c.targetSchemaPrisma)
+  const schemaContent = fs.readFileSync(schemaFile, 'utf-8');
+  const model = await prismaInternals.getDMMF({
+    datamodel: schemaContent
+  })
+  const gen = await prismaInternals.getGenerator({
+    schemaPath: schemaFile,
+    dataProxy: false
+  })
+
+  const config = await prismaInternals.getConfig({
+    datamodel: schemaContent
+  })
+  const file = config.datasources[0].url.value;
+  const relativeDbPath = file?.replace('file:', '')
+  if (relativeDbPath) {
+    const dbPath = path.join(c.cwd, c.modelsDirectory, relativeDbPath)
+    const dbExists = fs.existsSync(dbPath)
+    if (!dbExists) {
+      console.log(`[preCheckSchema] error, db file not found: ${dbPath}`)
+      await runPrismaDev(c)
+    }
+  }
+}
