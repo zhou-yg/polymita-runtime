@@ -9,7 +9,7 @@ import loadModuleToView from '../plugins/esbuild-load-module';
 /**
  * generate modules/*.d.ts
  */
-export function generateModuleTypes (c: IConfig) {
+function generateModuleTypes (c: IConfig) {
   const { outputModulesDir } = c.pointFiles;
   const { modules } = c;
 
@@ -22,7 +22,7 @@ export function generateModuleTypes (c: IConfig) {
     moduleFiles.push([f.path, outPath])
   })
   
-  return Promise.all(moduleFiles.map(([input, output]) => buildDTS(c, input, output)))
+  // return Promise.all(moduleFiles.map(([input, output]) => buildDTS(c, input, output)))
 }
 
 export function generateModuleLayoutTypes (c: IConfig) {
@@ -73,7 +73,6 @@ export async function generateViewFromModule (c: IConfig) {
       }),
     ]
   })
-  console.log('tsFiles: ', tsFiles);
 
-  await Promise.all(tsFiles.map(f => buildDTS(c, f)))
+  await buildDTS(c, tsFiles, c.generateFiles.viewsDir)
 }

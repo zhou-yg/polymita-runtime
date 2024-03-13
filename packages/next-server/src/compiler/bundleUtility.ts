@@ -28,15 +28,9 @@ export function esbuild (op: officialEsbuild.BuildOptions) {
 
 const tsc = 'node_modules/typescript/bin/tsc';
 
-export async function buildDTS (c: IConfig, input: string, output?: string) {
-  if (!output) {
-    const parsedInput = path.parse(input)
-    output = path.join(parsedInput.dir, `${parsedInput.name}.d.ts`)
-  }
-  const outdir =  path.parse(output).dir
-  // const cli2 = `${input} --jsx react --module esnext --jsxFactory h --allowJs --esModuleInterop --declaration --emitDeclarationOnly --outFile ${output}`.split(' ')
-  const cli2 = `${input} --jsx react --module esnext --moduleResolution Node --jsxFactory h --allowJs --esModuleInterop --declaration --emitDeclarationOnly --outdir ${outdir}`.split(' ')
-  console.log('cli2: ', cli2.join(' '));
+export async function buildDTS (c: IConfig, inputs: string[], outdir?: string) {
+  const cli2 = `${inputs.join(' ')} --jsx react --module esnext --moduleResolution Node --jsxFactory h --allowJs --esModuleInterop --declaration --emitDeclarationOnly --outdir ${outdir}`.split(' ')
+  
   
   await new Promise<void>(((resolve, reject) => {
     const instance = spawn(
@@ -58,13 +52,12 @@ export async function buildDTS (c: IConfig, input: string, output?: string) {
       // }
     )
     instance.stderr.on('data', data => {
-      console.log(`stderr:  ${data}`);
+      // console.log(`stderr:  ${data}`);
     })
     instance.stdout.on('data', data => {
-      console.log(`stdout:  ${data}`);
+      // console.log(`stdout:  ${data}`);
     })
     instance.on('close', (code, s) => {
-      console.log('code, s: ', code, s);
       resolve()
     })
     instance.on('error', (err) => {
