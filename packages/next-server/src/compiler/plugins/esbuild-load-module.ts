@@ -33,9 +33,11 @@ function getName () {
 }
 
 export default function loadModuleToView (arg: {
-  cwd?: string
+  modulesDir: string
   onFile: (f: [string, string]) => void
 }): esbuild.Plugin {
+
+  const { modulesDir, onFile } = arg
 
   return {
     name: 'loadModuleToView',
@@ -49,6 +51,9 @@ export default function loadModuleToView (arg: {
         if (name === 'index') {
           name = path.parse(parsed.dir).name
         }
+
+        const relativePath = args.path.replace(modulesDir, '')
+
         const moduleCode = await fs.promises.readFile(args.path, 'utf8')
 
         const moduleCodeParts = splitImports(moduleCode)
@@ -59,8 +64,8 @@ export default function loadModuleToView (arg: {
           moduleCode: moduleCodeParts.codes,
         })
 
-        const tsFile = path.join(build.initialOptions.outdir, `${name}.tsx`)
-        arg.onFile([tsFile, viewContentTS])
+        const tsFile = path.join(build.initialOptions.outdir, relativePath)
+        onFile([tsFile, viewContentTS])
       
         return {
           contents: viewContentTS,

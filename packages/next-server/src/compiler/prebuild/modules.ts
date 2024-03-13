@@ -40,7 +40,7 @@ export async function generateViewFromModule (c: IConfig) {
     treeShaking: true,
     plugins: [
       loadModuleToView({
-        cwd: c.cwd,
+        modulesDir: path.join(c.cwd, c.modulesDirectory),
         onFile([f, content]) {
           tsFiles.push([f, content])
         },

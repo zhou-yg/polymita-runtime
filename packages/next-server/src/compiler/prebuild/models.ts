@@ -47,7 +47,47 @@ function deepInsertName (moduleName: string, indexes: IModelIndexesBase) {
   return dependentIndexesWithNamespace
 }
 
-export async function generateModelTypes(c: IConfig) {
+export async function generateModelTypes2(c: IConfig) {
+  if (c.model.engine !== 'prisma') {
+    return
+  }
+  const schemaIndexes = loadJSON(c.currentFiles.schemaIndexes);
+  
+  if (Object.values(schemaIndexes).length <= 0) {
+    return;
+  }
+
+  const model = await prismaInternals.getGenerator({
+    schemaPath: c.currentFiles.targetSchemaPrisma,
+    dataProxy: false,
+  })
+  const clientOutput = model.config.output.value;
+  const prismaTypesFile = path.join(clientOutput, 'index.d.ts')
+
+  if (!fs.existsSync(prismaTypesFile)) {
+    return;
+  }
+
+  const result: string[] = []
+
+  traverse(schemaIndexes, (keys, val: string | IModelIndexesBase) => {
+    if (typeof val === 'string') {
+      const interfaceName = upperFirst(val)
+       result.push(interfaceName)
+    }
+  })
+
+  if (!result.length) {
+    return
+  }
+  const dts = `export {
+  ${result.join(',\n  ')} 
+} from '${path.join(clientOutput, 'index')}'`
+
+  fs.writeFileSync(c.currentFiles.schemaIndexesTypes, dts)
+}
+
+async function generateModelTypes(c: IConfig) {
   if (c.model.engine !== 'prisma') {
     return
   }

@@ -191,6 +191,7 @@ function toDTS (json: JSONTree) {
 
 export function generateLayoutTypes (c: IConfig) {
   const destDir = c.generateFiles.viewsDir
+  const modulesDir = path.join(c.cwd, c.modulesDirectory)
 
   c.modules.forEach(f => {
 
@@ -199,9 +200,11 @@ export function generateLayoutTypes (c: IConfig) {
 
     const dts = toDTS(jsonTree)
 
+    const relativeName = f.path.replace(modulesDir, '').replace(/\.\w+$/, '')
+
     fs.writeFileSync(
-      path.join(destDir, `${f.name}.d.ts`),
-      `type ${f.name}Layout = ${dts}`
+      path.join(destDir, `${relativeName}.layout.d.ts`),
+      `export type LayoutTypes = ${dts}`
     )
   })
 }
