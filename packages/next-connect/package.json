@@ -1,0 +1,55 @@
+{
+  "name": "@polymita/next-connect",
+  "version": "0.0.1",
+  "description": "useHook serverless framework",
+  "main": "./dist/connect.js",
+  "module": "./dist/connect.esm.js",
+  "types": "./dist/connect.d.ts",
+  "scripts": {
+    "format": "prettier --write --parser typescript \"*/*.ts?(x)\"",
+    "format:commit": "npm run format && git commit -a -m 'feat(core): lint'",
+    "build": "rm -rf dist && npm run format && rollup --config rollup.config.mjs",
+    "build:watch": "rm -rf dist/ && npm run format && rollup --config rollup.config.mjs --watch"
+  },
+  "typesVersions": {
+    "*": {
+      "connect": [
+        "./dist/connect.d.ts"
+      ],
+      "react": [
+        "./dist/react.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "src",
+    "dist",
+    "package.json"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhou-yg/tarat.git"
+  },
+  "author": "zhouyg",
+  "bugs": {
+    "url": "https://github.com/zhou-yg/tarat/issues"
+  },
+  "homepage": "https://github.com/zhou-yg/tarat#readme",
+  "dependencies": {
+    "@polymita/signal-model": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/node": "^18.6.2",
+    "@types/react": "18.2.18",
+    "prettier": "^3.0.0",
+    "@jsdevtools/version-bump-prompt": "6.1.0",
+    "@rollup/plugin-alias": "^3.1.9",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-replace": "^4.0.0",
+    "@rollup/plugin-typescript": "^6.1.0",
+    "rollup": "^2.74.1",
+    "rollup-plugin-dts": "^4.2.2",
+    "rollup-plugin-typescript2": "^0.31.2",
+    "tslib": "^2.4.0"
+  }
+}

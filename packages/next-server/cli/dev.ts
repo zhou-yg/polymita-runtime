@@ -1,6 +1,12 @@
 import * as path from 'path'
+import * as fs from 'fs'
 import chokidar from 'chokidar'
 import { IConfig, IWatcherConfig, buildModelIndexes, composeDriver, composeSchema, generateLayoutTypes, generateModelTypes, generateModelTypes2, generateSignalMap, generateViewFromModule, preCheckSchema, readConfig, watchByConfig } from '../src'
+
+
+function resolveNext(c: IConfig) {
+  return require(path.join(c.cwd, './node_modules/next/'))
+}
 
 const chokidarOptions = () => ({
   persistent: true,
@@ -43,10 +49,18 @@ function watchEverything (c: IConfig) {
   watchByConfig(c.cwd, config)
 }
 
+function prepareDirs(c: IConfig) {
+  if (!fs.existsSync(c.generateFiles.root)) {
+    fs.mkdirSync(c.generateFiles.root, { recursive: true })
+  }
+}
+
 export default async (cwd: string) => {
   const config = await readConfig({
     cwd,
   })
+
+  prepareDirs(config)
 
   await Promise.all([
     composeSchema(config),
@@ -57,4 +71,11 @@ export default async (cwd: string) => {
   await buildEverything(config)
 
   watchEverything(config)
+
+  const next = resolveNext(config)
+
+  next({ 
+    dev: true,
+    port: 
+  })
 }
