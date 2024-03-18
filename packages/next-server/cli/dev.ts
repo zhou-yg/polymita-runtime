@@ -2,11 +2,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import chokidar from 'chokidar'
 import { IConfig, IWatcherConfig, buildModelIndexes, composeDriver, composeSchema, generateLayoutTypes, generateModelTypes, generateModelTypes2, generateSignalMap, generateViewFromModule, preCheckSchema, readConfig, watchByConfig } from '../src'
-
-
-function resolveNext(c: IConfig) {
-  return require(path.join(c.cwd, './node_modules/next/'))
-}
+import { createDevServer } from '../src/server'
 
 const chokidarOptions = () => ({
   persistent: true,
@@ -72,10 +68,5 @@ export default async (cwd: string) => {
 
   watchEverything(config)
 
-  const next = resolveNext(config)
-
-  next({ 
-    dev: true,
-    port: 
-  })
+  createDevServer(config)
 }
