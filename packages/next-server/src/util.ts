@@ -48,11 +48,13 @@ export function getDefaultRoute (pages: IViewConfig[]) {
   return root.name === 'index' ? '' : root.name
 }
 
+const LOG_PREFIX = 'polymita'
+
 export function logFrame (content: string, length = 100) {
   const lineArr = new Array(9).fill('-')  
   const line2 = lineArr.join('')
 
-  const title = ' tarat '
+  const title = ` ${LOG_PREFIX} `
   lineArr.splice(1, 0, title)
   const line1 = lineArr.slice(0, -title.length).join('')
 

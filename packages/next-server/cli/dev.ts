@@ -1,8 +1,12 @@
 import * as path from 'path'
 import * as fs from 'fs'
 import chokidar from 'chokidar'
-import { IConfig, IWatcherConfig, buildModelIndexes, composeDriver, composeSchema, generateLayoutTypes, generateModelTypes, generateModelTypes2, generateSignalMap, generateViewFromModule, preCheckSchema, readConfig, watchByConfig } from '../src'
-import { createDevServer } from '../src/server'
+import {
+  IConfig, IWatcherConfig, buildModelIndexes, composeDriver, composeSchema, generateLayoutTypes, generateModelTypes2, generateSignalMap, generateViewFromModule, preCheckSchema, readConfig, watchByConfig,
+  createDevServer,
+  logFrame,
+  time,
+} from '../src'
 
 const chokidarOptions = () => ({
   persistent: true,
@@ -56,6 +60,8 @@ export default async (cwd: string) => {
     cwd,
   })
 
+  let t1 = time()
+
   prepareDirs(config)
 
   await Promise.all([
@@ -64,7 +70,13 @@ export default async (cwd: string) => {
   ])
   await preCheckSchema(config);
 
+  logFrame(`compose schema in ${t1()}s`)
+
+  t1 = time()
+
   await buildEverything(config)
+
+  logFrame(`build everything in ${t1()}s`)
 
   watchEverything(config)
 

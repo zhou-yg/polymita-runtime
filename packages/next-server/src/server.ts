@@ -4,6 +4,7 @@
 import Koa from 'koa'
 import { IConfig } from "./config";
 import * as path from 'path'
+import { logFrame } from './util';
 
 function setupBasicServer (c: IConfig) {
   const app = new Koa()
@@ -23,7 +24,9 @@ function setupBasicServer (c: IConfig) {
 }
 
 async function startApp(app: Koa, c: IConfig) {
-  app.listen(c.port)
+  app.listen(c.port, () => {
+    logFrame(`listen at: ${c.port}`)
+  })
 }
 
 function resolveNext(c: IConfig) {
@@ -33,6 +36,8 @@ function resolveNext(c: IConfig) {
 export async function createDevServer (c: IConfig) {  
   const app = setupBasicServer(c)
   const next = resolveNext(c)
+
+  console.log('c.port: ', c.port);
 
   const nextApp = next({ 
     dev: true,
@@ -49,4 +54,11 @@ export async function createDevServer (c: IConfig) {
   })
 
   await startApp(app, c)
+
+
+  process.on('SIGINT', function(s) {
+    console.log( "\nGracefully shutting down from SIGINT (Ctrl-C)", s);
+    // some other closing procedures go here
+    process.exit(0);
+  });
 }
