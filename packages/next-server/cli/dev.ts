@@ -6,6 +6,7 @@ import {
   createDevServer,
   logFrame,
   time,
+  errorFrame,
 } from '../src'
 
 const chokidarOptions = () => ({
@@ -34,15 +35,38 @@ function watchEverything (c: IConfig) {
   const driversGroup = [
     path.join(c.cwd, c.signalsDirectory),
   ]
+  const modelsGroup = [
+    // watch *.prisma
+    path.join(c.cwd, c.modelsDirectory, '*.' + c.model.engine),
+  ]
+  const modulesGroup = [
+    path.join(c.cwd, c.modulesDirectory),
+  ]
+  const modelsWatcher = chokidar.watch(modelsGroup, chokidarOptions())
   const driversWatcher = chokidar.watch(driversGroup, chokidarOptions())
+  const modulesWatcher = chokidar.watch(modulesGroup, chokidarOptions())
 
   const config: IWatcherConfig[] = [
     {
       watcher: driversWatcher,
-      name: 'signals',
+      name: 'signals-c',
       event: 'change',
       callbackMode: 'sequence',
       callbacks: [generateSignalMap],
+    },
+    {
+      watcher: modelsWatcher,
+      name: 'models-au',
+      event: ['add', 'unlink'],
+      callbackMode: 'concurrent',
+      callbacks: [buildModelIndexes, generateModelTypes2],
+    },
+    {
+      watcher: modulesWatcher,
+      name: 'modules-acu',
+      event: ['add', 'change', 'unlink'],
+      callbackMode: 'sequence',
+      callbacks: [generateViewFromModule, generateLayoutTypes],
     },
   ]
 
@@ -52,6 +76,13 @@ function watchEverything (c: IConfig) {
 function prepareDirs(c: IConfig) {
   if (!fs.existsSync(c.generateFiles.root)) {
     fs.mkdirSync(c.generateFiles.root, { recursive: true })
+  }
+}
+
+function loadThirdPart(c: IConfig) {
+  if (fs.existsSync(c.thirdPartEntry)) {
+    logFrame(`find third entry:${c.thirdPartEntry}`)
+    require(c.thirdPartEntry)(c)
   }
 }
 
@@ -79,6 +110,12 @@ export default async (cwd: string) => {
   logFrame(`build everything in ${t1()}s`)
 
   watchEverything(config)
+
+  try{
+    loadThirdPart(config)
+  }catch (e) {
+    errorFrame(e)
+  }
 
   createDevServer(config)
 }

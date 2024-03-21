@@ -27,6 +27,8 @@ export const defaultConfig = () => ({
 
   publicDirectory: 'public',
 
+  thirdPartDir: 'third_part',
+
   entry: 'entry', // jsx|tsx|css|less|json
 
   /**
@@ -397,6 +399,8 @@ export async function readConfig (arg: {
     port: arg.port || (config.port ? config.port : process.env.PORT ? Number(process.env.PORT) : portNumbers(9000, 9100))
   })
 
+  const thirdPartEntry = path.join(cwd, config.thirdPartDir)
+
   return {
     ...config,
     project,
@@ -417,5 +421,6 @@ export async function readConfig (arg: {
     pages,
     dependencyModules,
     modules,
+    thirdPartEntry,
   }
 }

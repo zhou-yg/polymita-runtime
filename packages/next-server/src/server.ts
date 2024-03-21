@@ -5,6 +5,7 @@ import Koa from 'koa'
 import { IConfig } from "./config";
 import * as path from 'path'
 import { logFrame } from './util';
+import * as url from 'url'
 
 function setupBasicServer (c: IConfig) {
   const app = new Koa()
@@ -49,7 +50,7 @@ export async function createDevServer (c: IConfig) {
   await nextApp.prepare()
 
   app.use(async (ctx) => {
-    const parsedUrl = new URL(ctx.req.url)
+    const parsedUrl = url.parse(ctx.req.url)
     await nextHandle(ctx.req, ctx.res, parsedUrl)
   })
 

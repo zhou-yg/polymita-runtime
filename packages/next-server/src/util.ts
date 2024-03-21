@@ -50,21 +50,27 @@ export function getDefaultRoute (pages: IViewConfig[]) {
 
 const LOG_PREFIX = 'polymita'
 
-export function logFrame (content: string, length = 100) {
-  const lineArr = new Array(9).fill('-')  
-  const line2 = lineArr.join('')
+// export function logFrame (content: string, length = 100) {
+//   const lineArr = new Array(9).fill('-')  
+//   const line2 = lineArr.join('')
 
-  const title = ` ${LOG_PREFIX} `
-  lineArr.splice(1, 0, title)
-  const line1 = lineArr.slice(0, -title.length).join('')
+//   const title = ` ${LOG_PREFIX} `
+//   lineArr.splice(1, 0, title)
+//   const line1 = lineArr.slice(0, -title.length).join('')
 
-  const rows = content.split('\n').map(c => {
-    return c.trim().match(new RegExp(`.{1,${length - 4}}`, 'g'))
-  }).filter(Boolean).flat()
+//   const rows = content.split('\n').map(c => {
+//     return c.trim().match(new RegExp(`.{1,${length - 4}}`, 'g'))
+//   }).filter(Boolean).flat()
   
-  const padLen = length - 4
+//   const padLen = length - 4
 
-  return console.log(`${chalk.blue('tarat')}: `, content);
+//   return console.log(`${chalk.blue('polymita')}: `, content);
+// }
+export function logFrame (...content: any[]) {
+  return console.log(`${chalk.blue('polymita')}: `, LOG_PREFIX, ...content);
+}
+export function errorFrame (...content: any[]) {
+  return console.error(`${chalk.red('polymita')}: `, LOG_PREFIX, ...content);
 }
 
 export function getAddress() {

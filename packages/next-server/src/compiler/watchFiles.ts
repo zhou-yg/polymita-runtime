@@ -4,12 +4,14 @@ import { logFrame, time } from '../util'
 import chalk from 'chalk'
 import exitHook from 'exit-hook'
 
+type WatchEvent = 'add' | 'change' | 'error' | 'unlink'
+
 export interface IWatcherConfig {
   watcher: chokidar.FSWatcher
   name: string
-  event: 'add' | 'change' | 'error' | 'unlink'
+  event: WatchEvent | WatchEvent[]
   callbacks: (((c: IConfig) => Promise<void>) | (() => void) | ((c: IConfig) => void))[]
-  callbackMode?: 'cocurrent' | 'sequence'
+  callbackMode?: 'concurrent' | 'sequence'
 }
 
 export const chokidarOptions = () => ({
@@ -24,11 +26,11 @@ export const chokidarOptions = () => ({
 export function watchByConfig (cwd: string, config: IWatcherConfig[]) {
   const eventCallbackRunningState = new Map<FSWatcher, Map<string, boolean>>()
 
-  const eventCalbackLastWaiter = new Map<FSWatcher, Map<string, true>>()
+  const eventCallbackLastWaiter = new Map<FSWatcher, Map<string, true>>()
   
   async function existsLastWaiterAndCallback (wc: IWatcherConfig, newConfig: IConfig) {
     const { watcher, name, event, callbacks } = wc
-    const queue = eventCalbackLastWaiter.get(watcher) || new Map()
+    const queue = eventCallbackLastWaiter.get(watcher) || new Map()
     const hasLastWaiter = queue.get(event) || false
 
     const state = eventCallbackRunningState.get(watcher) || new Map()
@@ -66,7 +68,7 @@ export function watchByConfig (cwd: string, config: IWatcherConfig[]) {
     const isRunning = state.get(event) || false
 
     if (isRunning) {
-      const queue = eventCalbackLastWaiter.get(watcher) || new Map()
+      const queue = eventCallbackLastWaiter.get(watcher) || new Map()
       queue.set(event, true)
       return
     }
@@ -76,13 +78,15 @@ export function watchByConfig (cwd: string, config: IWatcherConfig[]) {
 
   config.forEach((wc) => {
     const { watcher, name, event } = wc
-    watcher.on(event, (path) => {
-      if (/(\.css|\.less|\.scss)$/.test(path)) {
-        logFrame(`[${name}.${event}] ignored by "${path}"`)
-        return
-      }
-      logFrame(`[${name}.${event}] trigger by "${path}"`)
-      executeCallbacks(wc)
+    ;[].concat(event).forEach((e) => {
+      watcher.on(e, (path) => {
+        if (/(\.css|\.less|\.scss)$/.test(path)) {
+          logFrame(`[${name}.${e}] ignored by "${path}"`)
+          return
+        }
+        logFrame(`[${name}.${e}] trigger by "${path}"`)
+        executeCallbacks(wc)
+      })
     })
   })
 
