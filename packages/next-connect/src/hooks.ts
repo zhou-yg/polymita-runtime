@@ -9,7 +9,6 @@ import {
   ModelRunner,
   getNamespace,
 } from "@polymita/signal-model";
-import { unstable_serialize } from "swr";
 
 type HasParamFunc = (...arg: any[]) => any;
 type NoParamFunc = () => any;
@@ -60,7 +59,7 @@ export function createUseSignal(p: {
     const init = useRef(null) as { current: ICacheDriver<T> | null };
 
     if (!init.current) {
-      const serializedArgs = unstable_serialize(args);
+      const serializedArgs = JSON.stringify(args);
       const cachedDriverResult: {
         scope: RunnerModelScope<T>;
         result: ReturnType<T>;
