@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import type ReactTypes from "react";
 import {
   Plugin,
   IHookContext,
@@ -14,8 +14,12 @@ import { unstable_serialize } from "swr";
 type HasParamFunc = (...arg: any[]) => any;
 type NoParamFunc = () => any;
 
-export function createUseSignal(p: { modelIndexes: IModelIndexesBase }) {
-  const { modelIndexes: mi } = p;
+export function createUseSignal(p: {
+  modelIndexes: IModelIndexesBase;
+  React: typeof ReactTypes;
+}) {
+  const { modelIndexes: mi, React } = p;
+  const { useEffect, useState, useRef } = React;
 
   function useSignal<T extends NoParamFunc, U extends Parameters<T>>(
     ssrContext: IHookContext | null | undefined,

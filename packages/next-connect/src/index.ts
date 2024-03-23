@@ -3,7 +3,7 @@ import {
   IModelIndexesBase,
   ModelRunner,
   Plugin,
-} from "@/packages/signal-model";
+} from "@polymita/signal-model";
 
 export * from "./hooks";
 

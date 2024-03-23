@@ -33,7 +33,8 @@
   },
   "homepage": "https://github.com/zhou-yg/tarat#readme",
   "dependencies": {
-    "@polymita/signal-model": "workspace:^"
+    "@polymita/signal-model": "workspace:^",
+    "@polymita/signal": "workspace:^"
   },
   "peerDependencies": {
     "react": "*"
@@ -46,5 +47,8 @@
     "rollup-plugin-dts": "^4.2.2",
     "rollup-plugin-typescript2": "^0.31.2",
     "tslib": "^2.4.0"
+  },
+  "volta": {
+    "node": "20.11.1"
   }
 }
