@@ -9,21 +9,10 @@ const base = {
     }),
   ],
   input: 'src/index.ts',
-  external: ['react', '@polymita/signal-model'],
-}
-const reactBase = {
-  plugins: [
-    tsPlugin({
-      clean: true,
-      tsconfig: './tsconfig.json',
-    }),
-  ],
-  input: 'src/adaptor/react.ts',
-  external: ['react', '@polymita/signal-model'],
 }
 
 export default [
-  ['connect', base],
+  ['index', base],
   // ['react', reactBase]
 ].map(([name, config]) => {
   return [
