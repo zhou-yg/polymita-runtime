@@ -23,11 +23,11 @@ export function createGetContext(p: {
       runtime: typeof window === "undefined" ? "nodejs" : "edge",
     });
 
-    runner.init(args);
+    const result: ReturnType<T> = runner.init(args);
 
     await runner.ready();
 
-    return runner.scope.createBaseContext();
+    return [result, runner.scope.createBaseContext()];
   }
 
   return getContext;

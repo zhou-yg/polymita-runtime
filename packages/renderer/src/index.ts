@@ -1,6 +1,3 @@
-/**
- * @jsx h
- */
 // @ts
 export * from "./render.new";
 export * from "./types";

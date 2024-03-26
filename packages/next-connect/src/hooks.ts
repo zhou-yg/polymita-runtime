@@ -15,9 +15,10 @@ type NoParamFunc = () => any;
 
 export function createUseSignal(p: {
   modelIndexes: IModelIndexesBase;
+  plugin: Plugin;
   React: typeof ReactTypes;
 }) {
-  const { modelIndexes: mi, React } = p;
+  const { plugin, modelIndexes: mi, React } = p;
   const { useEffect, useState, useRef } = React;
 
   function useSignal<T extends NoParamFunc, U extends Parameters<T>>(
@@ -82,6 +83,7 @@ export function createUseSignal(p: {
         const isComposedDriver = !!(hook as any).__tarat_compose__;
 
         const runner = new ModelRunner(hook, {
+          plugin,
           modelIndexes:
             namespace && mi && isComposedDriver
               ? (mi[namespace] as IModelIndexesBase)
