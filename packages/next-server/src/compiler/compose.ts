@@ -262,7 +262,7 @@ async function generateSchemaFile (file: string, str: string[]) {
 }
 
 export async function composeSchema (c: IConfig) {
-  const { modelEnhanceFile: enhanceFile, modelTargetFile: targetFile } = c.pointFiles
+  const { modelEnhanceFile: enhanceFile, modelTargetFile: targetFile } = c.generateFiles
   
   let enhanceJSON: IEnhancement | undefined
   if (fs.existsSync(enhanceFile)) {

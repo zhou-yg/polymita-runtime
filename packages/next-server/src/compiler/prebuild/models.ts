@@ -62,6 +62,8 @@ export async function generateModelTypes2(c: IConfig) {
     dataProxy: false,
   })
   const clientOutput = model.config.output.value;
+  model.stop()
+
   const prismaTypesFile = path.join(clientOutput, 'index.d.ts')
 
   if (!fs.existsSync(prismaTypesFile)) {
@@ -85,6 +87,7 @@ export async function generateModelTypes2(c: IConfig) {
 } from '${path.join(clientOutput, 'index')}'`
 
   fs.writeFileSync(c.currentFiles.schemaIndexesTypes, dts)
+
 }
 
 async function generateModelTypes(c: IConfig) {
@@ -203,13 +206,13 @@ export function runPrismaDev (c: IConfig) {
 export async function preCheckSchema(c: IConfig) {
   const schemaFile = path.join(c.cwd, c.modelsDirectory, c.targetSchemaPrisma)
   const schemaContent = fs.readFileSync(schemaFile, 'utf-8');
-  const model = await prismaInternals.getDMMF({
-    datamodel: schemaContent
-  })
-  const gen = await prismaInternals.getGenerator({
-    schemaPath: schemaFile,
-    dataProxy: false
-  })
+  // const model = await prismaInternals.getDMMF({
+  //   datamodel: schemaContent
+  // })
+  // const gen = await prismaInternals.getGenerator({
+  //   schemaPath: schemaFile,
+  //   dataProxy: false
+  // })
 
   const config = await prismaInternals.getConfig({
     datamodel: schemaContent

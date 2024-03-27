@@ -64,7 +64,7 @@ export async function createDevServer (c: IConfig) {
     process.exit(1)
   })
   .listen(c.port, () => {
-    console.log(`> Ready on ${c.port}`)
+    console.log(`> Ready on http://localhost:${c.port}`)
   })
 
   process.on('SIGINT', function(s) {

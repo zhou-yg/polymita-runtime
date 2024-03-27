@@ -31,7 +31,6 @@ const tsc = 'node_modules/typescript/bin/tsc';
 export async function buildDTS (c: IConfig, inputs: string[], outdir?: string) {
   const cli2 = `${inputs.join(' ')} --jsx react --module esnext --moduleResolution Node --jsxFactory h --allowJs --esModuleInterop --declaration --emitDeclarationOnly --outdir ${outdir}`.split(' ')
   
-  
   await new Promise<void>(((resolve, reject) => {
     const instance = spawn(
       tsc,

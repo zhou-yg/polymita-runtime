@@ -7,6 +7,7 @@ import {
   logFrame,
   time,
   errorFrame,
+  esbuildSignalsTypes,
 } from '../src'
 
 const chokidarOptions = () => ({
@@ -22,6 +23,8 @@ async function buildEverything (c: IConfig) {
   generateSignalMap(c)
 
   await generateViewFromModule(c)
+
+  await esbuildSignalsTypes(c)
   
   generateLayoutTypes(c)
 

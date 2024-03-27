@@ -95,13 +95,14 @@ function readPages (viewDir: string, dir: string) {
 }
 
 export interface IServerHookConfig {
+  /** full path */
   filePath: string
   file: string
   name: string
   dir: string
 }
 
-export function readDrivers(dir: string) {
+export function readSignals(dir: string) {
   if (!fs.existsSync(dir)) {
     return []
   }
@@ -112,7 +113,7 @@ export function readDrivers(dir: string) {
   drivers.forEach(f => {
     const p = path.join(dir, f)
     if (fs.lstatSync(p).isDirectory()) {
-      const children = readDrivers(p)
+      const children = readSignals(p)
       hookConfigs.push(...children)
     }
   })
@@ -137,12 +138,12 @@ export function readDrivers(dir: string) {
             export default name is ${chalk.red(exportDefaultNames[1])}
             file name is ${chalk.green(name)}`
           )
-          throw new Error('[readDrivers] error 2')  
+          throw new Error('[readSignals] error 2')  
         }
       } else if (!exportDefaultAuto) {
   
         logFrame(`Must have a default export in ${filePath}`)
-        throw new Error('[readDrivers] error 1')
+        throw new Error('[readSignals] error 1')
       }
     }
 
@@ -241,6 +242,10 @@ function getGenerateFiles(config: IDefaultConfig, cwd:string) {
     root: generateRootPath,
     signalMap: path.join(generateRootPath, `${config.generateSignalsMap}${ext}`),
     viewsDir: path.join(generateRootPath, config.viewsDirectory),
+    signalsDir: path.join(generateRootPath, config.signalsDirectory),
+
+    modelEnhanceFile: path.join(cwd, config.modelsDirectory, config.modelEnhance),
+    modelTargetFile: path.join(cwd, config.modelsDirectory, config.targetSchemaPrisma),
   }
 }
 
@@ -360,7 +365,7 @@ export async function readConfig (arg: {
     c.file = path.join('./', config.appDirectory, config.pageDirectory, c.file)
   })
 
-  const drivers = readDrivers(signalsDirectory).map(d => {
+  const signals = readSignals(signalsDirectory).map(d => {
     return {
       ...d,
       relativeDir: path.relative(signalsDirectory, d.dir)
@@ -410,13 +415,12 @@ export async function readConfig (arg: {
     packageJSON,
     isProd,
     entryCSS,
-    pointFiles,
     generateFiles,
     currentFiles,
     devPointFiles,
     buildPointFiles,
     cwd,
-    drivers,
+    signals,
     views,
     pages,
     dependencyModules,

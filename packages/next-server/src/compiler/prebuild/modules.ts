@@ -6,25 +6,6 @@ import * as layoutTypes from './layoutTypes'
 import { buildDTS, esbuild } from '../bundleUtility';
 import loadModuleToView from '../plugins/esbuild-load-module';
 
-/**
- * generate modules/*.d.ts
- */
-function generateModuleTypes (c: IConfig) {
-  const { outputModulesDir } = c.pointFiles;
-  const { modules } = c;
-
-  const moduleFiles: [string, string][] = []
-  
-  modules
-  .filter(f => /\.ts(x?)$/.test(f.file))
-  .forEach(f => {
-    const outPath = path.join(outputModulesDir, f.relativeFile.replace(/\.ts(x?)$/, '.d.ts'))
-    moduleFiles.push([f.path, outPath])
-  })
-  
-  // return Promise.all(moduleFiles.map(([input, output]) => buildDTS(c, input, output)))
-}
-
 export async function generateViewFromModule (c: IConfig) {
   const moduleFiles = c.modules.map(f => {
     return f.path
