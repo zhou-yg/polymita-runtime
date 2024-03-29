@@ -16,16 +16,6 @@
     "p:dev": "prisma migrate dev --schema ./__test__/database/testSchema.prisma && prisma generate",
     "p:gen": "prisma generate --schema ./__test__/database/testSchema.prisma"
   },
-  "typesVersions": {
-    "*": {
-      "signal-model.client": [
-        "./dist/signal-model.client.d.ts"
-      ],
-      "signal-model": [
-        "./dist/signal-model.d.ts"
-      ]
-    }
-  },
   "files": [
     "src",
     "dist",

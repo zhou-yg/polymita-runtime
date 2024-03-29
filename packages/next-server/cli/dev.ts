@@ -20,7 +20,6 @@ const chokidarOptions = () => ({
 })
 
 async function buildEverything (c: IConfig) {
-  generateSignalMap(c)
 
   await generateViewFromModule(c)
 
