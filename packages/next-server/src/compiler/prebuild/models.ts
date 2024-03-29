@@ -2,9 +2,12 @@ import * as fs from 'fs'
 import * as path from 'path'
 import * as prismaInternals from '@prisma/internals'
 import { readCurrentPrisma, readExsitPrismaPart, transformModelName } from '../compose';
+import shelljs from 'shelljs'
+
+const { cp } = shelljs;
 
 import { IConfig } from "../../config"
-import { loadJSON, lowerFirst, traverse } from '../../util'
+import { loadJSON, lowerFirst, traverse, tryMkdir } from '../../util'
 import { set, upperFirst } from 'lodash';
 import { spawn } from 'child_process';
 
@@ -226,5 +229,20 @@ export async function preCheckSchema(c: IConfig) {
       console.log(`[preCheckSchema] error, db file not found: ${dbPath}`)
       await runPrismaDev(c)
     }
+  }
+}
+
+
+export function copyModelFiles (config: IConfig) {
+
+  const { schemaPrisma, schemaIndexes } = config.modelFiles
+
+  tryMkdir(config.pointFiles.outputModelsDir)
+
+  if (fs.existsSync(schemaPrisma)) {
+    cp(schemaPrisma, config.pointFiles.outputSchemaPrisma)
+  }
+  if (fs.existsSync(schemaIndexes)) {
+    cp(schemaIndexes, config.pointFiles.outputSchemaIndexes)
   }
 }

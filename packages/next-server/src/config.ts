@@ -171,64 +171,17 @@ export interface IConfig extends IReadConfigResult{
 }
 
 function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) {
-  const { esmDirectory, cjsDirectory } = config
-
-  const outputClientDir = path.join(outputDir, config.clientDir)
-  const outputServerDir = path.join(outputDir, config.serverDir)
-
-  const outputAppServerDir = path.join(outputServerDir, config.appDirectory)
-  const outputAppClientDir = path.join(outputClientDir, config.appDirectory)
-
-  const filePostfix = config.ts ? '.tsx' : '.jsx'
 
   return {
     outputDir, 
-    outputClientDir,
-    outputServerDir,
-    // source
-    viewsDir: path.join(cwd, config.viewsDirectory),
-    modulesDir: path.join(cwd, config.modulesDirectory),
-    modelsDir: path.join(cwd, config.modelsDirectory),
-    driversDir: path.join(cwd, config.signalsDirectory),
-    appDir: path.join(cwd, config.appDirectory),
-
     // prisma
     outputModelsDir: path.join(outputDir, config.modelsDirectory),
-    outputModelSchema: path.join(outputDir, config.modelsDirectory, config.targetSchemaPrisma),
-    modelEnhanceFile: path.join(cwd, config.modelsDirectory, config.modelEnhance),
-    modelTargetFile: path.join(cwd, config.modelsDirectory, config.targetSchemaPrisma),
+    outputSchemaPrisma: path.join(outputDir, config.modelsDirectory, config.targetSchemaPrisma),
+    outputSchemaIndexes: path.join(outputDir, config.modelsDirectory, config.schemaIndexes),
     // views/modules/drivers
     outputViewsDir: path.join(outputDir, config.viewsDirectory),
-    outputDriversDir: path.join(outputDir, config.signalsDirectory),
-    outputModulesDir: path.join(outputDir, config.modulesDirectory),
-    
-    /** server */
-
-    // app
-    outputAppServerDir,
-    // router
-    autoGenerateServerRoutes: path.join(outputAppServerDir, `${config.routesServer}${filePostfix}`),    
-    distServerRoutes: path.join(outputAppServerDir, `${config.routesServer}.js`),
-    distServerRoutesCSS: path.join(outputAppServerDir, `${config.routesServer}.css`),
-    // entry
-    distEntryJS: path.join(outputAppServerDir, `${config.entryServer}.js`),
-    distEntryCSS: path.join(outputAppServerDir, `${config.entryServer}.css`),
-    // drivers
-    outputServerDriversDir: path.join(outputServerDir, config.signalsDirectory, cjsDirectory),
-    outputServerDriversESMDir: path.join(outputServerDir, config.signalsDirectory, esmDirectory),
-
-    /** client */
-
-    // app
-    outputAppClientDir,
-    appClientEntry: path.join(cwd, config.appDirectory, `${config.entry}${filePostfix}`),
-    // router
-    autoGenerateClientRoutes: path.join(outputAppClientDir, `${config.routes}${filePostfix}`),
-    clientRoutes: path.join(outputAppClientDir, 'routes.js'),
-    clientRoutesCSS: path.join(outputAppClientDir, 'routes.css'),
-    // drivers
-    outputClientDriversDir: path.join(outputClientDir, config.signalsDirectory, esmDirectory),
-    outputClientDriversCJSDir: path.join(outputClientDir, config.signalsDirectory, cjsDirectory),
+    outputSignalsDir: path.join(outputDir, config.signalsDirectory),
+    outputModulesDir: path.join(outputDir, config.modulesDirectory),    
   }
 }
 
@@ -243,9 +196,6 @@ function getGenerateFiles(config: IDefaultConfig, cwd:string) {
     signalMap: path.join(generateRootPath, `${config.generateSignalsMap}${ext}`),
     viewsDir: path.join(generateRootPath, config.viewsDirectory),
     signalsDir: path.join(generateRootPath, config.signalsDirectory),
-
-    modelEnhanceFile: path.join(cwd, config.modelsDirectory, config.modelEnhance),
-    modelTargetFile: path.join(cwd, config.modelsDirectory, config.targetSchemaPrisma),
   }
 }
 
@@ -386,11 +336,10 @@ export async function readConfig (arg: {
 
   const entryCSS = readEntryCSS(path.join(cwd, config.appDirectory, config.entry))
 
-  const devPointFiles = getOutputFiles(config, cwd, path.join(cwd, config.devCacheDirectory))
   const buildPointFiles = getOutputFiles(config, cwd, path.join(cwd, config.buildDirectory))
-  const testPointFiles = getOutputFiles(config, cwd, path.join(cwd, config.testCacheDirectory))
-  // default to "dev"
-  const pointFiles = isProd === 'test' ? testPointFiles : isProd ? buildPointFiles : devPointFiles
+  const devPointFiles = getOutputFiles(config, cwd, path.join(cwd, config.appDirectory, config.generateRoot))
+
+  const pointFiles = isProd ? buildPointFiles : devPointFiles
 
   const generateFiles = getGenerateFiles(config, cwd)
 
@@ -406,8 +355,18 @@ export async function readConfig (arg: {
 
   const thirdPartEntry = path.join(cwd, config.thirdPartDir)
 
+
+  const modelEnhance = path.join(cwd, config.modelsDirectory, config.modelEnhance)
+  const schemaPrisma = path.join(cwd, config.modelsDirectory, config.targetSchemaPrisma)
+  const schemaIndexes = path.join(cwd, config.modelsDirectory, config.schemaIndexes)
+
   return {
     ...config,
+    modelFiles: {
+      modelEnhance,
+      schemaPrisma,
+      schemaIndexes,
+    },
     project,
     port,
     appRootFile,
@@ -417,8 +376,7 @@ export async function readConfig (arg: {
     entryCSS,
     generateFiles,
     currentFiles,
-    devPointFiles,
-    buildPointFiles,
+    pointFiles,
     cwd,
     signals,
     views,

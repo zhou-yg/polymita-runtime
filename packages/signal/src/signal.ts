@@ -1129,9 +1129,16 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
       f(rc);
     });
   }
+  clearEffects() {
+    this.off(CurrentRunnerScope.events.effect)
+  }
   flushEffects() {
-    const reactiveChain = currentReactiveChain?.add(this);
-    this.emit(CurrentRunnerScope.events.effect, reactiveChain);
+    if (!this.runnerContext.withInitialContext) {
+      const reactiveChain = currentReactiveChain?.add(this);
+      this.emit(CurrentRunnerScope.events.effect, reactiveChain);
+    } else {
+      this.off(CurrentRunnerScope.events.effect)
+    }
   }
 
   appendDispose(f: Function) {

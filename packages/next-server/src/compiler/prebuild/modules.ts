@@ -15,7 +15,7 @@ export async function generateViewFromModule (c: IConfig) {
 
   await esbuild({
     entryPoints: moduleFiles,
-    outdir: c.generateFiles.viewsDir,
+    outdir: c.pointFiles.outputViewsDir,
     platform: 'browser',
     format: 'esm',
     treeShaking: true,
@@ -33,10 +33,9 @@ export async function generateViewFromModule (c: IConfig) {
     return fs.promises.writeFile(f, content)
   }))
 
-  await buildDTS(c, tsFiles.map(f => f[0]), c.generateFiles.viewsDir)
+  await buildDTS(c, tsFiles.map(f => f[0]), c.pointFiles.outputViewsDir)
 
   await Promise.all(tsFiles.map(([f]) => {
     return fs.promises.unlink(f)
-  }))  
-
+  }))
 }

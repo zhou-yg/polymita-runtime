@@ -82,7 +82,7 @@ export async function injectDeps (c: IConfig, targetFile: string) {
 
   const moduleName = c.packageJSON?.name
 
-  const depsJSONPath = path.join(c.generateFiles.signalsDir, `${parsed.name}.deps.json`)
+  const depsJSONPath = path.join(parsed.dir, `${parsed.name}.deps.json`)
 
   if (fs.existsSync(depsJSONPath)) {
     const depsJSON = loadJSON(depsJSONPath)
@@ -119,6 +119,30 @@ export async function injectDeps (c: IConfig, targetFile: string) {
   }
 }
 
+export async function buildSignals(c: IConfig) {
+  const entry = c.signals.map(f => f.filePath)
+
+  const result = await bundleUtility.esbuild({
+    entryPoints: entry,
+    outdir: c.pointFiles.outputSignalsDir,
+  })
+
+  await bundleUtility.buildDTS(
+    c,
+    entry,
+    c.pointFiles.outputSignalsDir
+  )
+
+  generateHookDeps(c.pointFiles.outputSignalsDir)
+
+  traverseDir(c.pointFiles.outputSignalsDir, f => {
+    if (/\.js$/.test(f.file)) {
+      injectDeps(c, f.path)
+    }
+  })
+}
+
+
 export async  function esbuildSignalsTypes(c: IConfig) {
 
   const entry = c.signals.map(f => f.filePath)
@@ -128,7 +152,7 @@ export async  function esbuildSignalsTypes(c: IConfig) {
     outdir: c.generateFiles.signalsDir,
   })
 
-  generateHookDeps(c)
+  generateHookDeps(c.generateFiles.signalsDir, true)
 
   const sourceSignalDir = path.join(c.cwd, c.signalsDirectory)
   c.signals.forEach(f => {
@@ -145,10 +169,10 @@ export async  function esbuildSignalsTypes(c: IConfig) {
 
 
 
-/** @TODO 1.integrated to the vite.plugin 2.upgrade to typescript */
-export function generateHookDeps (c: IConfig) {
+/** @TODO upgrade to typescript */
+function generateHookDeps (signalsDir: string, removeSource?: boolean) {
  
-  traverseDir(c.generateFiles.signalsDir, f => {
+  traverseDir(signalsDir, f => {
     if (/\.js$/.test(f.file)) {
       const compiledFile = f.path;
       const name = f.name
@@ -158,18 +182,9 @@ export function generateHookDeps (c: IConfig) {
 
       // json in tarat: generate deps.json
       fs.writeFileSync(path.join(f.dir, `${name}.deps.json`), JSON.stringify(deps, null, 2))
-    
-      fs.unlinkSync(f.path)
-      // // modify original hook file
-      // injectDeps(c, compiledFile);
-      // [
-      //   outputClientDriversDir,
-      //   outputServerDriversDir,
-      //   outputClientDriversCJSDir,
-      // ].forEach(envDir => {
-      //   const cjsOutputFile = path.join(envDir, `${name}.js`)
-      //   injectDeps(c, cjsOutputFile)
-      // })
+      if (removeSource) {
+        fs.unlinkSync(f.path)
+      }
     }
   })
 }
