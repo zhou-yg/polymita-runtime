@@ -24,7 +24,7 @@ export function lowerFirst (s: string) {
 }
 
 export function isComposedDriver (f: BM) {
-  return !!(f as any).__tarat_compose__
+  return !!(f as any).__polymita_compose__
 }
 
 export function tryMkdir(dir: string) {

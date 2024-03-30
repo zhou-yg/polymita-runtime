@@ -2,7 +2,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import chokidar from 'chokidar'
 import {
-  IConfig, IWatcherConfig, buildModelIndexes, composeDriver, composeSchema, generateLayoutTypes, generateModelTypes2, generateSignalMap, generateViewFromModule, preCheckSchema, readConfig, watchByConfig,
+  IConfig, IWatcherConfig, buildModelIndexes, composeSignal, composeSchema, generateLayoutTypes, generateModelTypes2, generateSignalMap, generateViewFromModule, preCheckSchema, readConfig, watchByConfig,
   createDevServer,
   logFrame,
   time,
@@ -102,7 +102,7 @@ export default async (cwd: string) => {
 
   await Promise.all([
     composeSchema(config),
-    // composeDriver(config)  
+    composeSignal(config)  
   ])
   await preCheckSchema(config);
 

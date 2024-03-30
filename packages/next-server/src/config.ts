@@ -267,6 +267,17 @@ interface UserCustomConfig {
   debugLog?: boolean
 }
 
+function filterComposeSignals(
+  cwd: string,
+  config: IDefaultConfig,
+  signals: ReturnType<typeof readSignals>
+) {
+
+  const composeDir = path.join(cwd, config.signalsDirectory, config.composeDriversDirectory)
+
+  return signals.filter(obj => !obj.filePath.startsWith(composeDir))
+}
+
 function readModules (dir: string) {
   const modules: IFile[] = []
 
@@ -319,12 +330,16 @@ export async function readConfig (arg: {
     c.file = path.join('./', config.appDirectory, config.pageDirectory, c.file)
   })
 
-  const signals = readSignals(signalsDirectory).map(d => {
-    return {
-      ...d,
-      relativeDir: path.relative(signalsDirectory, d.dir)
-    }
-  })
+  const signals = filterComposeSignals(
+    cwd,
+    config,
+    readSignals(signalsDirectory).map(d => {
+      return {
+        ...d,
+        relativeDir: path.relative(signalsDirectory, d.dir)
+      }
+    })
+  )
 
   const currentFiles = {
     viewsDirectory,
