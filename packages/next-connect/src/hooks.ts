@@ -68,7 +68,7 @@ export function createUseSignal(p: {
         result: ReturnType<T>;
       } = driverWeakMap.get(hook)?.get(serializedArgs);
 
-      // match the cache
+            // match the cache
       if (cachedDriverResult) {
         init.current = {
           scope: cachedDriverResult.scope,
@@ -83,10 +83,10 @@ export function createUseSignal(p: {
         const namespace = getNamespace(hook);
         const isComposedDriver = !!(hook as any).__tarat_compose__;
 
-        console.log('plugin: ', plugin);
         const runner = new ModelRunner(hook, {
           plugin,
           runtime,
+          believeContext: true,
           modelIndexes:
             namespace && mi && isComposedDriver
               ? (mi[namespace] as IModelIndexesBase)
@@ -114,10 +114,11 @@ export function createUseSignal(p: {
           m = new Map();
           driverWeakMap.set(hook, m);
         }
-        m.set(serializedArgs, {
-          scope,
-          result: r,
-        });
+        // @TODO no cache ?
+        // m.set(serializedArgs, {
+        //   scope,
+        //   result: r,
+        // });
       }
     }
     // release event

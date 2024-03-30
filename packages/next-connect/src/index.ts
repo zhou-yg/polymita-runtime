@@ -1,5 +1,6 @@
 import {
   Driver,
+  IHookContext,
   IModelIndexesBase,
   ModelRunner,
   Plugin,
@@ -20,6 +21,7 @@ export function createGetContext(p: {
     const runner = new ModelRunner(signal, {
       modelIndexes,
       plugin: createPlugin(),
+      believeContext: false,
       runtime: typeof window === "undefined" ? "nodejs" : "edge",
     });
 
@@ -27,7 +29,10 @@ export function createGetContext(p: {
 
     await runner.ready();
 
-    return [result, runner.scope.createBaseContext()];
+    return [result, runner.scope.createBaseContext()] as [
+      ReturnType<T>,
+      IHookContext,
+    ];
   }
 
   return getContext;
