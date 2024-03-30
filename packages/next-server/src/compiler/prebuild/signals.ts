@@ -21,7 +21,7 @@ export function generateSignalMap (c: IConfig) {
 
   traverseDir(signalsDir,(f) => {
     if (!f.isDir) {
-      const relativePath = path.relative(c.generateFiles.root, f.path)
+      const relativePath = `./signals/${f.relativeFile}`
       relativeSignals.push({
         name: f.name,
         filePath: relativePath.replace(/\.\w+$/, '')
