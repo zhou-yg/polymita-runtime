@@ -196,6 +196,10 @@ function getGenerateFiles(config: IDefaultConfig, cwd:string) {
     signalMap: path.join(generateRootPath, `${config.generateSignalsMap}${ext}`),
     viewsDir: path.join(generateRootPath, config.viewsDirectory),
     signalsDir: path.join(generateRootPath, config.signalsDirectory),
+
+    hooksFile: path.join(generateRootPath, 'hooks.ts'),
+    actionsFile: path.join(generateRootPath, 'actions.ts'),
+    connectFile: path.join(generateRootPath, 'connect.ts'),
   }
 }
 

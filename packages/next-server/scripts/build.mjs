@@ -10,11 +10,18 @@ const instance = spawn('rollup', ['--config', 'rollup.config.mjs'], {
 
 instance.on('close', () => {
   
-  cp('src/compiler/prebuild/signalsMapTemplate.ejs', 'dist/cli/')
-  cp('src/compiler/prebuild/signalsMapTemplate.ejs', 'dist/')
-  
-  cp('src/compiler/plugins/esbuildLoadViewTemplate.ejs', 'dist/cli/')
-  cp('src/compiler/plugins/esbuildLoadViewTemplate.ejs', 'dist/')
+  const ejsArr = [
+    'src/compiler/prebuild/preset/signalsMapTemplate.ejs',
+    'src/compiler/prebuild/preset/actionsTemplate.ejs',
+    'src/compiler/prebuild/preset/hooksTemplate.ejs',
+    'src/compiler/prebuild/preset/connectTemplate.ejs',
+    'src/compiler/plugins/esbuildLoadViewTemplate.ejs',
+  ]
+
+  ejsArr.forEach(from => {
+    cp(from, 'dist/cli/')
+    cp(from, 'dist/')  
+  })
 
   console.log('build end')
 })
