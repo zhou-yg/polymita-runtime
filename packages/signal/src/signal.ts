@@ -1514,7 +1514,7 @@ export function getCurrentReactiveChain() {
   return currentReactiveChain;
 }
 
-export function startdReactiveChain(name: string = "root") {
+export function startReactiveChain(name: string = "root") {
   currentReactiveChain = new ReactiveChain();
   currentReactiveChain.isRoot = true;
   currentReactiveChain.name = name;
