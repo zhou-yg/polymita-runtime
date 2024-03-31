@@ -190,7 +190,7 @@ function toDTS (json: JSONTree) {
 }
 
 export function generateLayoutTypes (c: IConfig) {
-  const destDir = c.generateFiles.viewsDir
+  const destDir = c.isProd ? c.pointFiles.outputModulesDir : c.generateFiles.viewsDir
   const modulesDir = path.join(c.cwd, c.modulesDirectory)
 
   c.modules.forEach(f => {
