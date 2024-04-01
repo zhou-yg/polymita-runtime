@@ -93,58 +93,6 @@ export async function generateModelTypes2(c: IConfig) {
 
 }
 
-async function generateModelTypes(c: IConfig) {
-  if (c.model.engine !== 'prisma') {
-    return
-  }
-  const schemaIndexes = loadJSON(c.currentFiles.schemaIndexes);
-  
-  if (Object.values(schemaIndexes).length <= 0) {
-    return;
-  }
-
-  const model = await prismaInternals.getGenerator({
-    schemaPath: c.currentFiles.targetSchemaPrisma,
-    dataProxy: false,
-  })
-  const clientOutput = model.config.output.value;
-  const prismaTypes = path.join(clientOutput, 'index.d.ts')
-
-  if (!fs.existsSync(prismaTypes)) {
-    return;
-  }
-
-  const prismaTypesContent = fs.readFileSync(prismaTypes).toString();
-
-  function findInterfaceDeclaration (interfaceName: string) {
-    interfaceName = upperFirst(interfaceName)
-
-    const declarationHead = `export type ${interfaceName} = {`;
-    const start = prismaTypesContent.indexOf(declarationHead)
-
-    if (start > 0) {
-      for (let i = start; i < prismaTypesContent.length; i++) {
-        if (prismaTypesContent[i] === '}') {
-          return prismaTypesContent.substring(start, i + 1)
-        }
-      }
-    }
-  }
-
-  const result: string[] = []
-
-  traverse(schemaIndexes, (keys, val: string | IModelIndexesBase) => {
-    if (typeof val === 'string') {
-      const interfaceText = findInterfaceDeclaration(val);
-      if (interfaceText) {
-        result.push(interfaceText)
-      }
-    }
-  })
-
-  fs.writeFileSync(c.currentFiles.schemaIndexesTypes, result.join('\n'))
-}
-
 export async function buildModelIndexes(c: IConfig) {
   if (c.model.engine === 'prisma') {
 

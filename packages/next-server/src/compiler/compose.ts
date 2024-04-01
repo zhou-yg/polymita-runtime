@@ -41,6 +41,7 @@ export function findDependentPrisma (c: IConfig) {
   const schemaFiles: Array<IPrismaFile> = []
 
   c.dependencyModules.forEach(moduleName => {
+    console.log('moduleName: ', moduleName);
     const dir = path.join(c.cwd, 'node_modules', moduleName)
 
     const depSchemaPath = path.join(dir, c.buildDirectory, c.modelsDirectory, 'schema.prisma')
@@ -281,25 +282,23 @@ export async function composeSchema (c: IConfig) {
     /**
      * if detect the dependent prisma, must backup orignal schema.prisma
      */
-    if (taratPrismas.length > 0) {
-      const newSchemaContent = await generateNewSchema(
-        c,
-        existPrismaPart.concat(taratPrismas),
-        enhanceJSON
-      )
-  
-      const existPrismaPartWithoutModels = pickExpectModel(existPrismaPart)
-      
-      await generateSchemaFile(
-        targetFile,
-        [
-          '// original writing schema',
-          ...existPrismaPartWithoutModels,
-          '// auto composing schema ',
-          newSchemaContent,
-        ]
-      )
-    }
+    const newSchemaContent = await generateNewSchema(
+      c,
+      existPrismaPart.concat(taratPrismas),
+      enhanceJSON
+    )
+
+    const existPrismaPartWithoutModels = pickExpectModel(existPrismaPart)
+    
+    await generateSchemaFile(
+      targetFile,
+      [
+        '// original writing schema',
+        ...existPrismaPartWithoutModels,
+        '// auto composing schema ',
+        newSchemaContent,
+      ]
+    )
   }
 }
 

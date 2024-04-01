@@ -2,7 +2,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import chokidar from 'chokidar'
 import {
-  IConfig, IWatcherConfig, buildModelIndexes, composeDriver, composeSchema, generateLayoutTypes, generateModelTypes2, generateSignalMap, generateViewFromModule, preCheckSchema, readConfig, watchByConfig,
+  IConfig, IWatcherConfig, buildModelIndexes, composeSchema, generateLayoutTypes, generateModelTypes2, generateSignalMap, generateViewFromModule, preCheckSchema, readConfig, watchByConfig,
   createDevServer,
   logFrame,
   time,
