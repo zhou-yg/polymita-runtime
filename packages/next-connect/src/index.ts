@@ -1,5 +1,6 @@
 import {
   Driver,
+  getNamespace,
   IHookContext,
   IModelIndexesBase,
   ModelRunner,
@@ -18,8 +19,20 @@ export function createGetContext(p: {
     signal: Driver,
     ...args: Parameters<T>
   ) {
+    const namespace = getNamespace(signal);
+    const isComposedDriver = !!(signal as any).__polymita_compose__;
+
+    console.log(
+      "namespace && mi && isComposedDriver: ",
+      namespace,
+      isComposedDriver,
+    );
+
     const runner = new ModelRunner(signal, {
-      modelIndexes,
+      modelIndexes:
+        namespace && modelIndexes && isComposedDriver
+          ? (modelIndexes[namespace] as IModelIndexesBase)
+          : modelIndexes,
       plugin: createPlugin(),
       believeContext: false,
       runtime: typeof window === "undefined" ? "nodejs" : "edge",

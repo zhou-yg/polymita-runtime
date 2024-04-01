@@ -68,7 +68,7 @@ export function createUseSignal(p: {
         result: ReturnType<T>;
       } = driverWeakMap.get(hook)?.get(serializedArgs);
 
-            // match the cache
+      // match the cache
       if (cachedDriverResult) {
         init.current = {
           scope: cachedDriverResult.scope,
@@ -77,11 +77,12 @@ export function createUseSignal(p: {
               [scopeSymbol]: cachedDriverResult.scope,
             },
             cachedDriverResult.result,
+            ``,
           ),
         };
       } else {
         const namespace = getNamespace(hook);
-        const isComposedDriver = !!(hook as any).__tarat_compose__;
+        const isComposedDriver = !!(hook as any).__polymita_compose__;
 
         const runner = new ModelRunner(hook, {
           plugin,

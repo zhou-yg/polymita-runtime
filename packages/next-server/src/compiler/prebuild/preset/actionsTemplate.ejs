@@ -10,7 +10,6 @@ if (!client.PrismaClient) {
   throw new Error('[setPrisma] error, prisma.PrismaClient not found please run prisma generate first')
 }
 const prisma = new client.PrismaClient()
-console.log('prisma.$connect: ', prisma.$connect);
 const connectResult = prisma.$connect();
 connectResult.then(() => {
   console.log('connect success', Object.keys(prisma))
