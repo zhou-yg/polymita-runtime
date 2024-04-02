@@ -182,6 +182,8 @@ function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) 
     outputViewsDir: path.join(outputDir, config.viewsDirectory),
     outputSignalsDir: path.join(outputDir, config.signalsDirectory),
     outputModulesDir: path.join(outputDir, config.modulesDirectory),    
+    //
+    outputCSS: path.join(outputDir, 'index.css'),    
   }
 }
 
@@ -290,6 +292,16 @@ function readModules (dir: string) {
   return modules
 }
 
+function getTailwindConfigPath(cwd: string) {
+  const pathPrefix = path.join(cwd, 'tailwind.config')
+  if (fs.existsSync(pathPrefix + '.js')) {
+    return pathPrefix + '.js'
+  }
+  if (fs.existsSync(pathPrefix + '.ts')) {
+    return pathPrefix + '.ts'
+  }
+}
+
 export async function readConfig (arg: {
   cwd: string,
   isProd?: boolean | 'prod' | 'dev' | 'test',
@@ -379,6 +391,8 @@ export async function readConfig (arg: {
   const schemaPrisma = path.join(cwd, config.modelsDirectory, config.targetSchemaPrisma)
   const schemaIndexes = path.join(cwd, config.modelsDirectory, config.schemaIndexes)
 
+  const tailwindConfigPath = getTailwindConfigPath(cwd)
+
   return {
     ...config,
     modelFiles: {
@@ -386,6 +400,7 @@ export async function readConfig (arg: {
       schemaPrisma,
       schemaIndexes,
     },
+    tailwindConfigPath,
     project,
     port,
     appRootFile,

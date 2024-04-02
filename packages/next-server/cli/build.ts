@@ -2,7 +2,7 @@ import chalk from 'chalk'
 import * as path from 'path'
 import * as fs from 'fs'
 import { cp } from "shelljs"
-import { buildModelIndexes, buildModules, buildSignals, composeSchema, composeSignal, copyModelFiles, generateLayoutTypes, generateModelTypes2, generateViewFromModule, logFrame, preCheckSchema, readConfig, time } from '../src'
+import { buildModelIndexes, buildModules, buildSignals, buildTailwindCSS, composeSchema, composeSignal, copyModelFiles, generateLayoutTypes, generateModelTypes2, generateViewFromModule, logFrame, preCheckSchema, readConfig, time } from '../src'
 
 
 export default async (cwd: string) => {
@@ -30,6 +30,7 @@ export default async (cwd: string) => {
   await Promise.all([
     generateViewFromModule(config),
     buildModules(config),
+    buildTailwindCSS(config),
   ])
   generateLayoutTypes(config)
 
