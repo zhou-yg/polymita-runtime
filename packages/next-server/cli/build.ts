@@ -2,8 +2,16 @@ import chalk from 'chalk'
 import * as path from 'path'
 import * as fs from 'fs'
 import { cp } from "shelljs"
-import { buildModelIndexes, buildModules, buildSignals, buildTailwindCSS, composeSchema, composeSignal, copyModelFiles, generateLayoutTypes, generateModelTypes2, generateViewFromModule, logFrame, preCheckSchema, readConfig, time } from '../src'
+import { buildModelIndexes, buildModules, buildSignals, buildTailwindCSS, composeSchema, composeSignal, copyModelFiles, generateLayoutTypes, generateModelTypes2, generateViewFromModule, IConfig, logFrame, preCheckSchema, readConfig, time } from '../src'
 
+function copyFiles (config: IConfig) {
+  copyModelFiles(config)
+
+  cp('-r', 
+    path.join(config.cwd, 'types'),
+    path.join(config.pointFiles.outputDir, 'types')
+  )
+}
 
 export default async (cwd: string) => {
   const config = await readConfig({
@@ -36,5 +44,6 @@ export default async (cwd: string) => {
 
   logFrame(`build views in ${t1()}s`)
 
-  copyModelFiles(config)
+  copyFiles(config)
+ 
 }
