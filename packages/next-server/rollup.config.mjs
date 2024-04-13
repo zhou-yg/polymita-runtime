@@ -18,5 +18,21 @@ export default [
       format: 'commonjs',
       sourcemap: true,
     },
-  }
+  },
+  {
+    plugins: [
+      json(),
+      tsPlugin({
+        clean: true,
+        tsconfig: './tsconfig.json',
+      }),
+      commonjs(),
+    ],
+    input: './electronEntry/start.ts',
+    output: {
+      file: 'dist/electronEntry/start.js',
+      format: 'commonjs',
+      sourcemap: true,
+    },
+  },
 ]

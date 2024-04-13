@@ -559,6 +559,9 @@ importers:
       ejs:
         specifier: ^3.1.8
         version: 3.1.9
+      electron:
+        specifier: ^22.0.3
+        version: 22.3.12
       esbuild:
         specifier: ^0.18.15
         version: 0.18.15
