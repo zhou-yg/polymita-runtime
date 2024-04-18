@@ -4,7 +4,6 @@ import {
   LayoutTreeProxyDraft,
   StyleRule,
   PatternStructure,
-  OverrideModule,
   StateManagementMatch,
   PatternStructureResult,
   LayoutTreeDraft,
@@ -615,7 +614,7 @@ function createVirtualNode(child: PatchCommand["child"]) {
   };
 }
 
-function doPatchLayoutCommand(cmd: PatchCommand, draft: LayoutTreeProxyDraft) {
+export function doPatchLayoutCommand(cmd: PatchCommand, draft: LayoutTreeProxyDraft) {
   if (cmd.condition === false) {
     return;
   }
@@ -636,33 +635,6 @@ function doPatchLayoutCommand(cmd: PatchCommand, draft: LayoutTreeProxyDraft) {
       parent[DraftOperatesEnum.remove](createVirtualNode(cmd.child));
       break;
   }
-}
-
-export function runOverrides(
-  overrides: OverrideModule<any, any, any>[],
-  props: Record<string, any>,
-  draft: LayoutTreeProxyDraft
-) {
-  // patch layout
-  overrides.forEach((override) => {
-    // 兼容逻辑
-    override.layout?.(props, draft);
-
-    if (override.patchLayout) {
-      const patchLayoutCommands: PatchCommand[] = override.patchLayout(
-        props,
-        draft
-      );
-
-      patchLayoutCommands?.forEach?.((cmd) => {
-        doPatchLayoutCommand(cmd, draft);
-      });
-    }
-    if (override.patchRules) {
-      const rules = override.patchRules(props, draft);
-      assignRules(draft, rules);
-    }
-  });
 }
 
 export function assignDefaultValueByPropTypes<T extends Record<string, any>>(

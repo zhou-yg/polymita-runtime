@@ -10,7 +10,7 @@ export const config: StateManagementConfig = {
   ],
   runLogic: runHookLogic,
   // transform, // 不需要双向绑定，所以不需要transform
-  convertProps: convertToSignal
+  // convertProps: convertToSignal
 }
 
 function runHookLogic <T extends Func>(react: any, logic: T, propsArr: Parameters<T>) {

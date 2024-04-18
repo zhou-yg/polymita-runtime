@@ -4,7 +4,8 @@ import {
 } from '@polymita/signal-model'
 import {
   isVirtualNode, buildLayoutNestedObj, proxyLayoutJSON, ProxyLayoutHandler, assignRules, assignPattern,
-  SEMATIC_RELATION_HAS, SEMATIC_RELATION_IS, mergeFromProps, renderHTMLProp, runOverrides, shouldNotRender, assignDefaultValueByPropTypes, ShouldRenderAttr, lowerCaseType, isVNodeComponent } from '../../utils'
+  SEMATIC_RELATION_HAS, SEMATIC_RELATION_IS, mergeFromProps, renderHTMLProp, shouldNotRender, assignDefaultValueByPropTypes, ShouldRenderAttr, lowerCaseType, isVNodeComponent } from '../../utils'
+import { runOverrides } from "../../override";
 
 import { LayoutStructTree, ConvertToLayoutTreeDraft, PatchCommand } from "../../types-layout";
 import { NormalizeProps } from '../../types';
