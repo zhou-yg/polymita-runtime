@@ -235,6 +235,7 @@ export class State<T = any> extends Hook {
       return;
     }
 
+    log(`[${this.name}][state.update] shouldTrigger=`, shouldTrigger, oldValue, v)
     // trigger only changed
     if (shouldTrigger) {
       const triggeredSet = this.trigger(undefined, undefined, reactiveChain);

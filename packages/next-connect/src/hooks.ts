@@ -8,6 +8,7 @@ import {
   RunnerModelScope,
   ModelRunner,
   getNamespace,
+  getName,
 } from "@polymita/signal-model";
 
 type HasParamFunc = (...arg: any[]) => any;
@@ -82,6 +83,7 @@ export function createUseSignal(p: {
         };
       } else {
         const namespace = getNamespace(hook);
+        const name = getName(hook);
         const isComposedDriver = !!(hook as any).__polymita_compose__;
 
         const runner = new ModelRunner(hook, {
@@ -108,7 +110,10 @@ export function createUseSignal(p: {
           ),
         };
         typeof window !== "undefined" &&
-          ((window as any).POLYMITA_RUNNER = init.current);
+          ((window as any).POLYMITA_RUNNER = Object.assign(
+            (window as any).POLYMITA_RUNNER || {},
+            { [name]: init.current },
+          ));
 
         let m = driverWeakMap.get(hook);
         if (!m) {

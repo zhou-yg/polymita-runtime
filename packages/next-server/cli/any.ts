@@ -7,14 +7,14 @@ import {
   logFrame,
   time,
   errorFrame,
-  esbuildSignalsTypes,
+  generateSignalsAndDeps,
 } from '../src'
 
 async function buildEverything (c: IConfig) {
 
   await generateViewFromModule(c)
 
-  await esbuildSignalsTypes(c)
+  await generateSignalsAndDeps(c)
   
   generateLayoutTypes(c)
 

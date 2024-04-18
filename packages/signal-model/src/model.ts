@@ -446,7 +446,7 @@ export abstract class Model<T extends any[]> extends AsyncState<T> {
   }
 
   notify(h?: Hook, p?: IPatch[], reactiveChain?: ReactiveChain) {
-    log(`[${this.constructor.name}.executeQuery] withChain=${!!reactiveChain}`)
+    log(`[${this.name}(${this.constructor.name}).executeQuery] withChain=${!!reactiveChain}`)
     const newReactiveChain = reactiveChain?.addNotify(this)
     this.executeQuery(newReactiveChain)
   }

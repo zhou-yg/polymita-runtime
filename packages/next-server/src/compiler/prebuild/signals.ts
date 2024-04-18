@@ -116,7 +116,7 @@ export async function buildSignals(c: IConfig) {
 }
 
 
-export async function esbuildSignalsTypes(c: IConfig) {
+export async function generateSignalsAndDeps(c: IConfig) {
 
   const entry = c.signals.map(f => f.filePath)
 

@@ -7,7 +7,7 @@ import {
   logFrame,
   time,
   errorFrame,
-  esbuildSignalsTypes,
+  generateSignalsAndDeps,
   copyContextFiles,
 } from '../src'
 
@@ -26,7 +26,7 @@ async function buildEverything (c: IConfig) {
 
   await generateViewFromModule(c)
 
-  await esbuildSignalsTypes(c)
+  await generateSignalsAndDeps(c)
   
   generateLayoutTypes(c)
 
@@ -37,7 +37,7 @@ async function buildEverything (c: IConfig) {
 }
 
 function watchEverything (c: IConfig) {
-  const driversGroup = [
+  const signalsGroup = [
     path.join(c.cwd, c.signalsDirectory),
   ]
   const modelsGroup = [
@@ -48,27 +48,27 @@ function watchEverything (c: IConfig) {
     path.join(c.cwd, c.modulesDirectory),
   ]
   const modelsWatcher = chokidar.watch(modelsGroup, chokidarOptions())
-  const driversWatcher = chokidar.watch(driversGroup, chokidarOptions())
+  const signalsWatcher = chokidar.watch(signalsGroup, chokidarOptions())
   const modulesWatcher = chokidar.watch(modulesGroup, chokidarOptions())
 
   const config: IWatcherConfig[] = [
     {
-      watcher: driversWatcher,
-      name: 'signals-c',
+      watcher: signalsWatcher,
+      name: 'signals-change',
       event: 'change',
       callbackMode: 'sequence',
-      callbacks: [generateSignalMap],
+      callbacks: [generateSignalsAndDeps, generateSignalMap],
     },
     {
       watcher: modelsWatcher,
-      name: 'models-au',
+      name: 'models-add-unlink',
       event: ['add', 'unlink'],
       callbackMode: 'concurrent',
       callbacks: [buildModelIndexes, generateModelTypes2],
     },
     {
       watcher: modulesWatcher,
-      name: 'modules-acu',
+      name: 'modules-add-change-unlink',
       event: ['add', 'change', 'unlink'],
       callbackMode: 'sequence',
       callbacks: [generateViewFromModule, generateLayoutTypes],
