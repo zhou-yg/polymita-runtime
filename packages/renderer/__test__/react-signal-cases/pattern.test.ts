@@ -1,4 +1,4 @@
-import { createRHRenderer as createRenderer, createRenderer3 } from '../../src'
+import { createRHRenderer as createRenderer, createRenderer3, createRSRenderer } from '../../src'
 import * as mock from '../mock'
 
 import * as reactSignalManagement from '../../src/extensions/stateManagements/react-signal'
@@ -46,11 +46,11 @@ describe('pattern', () => {
   })
 
   it('has multi matcher', () => {
-    const rr = createRenderer(mock.patternHasMultiMatchers(), {
+    const rr = createRSRenderer(mock.patternHasMultiMatchers(), {
       framework: mock.MockRectFramework,
     })
 
-    rr.construct({ v1: true, v2: false })
+    rr.construct({ v1: true, v2: false } as any)
     const rr2 = rr.render()
 
     expect(rr2).toEqual({
@@ -64,7 +64,7 @@ describe('pattern', () => {
       children: 'i am container'
     })
 
-    rr.construct({ v1: true, v2: true })
+    rr.construct({ v1: true, v2: true } as any)
     const rr3 = rr.render()
 
     expect(rr3).toEqual({
@@ -79,11 +79,12 @@ describe('pattern', () => {
     })
   })
   it('has multi matcher with star', () => {
-    const rr = createRenderer(mock.patternHasMultiMatchers2(), {
+    const rr = createRSRenderer(mock.patternHasMultiMatchers2(), {
       framework: mock.MockRectFramework,
     })
 
-    rr.construct({ v1: false })
+    // 强行传入普通值，测试 PropTypes.signal.isRequired 是否生效
+    rr.construct({ v1: false } as any)
     const rr2 = rr.render()
 
     expect(rr2).toEqual({
@@ -97,7 +98,7 @@ describe('pattern', () => {
       children: 'i am container'
     })
 
-    rr.construct({ v1: true })
+    rr.construct({ v1: true } as any)
     const rr3 = rr.render()
 
     expect(rr3).toEqual({

@@ -17,6 +17,7 @@ import {
   FlatPatchCommandsArr,
   BaseDataType,
   Assign,
+  CommandOP,
 } from "./types-layout";
 import { PatternMatrix2 } from "./pattern";
 
@@ -182,17 +183,9 @@ export interface ModuleRenderContainer<
     props?: Props
   ) => ConvertToLayoutTreeDraft<L>;
 }
-export enum DraftOperatesEnum {
-  insert = "insert",
-  remove = "remove",
-  replace = "replace",
-}
 
 export interface DraftPatch {
-  op:
-    | DraftOperatesEnum.insert
-    | DraftOperatesEnum.replace
-    | DraftOperatesEnum.remove; // | 'add' | 'remove'
+  op: CommandOP
   path: string[];
   value: any;
 }

@@ -15,11 +15,11 @@ describe('render new', () => {
   describe('render container', () => {
     it('layout use logic', () => {
 
-      const rr = createRHRenderer(layoutUseLogic(), {
+      const rr = createRSRenderer(layoutUseLogic(), {
         framework: MockRectFramework
       })
   
-      rr.construct({ name: 'test' })
+      rr.construct({ name: 'test' } as any)
       const rr3 = rr.render()
   
       expect(rr3).toEqual({

@@ -9,7 +9,7 @@ import {
   StyleRule,
   assignPattern,
   VirtualNodeTypeSymbol,
-  DraftOperatesEnum,
+  CommandOP,
   h,
   getVirtualNodesByPath,
   PropTypes,
@@ -68,12 +68,12 @@ describe('utils', () => {
     const v2 = 'child33'
     const patches: DraftPatch[] = [
       {
-        op: DraftOperatesEnum.replace,
+        op: CommandOP.replace,
         path: ['div', 'props', 'id'],
         value: v1
       },
       {
-        op: DraftOperatesEnum.replace,
+        op: CommandOP.replace,
         path: ['div', 'div', 'props', 'id'],
         value: v2
       }
@@ -123,12 +123,12 @@ describe('utils', () => {
     
     const patches: DraftPatch[] = [
       {
-        op: DraftOperatesEnum.insert,
+        op: CommandOP.addChild,
         path: ['div'],
         value: 1
       },
       {
-        op: DraftOperatesEnum.insert,
+        op: CommandOP.addChild,
         path: ['div', 'div'],
         value: 2
       },

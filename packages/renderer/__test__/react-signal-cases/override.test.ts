@@ -1,4 +1,4 @@
-import { CommandOP, createRHRenderer as createRenderer, extendModule } from '../../src'
+import { CommandOP, createRHRenderer, extendModule } from '../../src'
 import * as mock from '../mock'
 import { overridePatchRules } from '../mock'
 
@@ -20,7 +20,7 @@ describe('override', () => {
       }
     }))
 
-    const r = createRenderer(newModule2, {
+    const r = createRHRenderer(newModule2, {
       framework: mock.MockRectFramework
     })
     const r1 = r.construct({ name: 'newModule2' })
@@ -64,7 +64,7 @@ describe('override', () => {
       }
     }))
 
-    const r = createRenderer(newModule2, {
+    const r = createRHRenderer(newModule2, {
       framework: mock.MockRectFramework
     })
     const r1 = r.construct({ name: 'newModule2' })
@@ -103,7 +103,7 @@ describe('override', () => {
       }
     }))
 
-    const r3 = createRenderer(newModule3, { framework: mock.MockRectFramework })
+    const r3 = createRHRenderer(newModule3, { framework: mock.MockRectFramework })
     const r4 = r3.construct({ name: 'newModule3' })
     const r5 = r3.render()
     
@@ -138,7 +138,7 @@ describe('override', () => {
 
   it('single override', () => {
     const module = mock.useSingleOverride()
-    const r = createRenderer(module, { framework: mock.MockRectFramework })
+    const r = createRHRenderer(module, { framework: mock.MockRectFramework })
     const r1 = r.construct({ text: 'override2', show: false })
     const r2 = r.render()
 
@@ -160,7 +160,7 @@ describe('override', () => {
   describe('use other module', () => {
     it ('override at module layer', () => {
       const module = mock.overrideAtModuleLayer()
-      const r = createRenderer(module, { framework: mock.MockRectFramework })
+      const r = createRHRenderer(module, { framework: mock.MockRectFramework })
       const r1 = r.construct({ text: 'overrideAtModuleLayer' })
       const r2 = r.render()
 
@@ -187,7 +187,7 @@ describe('override', () => {
 
     it('override at renderer layer', () => {
       const m = mock.overrideAtUseModule()
-      const r = createRenderer(m, { framework: mock.MockRectFramework })
+      const r = createRHRenderer(m, { framework: mock.MockRectFramework })
       const r1 = r.construct({ m2Text: 'at renderer layer' })
       const r2 = r.render()
 
@@ -223,7 +223,7 @@ describe('override', () => {
 
     it('override at construct layer', () => {
       const m = mock.overrideAtUseModuleAndRender()
-      const r = createRenderer(m, { framework: mock.MockRectFramework })
+      const r = createRHRenderer(m, { framework: mock.MockRectFramework })
       const r1 = r.construct({ m2Text: 'at construct layer' })
       const r2 = r.render()
       expect(r2).toEqual({
@@ -265,7 +265,7 @@ describe('override', () => {
   })
 
   it('patch style rules', () => {
-    const rr = createRenderer(overridePatchRules(), { framework: mock.MockRectFramework })
+    const rr = createRHRenderer(overridePatchRules(), { framework: mock.MockRectFramework })
     const r1 = rr.construct({ name: 'patch style rules', show: true })
     const r2 = rr.render()
     expect(r2).toEqual({

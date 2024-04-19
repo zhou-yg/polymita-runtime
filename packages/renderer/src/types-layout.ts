@@ -175,9 +175,17 @@ const a = {
 } as const;
 
 export enum CommandOP {
-  addChild = "addChild",
-  removeChild = "removeChild",
-  replaceChild = "replaceChild",
+  // for all nodes
+  addChild = "addChild", // to last
+  addFirst = "addFirst",
+  replace = "replace",
+  assignAttrs = 'assignAttrs',
+  remove = "remove",
+
+  // for parent node
+  wrap = 'wrap',
+  wrapFirst = 'wrapFirst',
+  wrapLast = 'wrapLast',
 }
 
 export interface PatchCommand {
@@ -218,9 +226,9 @@ export type DoPatchCommand<
         { readonly children: readonly [...T["children"], Cmd["child"]] }
       >
     : Assign<T, { readonly children: readonly [Cmd["child"]] }>
-  : Cmd["op"] extends CommandOP.removeChild
+  : Cmd["op"] extends CommandOP.remove
   ? Assign<T, { readonly children: RemoveItem<T["children"], Cmd["child"]> }>
-  : Cmd["op"] extends CommandOP.replaceChild
+  : Cmd["op"] extends CommandOP.replace
   ? Cmd["child"]
   : never;
 

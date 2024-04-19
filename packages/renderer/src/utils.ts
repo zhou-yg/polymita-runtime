@@ -8,16 +8,15 @@ import {
   PatternStructureResult,
   LayoutTreeDraft,
   PropTypeValidator,
-  DraftOperatesEnum,
   DraftPatch,
 } from "./types";
 import { deepClone } from "./lib/deepClone";
 import { css } from "@emotion/css";
 import {
-  CommandOP,
   LayoutStructTree,
   PatchCommand,
   BaseDataType,
+  CommandOP,
 } from "./types-layout";
 import { typeDefaultValueFlagSymbol } from "./lib/propTypes";
 
@@ -286,9 +285,15 @@ export function getVirtualNodesByPath(
  */
 
 const DRAFT_OPERATES = [
-  DraftOperatesEnum.insert,
-  DraftOperatesEnum.remove,
-  DraftOperatesEnum.replace,
+  CommandOP.addChild,
+  CommandOP.addFirst,
+  CommandOP.remove,
+  CommandOP.replace,
+  CommandOP.assignAttrs,
+  //
+  CommandOP.wrap,
+  CommandOP.wrapFirst,
+  CommandOP.wrapLast,
 ];
 
 export function isFunctionVNode(node: VirtualLayoutJSON) {
@@ -317,13 +322,13 @@ function assignPatchToNode(
 ) {
   const { op, path, value } = patch;
   switch (op) {
-    case DraftOperatesEnum.replace:
+    case CommandOP.replace:
       const restKeys = path.slice(i + 1);
       current.forEach((node) => {
         set(node, restKeys, value);
       });
       break;
-    case DraftOperatesEnum.insert:
+    case CommandOP.addChild:
       current.forEach((node) => {
         if (node.children) {
           node.children = [].concat(node.children).concat(value);
@@ -332,7 +337,7 @@ function assignPatchToNode(
         }
       });
       break;
-    case DraftOperatesEnum.remove:
+    case CommandOP.remove:
       break;
   }
 }
@@ -396,7 +401,7 @@ export function applyJSONTreePatches(
 export const handlerPathKeySymbol = Symbol.for("handlerPathKeySymbol");
 export type ProxyLayoutHandler = ReturnType<typeof proxyLayoutJSON>;
 
-function getPathsFromDraft(target: any): string[] {
+export function getPathsFromDraft(target: any): string[] {
   return target[handlerPathKeySymbol];
 }
 
@@ -416,14 +421,14 @@ export function proxyLayoutJSON(json: VirtualLayoutJSON) {
   function createProxy(source: LayoutTreeDraft, pathArr: string[] = []) {
     const clonedTarget = deepClone(source);
     const proxy = new Proxy(clonedTarget, {
-      get(target, key: string | symbol | DraftOperatesEnum) {
+      get(target, key: string | symbol | CommandOP) {
         if (key === handlerPathKeySymbol) {
           return pathArr;
         }
         const v = Reflect.get(target, key);
         // console.log('target=', target, 'key=', key, 'value=',v);
         if (typeof key === "string") {
-          if (DRAFT_OPERATES.includes(key as DraftOperatesEnum)) {
+          if (DRAFT_OPERATES.includes(key as CommandOP)) {
             return createProxy(
               Object.assign(() => {}, { [draftOperationMethodSymbol]: key }),
               pathArr
@@ -440,7 +445,7 @@ export function proxyLayoutJSON(json: VirtualLayoutJSON) {
       set(source, key: string, value: any) {
         const currentPathArr = pathArr.concat(key);
         patches.push({
-          op: DraftOperatesEnum.replace,
+          op: CommandOP.replace,
           path: currentPathArr,
           value: deepClone(value),
         });
@@ -451,30 +456,12 @@ export function proxyLayoutJSON(json: VirtualLayoutJSON) {
         // console.log('argArray: ', argArray);
         // console.log('target: ', target[draftOperationMethodSymbol]);
         const currentPathArr = pathArr;
-        const op: DraftOperatesEnum = target[draftOperationMethodSymbol];
-        switch (op) {
-          case DraftOperatesEnum.insert:
-            patches.push({
-              op,
-              path: currentPathArr,
-              value: argArray[0],
-            });
-            break;
-          case DraftOperatesEnum.remove:
-            patches.push({
-              op,
-              path: currentPathArr,
-              value: argArray[0],
-            });
-            break;
-          case DraftOperatesEnum.replace:
-            patches.push({
-              op,
-              path: currentPathArr,
-              value: argArray[0],
-            });
-            break;
-        }
+        const op: CommandOP = target[draftOperationMethodSymbol];
+        patches.push({
+          op,
+          path: currentPathArr,
+          value: argArray[0],
+        });
       },
     });
     return proxy;
@@ -603,7 +590,7 @@ export function isVNodeFunctionComponent(
   return !!target?.type?.[VNodeFunctionComponentSymbol];
 }
 
-function createVirtualNode(child: PatchCommand["child"]) {
+export function createVirtualNode(child: PatchCommand["child"]) {
   return {
     ...child,
     id: -1,
@@ -612,29 +599,6 @@ function createVirtualNode(child: PatchCommand["child"]) {
     type: child.type,
     children: child.children,
   };
-}
-
-export function doPatchLayoutCommand(cmd: PatchCommand, draft: LayoutTreeProxyDraft) {
-  if (cmd.condition === false) {
-    return;
-  }
-  let parent = draft;
-
-  const paths = getPathsFromDraft(cmd.parent);
-
-  paths.forEach((path) => (parent = parent[path]));
-
-  switch (cmd.op) {
-    case CommandOP.addChild:
-      parent[DraftOperatesEnum.insert](createVirtualNode(cmd.child));
-      break;
-    case CommandOP.replaceChild:
-      parent[DraftOperatesEnum.replace](createVirtualNode(cmd.child));
-      break;
-    case CommandOP.removeChild:
-      parent[DraftOperatesEnum.remove](createVirtualNode(cmd.child));
-      break;
-  }
 }
 
 export function assignDefaultValueByPropTypes<T extends Record<string, any>>(

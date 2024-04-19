@@ -1,6 +1,7 @@
 import { LayoutTreeProxyDraft, OverrideModule } from "./types";
+import { assignRules } from "./utils";
 import { PatchCommand } from "./types-layout";
-import { doPatchLayoutCommand, assignRules } from "./utils";
+import { getPathsFromDraft, createVirtualNode } from "./utils";
 
 
 export function runOverrides(
@@ -28,4 +29,18 @@ export function runOverrides(
       assignRules(draft, rules);
     }
   });
+}
+
+
+export function doPatchLayoutCommand(cmd: PatchCommand, draft: LayoutTreeProxyDraft) {
+  if (cmd.condition === false) {
+    return;
+  }
+  let parent = draft;
+
+  const paths = getPathsFromDraft(cmd.parent);
+
+  paths.forEach((path) => (parent = parent[path]));
+
+  parent[cmd.op](createVirtualNode(cmd.child));
 }
