@@ -185,14 +185,17 @@ export function applyJSONTreePatches(
     if (value.condition === false) {
       continue;
     }
-
-    let [current, i] = getVirtualNodesByPath(target, path);
+    const [current, i] = getVirtualNodesByPath(target, path);
+    let parent: VirtualLayoutJSON[] = []
+    if (path.length > 1) {
+      parent = getVirtualNodesByPath(target, path.slice(0, -1))[0]
+    }
 
     if (isVNodeFunctionComponent(current[0])) {
       // console.log('isVNodeFunctionComponent current: ', current, i);
       mergeConstructOverrideToNode(current, i, patch);
     } else {
-      assignPatchToNode(current, i, patch);
+      assignPatchToNode(parent, current, i, patch);
     }
   }
 
@@ -200,6 +203,7 @@ export function applyJSONTreePatches(
 }
 
 function assignPatchToNode(
+  parent: VirtualLayoutJSON[],
   current: VirtualLayoutJSON[],
   i: number,
   patch: DraftPatch
@@ -212,6 +216,15 @@ function assignPatchToNode(
         set(node, restKeys, value);
       });
       break;
+    case CommandOP.addFirst:
+      current.forEach((node) => {
+        if (node.children) {
+          node.children = [value].concat(node.children);
+        } else {
+          node.children = [value];
+        }
+      });
+      break;
     case CommandOP.addChild:
       current.forEach((node) => {
         if (node.children) {
@@ -222,6 +235,16 @@ function assignPatchToNode(
       });
       break;
     case CommandOP.remove:
+      parent.forEach(p => {
+        p.children = p.children.filter((child, index) => {
+          return typeof child === 'object' && current.find(c => c.type === child.type)
+        })
+      })
+      break;
+    case CommandOP.assignAttrs:
+    case CommandOP.wrap:
+    case CommandOP.wrapFirst:
+    case CommandOP.wrapLast:
       break;
   }
 }

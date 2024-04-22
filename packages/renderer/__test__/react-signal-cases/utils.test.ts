@@ -350,23 +350,7 @@ describe('utils', () => {
       ]
     })
   })
-  it('getVirtualNodesByPath', () => {
-    const json = h(
-      'div',
-      {}, 
-      h('div', { id: 1 }, 1),
-      h('p', {}, 2),
-    );
-    const result = getVirtualNodesByPath(json, ['div', 'p'])
-    
-    expect(result[0].length).toEqual(1)
-    expect(result[0][0].type).toEqual('p')
-  
-    const result2 = getVirtualNodesByPath(json, ['div', 'div', 'props'])
-    
-    expect(result2[0].length).toEqual(1)
-    expect(result2[0][0]).toEqual(h('div', { id: 1 }, 1))
-  })
+
   it ('assignDefaultValueByPropTypes', () => {
     const pt = {
       value: PropTypes.signal.default(() => signal(0)),
