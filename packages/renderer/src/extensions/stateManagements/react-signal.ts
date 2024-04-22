@@ -6,8 +6,7 @@
  */
 import {
   after,
-  Computed,
-  CurrentRunnerScope, Driver, getNamespace, IHookContext, isSignal, Runner, Signal, signal, State, StateSignal
+  CurrentRunnerScope, Driver,IHookContext, isSignal, Runner, Signal, signal, StateSignal
 } from '@polymita/signal-model'
 import { PropTypeValidator, SignalProps, StateManagementConfig, VirtualLayoutJSON } from '../../types'
 import { get, set, isFunction, traverseLayoutTree } from '../../utils'

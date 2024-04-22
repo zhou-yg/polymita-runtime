@@ -1,5 +1,4 @@
 import { Func, StateManagementConfig } from "../../types";
-import { convertToSignal } from './react-signal'
 
 export const config: StateManagementConfig = {
   matches: [

@@ -179,13 +179,13 @@ export enum CommandOP {
   addChild = "addChild", // to last
   addFirst = "addFirst",
   replace = "replace",
-  assignAttrs = 'assignAttrs',
+  assignAttrs = "assignAttrs",
   remove = "remove",
 
   // for parent node
-  wrap = 'wrap',
-  wrapFirst = 'wrapFirst',
-  wrapLast = 'wrapLast',
+  wrap = "wrap",
+  wrapFirst = "wrapFirst",
+  wrapLast = "wrapLast",
 }
 
 export interface PatchCommand {

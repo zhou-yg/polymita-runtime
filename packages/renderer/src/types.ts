@@ -1,9 +1,9 @@
 import type * as CSS from "csstype";
 import type {
-  ProxyLayoutHandler,
   VNodeComponentSymbol,
   VNodeFunctionComponentSymbol,
 } from "./utils";
+import type { ProxyLayoutHandler } from "./override";
 import type { StateSignal } from "@polymita/signal-model";
 import {
   LayoutStructTree,
@@ -185,7 +185,7 @@ export interface ModuleRenderContainer<
 }
 
 export interface DraftPatch {
-  op: CommandOP
+  op: CommandOP;
   path: string[];
   value: any;
 }
