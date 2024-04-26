@@ -18,6 +18,8 @@ import {
   BaseDataType,
   Assign,
   CommandOP,
+  PatchCommandBase,
+  AttrsPathCommand,
 } from "./types-layout";
 import { PatternMatrix2 } from "./pattern";
 
@@ -187,7 +189,7 @@ export interface ModuleRenderContainer<
 export interface DraftPatch {
   op: CommandOP;
   path: string[];
-  value: any;
+  value: (PatchCommandBase['target'] | AttrsPathCommand['attrs']) & { condition?: boolean };
 }
 
 export interface OverrideModule<

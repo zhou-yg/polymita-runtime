@@ -106,30 +106,30 @@ export enum CommandOP {
   wrapLast = "wrapLast",
 }
 
-interface PatchCommandBase {
-  readonly target: readonly LayoutStructTree["type"][];
+export interface PatchCommandBase {
+  readonly target: VirtualLayoutJSON;
   readonly condition?: boolean;
 }
 
 export interface AddPathCommand extends PatchCommandBase {
   readonly op: CommandOP.addChild;
-  readonly child?: LayoutStructTree;
+  readonly child?: VirtualLayoutJSON;
 }
 export interface AddFirstPathCommand extends PatchCommandBase {
   readonly op: CommandOP.addFirst;
-  readonly child?: LayoutStructTree;
+  readonly child?: VirtualLayoutJSON;
 }
 export interface WrapPathCommand extends PatchCommandBase {
   readonly op: CommandOP.wrap;
-  readonly parent?: LayoutStructTree;
+  readonly parent?: VirtualLayoutJSON;
 }
 export interface WrapFirstPathCommand extends PatchCommandBase {
   readonly op: CommandOP.wrapFirst;
-  readonly parent?: LayoutStructTree;
+  readonly parent?: VirtualLayoutJSON;
 }
 export interface WrapLastPathCommand extends PatchCommandBase {
   readonly op: CommandOP.wrapLast;
-  readonly parent?: LayoutStructTree;
+  readonly parent?: VirtualLayoutJSON;
 }
 export interface ReplacePathCommand extends PatchCommandBase {
   readonly op: CommandOP.replace;
@@ -279,7 +279,7 @@ export type PrintObjectLike<T> = T extends [infer First, ...infer Rest]
 type FormatPatchCommandParent<P> = P extends PatchCommand
   ? Assign<P, {
       readonly op: P["op"];
-      readonly target: ShallowCopyArray<P['target']>;
+      readonly target: ShallowCopyArray<string[]>;
       // readonly child: P["child"];
     }>
   : P;

@@ -15,6 +15,7 @@ import {
   set,
 } from "./utils";
 import {
+  AttrsPathCommand,
   BaseDataType,
   CommandOP,
   LayoutStructTree,
@@ -129,9 +130,11 @@ export function proxyLayoutJSON(json: VirtualLayoutJSON) {
       set(source, key: string, value: any) {
         const currentPathArr = pathArr.concat(key);
         patches.push({
-          op: CommandOP.replace,
+          op: CommandOP.assignAttrs,
           path: currentPathArr,
-          value: deepClone(value),
+          value: {
+            attrs: deepClone(value)
+          } as AttrsPathCommand,
         });
         Reflect.set(source, key, value);
         return true;
@@ -216,6 +219,7 @@ function assignPatchToNode(
   patch: DraftPatch
 ) {
   const { op, path, value } = patch;
+  const jsonValue = value as VirtualLayoutJSON
   switch (op) {
     case CommandOP.replace:
       const restKeys = path.slice(i + 1);
@@ -226,18 +230,18 @@ function assignPatchToNode(
     case CommandOP.addFirst:
       current.forEach((node) => {
         if (node.children) {
-          node.children = [value].concat(node.children);
+          node.children = [jsonValue, ...node.children];
         } else {
-          node.children = [value];
+          node.children = [jsonValue];
         }
       });
       break;
     case CommandOP.addChild:
       current.forEach((node) => {
         if (node.children) {
-          node.children = [].concat(node.children).concat(value);
+          node.children = [].concat(node.children).concat(jsonValue);
         } else {
-          node.children = [value];
+          node.children = [jsonValue];
         }
       });
       break;
@@ -257,7 +261,7 @@ function assignPatchToNode(
       parent.forEach(pNode => {
         pNode.children.forEach((child, i) => {
           if (nodeExists(current, child)) {
-            pNode.children[i] = value
+            pNode.children[i] = jsonValue
             value.children = [child]
           }
         })
@@ -268,7 +272,7 @@ function assignPatchToNode(
         let found = false
         pNode.children.forEach((child, i) => {
           if (nodeExists(current, child) && !found) {
-            pNode.children[i] = value
+            pNode.children[i] = jsonValue
             value.children = [child]
             found = true
           }
@@ -285,7 +289,7 @@ function assignPatchToNode(
         })
         if (foundIndex > -1) {
           value.children = [pNode.children[foundIndex]]
-          pNode.children[foundIndex] = value
+          pNode.children[foundIndex] = jsonValue
         }
       })
       break;
@@ -411,13 +415,13 @@ export function doPatchLayoutCommand(
 
   paths.forEach((path) => (parent = parent[path]));
   if (cmd.op === CommandOP.addChild || cmd.op === CommandOP.addFirst) {
-    parent[cmd.op](createVirtualNode(cmd.child));
+    parent[cmd.op](cmd.child);
   } else if (cmd.op === CommandOP.remove || cmd.op === CommandOP.replace) {
     parent[cmd.op]();
   } else if (cmd.op === CommandOP.assignAttrs) {
     parent[cmd.op](cmd.attrs);
   } else if (cmd.op === CommandOP.wrap || cmd.op === CommandOP.wrapFirst || cmd.op === CommandOP.wrapLast) {
-    parent[cmd.op](createVirtualNode(cmd.parent));
+    parent[cmd.op](cmd.parent);
   }
 }
 

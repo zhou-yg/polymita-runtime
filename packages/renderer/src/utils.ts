@@ -279,7 +279,7 @@ export function isVNodeFunctionComponent(
   return !!target?.type?.[VNodeFunctionComponentSymbol];
 }
 
-export function createVirtualNode(child: PatchCommand["child"]) {
+export function createVirtualNode(child: Partial<VirtualLayoutJSON>) {
   return {
     ...child,
     id: -1,
