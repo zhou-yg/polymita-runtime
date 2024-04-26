@@ -13,7 +13,7 @@ describe('override', () => {
         return [
           {
             op: CommandOP.addChild,
-            parent: jsonDraft.div,
+            target: jsonDraft.div,
             child: { type: 'p', props: { className: 'p-cls' }, children: ['123'] } // h('p', {}, '123')
           }
         ] as const

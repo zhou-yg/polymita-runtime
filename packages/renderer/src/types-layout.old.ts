@@ -18,6 +18,88 @@ export interface LayoutStructTree {
   readonly children?: readonly (LayoutStructTree | BaseDataType)[];
 }
 
+// support children length = 3, children depth = 2
+// export interface VLayoutNode<
+//   T extends string | Function,
+//   CT1 extends string | Function = undefined,
+//   CT2 extends string | Function = undefined,
+//   CT3 extends string | Function = undefined,
+//   C11 extends string | Function = undefined,
+//   C12 extends string | Function = undefined,
+//   C13 extends string | Function = undefined,
+//   C21 extends string | Function = undefined,
+//   C22 extends string | Function = undefined,
+//   C23 extends string | Function = undefined,
+//   C31 extends string | Function = undefined,
+//   C32 extends string | Function = undefined,
+//   C33 extends string | Function = undefined,
+//   CB1 = undefined,
+//   CB2 = undefined,
+//   CB3 = undefined
+// > {
+//   type: T
+//   key?: any
+//   flags: symbol | string
+//   props: Record<string, any>
+//   children: CT1 extends undefined
+//     ? CB1 extends undefined
+//       ? CT2 extends undefined
+//         ? CB2 extends undefined
+//           ? CT3 extends undefined
+//             ? CB3 extends undefined
+//               ? []
+//               : [CB3]
+//             : [VLayoutNode<CT3, C31, C32, C33>]
+//           : CT3 extends undefined
+//           ? CB3 extends undefined
+//             ? [CB2]
+//             : [CB2, CB3]
+//           : [CB2, VLayoutNode<CT3, C31, C32, C33>]
+//         : CT3 extends undefined
+//         ? CB3 extends undefined
+//           ? [VLayoutNode<CT2, C21, C22, C23>]
+//           : [VLayoutNode<CT2, C21, C22, C23>, CB3]
+//         : [VLayoutNode<CT2, C21, C22, C23>, VLayoutNode<CT3, C31, C32, C33>]
+//       : CT2 extends undefined
+//       ? CB2 extends undefined
+//         ? CT3 extends undefined
+//           ? CB3 extends undefined
+//             ? [CB1]
+//             : [CB1, CB3]
+//           : [CB1, VLayoutNode<CT3, C31, C32, C33>]
+//         : CT3 extends undefined
+//         ? CB3 extends undefined
+//           ? [CB1, CB2]
+//           : [CB1, CB2, CB3]
+//         : [CB1, CB2, VLayoutNode<CT3, C31, C32, C33>]
+//       : CT3 extends undefined
+//       ? CB3 extends undefined
+//         ? [CB1, VLayoutNode<CT2, C21, C22, C23>]
+//         : [CB1, VLayoutNode<CT2, C21, C22, C23>, CB3]
+//       : [CB1, VLayoutNode<CT2, C21, C22, C23>, VLayoutNode<CT3, C31, C32, C33>]
+//     : CT2 extends undefined
+//     ? CB2 extends undefined
+//       ? CT3 extends undefined
+//         ? CB3 extends undefined
+//           ? [VLayoutNode<CT1, C11, C12, C13>]
+//           : [VLayoutNode<CT1, C11, C12, C13>, CB3]
+//         : [VLayoutNode<CT1, C11, C12, C13>, VLayoutNode<CT3, C31, C32, C33>]
+//       : CT3 extends undefined
+//       ? CB3 extends undefined
+//         ? [VLayoutNode<CT1, C11, C12, C13>, CB2]
+//         : [VLayoutNode<CT1, C11, C12, C13>, CB2, CB3]
+//       : [VLayoutNode<CT1, C11, C12, C13>, CB2, VLayoutNode<CT3, C31, C32, C33>]
+//     : CT3 extends undefined
+//     ? CB3 extends undefined
+//       ? [VLayoutNode<CT1, C11, C12, C13>, VLayoutNode<CT2, C21, C22, C23>]
+//       : [VLayoutNode<CT1, C11, C12, C13>, VLayoutNode<CT2, C21, C22, C23>, CB3]
+//     : [
+//         VLayoutNode<CT1, C11, C12, C13>,
+//         VLayoutNode<CT2, C21, C22, C23>,
+//         VLayoutNode<CT3, C31, C32, C33>
+//       ]
+// }
+
 /**
  * explicity convert layout tree to layout tree draft
  */
@@ -176,7 +258,7 @@ export type DoPatchCommand<
       >
     : Assign<T, { readonly children: readonly [Cmd["child"]] }>
   : Cmd extends RemovePathCommand
-  ? Assign<T, { readonly children: any }>
+  ? Assign<T, { readonly children: RemoveItem<T["children"], Cmd['target']> }>
   : Cmd extends ReplacePathCommand
   ? Cmd['target']
   : never;

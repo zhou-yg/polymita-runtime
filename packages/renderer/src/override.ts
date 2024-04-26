@@ -202,6 +202,13 @@ export function applyJSONTreePatches(
   return target;
 }
 
+function equalNode (n1: VirtualLayoutJSON, n2: VirtualLayoutJSON) {
+  return typeof n1 === 'object' && typeof n2 === 'object' && n1.type === n2.type
+}
+function nodeExists (n1: VirtualLayoutJSON[], n2: VirtualLayoutJSON | BaseDataType) {
+  return typeof n2 === 'object' && n1.find(c => c.type === n2.type)
+}
+
 function assignPatchToNode(
   parent: VirtualLayoutJSON[],
   current: VirtualLayoutJSON[],
@@ -237,14 +244,50 @@ function assignPatchToNode(
     case CommandOP.remove:
       parent.forEach(p => {
         p.children = p.children.filter((child, index) => {
-          return typeof child === 'object' && current.find(c => c.type === child.type)
+          return nodeExists(current, child)
         })
       })
       break;
     case CommandOP.assignAttrs:
+      current.forEach(node => {
+        Object.assign(node.props, value)
+      })
+      break
     case CommandOP.wrap:
+      parent.forEach(pNode => {
+        pNode.children.forEach((child, i) => {
+          if (nodeExists(current, child)) {
+            pNode.children[i] = value
+            value.children = [child]
+          }
+        })
+      })
+      break
     case CommandOP.wrapFirst:
+      parent.forEach(pNode => {
+        let found = false
+        pNode.children.forEach((child, i) => {
+          if (nodeExists(current, child) && !found) {
+            pNode.children[i] = value
+            value.children = [child]
+            found = true
+          }
+        })
+      })
+      break
     case CommandOP.wrapLast:
+      parent.forEach(pNode => {
+        let foundIndex = -1
+        pNode.children.forEach((child, i) => {
+          if (nodeExists(current, child)) {
+            foundIndex = i
+          }
+        })
+        if (foundIndex > -1) {
+          value.children = [pNode.children[foundIndex]]
+          pNode.children[foundIndex] = value
+        }
+      })
       break;
   }
 }
@@ -364,11 +407,18 @@ export function doPatchLayoutCommand(
   }
   let parent = draft;
 
-  const paths = getPathsFromDraft(cmd.parent);
+  const paths = getPathsFromDraft(cmd.target);
 
   paths.forEach((path) => (parent = parent[path]));
-
-  parent[cmd.op](createVirtualNode(cmd.child));
+  if (cmd.op === CommandOP.addChild || cmd.op === CommandOP.addFirst) {
+    parent[cmd.op](createVirtualNode(cmd.child));
+  } else if (cmd.op === CommandOP.remove || cmd.op === CommandOP.replace) {
+    parent[cmd.op]();
+  } else if (cmd.op === CommandOP.assignAttrs) {
+    parent[cmd.op](cmd.attrs);
+  } else if (cmd.op === CommandOP.wrap || cmd.op === CommandOP.wrapFirst || cmd.op === CommandOP.wrapLast) {
+    parent[cmd.op](createVirtualNode(cmd.parent));
+  }
 }
 
 const fakeProxyObjectSymbol = Symbol.for("fakeProxyObjectSymbol");
