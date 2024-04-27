@@ -189,7 +189,7 @@ export interface ModuleRenderContainer<
 export interface DraftPatch {
   op: CommandOP;
   path: string[];
-  value: (PatchCommandBase['target'] | AttrsPathCommand['attrs']) & { condition?: boolean };
+  value?: (PatchCommandBase['target'] | AttrsPathCommand['attrs']) & { condition?: boolean };
 }
 
 export interface OverrideModule<

@@ -185,9 +185,6 @@ export function applyJSONTreePatches(
   for (const patch of patches) {
     const { op, path, value } = patch;
 
-    if (value.condition === false) {
-      continue;
-    }
     const [current, i] = getVirtualNodesByPath(target, path);
     let parent: VirtualLayoutJSON[] = []
     if (path.length > 1) {
@@ -215,17 +212,18 @@ function nodeExists (n1: VirtualLayoutJSON[], n2: VirtualLayoutJSON | BaseDataTy
 function assignPatchToNode(
   parent: VirtualLayoutJSON[],
   current: VirtualLayoutJSON[],
-  i: number,
+  depth: number,
   patch: DraftPatch
 ) {
   const { op, path, value } = patch;
   const jsonValue = value as VirtualLayoutJSON
   switch (op) {
     case CommandOP.replace:
-      const restKeys = path.slice(i + 1);
-      current.forEach((node) => {
-        set(node, restKeys, value);
-      });
+      parent.forEach(p => {
+        p.children = p.children.map((child) => {
+          return nodeExists(current, child) ? jsonValue : child
+        })
+      })
       break;
     case CommandOP.addFirst:
       current.forEach((node) => {
@@ -248,7 +246,7 @@ function assignPatchToNode(
     case CommandOP.remove:
       parent.forEach(p => {
         p.children = p.children.filter((child, index) => {
-          return nodeExists(current, child)
+          return !nodeExists(current, child)
         })
       })
       break;
@@ -261,8 +259,9 @@ function assignPatchToNode(
       parent.forEach(pNode => {
         pNode.children.forEach((child, i) => {
           if (nodeExists(current, child)) {
-            pNode.children[i] = jsonValue
-            value.children = [child]
+            const v = deepClone(jsonValue)
+            pNode.children[i] = v
+            v.children = [child]
           }
         })
       })
@@ -272,8 +271,9 @@ function assignPatchToNode(
         let found = false
         pNode.children.forEach((child, i) => {
           if (nodeExists(current, child) && !found) {
-            pNode.children[i] = jsonValue
-            value.children = [child]
+            const v = deepClone(jsonValue)
+            pNode.children[i] = v
+            v.children = [child]
             found = true
           }
         })
@@ -288,7 +288,7 @@ function assignPatchToNode(
           }
         })
         if (foundIndex > -1) {
-          value.children = [pNode.children[foundIndex]]
+          jsonValue.children = [pNode.children[foundIndex]]
           pNode.children[foundIndex] = jsonValue
         }
       })
@@ -406,7 +406,7 @@ export function doPatchLayoutCommand(
   cmd: PatchCommand,
   draft: LayoutTreeProxyDraft
 ) {
-  if (cmd.condition === false) {
+  if (cmd?.condition === false) {
     return;
   }
   let parent = draft;
@@ -414,9 +414,13 @@ export function doPatchLayoutCommand(
   const paths = getPathsFromDraft(cmd.target);
 
   paths.forEach((path) => (parent = parent[path]));
-  if (cmd.op === CommandOP.addChild || cmd.op === CommandOP.addFirst) {
+  if (
+    cmd.op === CommandOP.addChild || 
+    cmd.op === CommandOP.addFirst || 
+    cmd.op === CommandOP.replace
+  ) {
     parent[cmd.op](cmd.child);
-  } else if (cmd.op === CommandOP.remove || cmd.op === CommandOP.replace) {
+  } else if (cmd.op === CommandOP.remove) {
     parent[cmd.op]();
   } else if (cmd.op === CommandOP.assignAttrs) {
     parent[cmd.op](cmd.attrs);

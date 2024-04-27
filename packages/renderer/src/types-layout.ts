@@ -133,6 +133,7 @@ export interface WrapLastPathCommand extends PatchCommandBase {
 }
 export interface ReplacePathCommand extends PatchCommandBase {
   readonly op: CommandOP.replace;
+  readonly child?: VirtualLayoutJSON
 }
 export interface RemovePathCommand extends PatchCommandBase {
   readonly op: CommandOP.remove;
