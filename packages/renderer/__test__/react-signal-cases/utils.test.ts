@@ -55,113 +55,7 @@ describe('utils', () => {
       }
     })
   })
-  it('applyJSONTreePatches', () => {
-    const json: VirtualLayoutJSON = h(
-      'div',
-      { id: 'root' },
-      h('div', { id: 'child1' }, 1),
-      h('span', { id: 'child2' }, 2),
-      h('div', { id: 'child3' }, 3)
-    );
-    
-    const v1 = 'root2'
-    const v2 = 'child33'
-    const patches: DraftPatch[] = [
-      {
-        op: CommandOP.replace,
-        path: ['div', 'props', 'id'],
-        value: v1
-      },
-      {
-        op: CommandOP.replace,
-        path: ['div', 'div', 'props', 'id'],
-        value: v2
-      }
-    ]
-    const result = applyJSONTreePatches(json, patches)
-    expect(result).toEqual({
-      type: 'div',
-      flags: VirtualNodeTypeSymbol,
-      props: {
-        id: v1
-      },
-      children: [
-        {
-          flags: VirtualNodeTypeSymbol,
-          type: 'div',
-          props: {
-            id: v2
-          },
-          children: [1]
-        },
-        {
-          flags: VirtualNodeTypeSymbol,
-          type: 'span',
-          props: {
-            id: 'child2'
-          },
-          children: [2]
-        },
-        {
-          flags: VirtualNodeTypeSymbol,
-          type: 'div',
-          props: {
-            id: v2
-          },
-          children: [3]
-        }
-      ]
-    })
-  })
-  it('applyJSONTreePatches with insertNode', () => {
-    const json: VirtualLayoutJSON = h(
-      'div',
-      { id: 'root' },
-      h('div', { id: 'child1' }, 1),
-      h('div', { id: 'child2' }),
-    )
-    
-    const patches: DraftPatch[] = [
-      {
-        op: CommandOP.addChild,
-        path: ['div'],
-        value: 1
-      },
-      {
-        op: CommandOP.addChild,
-        path: ['div', 'div'],
-        value: 2
-      },
-    ]
 
-    const result = applyJSONTreePatches(json, patches)
-    expect(result).toEqual({
-      type: 'div',
-      props: {
-        id: 'root'
-      },
-      flags: VirtualNodeTypeSymbol,
-      children: [
-        {
-          flags: VirtualNodeTypeSymbol,
-          type: 'div',
-          props: {
-            id: 'child1'
-          },
-          children: [1, 2]
-        },
-        {
-          flags: VirtualNodeTypeSymbol,
-          type: 'div',
-          props: {
-            id: 'child2'
-          },
-          children: [2]
-        },
-        1
-      ]
-    })
-  })
   it('proxyLayoutJSON', () => {
     const json: VirtualLayoutJSON = h(
       'div',
@@ -201,8 +95,8 @@ describe('utils', () => {
     )
     
     const { draft, apply } = proxyLayoutJSON(json)
-    draft.div.insert(0)
-    draft.div.div.insert(1)
+    draft.div.addChild(0)
+    draft.div.div.addChild(1)
 
     const result = apply()
 

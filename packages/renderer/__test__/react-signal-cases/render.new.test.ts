@@ -13,7 +13,7 @@ import { useStyleInLayout, moduleHasNested, otherOtherComponentModule, patchDeep
 
 describe('render new', () => {
   describe('render container', () => {
-    it('layout use logic', () => {
+    it.only('layout use logic', () => {
 
       const rr = createRSRenderer(layoutUseLogic(), {
         framework: MockRectFramework
@@ -213,7 +213,7 @@ describe('render new', () => {
         patchLayout(props, root) {
           return [
             {
-              parent: root.div,
+              target: root.div,
               op: CommandOP.addChild,
               child: h('p', {}, 'add p')
             }

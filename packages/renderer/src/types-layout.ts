@@ -99,6 +99,7 @@ export enum CommandOP {
   replace = "replace",
   remove = "remove",
   assignAttrs = "assignAttrs",
+  setAttrs = 'setAttrs',
 
   // for parent node
   wrap = "wrap",

@@ -130,11 +130,9 @@ export function proxyLayoutJSON(json: VirtualLayoutJSON) {
       set(source, key: string, value: any) {
         const currentPathArr = pathArr.concat(key);
         patches.push({
-          op: CommandOP.assignAttrs,
+          op: CommandOP.setAttrs,
           path: currentPathArr,
-          value: {
-            attrs: deepClone(value)
-          } as AttrsPathCommand,
+          value: deepClone(value),
         });
         Reflect.set(source, key, value);
         return true;
@@ -182,6 +180,8 @@ export function applyJSONTreePatches(
 ) {
   const target: VirtualLayoutJSON = source;
 
+  // console.log('patches: ', patches);
+
   for (const patch of patches) {
     const { op, path, value } = patch;
 
@@ -192,7 +192,6 @@ export function applyJSONTreePatches(
     }
 
     if (isVNodeFunctionComponent(current[0])) {
-      // console.log('isVNodeFunctionComponent current: ', current, i);
       mergeConstructOverrideToNode(current, i, patch);
     } else {
       assignPatchToNode(parent, current, i, patch);
@@ -250,6 +249,12 @@ function assignPatchToNode(
         })
       })
       break;
+    case CommandOP.setAttrs:
+      const restKeys = path.slice(depth + 1);
+      current.forEach((node) => {
+        set(node, restKeys, value);
+      });
+      break
     case CommandOP.assignAttrs:
       current.forEach(node => {
         Object.assign(node.props, value)
@@ -353,23 +358,28 @@ export function getVirtualNodesByPath(
     if (newCurrent.length === 0) {
       break;
     }
+
     const nextType = path[i + 1];
-    const nextChildren = newCurrent
-      .map((n) =>
-        n.children.filter((n) => {
-          if (isVirtualNode(n)) {
-            if (isVNodeFunctionComponent(n)) {
-              return n.type.name === nextType;
+
+    if (nextType) {
+      const nextChildren = newCurrent
+        .map((n) =>
+          n.children.filter((n) => {
+            if (isVirtualNode(n)) {
+              if (isVNodeFunctionComponent(n)) {
+                return n.type.name === nextType;
+              }
+              return n.type === nextType;
             }
-            return n.type === nextType;
-          }
-        })
-      )
-      .flat() as VirtualLayoutJSON[];
-    if (nextChildren.length === 0) {
-      break;
+          })
+        )
+        .flat() as VirtualLayoutJSON[];
+
+      if (nextChildren.length === 0) {
+        break;
+      }
+      current = nextChildren;
     }
-    current = nextChildren;
   }
 
   return [current, i];

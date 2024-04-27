@@ -361,7 +361,7 @@ const newModule2 = extendModule(baseModule, () => ({
     return [
       {
         op: CommandOP.addChild,
-        parent: jsonDraft.div,
+        target: jsonDraft.div,
         child: {
           type: "p",
           value: "123",
@@ -393,7 +393,7 @@ const newModule3 = extendModule(newModule2, () => ({
     return [
       {
         op: CommandOP.addChild,
-        parent: jsonDraft.div.div, // { paths: [], condition: true }
+        target: jsonDraft.div.div, // { paths: [], condition: true }
         condition: !!props.name,
         child: {
           type: "text",
@@ -465,7 +465,7 @@ export function useSingleOverride() {
         {
           op: CommandOP.addChild,
           condition: props.show,
-          parent: jsonDraft.div,
+          target: jsonDraft.div,
           child: (<span is-text>text</span>) as { type: "span" }, // must type p
         },
       ] as const;
@@ -479,7 +479,7 @@ export function useSingleOverride() {
       return [
         {
           op: CommandOP.addChild,
-          parent: root.div.span,
+          target: root.div.span,
           child: (<text></text>) as { type: "text" }, // must type p
         },
       ] as const;
@@ -508,7 +508,7 @@ export function overrideAtModuleLayer() {
       return [
         {
           op: CommandOP.addChild,
-          parent: jsonDraft.div,
+          target: jsonDraft.div,
           child: (<p></p>) as { type: "p" }, // must type p
         },
       ] as const;
@@ -519,7 +519,7 @@ export function overrideAtModuleLayer() {
       return [
         {
           op: CommandOP.addChild,
-          parent: jsonDraft.div.p,
+          target: jsonDraft.div.p,
           child: <p></p>,
         },
       ] as const;
@@ -546,7 +546,7 @@ export function overrideAtModuleLayer() {
 //           return [
 //             {
 //               op: CommandOP.addChild,
-//               parent: jsonDraft.div.p,
+//               target: jsonDraft.div.p,
 //               child: <text>{123}</text>
 //             }
 //           ]
@@ -579,7 +579,7 @@ export function overrideAtModuleLayer() {
 //           return [
 //             {
 //               op: CommandOP.addChild,
-//               parent: jsonDraft.div.p,
+//               target: jsonDraft.div.p,
 //               child: (<text>123</text>) as unknown as {
 //                 readonly type: 'text'
 //                 readonly children: readonly ['123']
@@ -611,7 +611,7 @@ export function overrideAtModuleLayer() {
 //                 return [
 //                   {
 //                     op: CommandOP.addChild,
-//                     parent: jsonDraft.div.p.text,
+//                     target: jsonDraft.div.p.text,
 //                     child: <label>{456}</label>
 //                   }
 //                 ]
@@ -684,7 +684,7 @@ export function overrideAtUseModule(): SingleFileModule<
       return [
         {
           op: CommandOP.addChild,
-          parent: jsonDraft.div.p,
+          target: jsonDraft.div.p,
           child: <text>{123}</text>,
         },
       ];
@@ -716,7 +716,7 @@ export function overrideAtUseModuleAndRender(): SingleFileModule<
       return [
         {
           op: CommandOP.addChild,
-          parent: jsonDraft.div.p,
+          target: jsonDraft.div.p,
           child: (<text>123</text>) as unknown as {
             readonly type: "text";
             readonly children: readonly ["123"];
@@ -737,7 +737,7 @@ export function overrideAtUseModuleAndRender(): SingleFileModule<
                 return [
                   {
                     op: CommandOP.addChild,
-                    parent: jsonDraft.div.p.text,
+                    target: jsonDraft.div.p.text,
                     child: <label>{456}</label>,
                   },
                 ];

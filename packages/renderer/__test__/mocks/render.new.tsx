@@ -139,8 +139,8 @@ export function patchDeepComposeComponent() {
     patchLayout(props, layout) {
       return [
         {
-          parent: layout.div.LayoutUseLogic.div,
           op: CommandOP.addChild,
+          target: layout.div.LayoutUseLogic.div,
           child: (<span>deep</span>) as { type: 'span' }
         }
       ] as const

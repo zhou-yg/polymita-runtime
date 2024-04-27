@@ -368,3 +368,7 @@ export function classNames(
   return classes.join(" ");
 }
 export const classnames = classNames;
+
+export function getNodeType (type: string | Function, props: { as?: string }) {
+  return lowerCaseType(props?.as || type)
+}

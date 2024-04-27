@@ -4,7 +4,8 @@ import {
 } from '@polymita/signal-model'
 import {
   isVirtualNode, assignPattern,
-  SEMATIC_RELATION_HAS, SEMATIC_RELATION_IS, mergeFromProps, renderHTMLProp, shouldNotRender, assignDefaultValueByPropTypes, ShouldRenderAttr, lowerCaseType, isVNodeComponent } from '../../utils'
+  SEMATIC_RELATION_HAS, SEMATIC_RELATION_IS, mergeFromProps, renderHTMLProp, shouldNotRender, assignDefaultValueByPropTypes, ShouldRenderAttr, lowerCaseType, isVNodeComponent, 
+  getNodeType} from '../../utils'
 import { runOverrides, proxyLayoutJSON, ProxyLayoutHandler, assignRules } from "../../override";
 
 import { LayoutStructTree, ConvertToLayoutTreeDraft, PatchCommand } from "../../types-layout";
@@ -151,7 +152,9 @@ export function createReactContainer<
     }
 
     let children = json.children
-    let elementArgs = [lowerCaseType(json.type), transformClsName(filterPatternSematicProps(json.props), json.type)];
+
+    const nodeType = getNodeType(json.type, json.props)
+    let elementArgs = [nodeType, transformClsName(filterPatternSematicProps(json.props), json.type)];
 
     if (Array.isArray(json.children)) {
       children = json.children.map(createElementDepth)

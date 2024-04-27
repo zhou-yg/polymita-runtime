@@ -1,4 +1,5 @@
-import { CommandOP, createRHRenderer, extendModule } from '../../src'
+import { signal } from '@polymita/signal-model'
+import { CommandOP, createRSRenderer, createVirtualNode, extendModule } from '../../src'
 import * as mock from '../mock'
 import { overridePatchRules } from '../mock'
 
@@ -14,16 +15,16 @@ describe('override', () => {
           {
             op: CommandOP.addChild,
             target: jsonDraft.div,
-            child: { type: 'p', props: { className: 'p-cls' }, children: ['123'] } // h('p', {}, '123')
+            child: createVirtualNode({ type: 'p', props: { className: 'p-cls' }, children: ['123'] }) // h('p', {}, '123')
           }
         ] as const
       }
     }))
 
-    const r = createRHRenderer(newModule2, {
+    const r = createRSRenderer(newModule2, {
       framework: mock.MockRectFramework
     })
-    const r1 = r.construct({ name: 'newModule2' })
+    const r1 = r.construct({ name: signal('newModule2') })
     const r2 = r.render()
 
     expect(r2).toEqual({
@@ -56,18 +57,17 @@ describe('override', () => {
         return [
           {
             op: CommandOP.addChild,
-            parent: jsonDraft.div,
-            child: { type: 'p', props: { className: 'p-cls' }, children: ['123'] } // h('p', {}, '123')
-            // child: h('p', {}, '123')
+            target: jsonDraft.div,
+            child: createVirtualNode({ type: 'p', props: { className: 'p-cls' }, children: ['123'] }) // h('p', {}, '123')
           }
         ] as const
       }
     }))
 
-    const r = createRHRenderer(newModule2, {
+    const r = createRSRenderer(newModule2, {
       framework: mock.MockRectFramework
     })
-    const r1 = r.construct({ name: 'newModule2' })
+    const r1 = r.construct({ name: signal('newModule2') })
     const r2 = r.render()
 
     expect(r2).toEqual({
@@ -96,15 +96,15 @@ describe('override', () => {
         return [
           {
             op: CommandOP.addChild,
-            parent: root.div.p,
-            child: { type: 'text', children: ['456'] } // h('text', {}, '456')
+            target: root.div.p,
+            child: createVirtualNode({ type: 'text', children: ['456'] }) // h('text', {}, '456')
           }
         ] as const 
       }
     }))
 
-    const r3 = createRHRenderer(newModule3, { framework: mock.MockRectFramework })
-    const r4 = r3.construct({ name: 'newModule3' })
+    const r3 = createRSRenderer(newModule3, { framework: mock.MockRectFramework })
+    const r4 = r3.construct({ name: signal('newModule3') })
     const r5 = r3.render()
     
     expect(r5).toEqual({
@@ -138,8 +138,8 @@ describe('override', () => {
 
   it('single override', () => {
     const module = mock.useSingleOverride()
-    const r = createRHRenderer(module, { framework: mock.MockRectFramework })
-    const r1 = r.construct({ text: 'override2', show: false })
+    const r = createRSRenderer(module, { framework: mock.MockRectFramework })
+    const r1 = r.construct({ text: signal('override2'), show: false })
     const r2 = r.render()
 
     expect(r2).toEqual({
@@ -158,10 +158,10 @@ describe('override', () => {
   })
 
   describe('use other module', () => {
-    it ('override at module layer', () => {
+    it('override at module layer', () => {
       const module = mock.overrideAtModuleLayer()
-      const r = createRHRenderer(module, { framework: mock.MockRectFramework })
-      const r1 = r.construct({ text: 'overrideAtModuleLayer' })
+      const r = createRSRenderer(module, { framework: mock.MockRectFramework })
+      const r1 = r.construct({ text: signal('overrideAtModuleLayer') })
       const r2 = r.render()
 
       expect(r2).toEqual({
@@ -187,8 +187,8 @@ describe('override', () => {
 
     it('override at renderer layer', () => {
       const m = mock.overrideAtUseModule()
-      const r = createRHRenderer(m, { framework: mock.MockRectFramework })
-      const r1 = r.construct({ m2Text: 'at renderer layer' })
+      const r = createRSRenderer(m, { framework: mock.MockRectFramework })
+      const r1 = r.construct({ m2Text: signal('at renderer layer') })
       const r2 = r.render()
 
       expect(r2).toEqual({
@@ -223,8 +223,8 @@ describe('override', () => {
 
     it('override at construct layer', () => {
       const m = mock.overrideAtUseModuleAndRender()
-      const r = createRHRenderer(m, { framework: mock.MockRectFramework })
-      const r1 = r.construct({ m2Text: 'at construct layer' })
+      const r = createRSRenderer(m, { framework: mock.MockRectFramework })
+      const r1 = r.construct({ m2Text: signal('at construct layer') })
       const r2 = r.render()
       expect(r2).toEqual({
         type: 'using-module',
@@ -265,8 +265,8 @@ describe('override', () => {
   })
 
   it('patch style rules', () => {
-    const rr = createRHRenderer(overridePatchRules(), { framework: mock.MockRectFramework })
-    const r1 = rr.construct({ name: 'patch style rules', show: true })
+    const rr = createRSRenderer(overridePatchRules(), { framework: mock.MockRectFramework })
+    const r1 = rr.construct({ name: signal('patch style rules'), show: true })
     const r2 = rr.render()
     expect(r2).toEqual({
       type: 'div',

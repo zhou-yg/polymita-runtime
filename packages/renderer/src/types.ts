@@ -79,9 +79,10 @@ export interface SingleFileModule<
     layoutStruct: L;
     patchCommands: PC2Arr;
   };
-  layoutTree?: () => ConvertToLayoutTreeDraft<
-    PatchLayoutWithCommands<L, FlatPatchCommandsArr<PC2Arr>>
-  >;
+  // layoutTree?: () => ConvertToLayoutTreeDraft<
+  //   PatchLayoutWithCommands<L, FlatPatchCommandsArr<PC2Arr>>
+  // >;
+  layoutTree?: any;
   _layoutDraft?: ConvertToLayoutTreeDraft<
     PatchLayoutWithCommands<L, FlatPatchCommandsArr<PC2Arr>>
   >;
@@ -198,9 +199,11 @@ export interface OverrideModule<
   PC = []
 > {
   patches?: DraftPatch[];
-  patchRules?: (props: Props, root: ConvertToLayoutTreeDraft<L>) => StyleRule[];
+  // patchRules?: (props: Props, root: ConvertToLayoutTreeDraft<L>) => StyleRule[];
+  patchRules?: (props: Props, root: any) => StyleRule[];
   layout?: (props: Props, layoutDraft: LayoutTreeProxyDraft) => void;
-  patchLayout?: (props: Props, root: ConvertToLayoutTreeDraft<L>) => PC;
+  // patchLayout?: (props: Props, root: ConvertToLayoutTreeDraft<L>) => PC;
+  patchLayout?: (props: Props, root: any) => PC;
 }
 
 export type Func = (...args: any[]) => any;

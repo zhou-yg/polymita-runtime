@@ -136,7 +136,8 @@ function getRendererContext(target: any): CurrentRenderContext {
 export function createRHRenderer<
   P extends Record<string, any>,
   L extends LayoutStructTree,
-  PCArr extends PatchCommand[][],
+  // PCArr extends PatchCommand[][],
+  PCArr extends any[][],
   NewPC,
   ModuleName
 >(
@@ -499,7 +500,7 @@ export function extendModule<
   } as unknown as SingleFileModule<
     NewProps,
     L,
-    [...PCArr, FormatPatchCommands<NewPC>],
+    any, // [...PCArr, FormatPatchCommands<NewPC>],
     ModuleName
   >;
 }
