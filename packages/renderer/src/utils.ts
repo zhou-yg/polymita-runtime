@@ -270,6 +270,13 @@ export const VNodeComponentSymbol = Symbol("VNodeComponentSymbol");
 export const VNodeFunctionComponentSymbol = Symbol(
   "VNodeFunctionComponentSymbol"
 );
+export const VNodeFunctionComponentOriginModuleSymbol = Symbol(
+  "VNodeFunctionComponentOriginModuleSymbol"
+);
+export function getModuleFromFunctionComponent(f: any) {
+  return f[VNodeFunctionComponentOriginModuleSymbol]
+}
+
 export function isVNodeComponent(target: any): target is { type: Function } {
   return !!target?.type?.[VNodeComponentSymbol];
 }

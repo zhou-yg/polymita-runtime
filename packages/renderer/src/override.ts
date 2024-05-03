@@ -1,8 +1,11 @@
 import {
   DraftPatch,
+  GlobalModulesActiveMap,
+  GlobalModulesLinkMap,
   LayoutTreeDraft,
   LayoutTreeProxyDraft,
   OverrideModule,
+  SingleFileModule,
   StyleRule,
   VirtualLayoutJSON,
 } from "./types";
@@ -467,4 +470,96 @@ export function assignRules(draft: LayoutTreeProxyDraft, rules: StyleRule[]) {
       }
     }
   }
+}
+
+
+const moduleIndexKey = (m: SingleFileModule<any, any, any, any>) => `${m.namespace}-${m.name}`
+
+export function getModulesByBase (m: SingleFileModule<any, any, any, any>, mp: GlobalModulesLinkMap) {
+  const key = moduleIndexKey(m)
+  const modules = mp.get(key)
+
+  return (modules || []).filter(m => {
+    return key !== moduleIndexKey(m)
+  })
+}
+
+export function getActiveModuleByBase (
+  m: SingleFileModule<any, any, any, any>,
+  mp: GlobalModulesLinkMap,
+  activeSet: GlobalModulesActiveMap
+): SingleFileModule<any, any, any, any>[] | void{
+  if (m && activeSet) {
+    const key = moduleIndexKey(m)
+    const modules = mp.get(key)
+    let result: [number, SingleFileModule<any, any, any, any>][] = []
+    modules.forEach(m => {
+      const i = activeSet.indexOf(moduleIndexKey(m))
+      if (i >= 0) {
+        result.push([i, m])
+      }
+    })
+    return result.sort((a, b) => a[0] - b[0]).map(arr => arr[1])
+  }
+}
+
+
+export function registerModule (m: SingleFileModule<any, any, any, any>, mp: GlobalModulesLinkMap) {
+  const key = moduleIndexKey(m)
+  const modules = mp.get(key)
+  if (modules) {
+    if (!modules.includes(m)) {
+      modules.push(m)
+    }
+  } else {
+    mp.set(key, [m])
+  }
+
+  if (m.base) {
+    const baseKey = moduleIndexKey(m.base) 
+    const modules = mp.get(baseKey)
+    modules?.push(m)
+  }
+}
+
+export function mergeOverrideModules(modules: SingleFileModule<any, any, any, any>[]) {
+  if (modules.length > 1) {
+    return modules.reduce((p, n) => {
+      return extendModule(p, n.override)
+    })
+  }
+  return modules[0]
+}
+
+export function extendModule<
+  Props,
+  L extends LayoutStructTree,
+  PCArr extends PatchCommand[][],
+  NewProps extends Props,
+  NewPC,
+  ModuleName
+>(
+  module: SingleFileModule<Props, L, PCArr, ModuleName>,
+  override: () => OverrideModule<
+    NewProps,
+    SingleFileModule<NewProps, L, PCArr, ModuleName>["layoutStruct"],
+    NewPC
+  >
+) {
+  const newModule = {
+    ...module,
+    base: module,
+    override() {
+      const p1 = module.override?.() || [];
+      const p2 = override();
+      return [...p1, p2];
+    },
+  } as unknown as SingleFileModule<
+    NewProps,
+    L,
+    any, // [...PCArr, FormatPatchCommands<NewPC>],
+    ModuleName
+  >;
+
+  return newModule
 }

@@ -73,6 +73,8 @@ export interface SingleFileModule<
   PC2Arr,
   ModuleName
 > {
+  base?: SingleFileModule<Props, L, PC2Arr, ModuleName>;
+  namespace?: string
   name?: ModuleName;
   meta?: {
     props: Props;
@@ -118,11 +120,19 @@ export interface VirtualLayoutJSON extends LayoutStructTree {
   children?: (VirtualLayoutJSON | BaseDataType)[];
 }
 
+export type GlobalModulesLinkMap = Map<string, SingleFileModule<any, any, any, any>[]>
+export type GlobalModulesActiveMap = string[]
+
 export interface RenderHost {
   framework: {
     name: string;
     lib: any;
   };
+  moduleOverride?: {
+    enable: boolean
+    modulesLinkMap?: GlobalModulesLinkMap
+    modulesActiveMap?: GlobalModulesActiveMap
+  },
   stateManagement?: {
     name: string; // default is 'signal'
     lib: any;
@@ -227,6 +237,12 @@ export interface StateManagementConfig {
   ) => any;
 }
 
+export type RenderContainerConstructorOption = { 
+  useEmotion: boolean, 
+  modulesLinkMap?: RenderHost['moduleOverride']['modulesLinkMap'], 
+  modulesActiveMap?: RenderHost['moduleOverride']['modulesActiveMap']
+}
+
 export type RenderContainerConstructor<
   P extends Record<string, any>,
   L extends LayoutStructTree,
@@ -238,7 +254,7 @@ export type RenderContainerConstructor<
   framework: any,
   module: SingleFileModule<P, L, PCArr, ModuleName>,
   stateManagement: StateManagementConfig,
-  options?: { useEmotion: boolean }
+  options?: RenderContainerConstructorOption
 ) => ModuleRenderContainer<P, L, PCArr, NewPC, ConstructProps, ModuleName>;
 
 export type SignalProps<T extends Record<string, any>> = {

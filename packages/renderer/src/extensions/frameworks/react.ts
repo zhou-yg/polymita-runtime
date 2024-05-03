@@ -1,16 +1,18 @@
-import { OverrideModule, SingleFileModule, StateManagementConfig, VirtualLayoutJSON } from "../../types";
+import { OverrideModule, RenderContainerConstructorOption, SingleFileModule, StateManagementConfig, VirtualLayoutJSON } from "../../types";
 import {
   Driver
 } from '@polymita/signal-model'
 import {
   isVirtualNode, assignPattern,
   SEMATIC_RELATION_HAS, SEMATIC_RELATION_IS, mergeFromProps, renderHTMLProp, shouldNotRender, assignDefaultValueByPropTypes, ShouldRenderAttr, lowerCaseType, isVNodeComponent, 
-  getNodeType} from '../../utils'
-import { runOverrides, proxyLayoutJSON, ProxyLayoutHandler, assignRules } from "../../override";
+  getNodeType,
+  getModuleFromFunctionComponent} from '../../utils'
+import { runOverrides, proxyLayoutJSON, ProxyLayoutHandler, assignRules, getActiveModuleByBase, mergeOverrideModules } from "../../override";
 
-import { LayoutStructTree, ConvertToLayoutTreeDraft, PatchCommand } from "../../types-layout";
+import { LayoutStructTree, ConvertToLayoutTreeDraft, PatchCommand, BaseDataType } from "../../types-layout";
 import { NormalizeProps } from '../../types';
 import { assignDeclarationPatterns } from "../../pattern";
+import { createFunctionComponent } from "../../render.new";
 
 type ArgResultMap = Map<string, any>
 const driverWeakMap = new Map<Driver, ArgResultMap>()
@@ -68,7 +70,7 @@ export function createReactContainer<
   React: any,
   module: SingleFileModule<P, L, PCArr, ModuleName>,
   stateManagement: StateManagementConfig,
-  options?: { useEmotion: boolean }
+  options?: RenderContainerConstructorOption
 ) {
   // shallow copy so that can mark cache in module
   module = {...module}
@@ -126,19 +128,20 @@ export function createReactContainer<
     delete module[cacheSymbol]
   }
 
-  function createElementDepth (json: VirtualLayoutJSON) {
+  function createElementDepth (json: VirtualLayoutJSON, options: RenderContainerConstructorOption) {
     if (!json) {
       return
     }
+
+    if (!isVirtualNode(json)) {
+      return json
+    }
+
     if (isVNodeComponent(json)) {
       json = (json.type as any)({
         ...(json.props || {}),
         children: json.children
       })
-    }
-
-    if (!isVirtualNode(json)) {
-      return json
     }
 
     if (shouldNotRender(json)) {
@@ -156,12 +159,26 @@ export function createReactContainer<
     const nodeType = getNodeType(json.type, json.props)
     let elementArgs = [nodeType, transformClsName(filterPatternSematicProps(json.props), json.type)];
 
+    const originModule = getModuleFromFunctionComponent(nodeType)
+    if (originModule) {
+      const alreadyActiveOverrideModules = getActiveModuleByBase(originModule, options.modulesLinkMap, options.modulesActiveMap)
+      if (alreadyActiveOverrideModules) {
+        const newNodeType = createFunctionComponent(mergeOverrideModules(alreadyActiveOverrideModules))
+        elementArgs[0] = newNodeType
+      }
+    }
+
     if (Array.isArray(json.children)) {
-      children = json.children.map(createElementDepth)
+      children = json.children.map(child => {
+        if (isVirtualNode(child)) {
+          return createElementDepth(child, options)
+        }
+        return child
+      })
       elementArgs.push(...children)
     } else {
       if (isVirtualNode(json.children)) {
-        children = createElementDepth(json.children)
+        children = createElementDepth(json.children, options)
       }
       elementArgs.push(children)
     }
@@ -235,7 +252,7 @@ export function createReactContainer<
   }
 
   function render (json: VirtualLayoutJSON) {
-    const root = createElementDepth(json)
+    const root = createElementDepth(json, options)
     return root
   }
 

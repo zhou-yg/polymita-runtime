@@ -22,6 +22,7 @@ import {
   traverse,
   VirtualNodeTypeSymbol,
   VNodeComponentSymbol,
+  VNodeFunctionComponentOriginModuleSymbol,
   VNodeFunctionComponentSymbol,
 } from "./utils";
 
@@ -307,13 +308,10 @@ export function createFunctionComponent<
 
   /**
    * real component code in framework
-   *
-   * 问题：当然渲染器怎么往下传递，用React.Context吗？
-   * 应该不行，应该自己的Context机制
    */
-  function frameworkComposeComponent(props: P): VirtualLayoutJSON {
+  function frameworkFunctionComponent(props: P): VirtualLayoutJSON {
     const { override: secondOverride, ...restProps } = props;
-    const rendererContext = getRendererContext(frameworkComposeComponent);
+    const rendererContext = getRendererContext(frameworkFunctionComponent);
     const { createRenderContainer, renderHost, stateManagement } =
       rendererContext;
 
@@ -329,13 +327,14 @@ export function createFunctionComponent<
 
     return renderer.render();
   }
-  Object.defineProperty(frameworkComposeComponent, "name", {
+  Object.defineProperty(frameworkFunctionComponent, "name", {
     get() {
       return name || "Unknown function component";
     },
   });
-  const componentWithSymbol = Object.assign(frameworkComposeComponent, {
+  const componentWithSymbol = Object.assign(frameworkFunctionComponent, {
     [VNodeFunctionComponentSymbol]: true,
+    [VNodeFunctionComponentOriginModuleSymbol]: module,
   });
 
   return componentWithSymbol;
@@ -426,6 +425,8 @@ export function createRenderer3<
     stateManagement,
     {
       useEmotion: renderHost.useEmotion,
+      modulesLinkMap: renderHost.moduleOverride.modulesLinkMap,
+      modulesActiveMap: renderHost.moduleOverride.modulesActiveMap,    
     }
   );
 
@@ -473,36 +474,6 @@ export function createRenderer3<
   };
 
   return currentRendererInstance;
-}
-
-export function extendModule<
-  Props,
-  L extends LayoutStructTree,
-  PCArr extends PatchCommand[][],
-  NewProps extends Props,
-  NewPC,
-  ModuleName
->(
-  module: SingleFileModule<Props, L, PCArr, ModuleName>,
-  override: () => OverrideModule<
-    NewProps,
-    SingleFileModule<NewProps, L, PCArr, ModuleName>["layoutStruct"],
-    NewPC
-  >
-) {
-  return {
-    ...module,
-    override() {
-      const p1 = module.override?.() || [];
-      const p2 = override();
-      return [...p1, p2];
-    },
-  } as unknown as SingleFileModule<
-    NewProps,
-    L,
-    any, // [...PCArr, FormatPatchCommands<NewPC>],
-    ModuleName
-  >;
 }
 
 /**
