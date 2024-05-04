@@ -12,7 +12,7 @@ import { runOverrides, proxyLayoutJSON, ProxyLayoutHandler, assignRules, getActi
 import { LayoutStructTree, ConvertToLayoutTreeDraft, PatchCommand, BaseDataType } from "../../types-layout";
 import { NormalizeProps } from '../../types';
 import { assignDeclarationPatterns } from "../../pattern";
-import { createFunctionComponent } from "../../render.new";
+import { createFunctionComponent, migrateRenderContext } from "../../render.new";
 
 type ArgResultMap = Map<string, any>
 const driverWeakMap = new Map<Driver, ArgResultMap>()
@@ -162,8 +162,10 @@ export function createReactContainer<
     const originModule = getModuleFromFunctionComponent(nodeType)
     if (originModule) {
       const alreadyActiveOverrideModules = getActiveModuleByBase(originModule, options.modulesLinkMap, options.modulesActiveMap)
-      if (alreadyActiveOverrideModules) {
-        const newNodeType = createFunctionComponent(mergeOverrideModules(alreadyActiveOverrideModules))
+      if (alreadyActiveOverrideModules?.length) {
+        const newModule = mergeOverrideModules(alreadyActiveOverrideModules)
+        const newNodeType = createFunctionComponent(newModule)
+        migrateRenderContext(nodeType, newNodeType)
         elementArgs[0] = newNodeType
       }
     }

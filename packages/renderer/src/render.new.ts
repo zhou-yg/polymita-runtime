@@ -108,6 +108,11 @@ function attachRendererContext(target: any, context: CurrentRenderContext) {
   target[renderContextSymbol] = context;
 }
 
+export function migrateRenderContext (from: any, to: any) {
+  to[renderContextSymbol] = from[renderContextSymbol]
+  // delete from[renderContextSymbol]
+}
+
 function traverseAndAttachRendererContext(
   json: VirtualLayoutJSON,
   context: CurrentRenderContext

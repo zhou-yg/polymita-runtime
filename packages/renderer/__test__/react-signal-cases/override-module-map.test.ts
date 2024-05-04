@@ -12,16 +12,27 @@ describe.only('override modules map', () => {
       moduleOverride: { 
         enable: true, 
         modulesLinkMap: mp,
-        modulesActiveMap: (['mock-override-new-contributor']),
+        modulesActiveMap: (['mock-override-NewContributor']),
       }
     })
 
     mock.overridePageModuleContributor1()
 
     const r1 = rr.construct()
-    console.log('r1: ', r1);
-    console.log('mp: ', mp);
     const r2 = rr.render();
-    
+
+    expect(r2).toEqual({
+      type: 'div',
+      props: {},
+      children: {
+        type: 'page-contributor',
+        props: {},
+        children: [
+          { type: 'contributor-title', props: {}, children: 'title' },
+          { type: 'contributor-content', props: {}, children: 'content' },
+          { type: 'new-child', props: {}, children: 'new' },
+        ]
+      }      
+    })
   })
 })

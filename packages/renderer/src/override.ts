@@ -488,7 +488,7 @@ export function getActiveModuleByBase (
   m: SingleFileModule<any, any, any, any>,
   mp: GlobalModulesLinkMap,
   activeSet: GlobalModulesActiveMap
-): SingleFileModule<any, any, any, any>[] | void{
+): SingleFileModule<any, any, any, any>[] | null {
   if (m && activeSet) {
     const key = moduleIndexKey(m)
     const modules = mp.get(key)
