@@ -74,7 +74,7 @@ export interface SingleFileModule<
   ModuleName
 > {
   base?: SingleFileModule<Props, L, PC2Arr, ModuleName>;
-  namespace?: string
+  namespace?: string;
   name?: ModuleName;
   meta?: {
     props: Props;
@@ -120,8 +120,11 @@ export interface VirtualLayoutJSON extends LayoutStructTree {
   children?: (VirtualLayoutJSON | BaseDataType)[];
 }
 
-export type GlobalModulesLinkMap = Map<string, SingleFileModule<any, any, any, any>[]>
-export type GlobalModulesActiveMap = string[]
+export type GlobalModulesLinkMap = Map<
+  string,
+  SingleFileModule<any, any, any, any>[]
+>;
+export type GlobalModulesActiveMap = string[];
 
 export interface RenderHost {
   framework: {
@@ -129,10 +132,10 @@ export interface RenderHost {
     lib: any;
   };
   moduleOverride?: {
-    enable: boolean
-    modulesLinkMap?: GlobalModulesLinkMap
-    modulesActiveMap?: GlobalModulesActiveMap
-  },
+    enable: boolean;
+    modulesLinkMap?: GlobalModulesLinkMap;
+    modulesActiveMap?: GlobalModulesActiveMap;
+  };
   stateManagement?: {
     name: string; // default is 'signal'
     lib: any;
@@ -200,7 +203,9 @@ export interface ModuleRenderContainer<
 export interface DraftPatch {
   op: CommandOP;
   path: string[];
-  value?: (PatchCommandBase['target'] | AttrsPathCommand['attrs']) & { condition?: boolean };
+  value?: (PatchCommandBase["target"] | AttrsPathCommand["attrs"]) & {
+    condition?: boolean;
+  };
 }
 
 export interface OverrideModule<
@@ -237,11 +242,11 @@ export interface StateManagementConfig {
   ) => any;
 }
 
-export type RenderContainerConstructorOption = { 
-  useEmotion: boolean, 
-  modulesLinkMap?: RenderHost['moduleOverride']['modulesLinkMap'], 
-  modulesActiveMap?: RenderHost['moduleOverride']['modulesActiveMap']
-}
+export type RenderContainerConstructorOption = {
+  useEmotion: boolean;
+  modulesLinkMap?: RenderHost["moduleOverride"]["modulesLinkMap"];
+  modulesActiveMap?: RenderHost["moduleOverride"]["modulesActiveMap"];
+};
 
 export type RenderContainerConstructor<
   P extends Record<string, any>,

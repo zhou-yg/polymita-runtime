@@ -99,7 +99,7 @@ export enum CommandOP {
   replace = "replace",
   remove = "remove",
   assignAttrs = "assignAttrs",
-  setAttrs = 'setAttrs',
+  setAttrs = "setAttrs",
 
   // for parent node
   wrap = "wrap",
@@ -134,7 +134,7 @@ export interface WrapLastPathCommand extends PatchCommandBase {
 }
 export interface ReplacePathCommand extends PatchCommandBase {
   readonly op: CommandOP.replace;
-  readonly child?: VirtualLayoutJSON
+  readonly child?: VirtualLayoutJSON;
 }
 export interface RemovePathCommand extends PatchCommandBase {
   readonly op: CommandOP.remove;
@@ -144,7 +144,15 @@ export interface AttrsPathCommand extends PatchCommandBase {
   readonly attrs: Record<string, any>;
 }
 
-export type PatchCommand = WrapFirstPathCommand | WrapLastPathCommand | AttrsPathCommand | ReplacePathCommand | RemovePathCommand | WrapPathCommand | AddPathCommand | AddFirstPathCommand;
+export type PatchCommand =
+  | WrapFirstPathCommand
+  | WrapLastPathCommand
+  | AttrsPathCommand
+  | ReplacePathCommand
+  | RemovePathCommand
+  | WrapPathCommand
+  | AddPathCommand
+  | AddFirstPathCommand;
 
 export type Assign<U, T> = {} extends U
   ? T
@@ -180,7 +188,7 @@ export type DoPatchCommand<
   : Cmd extends RemovePathCommand
   ? Assign<T, { readonly children: any }>
   : Cmd extends ReplacePathCommand
-  ? Cmd['target']
+  ? Cmd["target"]
   : never;
 
 export type PatchToLayoutChildren<
@@ -197,7 +205,7 @@ export type PatchToLayoutChildren<
     : [FirstChild, ...PatchToLayoutChildren<RestChildren, Cmd>]
   : T;
 
-export type PatchLayout<T = any, C = any> = any
+export type PatchLayout<T = any, C = any> = any;
 // export type PatchLayout<
 //   T extends LayoutStructTree,
 //   Cmd extends PatchCommand
@@ -218,8 +226,6 @@ export type PatchLayout<T = any, C = any> = any
 //         >
 //       : never
 //   : T;
-
-
 
 export type PatchLayoutWithCommands<
   T extends LayoutStructTree,
@@ -279,11 +285,14 @@ export type PrintObjectLike<T> = T extends [infer First, ...infer Rest]
  */
 
 type FormatPatchCommandParent<P> = P extends PatchCommand
-  ? Assign<P, {
-      readonly op: P["op"];
-      readonly target: ShallowCopyArray<string[]>;
-      // readonly child: P["child"];
-    }>
+  ? Assign<
+      P,
+      {
+        readonly op: P["op"];
+        readonly target: ShallowCopyArray<string[]>;
+        // readonly child: P["child"];
+      }
+    >
   : P;
 
 type VV = PatchCommand[]; // readonly [{ readonly op: "addChild"; readonly parent: readonly ["div"] & ConvertToLayoutTreeDraft<{ type: "div"; }, ["div"]>; readonly child: { readonly type: "p"; readonly value: "123"; }; }]

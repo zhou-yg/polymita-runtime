@@ -108,8 +108,8 @@ function attachRendererContext(target: any, context: CurrentRenderContext) {
   target[renderContextSymbol] = context;
 }
 
-export function migrateRenderContext (from: any, to: any) {
-  to[renderContextSymbol] = from[renderContextSymbol]
+export function migrateRenderContext(from: any, to: any) {
+  to[renderContextSymbol] = from[renderContextSymbol];
   // delete from[renderContextSymbol]
 }
 
@@ -431,7 +431,7 @@ export function createRenderer3<
     {
       useEmotion: renderHost.useEmotion,
       modulesLinkMap: renderHost.moduleOverride.modulesLinkMap,
-      modulesActiveMap: renderHost.moduleOverride.modulesActiveMap,    
+      modulesActiveMap: renderHost.moduleOverride.modulesActiveMap,
     }
   );
 

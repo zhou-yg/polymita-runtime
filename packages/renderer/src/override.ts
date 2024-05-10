@@ -189,9 +189,9 @@ export function applyJSONTreePatches(
     const { op, path, value } = patch;
 
     const [current, i] = getVirtualNodesByPath(target, path);
-    let parent: VirtualLayoutJSON[] = []
+    let parent: VirtualLayoutJSON[] = [];
     if (path.length > 1) {
-      parent = getVirtualNodesByPath(target, path.slice(0, -1))[0]
+      parent = getVirtualNodesByPath(target, path.slice(0, -1))[0];
     }
 
     if (isVNodeFunctionComponent(current[0])) {
@@ -204,11 +204,16 @@ export function applyJSONTreePatches(
   return target;
 }
 
-function equalNode (n1: VirtualLayoutJSON, n2: VirtualLayoutJSON) {
-  return typeof n1 === 'object' && typeof n2 === 'object' && n1.type === n2.type
+function equalNode(n1: VirtualLayoutJSON, n2: VirtualLayoutJSON) {
+  return (
+    typeof n1 === "object" && typeof n2 === "object" && n1.type === n2.type
+  );
 }
-function nodeExists (n1: VirtualLayoutJSON[], n2: VirtualLayoutJSON | BaseDataType) {
-  return typeof n2 === 'object' && n1.find(c => c.type === n2.type)
+function nodeExists(
+  n1: VirtualLayoutJSON[],
+  n2: VirtualLayoutJSON | BaseDataType
+) {
+  return typeof n2 === "object" && n1.find((c) => c.type === n2.type);
 }
 
 function assignPatchToNode(
@@ -218,14 +223,14 @@ function assignPatchToNode(
   patch: DraftPatch
 ) {
   const { op, path, value } = patch;
-  const jsonValue = value as VirtualLayoutJSON
+  const jsonValue = value as VirtualLayoutJSON;
   switch (op) {
     case CommandOP.replace:
-      parent.forEach(p => {
+      parent.forEach((p) => {
         p.children = p.children.map((child) => {
-          return nodeExists(current, child) ? jsonValue : child
-        })
-      })
+          return nodeExists(current, child) ? jsonValue : child;
+        });
+      });
       break;
     case CommandOP.addFirst:
       current.forEach((node) => {
@@ -246,60 +251,60 @@ function assignPatchToNode(
       });
       break;
     case CommandOP.remove:
-      parent.forEach(p => {
+      parent.forEach((p) => {
         p.children = p.children.filter((child, index) => {
-          return !nodeExists(current, child)
-        })
-      })
+          return !nodeExists(current, child);
+        });
+      });
       break;
     case CommandOP.setAttrs:
       const restKeys = path.slice(depth + 1);
       current.forEach((node) => {
         set(node, restKeys, value);
       });
-      break
+      break;
     case CommandOP.assignAttrs:
-      current.forEach(node => {
-        Object.assign(node.props, value)
-      })
-      break
+      current.forEach((node) => {
+        Object.assign(node.props, value);
+      });
+      break;
     case CommandOP.wrap:
-      parent.forEach(pNode => {
+      parent.forEach((pNode) => {
         pNode.children.forEach((child, i) => {
           if (nodeExists(current, child)) {
-            const v = deepClone(jsonValue)
-            pNode.children[i] = v
-            v.children = [child]
+            const v = deepClone(jsonValue);
+            pNode.children[i] = v;
+            v.children = [child];
           }
-        })
-      })
-      break
+        });
+      });
+      break;
     case CommandOP.wrapFirst:
-      parent.forEach(pNode => {
-        let found = false
+      parent.forEach((pNode) => {
+        let found = false;
         pNode.children.forEach((child, i) => {
           if (nodeExists(current, child) && !found) {
-            const v = deepClone(jsonValue)
-            pNode.children[i] = v
-            v.children = [child]
-            found = true
+            const v = deepClone(jsonValue);
+            pNode.children[i] = v;
+            v.children = [child];
+            found = true;
           }
-        })
-      })
-      break
+        });
+      });
+      break;
     case CommandOP.wrapLast:
-      parent.forEach(pNode => {
-        let foundIndex = -1
+      parent.forEach((pNode) => {
+        let foundIndex = -1;
         pNode.children.forEach((child, i) => {
           if (nodeExists(current, child)) {
-            foundIndex = i
+            foundIndex = i;
           }
-        })
+        });
         if (foundIndex > -1) {
-          jsonValue.children = [pNode.children[foundIndex]]
-          pNode.children[foundIndex] = jsonValue
+          jsonValue.children = [pNode.children[foundIndex]];
+          pNode.children[foundIndex] = jsonValue;
         }
-      })
+      });
       break;
   }
 }
@@ -428,8 +433,8 @@ export function doPatchLayoutCommand(
 
   paths.forEach((path) => (parent = parent[path]));
   if (
-    cmd.op === CommandOP.addChild || 
-    cmd.op === CommandOP.addFirst || 
+    cmd.op === CommandOP.addChild ||
+    cmd.op === CommandOP.addFirst ||
     cmd.op === CommandOP.replace
   ) {
     parent[cmd.op](cmd.child);
@@ -437,7 +442,11 @@ export function doPatchLayoutCommand(
     parent[cmd.op]();
   } else if (cmd.op === CommandOP.assignAttrs) {
     parent[cmd.op](cmd.attrs);
-  } else if (cmd.op === CommandOP.wrap || cmd.op === CommandOP.wrapFirst || cmd.op === CommandOP.wrapLast) {
+  } else if (
+    cmd.op === CommandOP.wrap ||
+    cmd.op === CommandOP.wrapFirst ||
+    cmd.op === CommandOP.wrapLast
+  ) {
     parent[cmd.op](cmd.parent);
   }
 }
@@ -472,63 +481,70 @@ export function assignRules(draft: LayoutTreeProxyDraft, rules: StyleRule[]) {
   }
 }
 
+const moduleIndexKey = (m: SingleFileModule<any, any, any, any>) =>
+  `${m.namespace}-${m.name}`;
 
-const moduleIndexKey = (m: SingleFileModule<any, any, any, any>) => `${m.namespace}-${m.name}`
+export function getModulesByBase(
+  m: SingleFileModule<any, any, any, any>,
+  mp: GlobalModulesLinkMap
+) {
+  const key = moduleIndexKey(m);
+  const modules = mp.get(key);
 
-export function getModulesByBase (m: SingleFileModule<any, any, any, any>, mp: GlobalModulesLinkMap) {
-  const key = moduleIndexKey(m)
-  const modules = mp.get(key)
-
-  return (modules || []).filter(m => {
-    return key !== moduleIndexKey(m)
-  })
+  return (modules || []).filter((m) => {
+    return key !== moduleIndexKey(m);
+  });
 }
 
-export function getActiveModuleByBase (
+export function getActiveModuleByBase(
   m: SingleFileModule<any, any, any, any>,
   mp: GlobalModulesLinkMap,
   activeSet: GlobalModulesActiveMap
 ): SingleFileModule<any, any, any, any>[] | null {
   if (m && activeSet) {
-    const key = moduleIndexKey(m)
-    const modules = mp.get(key)
-    let result: [number, SingleFileModule<any, any, any, any>][] = []
-    modules.forEach(m => {
-      const i = activeSet.indexOf(moduleIndexKey(m))
+    const key = moduleIndexKey(m);
+    const modules = mp.get(key);
+    let result: [number, SingleFileModule<any, any, any, any>][] = [];
+    modules.forEach((m) => {
+      const i = activeSet.indexOf(moduleIndexKey(m));
       if (i >= 0) {
-        result.push([i, m])
+        result.push([i, m]);
       }
-    })
-    return result.sort((a, b) => a[0] - b[0]).map(arr => arr[1])
+    });
+    return result.sort((a, b) => a[0] - b[0]).map((arr) => arr[1]);
   }
 }
 
-
-export function registerModule (m: SingleFileModule<any, any, any, any>, mp: GlobalModulesLinkMap) {
-  const key = moduleIndexKey(m)
-  const modules = mp.get(key)
+export function registerModule(
+  m: SingleFileModule<any, any, any, any>,
+  mp: GlobalModulesLinkMap
+) {
+  const key = moduleIndexKey(m);
+  const modules = mp.get(key);
   if (modules) {
     if (!modules.includes(m)) {
-      modules.push(m)
+      modules.push(m);
     }
   } else {
-    mp.set(key, [m])
+    mp.set(key, [m]);
   }
 
   if (m.base) {
-    const baseKey = moduleIndexKey(m.base) 
-    const modules = mp.get(baseKey)
-    modules?.push(m)
+    const baseKey = moduleIndexKey(m.base);
+    const modules = mp.get(baseKey);
+    modules?.push(m);
   }
 }
 
-export function mergeOverrideModules(modules: SingleFileModule<any, any, any, any>[]) {
+export function mergeOverrideModules(
+  modules: SingleFileModule<any, any, any, any>[]
+) {
   if (modules.length > 1) {
     return modules.reduce((p, n) => {
-      return extendModule(p, n.override)
-    })
+      return extendModule(p, n.override);
+    });
   }
-  return modules[0]
+  return modules[0];
 }
 
 export function extendModule<
@@ -561,5 +577,5 @@ export function extendModule<
     ModuleName
   >;
 
-  return newModule
+  return newModule;
 }

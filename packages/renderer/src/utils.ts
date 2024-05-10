@@ -274,7 +274,7 @@ export const VNodeFunctionComponentOriginModuleSymbol = Symbol(
   "VNodeFunctionComponentOriginModuleSymbol"
 );
 export function getModuleFromFunctionComponent(f: any) {
-  return f[VNodeFunctionComponentOriginModuleSymbol]
+  return f[VNodeFunctionComponentOriginModuleSymbol];
 }
 
 export function isVNodeComponent(target: any): target is { type: Function } {
@@ -376,6 +376,6 @@ export function classNames(
 }
 export const classnames = classNames;
 
-export function getNodeType (type: string | Function, props: { as?: string }) {
-  return lowerCaseType(props?.as || type)
+export function getNodeType(type: string | Function, props: { as?: string }) {
+  return lowerCaseType(props?.as || type);
 }

@@ -752,69 +752,74 @@ export function overrideAtUseModuleAndRender(): SingleFileModule<
   };
 }
 
-
-function pageModuleContributor1 (): SingleFileModule<
+function pageModuleContributor1(): SingleFileModule<
   {},
-  { type: "pageContributor", children: [{ type: 'contributorTitle' }, { type: 'contributorContent' }] },
+  {
+    type: "pageContributor";
+    children: [{ type: "contributorTitle" }, { type: "contributorContent" }];
+  },
   [],
   "Contributor1"
 > {
   return {
-    namespace: 'page-contributor1',
-    name: 'Contributor1',
-    layout (props) {
+    namespace: "page-contributor1",
+    name: "Contributor1",
+    layout(props) {
       return (
         <pageContributor>
           <contributorTitle>title</contributorTitle>
           <contributorContent>content</contributorContent>
         </pageContributor>
-      )
-    }
-  }
+      );
+    },
+  };
 }
 
+const testModules: GlobalModulesLinkMap = new Map();
 
-const testModules: GlobalModulesLinkMap = new Map()
+export const getTestModules = () => testModules;
 
-export const getTestModules = () => testModules
-
-export function overridePageModuleContributor1 () {
-  const m = pageModuleContributor1()
+export function overridePageModuleContributor1() {
+  const m = pageModuleContributor1();
   const m2 = extendModule(m, () => ({
-    namespace: 'new-module',
-    patchLayout (props, draft) {
+    namespace: "new-module",
+    patchLayout(props, draft) {
       return [
         {
           op: CommandOP.addChild,
           target: draft.pageContributor,
-          child: <newChild>new</newChild>
+          child: <newChild>new</newChild>,
         },
-      ]
-    }
-  }))
+      ];
+    },
+  }));
   Object.assign(m2, {
-    namespace: 'mock-override',
-    name: 'NewContributor'
-  })
+    namespace: "mock-override",
+    name: "NewContributor",
+  });
 
-  registerModule(m2, testModules)
+  registerModule(m2, testModules);
 }
 
-export function rootPageModule (): SingleFileModule<
+export function rootPageModule(): SingleFileModule<
   {},
   { type: "div" },
   [],
   "unknown"
 > {
-  const contributor1Module = pageModuleContributor1()
-  registerModule(contributor1Module, testModules)
+  const contributor1Module = pageModuleContributor1();
+  registerModule(contributor1Module, testModules);
 
-  const Contributor1ModuleFC = createFunctionComponent(contributor1Module)
+  const Contributor1ModuleFC = createFunctionComponent(contributor1Module);
 
   return {
-    namespace: 'root-page',
-    layout (props) {
-      return (<div><Contributor1ModuleFC /></div>)
-    }
-  }
+    namespace: "root-page",
+    layout(props) {
+      return (
+        <div>
+          <Contributor1ModuleFC />
+        </div>
+      );
+    },
+  };
 }

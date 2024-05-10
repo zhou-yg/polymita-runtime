@@ -224,7 +224,15 @@ export interface AttrsPathCommand extends PatchCommandBase {
   readonly attrs: Record<string, any>;
 }
 
-export type PatchCommand = WrapFirstPathCommand | WrapLastPathCommand | AttrsPathCommand | ReplacePathCommand | RemovePathCommand | WrapPathCommand | AddPathCommand | AddFirstPathCommand;
+export type PatchCommand =
+  | WrapFirstPathCommand
+  | WrapLastPathCommand
+  | AttrsPathCommand
+  | ReplacePathCommand
+  | RemovePathCommand
+  | WrapPathCommand
+  | AddPathCommand
+  | AddFirstPathCommand;
 
 export type Assign<U, T> = {} extends U
   ? T
@@ -258,9 +266,9 @@ export type DoPatchCommand<
       >
     : Assign<T, { readonly children: readonly [Cmd["child"]] }>
   : Cmd extends RemovePathCommand
-  ? Assign<T, { readonly children: RemoveItem<T["children"], Cmd['target']> }>
+  ? Assign<T, { readonly children: RemoveItem<T["children"], Cmd["target"]> }>
   : Cmd extends ReplacePathCommand
-  ? Cmd['target']
+  ? Cmd["target"]
   : never;
 
 export type PatchToLayoutChildren<
@@ -277,7 +285,7 @@ export type PatchToLayoutChildren<
     : [FirstChild, ...PatchToLayoutChildren<RestChildren, Cmd>]
   : T;
 
-export type PatchLayout<T = any, C = any> = any
+export type PatchLayout<T = any, C = any> = any;
 // export type PatchLayout<
 //   T extends LayoutStructTree,
 //   Cmd extends PatchCommand
@@ -298,8 +306,6 @@ export type PatchLayout<T = any, C = any> = any
 //         >
 //       : never
 //   : T;
-
-
 
 export type PatchLayoutWithCommands<
   T extends LayoutStructTree,
@@ -359,11 +365,14 @@ export type PrintObjectLike<T> = T extends [infer First, ...infer Rest]
  */
 
 type FormatPatchCommandParent<P> = P extends PatchCommand
-  ? Assign<P, {
-      readonly op: P["op"];
-      readonly target: ShallowCopyArray<P['target']>;
-      // readonly child: P["child"];
-    }>
+  ? Assign<
+      P,
+      {
+        readonly op: P["op"];
+        readonly target: ShallowCopyArray<P["target"]>;
+        // readonly child: P["child"];
+      }
+    >
   : P;
 
 type VV = PatchCommand[]; // readonly [{ readonly op: "addChild"; readonly parent: readonly ["div"] & ConvertToLayoutTreeDraft<{ type: "div"; }, ["div"]>; readonly child: { readonly type: "p"; readonly value: "123"; }; }]
