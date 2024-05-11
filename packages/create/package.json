@@ -1,0 +1,27 @@
+{
+  "name": "create-polymita",
+  "version": "0.0.1",
+  "description": "useHook serverless framework",
+  "main": "index.js",
+  "bin": {
+    "create-tarat": "./src/index.js"
+  },
+  "scripts": {},
+  "files": [
+    "src",
+    "package.json"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zhou-yg/tarat.git"
+  },
+  "author": "zhouyg",
+  "bugs": {
+    "url": "https://github.com/zhou-yg/tarat/issues"
+  },
+  "homepage": "https://tarat.run",
+  "dependencies": {
+    "inquirer": "8.x.x",
+    "node-stream-zip": "^1.15.0"
+  }
+}
