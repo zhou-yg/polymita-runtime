@@ -174,6 +174,7 @@ export function proxyLayoutJSON(json: VirtualLayoutJSON) {
     draft: draftJSON,
     append: appendPatches,
     apply: applyPatches,
+    patches,
   };
 }
 
@@ -501,7 +502,7 @@ export function getActiveModuleByBase(
   mp: GlobalModulesLinkMap,
   activeSet: GlobalModulesActiveMap
 ): SingleFileModule<any, any, any, any>[] | null {
-  if (m && activeSet) {
+  if (m && mp && activeSet) {
     const key = moduleIndexKey(m);
     const modules = mp.get(key);
     let result: [number, SingleFileModule<any, any, any, any>][] = [];
@@ -519,20 +520,23 @@ export function registerModule(
   m: SingleFileModule<any, any, any, any>,
   mp: GlobalModulesLinkMap
 ) {
-  const key = moduleIndexKey(m);
-  const modules = mp.get(key);
-  if (modules) {
-    if (!modules.includes(m)) {
-      modules.push(m);
+  if (m && mp) {
+    const key = moduleIndexKey(m);
+    const modules = mp.get(key);
+    if (modules) {
+      if (!modules.includes(m)) {
+        modules.push(m);
+      }
+    } else {
+      mp.set(key, [m]);
     }
-  } else {
-    mp.set(key, [m]);
-  }
 
-  if (m.base) {
-    const baseKey = moduleIndexKey(m.base);
-    const modules = mp.get(baseKey);
-    modules?.push(m);
+    if (m.base) {
+      const baseKey = moduleIndexKey(m.base);
+      console.log('baseKey: ', baseKey);
+      const modules = mp.get(baseKey);
+      modules?.push(m);
+    }
   }
 }
 

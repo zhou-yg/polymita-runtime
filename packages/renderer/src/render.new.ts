@@ -430,8 +430,8 @@ export function createRenderer3<
     stateManagement,
     {
       useEmotion: renderHost.useEmotion,
-      modulesLinkMap: renderHost.moduleOverride.modulesLinkMap,
-      modulesActiveMap: renderHost.moduleOverride.modulesActiveMap,
+      modulesLinkMap: renderHost.moduleOverride?.modulesLinkMap,
+      modulesActiveMap: renderHost.moduleOverride?.modulesActiveMap,
     }
   );
 

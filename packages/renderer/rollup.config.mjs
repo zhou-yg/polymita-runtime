@@ -114,13 +114,13 @@ export default [
       treatRendererAsRelativeAndExternal('cjs'),
     ]
   },
-  {
-    input: "jsx-runtime.ts",
-    output: [
-      { file: "dist/jsx-runtime.d.ts", format: "es" }
-    ],
-    plugins: [
-      dts(),
-    ],
-  }
+  // {
+  //   input: "jsx-runtime.ts",
+  //   output: [
+  //     { file: "dist/jsx-runtime.d.ts", format: "es" }
+  //   ],
+  //   plugins: [
+  //     dts(),
+  //   ],
+  // }
 ]

@@ -218,7 +218,7 @@ export interface OverrideModule<
   patchRules?: (props: Props, root: any) => StyleRule[];
   layout?: (props: Props, layoutDraft: LayoutTreeProxyDraft) => void;
   // patchLayout?: (props: Props, root: ConvertToLayoutTreeDraft<L>) => PC;
-  patchLayout?: (props: Props, root: any) => PC;
+  patchLayout?: (props: Props, root: any) => PatchCommand[];
 }
 
 export type Func = (...args: any[]) => any;
