@@ -31,6 +31,10 @@ export function generateSignalMap (c: IConfig) {
   const signalsDir = path.join(c.cwd, c.signalsDirectory)
   const relativeSignals: { name: string, filePath: string }[] = []
 
+  if (!fs.existsSync(signalsDir)) {
+    return
+  }
+
   traverseDir(signalsDir,(f) => {
     if (!f.isDir) {
       const relativePath = `./signals/${f.relativeFile}`

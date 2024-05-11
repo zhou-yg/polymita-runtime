@@ -119,6 +119,9 @@ export interface IFile {
   relativeFile: string
 }
 export function traverseDir (dir: string, callback: (f: IFile) => void, relativeBase = '') {
+  if (!fs.existsSync(dir)) {
+    return
+  }
   const files = fs.readdirSync(dir)
   files.forEach(f => {
     const p = path.join(dir, f)

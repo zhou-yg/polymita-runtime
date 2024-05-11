@@ -1,5 +1,7 @@
 import React from 'react'
-import { createRSRenderer, SingleFileModule } from '@polymita/renderer'
+import { createRSRenderer, SingleFileModule, registerModule } from '@polymita/renderer'
+import * as moduleOverride from '@/common/moduleOverride'
+
 <%- moduleImports %>
 
 namespace ComponentModule {
@@ -7,11 +9,16 @@ namespace ComponentModule {
 }
 
 function RenderToReact<P>(module: SingleFileModule<P, any, any, any>) {
+  registerModule(module, moduleOverride.modulesLinkMap)
+
   const renderer = createRSRenderer(module, {
     framework: {
       name: 'react',
       lib: React
-    }
+    },
+    moduleOverride: {
+      ...moduleOverride,
+    },
   })
   return (p: P) => {
     const r = renderer.construct(p);
@@ -28,8 +35,12 @@ const <%= name %> = (props: ComponentModule.<%= name %>Props) => {
 
 export type <%= name %>Props = ComponentModule.<%= name %>Props
 
-export const name = ComponentModule.name
+export const base = ComponentModule.base
 export const meta = ComponentModule.meta
+//
+export const name = ComponentModule.name
+export const namespace = ComponentModule.namespace
+//
 export const logic = ComponentModule.logic
 export type <%= name %>Layout = ComponentModule.<%= name %>Layout
 export const layout = ComponentModule.layout
