@@ -148,7 +148,7 @@ export function createUseSignal(p: {
   return useSignal;
 }
 
-const scopeSymbol = Symbol.for("@taratReactScope");
+const scopeSymbol = Symbol.for("@NewRendererReactScope");
 export interface IProgress {
   state: EScopeState;
 }
