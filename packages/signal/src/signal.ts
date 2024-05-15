@@ -664,6 +664,13 @@ export class RunnerContext<T extends Driver> {
       }
     }
   }
+  /**
+   * update args means the context had enter into update life cycle
+   */
+  updateInitialArgList (args: Parameters<T>) {
+    this.initialArgList = args
+    this.withInitialContext = true
+  }
 
   bindScope(scope: CurrentRunnerScope) {
     this.scope = scope;
@@ -858,6 +865,15 @@ export class Runner<T extends Driver> {
 
     return result;
   }
+
+  run(args?: Parameters<T>): ReturnType<T> {
+    this.scope.runnerContext.updateInitialArgList(args);
+
+    const result = this.executeDriver(this.scope);
+
+    return result;
+  }
+
   mount(args?: Parameters<T>, initialContext?: IHookContext) {
     return this.init(args, initialContext);
   }
