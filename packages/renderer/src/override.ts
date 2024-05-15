@@ -506,7 +506,7 @@ export function getActiveModuleByBase(
     const key = moduleIndexKey(m);
     const modules = mp.get(key);
     let result: [number, SingleFileModule<any, any, any, any>][] = [];
-    modules.forEach((m) => {
+    modules?.forEach((m) => {
       const i = activeSet.indexOf(moduleIndexKey(m));
       if (i >= 0) {
         result.push([i, m]);
