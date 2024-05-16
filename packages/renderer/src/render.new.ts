@@ -28,6 +28,7 @@ import {
 
 import * as reactSignalManagement from "./extensions/stateManagements/react-signal";
 import * as reactHookManagement from "./extensions/stateManagements/react-hook";
+import * as reactHookSignalManagement from "./extensions/stateManagements/react-hook-signal";
 import * as reactRenderContainer from "./extensions/frameworks/react";
 
 import {
@@ -167,6 +168,39 @@ export function createRHRenderer<
     override,
     renderHost,
     stateManagement: reactHookManagement.config,
+    createRenderContainer: reactRenderContainer.createReactContainer,
+  });
+
+  return renderer;
+}
+export function createRHSRenderer<
+  P extends Record<string, any>,
+  L extends LayoutStructTree,
+  // PCArr extends PatchCommand[][],
+  PCArr extends any[][],
+  NewPC,
+  ModuleName
+>(
+  module: SingleFileModule<P, L, PCArr, ModuleName>,
+  renderHost: RenderHost,
+  override?: OverrideModule<
+    P,
+    SingleFileModule<P, L, PCArr, ModuleName>["layoutStruct"],
+    NewPC
+  >
+) {
+  const renderer = createRenderer3<
+    P,
+    L,
+    PCArr,
+    NewPC,
+    NormalizeProps<P>,
+    ModuleName
+  >({
+    module,
+    override,
+    renderHost,
+    stateManagement: reactHookSignalManagement.config,
     createRenderContainer: reactRenderContainer.createReactContainer,
   });
 

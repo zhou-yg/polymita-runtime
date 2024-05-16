@@ -1,4 +1,5 @@
 import { Func, StateManagementConfig } from "../../types";
+import { transform } from "./react-signal";
 
 export const config: StateManagementConfig = {
   matches: [
@@ -8,7 +9,7 @@ export const config: StateManagementConfig = {
     }
   ],
   runLogic: runHookLogic,
-  // transform, // 不需要双向绑定，所以不需要transform
+  transform,
   // convertProps: convertToSignal
 }
 

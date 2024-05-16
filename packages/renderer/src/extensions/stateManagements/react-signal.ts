@@ -24,7 +24,7 @@ export const config: StateManagementConfig = {
   convertProps: convertToSignal
 }
 
-function transform (json: VirtualLayoutJSON) {
+export function transform (json: VirtualLayoutJSON) {
   // ** cant clone, json maybe include React.Element instance
   traverseLayoutTree(json, (node: VirtualLayoutJSON) => {
     if (node.props) {
