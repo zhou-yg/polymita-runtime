@@ -21,19 +21,40 @@ export function createConnect(p: {
   const { useEffect, useState, useRef } = React;
 
   return <Props>(f: ReactTypes.FC<Props>) => {
+    const namespace = getNamespace(f);
+    const name = getName(f);
+    const isComposedDriver = !!(f as any).__polymita_compose__;
+
     return (props: Props) => {
       const { current } = useRef<{
         ctx: IHookContext,
-        runner: ModelRunner<any>
+        runner: ModelRunner<ReactTypes.FC<Props>>
       }>({
         ctx: null,
         runner: null,
       })
-      if (current.ctx) {
-        
+      let ele = null;
+      if (!current.runner) {
+        const runner = new ModelRunner(f, {
+          plugin,
+          runtime: 'edge',
+          believeContext: true,
+          modelIndexes:
+            namespace && mi && isComposedDriver
+              ? (mi[namespace] as IModelIndexesBase)
+              : mi,
+        })
+        ele = runner.init([props])
+      } else {
+        ele = current.runner.run([props])
       }
+      typeof window !== "undefined" &&
+      ((window as any).POLYMITA_RUNNER = Object.assign(
+        (window as any).POLYMITA_RUNNER || {},
+        { [name]: current },
+      ));
 
-      const ele = f(props)
+
       return ele
     }
   }
