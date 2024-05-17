@@ -130,9 +130,7 @@ export function createUseSignal(p: {
     // release event
     useEffect(() => {
       function fn() {
-        setTimeout(() => {
-          setHookResult({ ...init.current.result });
-        });
+        setHookResult({ ...init.current.result });
       }
       init.current.scope.onUpdate(fn);
       init.current.scope.activate();

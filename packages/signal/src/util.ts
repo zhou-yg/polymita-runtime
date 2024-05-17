@@ -147,9 +147,9 @@ export function set(obj: any, path: string | (number | string)[], value: any) {
     currentFieldPath.forEach((p, i) => {
       if (i >= currentFieldPath.length - 1) return;
       if (base[p] === undefined) {
-        const nextP = currentFieldPath[i + 1]
-        base[p] = (nextP !== undefined && typeof nextP === 'number') ? [] : {}
-      };
+        const nextP = currentFieldPath[i + 1];
+        base[p] = nextP !== undefined && typeof nextP === "number" ? [] : {};
+      }
       base = base[p];
     });
     if (base instanceof Map) {
@@ -406,33 +406,32 @@ export function shortValue(v: undefined | Symbol | any) {
 /**
  * because of Function in the Record is not serializable, so we need to merge it to initialArgs
  */
-export function mergeInitialArgs (contextInitialArgs: any | undefined, args: any): any {
+export function mergeInitialArgs(
+  contextInitialArgs: any | undefined,
+  args: any,
+): any {
   if (!Array.isArray(contextInitialArgs)) {
-    return args
+    return args;
   }
   if (!Array.isArray(args)) {
-    return contextInitialArgs
+    return contextInitialArgs;
   }
   const len = Math.max(contextInitialArgs.length, args.length);
   const result = [];
 
   for (let i = 0; i < len; i++) {
-
     let contextInitialArg = contextInitialArgs[i];
     const arg = args[i];
 
-    if (
-      typeof contextInitialArg === 'object' && 
-      typeof arg === 'object'
-    ) {
+    if (typeof contextInitialArg === "object" && typeof arg === "object") {
       Object.entries(arg).forEach(([k, v]) => {
-        if (typeof v === 'function' && contextInitialArg[k] === undefined) {
+        if (typeof v === "function" && contextInitialArg[k] === undefined) {
           contextInitialArg = {
             ...contextInitialArg,
-            [k]: v
-          }
+            [k]: v,
+          };
         }
-      })
+      });
     }
     result.push(contextInitialArg);
   }

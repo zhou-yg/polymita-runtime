@@ -8,6 +8,7 @@ import {
 } from "@polymita/signal-model";
 
 export * from "./hooks";
+export * from "./connect";
 
 export function createGetContext(p: {
   modelIndexes: IModelIndexesBase;

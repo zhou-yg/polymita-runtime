@@ -235,7 +235,12 @@ export class State<T = any> extends Hook {
       return;
     }
 
-    log(`[${this.name}][state.update] shouldTrigger=`, shouldTrigger, oldValue, v)
+    log(
+      `[${this.name}][state.update] shouldTrigger=`,
+      shouldTrigger,
+      oldValue,
+      v,
+    );
     // trigger only changed
     if (shouldTrigger) {
       const triggeredSet = this.trigger(undefined, undefined, reactiveChain);
@@ -350,15 +355,13 @@ export function setCurrentComputed(c: Computed<any>[]) {
   currentComputedStack = c;
 }
 
-export type FComputedFuncGenerator<T> = (
-  prev?: T,
-) => Generator<any, any, any>;
+export type FComputedFuncGenerator<T> = (prev?: T) => Generator<any, any, any>;
 export type FComputedFuncAsync<T> = (prev?: T) => T;
 export type FComputedFunc<T> = (prev?: T) => T;
 /**
  * Not real symbol because of the symbol can't be serialized by JSON.stringify
  */
-export const ComputedInitialSymbol = ("@@ComputedInitialSymbol");
+export const ComputedInitialSymbol = "@@ComputedInitialSymbol";
 
 export class Computed<T> extends AsyncState<T | string> implements ITarget<T> {
   batchRunCancel: () => void = () => {};
@@ -650,7 +653,10 @@ export class RunnerContext<T extends Driver> {
     public args?: Parameters<T>,
     initialContext?: IHookContext,
   ) {
-    this.initialArgList = mergeInitialArgs(initialContext?.initialArgList, args)
+    this.initialArgList = mergeInitialArgs(
+      initialContext?.initialArgList,
+      args,
+    );
     this.withInitialContext = !!initialContext;
     if (initialContext) {
       this.initialData = initialContext["data"];
@@ -667,9 +673,10 @@ export class RunnerContext<T extends Driver> {
   /**
    * update args means the context had enter into update life cycle
    */
-  updateInitialArgList (args: Parameters<T>) {
-    this.initialArgList = args
-    this.withInitialContext = true
+  updateInitialArgList(args: Parameters<T>, data: IHookContext["data"]) {
+    this.initialArgList = args;
+    this.withInitialContext = true;
+    this.initialData = data;
   }
 
   bindScope(scope: CurrentRunnerScope) {
@@ -812,7 +819,11 @@ export class Runner<T extends Driver> {
     Object.assign(this.options, options);
   }
 
-  prepareScope(args?: Parameters<T>, initialContext?: IHookContext, plugin?: Plugin) {
+  prepareScope(
+    args?: Parameters<T>,
+    initialContext?: IHookContext,
+    plugin?: Plugin,
+  ) {
     const context = new RunnerContext(
       getName(this.driver),
       args,
@@ -826,7 +837,7 @@ export class Runner<T extends Driver> {
       deps,
       names,
       plugin || this.options.plugin,
-      this.options
+      this.options,
     );
 
     return scope;
@@ -867,7 +878,7 @@ export class Runner<T extends Driver> {
   }
 
   run(args?: Parameters<T>): ReturnType<T> {
-    this.scope.runnerContext.updateInitialArgList(args);
+    this.scope.updateContext(args);
 
     const result = this.executeDriver(this.scope);
 
@@ -912,7 +923,7 @@ export interface ICacheOptions<T> {
   from: TCacheFrom;
 }
 
-export const CacheInitialSymbol = ("@@CacheInitialSymbol");
+export const CacheInitialSymbol = "@@CacheInitialSymbol";
 export class Cache<T> extends AsyncState<T | string> {
   getterKey: string;
   watcher: Watcher = new Watcher(this);
@@ -953,7 +964,9 @@ export class Cache<T> extends AsyncState<T | string> {
        * reason 1: for lazy
        * reason 2: prevent writing conflict while coccurent writing at same time
        */
-      this.scope.plugin.getPlugin("Cache").clearValue(this.scope, this.getterKey, from);
+      this.scope.plugin
+        .getPlugin("Cache")
+        .clearValue(this.scope, this.getterKey, from);
 
       const newReactiveChain = reactiveChain?.addNotify(this);
       this.executeQuery(newReactiveChain);
@@ -974,11 +987,9 @@ export class Cache<T> extends AsyncState<T | string> {
     const { end, valid } = this.startAsyncGetter();
 
     try {
-      const valueInCache = await this.scope.plugin.getPlugin("Cache").getValue<T>(
-        this.scope,
-        this.getterKey,
-        from,
-      );
+      const valueInCache = await this.scope.plugin
+        .getPlugin("Cache")
+        .getValue<T>(this.scope, this.getterKey, from);
       if (!valid()) {
         return;
       }
@@ -993,12 +1004,9 @@ export class Cache<T> extends AsyncState<T | string> {
 
         super.update(valueInSource, [], false, reactiveChain);
         // unconcern the result of remote updating
-        this.scope.plugin.getPlugin("Cache").setValue(
-          this.scope,
-          this.getterKey,
-          valueInSource,
-          from,
-        );
+        this.scope.plugin
+          .getPlugin("Cache")
+          .setValue(this.scope, this.getterKey, valueInSource, from);
       }
     } catch (e) {
       log(`[Cache.executeQuery] error`);
@@ -1037,7 +1045,9 @@ export class Cache<T> extends AsyncState<T | string> {
         silent,
         reactiveChain,
       );
-      await this.scope.plugin.getPlugin("Cache").setValue(this.scope, this.getterKey, v, from);
+      await this.scope.plugin
+        .getPlugin("Cache")
+        .setValue(this.scope, this.getterKey, v, from);
 
       log(`[${this.name} cache.update] end k=${this.getterKey} v=${v}`);
     }
@@ -1097,7 +1107,7 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
     public initialContextDeps: THookDeps,
     public initialContextNames: THookNames,
     public plugin: Plugin,
-    op: Partial<IRunnerOptions>
+    op: Partial<IRunnerOptions>,
   ) {
     super();
     runnerContext.bindScope(this);
@@ -1128,6 +1138,11 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
     }
   }
 
+  updateContext(args: Parameters<T>) {
+    const data = this.runnerContext.formatContextData(this.hooks);
+    this.runnerContext.updateInitialArgList(args, data);
+  }
+
   triggerEnterComposeDriver(driverNamespace: string, driverName: string) {
     this.emit(CurrentRunnerScope.events.enterComposeDriver, {
       driverNamespace,
@@ -1147,14 +1162,14 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
     });
   }
   clearEffects() {
-    this.off(CurrentRunnerScope.events.effect)
+    this.off(CurrentRunnerScope.events.effect);
   }
   flushEffects() {
     if (!this.runnerContext.withInitialContext) {
       const reactiveChain = currentReactiveChain?.add(this);
       this.emit(CurrentRunnerScope.events.effect, reactiveChain);
     } else {
-      this.off(CurrentRunnerScope.events.effect)
+      this.off(CurrentRunnerScope.events.effect);
     }
   }
 
@@ -1237,7 +1252,7 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
     this.hooks.push(v);
 
     // assign name by inject deps
-    let hookNames: THookNames['0'];
+    let hookNames: THookNames["0"];
     if (this.initialContextNames) {
       hookNames = this.initialContextNames.find(
         (arr) => arr[0] === this.hooks.length - 1,
@@ -1253,7 +1268,7 @@ export class CurrentRunnerScope<T extends Driver = any> extends EventEmitter {
       }
     }
 
-    return hookNames || []
+    return hookNames || [];
   }
 
   applyDepsMap() {
@@ -1687,10 +1702,10 @@ export class ReactiveChain<T = any> {
       return [...currentRows];
     }
     const logRows = dfi(this);
-    
-    const shortLogRows = logRows.map(text => {
-      return text.length > 100 ? text.substring(0, 100) + '...' : text
-    })
+
+    const shortLogRows = logRows.map((text) => {
+      return text.length > 100 ? text.substring(0, 100) + "..." : text;
+    });
     // console the chain log
     console.log(shortLogRows.join("\n"));
   }
@@ -2135,10 +2150,14 @@ export function onUpdate(fn: () => void) {
  */
 
 export interface AfterOptions {
-  immediate?: boolean
+  immediate?: boolean;
 }
 
-export function after(callback: () => void, targets: { _hook?: Hook }[], options?: AfterOptions) {
+export function after(
+  callback: () => void,
+  targets: { _hook?: Hook }[],
+  options?: AfterOptions,
+) {
   callback = makeBatchCallback(callback);
 
   targets.forEach((target) => {

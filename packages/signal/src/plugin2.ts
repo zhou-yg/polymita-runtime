@@ -9,11 +9,12 @@ export interface IRunningContext {
   };
 }
 
-
 /**
  * provide a default CachePlugin for distribution different cahce type
  */
-const defaultCachePlugin: (plugin: Plugin) => IPlugins["Cache"] = (plugin: Plugin) => ({
+const defaultCachePlugin: (plugin: Plugin) => IPlugins["Cache"] = (
+  plugin: Plugin,
+) => ({
   async getValue(scope, k, from) {
     return plugin.getPlugin(from).get(scope, k);
   },
@@ -28,33 +29,32 @@ const defaultCachePlugin: (plugin: Plugin) => IPlugins["Cache"] = (plugin: Plugi
 export class Plugin {
   plugins: IPlugins = {};
 
-  constructor () {
-    const cachePlugin = defaultCachePlugin(this)
-    this.loadPlugin('Cache', cachePlugin)
+  constructor() {
+    const cachePlugin = defaultCachePlugin(this);
+    this.loadPlugin("Cache", cachePlugin);
   }
 
-  clearPlugins () {
-    const { plugins } = this
-    Object.keys(plugins).forEach(k => {
+  clearPlugins() {
+    const { plugins } = this;
+    Object.keys(plugins).forEach((k) => {
       delete plugins[k];
-    })
+    });
   }
-  
+
   getPlugin<T extends TPluginKey>(k: T) {
-    const { plugins } = this
+    const { plugins } = this;
     const plugin = plugins[k];
     if (!plugin) {
       throw new Error(`[getPlugin] name=${k} is not found`);
     }
     return plugin as Exclude<IPlugins[T], undefined>;
   }
-  
+
   loadPlugin<T extends TPluginKey>(k: T, p: IPlugins[T]) {
-    const { plugins } = this
+    const { plugins } = this;
     plugins[k] = p;
   }
 }
-
 
 export interface IPlugins {
   Cache?: {

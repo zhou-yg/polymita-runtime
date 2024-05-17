@@ -56,13 +56,13 @@ export function initContext(arg: {
   };
 }
 
-export const testPlugin = initModelConfig()
+export const testPlugin = initModelConfig();
 
-export function getRunnerWithPlugin (driver: any, op?: Partial<IRunnerOptions>) {
+export function getRunnerWithPlugin(driver: any, op?: Partial<IRunnerOptions>) {
   return new Runner(driver, {
     ...op,
     plugin: testPlugin,
-  })
+  });
 }
 
 function initModelConfig() {
@@ -71,7 +71,7 @@ function initModelConfig() {
     CurrentRunnerScope<any> | null,
     Map<string, any>
   >();
-  const plugin = new Plugin()
+  const plugin = new Plugin();
   plugin.loadPlugin("cookie", {
     async get(scope, key) {
       return cacheMap.get(scope)?.get(key);
@@ -101,7 +101,7 @@ function initModelConfig() {
     },
   });
 
-  return plugin
+  return plugin;
 }
 
 export function wait(ms: number = 15) {
@@ -690,10 +690,7 @@ export function driverWithDispose() {
   };
 }
 
-export function mountAndUpdate ({
-  onMountCallback,
-  onUpdateCallback,
-}: any) {
+export function mountAndUpdate({ onMountCallback, onUpdateCallback }: any) {
   onMount(onMountCallback);
   onUpdate(onUpdateCallback);
 }

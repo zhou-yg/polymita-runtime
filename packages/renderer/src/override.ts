@@ -533,7 +533,6 @@ export function registerModule(
 
     if (m.base) {
       const baseKey = moduleIndexKey(m.base);
-      console.log('baseKey: ', baseKey);
       const modules = mp.get(baseKey);
       modules?.push(m);
     }

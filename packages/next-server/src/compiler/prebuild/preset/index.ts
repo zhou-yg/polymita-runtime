@@ -31,19 +31,18 @@ export function generateSignalMap (c: IConfig) {
   const signalsDir = path.join(c.cwd, c.signalsDirectory)
   const relativeSignals: { name: string, filePath: string }[] = []
 
-  if (!fs.existsSync(signalsDir)) {
-    return
+  if (fs.existsSync(signalsDir)) {
+    traverseDir(signalsDir,(f) => {
+      if (!f.isDir) {
+        const relativePath = `./signals/${f.relativeFile}`
+        relativeSignals.push({
+          name: f.name,
+          filePath: relativePath.replace(/\.\w+$/, '')
+        })
+      }
+    })
   }
 
-  traverseDir(signalsDir,(f) => {
-    if (!f.isDir) {
-      const relativePath = `./signals/${f.relativeFile}`
-      relativeSignals.push({
-        name: f.name,
-        filePath: relativePath.replace(/\.\w+$/, '')
-      })
-    }
-  })
 
   const signalMapFileContent = signalMapTemplate({ files: relativeSignals })
 
