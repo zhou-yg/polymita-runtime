@@ -182,23 +182,26 @@ export function applyJSONTreePatches(
   source: VirtualLayoutJSON,
   patches: DraftPatch[]
 ) {
-  const target: VirtualLayoutJSON = source;
+  let target: VirtualLayoutJSON = source;
 
   // console.log('patches: ', patches);
 
   for (const patch of patches) {
     const { op, path, value } = patch;
 
-    const [current, i] = getVirtualNodesByPath(target, path);
+    const [current, i] = getVirtualNodesByPath(source, path);
     let parent: VirtualLayoutJSON[] = [];
     if (path.length > 1) {
-      parent = getVirtualNodesByPath(target, path.slice(0, -1))[0];
+      parent = getVirtualNodesByPath(source, path.slice(0, -1))[0];
     }
 
     if (isVNodeFunctionComponent(current[0])) {
       mergeConstructOverrideToNode(current, i, patch);
     } else {
-      assignPatchToNode(parent, current, i, patch);
+      const newSource = assignPatchToNode(parent, current, i, patch);
+      if (newSource) {
+        target = newSource
+      }
     }
   }
 
@@ -270,28 +273,40 @@ function assignPatchToNode(
       });
       break;
     case CommandOP.wrap:
-      parent.forEach((pNode) => {
-        pNode.children.forEach((child, i) => {
-          if (nodeExists(current, child)) {
-            const v = deepClone(jsonValue);
-            pNode.children[i] = v;
-            v.children = [child];
-          }
+      if (parent.length) {
+        parent.forEach((pNode) => {
+          pNode.children.forEach((child, i) => {
+            if (nodeExists(current, child)) {
+              const v = deepClone(jsonValue);
+              pNode.children[i] = v;
+              v.children = [child];
+            }
+          });
         });
-      });
+      } else {
+        const v: VirtualLayoutJSON = deepClone(jsonValue);
+        v.children.push(...current)
+        return v
+      }
       break;
     case CommandOP.wrapFirst:
-      parent.forEach((pNode) => {
-        let found = false;
-        pNode.children.forEach((child, i) => {
-          if (nodeExists(current, child) && !found) {
-            const v = deepClone(jsonValue);
-            pNode.children[i] = v;
-            v.children = [child];
-            found = true;
-          }
+      if (parent.length) {
+        parent.forEach((pNode) => {
+          let found = false;
+          pNode.children.forEach((child, i) => {
+            if (nodeExists(current, child) && !found) {
+              const v = deepClone(jsonValue);
+              pNode.children[i] = v;
+              v.children = [child];
+              found = true;
+            }
+          });
         });
-      });
+      } else {
+        const v: VirtualLayoutJSON = deepClone(jsonValue);
+        v.children.push(...current)
+        return v
+      }
       break;
     case CommandOP.wrapLast:
       parent.forEach((pNode) => {
@@ -365,6 +380,9 @@ export function getVirtualNodesByPath(
       }
     }
     if (newCurrent.length === 0) {
+      if (i === 0) {
+        current = []
+      }
       break;
     }
 
