@@ -51,6 +51,10 @@ export async function injectDeps (c: IConfig, targetFile: string) {
   }
 
   const code = fs.readFileSync(targetFile).toString()
+  if (!checkHasImportSignal(code)) {
+    return
+  }
+
   const parsed = path.parse(targetFile)
 
   const moduleName = c.packageJSON?.name
@@ -149,7 +153,9 @@ export async function generateSignalsAndDeps(c: IConfig) {
   )
 }
 
-
+function checkHasImportSignal (code: string) {
+  return /from\s?['"]@polymita\/signal/.test(code)
+}
 
 /** @TODO upgrade to typescript */
 function generateHookDeps (signalsDir: string, removeSource?: boolean) {
@@ -162,14 +168,16 @@ function generateHookDeps (signalsDir: string, removeSource?: boolean) {
       const name = f.name
 
       const code = fs.readFileSync(compiledFile).toString()
-      const deps = parseDeps({ file: compiledFile, code })      
-
-      // json in tarat: generate deps.json
-      const dest = path.join(f.dir, `${name}.deps.json`)
-      fs.writeFileSync(dest, JSON.stringify(deps, null, 2))
-      depsFiles.push(dest)
-      if (removeSource) {
-        fs.unlinkSync(f.path)
+      if (checkHasImportSignal(code)) {
+        const deps = parseDeps({ file: compiledFile, code })      
+  
+        // json in tarat: generate deps.json
+        const dest = path.join(f.dir, `${name}.deps.json`)
+        fs.writeFileSync(dest, JSON.stringify(deps, null, 2))
+        depsFiles.push(dest)
+        if (removeSource) {
+          fs.unlinkSync(f.path)
+        }
       }
     }
   })

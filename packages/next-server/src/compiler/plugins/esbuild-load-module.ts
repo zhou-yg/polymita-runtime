@@ -58,10 +58,13 @@ export default function loadModuleToView (arg: {
 
         const moduleCodeParts = splitImports(moduleCode)
 
+        const hasImportSignal = /@polymita\/signal/.test(moduleCode)
+
         const viewContentTS = moduleViewTemplate({
           name,
           moduleImports: moduleCodeParts.imports,
           moduleCode: moduleCodeParts.codes,
+          hasImportSignal,
         })
 
         const tsFile = path.join(build.initialOptions.outdir, relativePath)

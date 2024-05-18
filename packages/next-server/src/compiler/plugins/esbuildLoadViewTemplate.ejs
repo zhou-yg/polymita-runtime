@@ -1,5 +1,5 @@
 import React from 'react'
-import { createRSRenderer, SingleFileModule, registerModule } from '@polymita/renderer'
+import { createRHRenderer, SingleFileModule, registerModule } from '@polymita/renderer'
 import * as moduleOverride from '@/common/moduleOverride'
 
 <%- moduleImports %>
@@ -11,7 +11,7 @@ namespace ComponentModule {
 function RenderToReact<P>(module: SingleFileModule<P, any, any, any>) {
   registerModule(module, moduleOverride.modulesLinkMap)
 
-  const renderer = createRSRenderer(module, {
+  const renderer = <%= hasImportSignal ? 'createRSRenderer' : 'createRHRenderer' %>(module, {
     framework: {
       name: 'react',
       lib: React
