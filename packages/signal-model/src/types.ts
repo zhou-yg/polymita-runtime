@@ -91,7 +91,7 @@ export type IntFilter = {
 }
 
 export interface IModelData<T> {
-  where: { id: number | IntFilter } & Partial<T>
+  where: { id?: number | IntFilter } & Partial<T>
   data: {
     [k in keyof T]?:
       | T[k]

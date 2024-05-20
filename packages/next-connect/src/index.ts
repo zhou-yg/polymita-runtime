@@ -7,7 +7,7 @@ import {
   Plugin,
 } from "@polymita/signal-model";
 
-export * from "./hooks";
+export * from "./signalHooks";
 export * from "./connect";
 
 export function createGetContext(p: {

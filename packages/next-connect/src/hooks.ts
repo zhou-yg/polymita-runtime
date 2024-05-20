@@ -1,160 +1,100 @@
-import type ReactTypes from "react";
+import React, { createElement, useContext, useEffect, useState } from "react";
 import {
   Plugin,
-  IHookContext,
-  Driver,
-  EScopeState,
   IModelIndexesBase,
-  RunnerModelScope,
-  ModelRunner,
-  getNamespace,
-  getName,
+  IModelQuery,
+  isPromise,
 } from "@polymita/signal-model";
 
-type HasParamFunc = (...arg: any[]) => any;
-type NoParamFunc = () => any;
+export const ConnectContext = React.createContext<{
+  plugin: Plugin,
+  modelIndexes: IModelIndexesBase
+}>(null)
 
-export function createUseSignal(p: {
-  modelIndexes: IModelIndexesBase;
-  plugin: Plugin;
-  React: typeof ReactTypes;
+export const PrismaNamespaceContext = React.createContext<{
+  namespace: string,
+}>(null)
+
+
+
+export function ConnectProvider (props: {
+  children: any, 
+  plugin: Plugin,
+  modelIndexes: IModelIndexesBase
 }) {
-  const { plugin, modelIndexes: mi, React } = p;
-  const { useEffect, useState, useRef } = React;
-
-  function useSignal<T extends NoParamFunc, U extends Parameters<T>>(
-    ssrContext: IHookContext | null | undefined,
-    driver: T,
-  ): ReturnType<T>;
-  function useSignal<T extends HasParamFunc, U extends Parameters<T>>(
-    ssrContext: IHookContext | null | undefined,
-    driver: T,
-    ...args: U extends [] ? [] : U
-  ): ReturnType<T>;
-  function useSignal<T extends HasParamFunc, U extends Parameters<T>>(
-    driver: T,
-    ...args: U extends [] ? [] : U
-  ): ReturnType<T>;
-  function useSignal(ssrContext: any, driver: any, ...args: any[]): any {
-    if (typeof ssrContext === "function") {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      return useReactHook(undefined, ssrContext, [driver, ...args]);
-    }
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useReactHook(ssrContext, driver, args);
-  }
-
-  interface ICacheDriver<T extends Driver> {
-    scope: RunnerModelScope<T>;
-    result: ReturnType<T>;
-  }
-
-  type ArgResultMap = Map<string, any>;
-
-  const driverWeakMap = new Map<Driver, ArgResultMap>();
-
-  function useReactHook<T extends Driver>(
-    ssrContext: IHookContext | null | undefined,
-    hook: T,
-    args: Parameters<T>,
-  ) {
-    const init = useRef(null) as { current: ICacheDriver<T> | null };
-
-    const runtime = typeof window === "undefined" ? "nodejs" : "edge";
-
-    if (!init.current) {
-      const serializedArgs = JSON.stringify(args);
-      const cachedDriverResult: {
-        scope: RunnerModelScope<T>;
-        result: ReturnType<T>;
-      } = driverWeakMap.get(hook)?.get(serializedArgs);
-
-      // match the cache
-      if (cachedDriverResult) {
-        init.current = {
-          scope: cachedDriverResult.scope,
-          result: Object.assign(
-            {
-              [scopeSymbol]: cachedDriverResult.scope,
-            },
-            cachedDriverResult.result,
-            ``,
-          ),
-        };
-      } else {
-        const namespace = getNamespace(hook);
-        const name = getName(hook);
-        const isComposedDriver = !!(hook as any).__polymita_compose__;
-
-        const runner = new ModelRunner(hook, {
-          plugin,
-          runtime,
-          believeContext: true,
-          modelIndexes:
-            namespace && mi && isComposedDriver
-              ? (mi[namespace] as IModelIndexesBase)
-              : mi,
-        });
-
-        const scope = runner.prepareScope(args, ssrContext);
-
-        const r = runner.executeDriver(scope);
-
-        init.current = {
-          scope,
-          result: Object.assign(
-            {
-              [scopeSymbol]: scope,
-            },
-            r,
-          ),
-        };
-        typeof window !== "undefined" &&
-          ((window as any).POLYMITA_RUNNER = Object.assign(
-            (window as any).POLYMITA_RUNNER || {},
-            { [name]: init.current },
-          ));
-
-        let m = driverWeakMap.get(hook);
-        if (!m) {
-          m = new Map();
-          driverWeakMap.set(hook, m);
-        }
-        // @TODO no cache ?
-        // m.set(serializedArgs, {
-        //   scope,
-        //   result: r,
-        // });
-      }
-    }
-    // release event
-    useEffect(() => {
-      function fn() {
-        setHookResult({ ...init.current.result });
-      }
-      init.current.scope.onUpdate(fn);
-      init.current.scope.activate();
-      return () => {
-        init.current.scope.deactivate();
-      };
-    }, []);
-
-    const [hookResult, setHookResult] = useState(init.current.result);
-    return hookResult as ReturnType<T>;
-  }
-
-  return useSignal;
+  return createElement(ConnectContext.Provider, { value: props }, props.children)
+}
+export function PrismaNamespaceProvider (props: {
+  children: any, 
+  namespace: string
+}) {
+  return createElement(PrismaNamespaceContext.Provider, { value: props }, props.children)
 }
 
-const scopeSymbol = Symbol.for("@NewRendererReactScope");
-export interface IProgress {
-  state: EScopeState;
+export function prisma<T>(
+  name: string,
+  queryFn: () => Promise<IModelQuery['query']> | IModelQuery['query'],
+  options?: { immediate?: boolean, deps: any[] }
+): T | undefined {
+  const { plugin, modelIndexes } = useContext(ConnectContext)
+  const { namespace } = useContext(PrismaNamespaceContext)
+
+  const entity = (namespace ? modelIndexes[namespace] : modelIndexes)?.[name]
+  
+  const [data, setData] = useState<T>()
+
+  const doQuery = () => {
+    const query = queryFn();
+
+    const callback = (d: any) => {
+      setData(d)
+    }
+
+    if (isPromise(query)) {
+      query.then(q => {
+        plugin.getPlugin('Model').find('next-connect', entity, q).then(callback)
+      })
+    } else {
+      plugin.getPlugin('Model').find('next-connect', entity, query).then(callback)
+    }
+  }
+
+  useEffect(() => {
+    if (options.immediate) {
+      doQuery()
+    }
+  }, options?.deps || [])
+
+  return data
 }
-export function useProgress<T extends Driver>(
-  result: ReturnType<T>,
-): IProgress | null {
-  const state = result[scopeSymbol].getState();
+
+export function writePrisma<T extends any[]>(name: string) {
+  const { plugin, modelIndexes } = useContext(ConnectContext)
+  const { namespace } = useContext(PrismaNamespaceContext)
+
+  const entity = (namespace ? modelIndexes[namespace] : modelIndexes)?.[name]  
+
+  const create = (obj?: Partial<T[0]>) => {
+    plugin.getPlugin('Model').create('next-connect', entity, { data: obj })
+  }
+  const update = (whereId: number, obj?: Partial<T[0]>) => {
+    plugin.getPlugin('Model').update('next-connect', entity, { where: { id: whereId }, data: obj })
+  }
+  const updateMany = (where: { id?: number } & Partial<T[0]>, obj?: Partial<T[0]>) => {
+    plugin.getPlugin('Model').updateMany('next-connect', entity, { where, data: obj })
+  }
+  const upsert = (where: { id?: number } & Partial<T[0]>, obj?: Partial<T[0]>) => {
+    plugin.getPlugin('Model').upsert('next-connect', entity, { where, data: obj })
+  }
+  const remove = (whereId: number) => {
+    plugin.getPlugin('Model').remove('next-connect', entity, { where:{ id: whereId } })
+  }
+
   return {
-    state,
-  };
+    create,
+    update,
+    updateMany,
+    upsert,
+    remove,
+  }
 }
