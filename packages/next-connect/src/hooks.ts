@@ -90,10 +90,10 @@ export function writePrisma<T extends any[]>(name: string) {
   const entity = (namespace ? modelIndexes[namespace] : modelIndexes)?.[name];
 
   const create = (obj?: Partial<T[0]>) => {
-    plugin.getPlugin("Model").create("next-connect", entity, { data: obj });
+    return plugin.getPlugin("Model").create("next-connect", entity, { data: obj });
   };
   const update = (whereId: number, obj?: Partial<T[0]>) => {
-    plugin
+    return plugin
       .getPlugin("Model")
       .update("next-connect", entity, { where: { id: whereId }, data: obj });
   };
@@ -101,7 +101,7 @@ export function writePrisma<T extends any[]>(name: string) {
     where: { id?: number } & Partial<T[0]>,
     obj?: Partial<T[0]>,
   ) => {
-    plugin
+    return plugin
       .getPlugin("Model")
       .updateMany("next-connect", entity, { where, data: obj });
   };
@@ -109,12 +109,12 @@ export function writePrisma<T extends any[]>(name: string) {
     where: { id?: number } & Partial<T[0]>,
     obj?: Partial<T[0]>,
   ) => {
-    plugin
+    return plugin
       .getPlugin("Model")
       .upsert("next-connect", entity, { where, data: obj });
   };
   const remove = (whereId: number) => {
-    plugin
+    return plugin
       .getPlugin("Model")
       .remove("next-connect", entity, { where: { id: whereId } });
   };
