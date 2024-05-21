@@ -64,6 +64,15 @@ importers:
         specifier: ^2.4.0
         version: registry.npmmirror.com/tslib@2.5.0
 
+  packages/create:
+    dependencies:
+      inquirer:
+        specifier: 8.x.x
+        version: 8.2.4
+      node-stream-zip:
+        specifier: ^1.15.0
+        version: 1.15.0
+
   packages/example/cascading-list:
     dependencies:
       '@ant-design/icons':
@@ -498,6 +507,9 @@ importers:
       '@polymita/signal-model':
         specifier: workspace:^
         version: link:../signal-model
+      eventemitter3:
+        specifier: ^4.0.7
+        version: 4.0.7
       react:
         specifier: '*'
         version: 18.2.0
@@ -9367,6 +9379,11 @@ packages:
   /node-releases@2.0.13:
     resolution: {integrity: sha512-uYr7J37ae/ORWdZeQ1xxMJe3NtdmqMC/JZK+geofDrkLUApKRHPd18/TxtBOJ4A0/+uUIliorNrfYV6s1b02eQ==}
 
+  /node-stream-zip@1.15.0:
+    resolution: {integrity: sha512-LN4fydt9TqhZhThkZIVQnF9cwjU3qmUH9h78Mx/K7d3VvfRqqwthLwJEUOEL0QPZ0XQmNN7be5Ggit5+4dq3Bw==}
+    engines: {node: '>=0.12.0'}
+    dev: false
+
   /normalize-package-data@2.5.0:
     resolution: {integrity: sha512-/5CMN3T0R4XTj4DcGaexo+roZSdSFW/0AOOTROrjxzCG1wrWXEsGbRKevjlIL+ZDE4sZlJr5ED4YW0yqmkK+eA==}
     dependencies:
@@ -12362,7 +12379,7 @@ packages:
     dependencies:
       '@jest/types': registry.npmmirror.com/@jest/types@28.1.3
       '@types/node': 18.15.5
-      chalk: registry.npmmirror.com/chalk@4.1.2
+      chalk: 4.1.2
       jest-message-util: registry.npmmirror.com/jest-message-util@28.1.3
       jest-util: registry.npmmirror.com/jest-util@28.1.3
       slash: 3.0.0
@@ -12637,7 +12654,7 @@ packages:
       '@types/istanbul-reports': registry.npmmirror.com/@types/istanbul-reports@3.0.1
       '@types/node': 18.15.5
       '@types/yargs': registry.npmmirror.com/@types/yargs@17.0.23
-      chalk: registry.npmmirror.com/chalk@4.1.2
+      chalk: 4.1.2
     dev: false
 
   registry.npmmirror.com/@jest/types@29.5.0:
@@ -14802,7 +14819,7 @@ packages:
     dependencies:
       '@jest/types': registry.npmmirror.com/@jest/types@28.1.3
       '@types/node': 18.15.5
-      chalk: registry.npmmirror.com/chalk@4.1.2
+      chalk: 4.1.2
       ci-info: 3.8.0
       graceful-fs: 4.2.11
       picomatch: 2.3.1

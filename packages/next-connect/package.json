@@ -33,8 +33,9 @@
   },
   "homepage": "https://github.com/zhou-yg/tarat#readme",
   "dependencies": {
+    "@polymita/signal": "workspace:^",
     "@polymita/signal-model": "workspace:^",
-    "@polymita/signal": "workspace:^"
+    "eventemitter3": "^4.0.7"
   },
   "peerDependencies": {
     "react": "*"
