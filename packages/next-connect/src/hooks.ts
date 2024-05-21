@@ -39,7 +39,7 @@ export function PrismaNamespaceProvider(props: {
 
 export function prisma<T>(
   name: string,
-  queryFn: () => Promise<IModelQuery["query"]> | IModelQuery["query"],
+  queryFn?: () => Promise<IModelQuery["query"]> | IModelQuery["query"],
   options?: { immediate?: boolean; deps: any[] },
 ): T | undefined {
   const { plugin, modelIndexes } = useContext(ConnectContext);
@@ -50,7 +50,7 @@ export function prisma<T>(
   const [data, setData] = useState<T>();
 
   const doQuery = () => {
-    const query = queryFn();
+    const query = queryFn?.();
 
     const callback = (d: any) => {
       setData(d);
