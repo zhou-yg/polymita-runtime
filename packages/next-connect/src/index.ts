@@ -9,6 +9,7 @@ import {
 
 export * from "./signalHooks";
 export * from "./connect";
+export * from "./hooks";
 
 export function createGetContext(p: {
   modelIndexes: IModelIndexesBase;

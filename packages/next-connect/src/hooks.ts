@@ -7,88 +7,117 @@ import {
 } from "@polymita/signal-model";
 
 export const ConnectContext = React.createContext<{
-  plugin: Plugin,
-  modelIndexes: IModelIndexesBase
-}>(null)
+  plugin: Plugin;
+  modelIndexes: IModelIndexesBase;
+}>(null);
 
 export const PrismaNamespaceContext = React.createContext<{
-  namespace: string,
-}>(null)
+  namespace: string;
+}>(null);
 
-
-
-export function ConnectProvider (props: {
-  children: any, 
-  plugin: Plugin,
-  modelIndexes: IModelIndexesBase
+export function ConnectProvider(props: {
+  children: any;
+  plugin: Plugin;
+  modelIndexes: IModelIndexesBase;
 }) {
-  return createElement(ConnectContext.Provider, { value: props }, props.children)
+  return createElement(
+    ConnectContext.Provider,
+    { value: props },
+    props.children,
+  );
 }
-export function PrismaNamespaceProvider (props: {
-  children: any, 
-  namespace: string
+export function PrismaNamespaceProvider(props: {
+  children: any;
+  namespace: string;
 }) {
-  return createElement(PrismaNamespaceContext.Provider, { value: props }, props.children)
+  return createElement(
+    PrismaNamespaceContext.Provider,
+    { value: props },
+    props.children,
+  );
 }
 
 export function prisma<T>(
   name: string,
-  queryFn: () => Promise<IModelQuery['query']> | IModelQuery['query'],
-  options?: { immediate?: boolean, deps: any[] }
+  queryFn: () => Promise<IModelQuery["query"]> | IModelQuery["query"],
+  options?: { immediate?: boolean; deps: any[] },
 ): T | undefined {
-  const { plugin, modelIndexes } = useContext(ConnectContext)
-  const { namespace } = useContext(PrismaNamespaceContext)
+  const { plugin, modelIndexes } = useContext(ConnectContext);
+  const { namespace } = useContext(PrismaNamespaceContext);
 
-  const entity = (namespace ? modelIndexes[namespace] : modelIndexes)?.[name]
-  
-  const [data, setData] = useState<T>()
+  const entity = (namespace ? modelIndexes[namespace] : modelIndexes)?.[name];
+
+  const [data, setData] = useState<T>();
 
   const doQuery = () => {
     const query = queryFn();
 
     const callback = (d: any) => {
-      setData(d)
-    }
+      setData(d);
+    };
 
     if (isPromise(query)) {
-      query.then(q => {
-        plugin.getPlugin('Model').find('next-connect', entity, q).then(callback)
-      })
+      query.then((q) => {
+        plugin
+          .getPlugin("Model")
+          .find("next-connect", entity, q)
+          .then(callback);
+      });
     } else {
-      plugin.getPlugin('Model').find('next-connect', entity, query).then(callback)
+      plugin
+        .getPlugin("Model")
+        .find("next-connect", entity, query)
+        .then(callback);
     }
-  }
+  };
 
-  useEffect(() => {
-    if (options.immediate) {
-      doQuery()
-    }
-  }, options?.deps || [])
+  useEffect(
+    () => {
+      if (options.immediate) {
+        doQuery();
+      }
+    },
+    options?.deps || [],
+  );
 
-  return data
+  return data;
 }
 
 export function writePrisma<T extends any[]>(name: string) {
-  const { plugin, modelIndexes } = useContext(ConnectContext)
-  const { namespace } = useContext(PrismaNamespaceContext)
+  const { plugin, modelIndexes } = useContext(ConnectContext);
+  const { namespace } = useContext(PrismaNamespaceContext);
 
-  const entity = (namespace ? modelIndexes[namespace] : modelIndexes)?.[name]  
+  const entity = (namespace ? modelIndexes[namespace] : modelIndexes)?.[name];
 
   const create = (obj?: Partial<T[0]>) => {
-    plugin.getPlugin('Model').create('next-connect', entity, { data: obj })
-  }
+    plugin.getPlugin("Model").create("next-connect", entity, { data: obj });
+  };
   const update = (whereId: number, obj?: Partial<T[0]>) => {
-    plugin.getPlugin('Model').update('next-connect', entity, { where: { id: whereId }, data: obj })
-  }
-  const updateMany = (where: { id?: number } & Partial<T[0]>, obj?: Partial<T[0]>) => {
-    plugin.getPlugin('Model').updateMany('next-connect', entity, { where, data: obj })
-  }
-  const upsert = (where: { id?: number } & Partial<T[0]>, obj?: Partial<T[0]>) => {
-    plugin.getPlugin('Model').upsert('next-connect', entity, { where, data: obj })
-  }
+    plugin
+      .getPlugin("Model")
+      .update("next-connect", entity, { where: { id: whereId }, data: obj });
+  };
+  const updateMany = (
+    where: { id?: number } & Partial<T[0]>,
+    obj?: Partial<T[0]>,
+  ) => {
+    plugin
+      .getPlugin("Model")
+      .updateMany("next-connect", entity, { where, data: obj });
+  };
+  const upsert = (
+    where: { id?: number } & Partial<T[0]>,
+    obj?: Partial<T[0]>,
+  ) => {
+    plugin
+      .getPlugin("Model")
+      .upsert("next-connect", entity, { where, data: obj });
+  };
   const remove = (whereId: number) => {
-    plugin.getPlugin('Model').remove('next-connect', entity, { where:{ id: whereId } })
-  }
+    plugin
+      .getPlugin("Model")
+      .remove("next-connect", entity, { where: { id: whereId } });
+  };
 
   return {
     create,
@@ -96,5 +125,5 @@ export function writePrisma<T extends any[]>(name: string) {
     updateMany,
     upsert,
     remove,
-  }
+  };
 }
