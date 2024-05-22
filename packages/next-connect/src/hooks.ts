@@ -91,7 +91,7 @@ export function prisma<T>(
 
   useEffect(
     () => {
-      if (options.immediate) {
+      if (options?.immediate !== false) {
         doQuery();
       }
     },
@@ -110,9 +110,8 @@ export function writePrisma<T extends any[]>(name: string) {
   const key = genModelEventKey(name)
 
   const create = (obj?: Partial<T[0]>) => {
-    return plugin
-      .getPlugin("Model")
-      .create("next-connect", entity, { data: obj }).then(res => {
+    const model = plugin.getPlugin("Model")
+    return model.create("next-connect", entity, { data: obj }).then(res => {
         modelEvents.emit(key)
         return res
       });

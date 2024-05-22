@@ -200,7 +200,7 @@ export function applyJSONTreePatches(
     } else {
       const newSource = assignPatchToNode(parent, current, i, patch);
       if (newSource) {
-        target = newSource
+        target = newSource;
       }
     }
   }
@@ -285,8 +285,8 @@ function assignPatchToNode(
         });
       } else {
         const v: VirtualLayoutJSON = deepClone(jsonValue);
-        v.children.push(...current)
-        return v
+        v.children.push(...current);
+        return v;
       }
       break;
     case CommandOP.wrapFirst:
@@ -304,8 +304,8 @@ function assignPatchToNode(
         });
       } else {
         const v: VirtualLayoutJSON = deepClone(jsonValue);
-        v.children.push(...current)
-        return v
+        v.children.push(...current);
+        return v;
       }
       break;
     case CommandOP.wrapLast:
@@ -381,7 +381,7 @@ export function getVirtualNodesByPath(
     }
     if (newCurrent.length === 0) {
       if (i === 0) {
-        current = []
+        current = [];
       }
       break;
     }
