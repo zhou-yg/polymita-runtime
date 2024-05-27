@@ -1,6 +1,6 @@
 
 import * as CSS from "csstype";
-import { VirtualLayoutJSON } from "./src/types";
+import { FunctionComponent, VirtualLayoutJSON } from "./src/types";
 import type { StateSignal, ComputedSignal } from "@polymita/signal-model";
 
 import { h } from "./src/index";
@@ -146,6 +146,9 @@ export interface HTMLAttributes extends EventHandlers<Events> {
   if?: any; // boolean
   'value-path'?: Numberish | Numberish[]
   'checked-path'?: Numberish | Numberish[]
+
+  type?: string
+  checked?: boolean
 
   className?: any;
   style?: CSSProperties;
@@ -1122,6 +1125,189 @@ declare global {
   namespace JSX {
     interface IntrinsicElements {
       [elemName: string]: HTMLAttributes;
+
+      // HTML
+      a: HTMLAttributes;
+      abbr: HTMLAttributes;
+      address: HTMLAttributes;
+      area: HTMLAttributes;
+      article: HTMLAttributes;
+      aside: HTMLAttributes;
+      audio: HTMLAttributes;
+      b: HTMLAttributes;
+      base: HTMLAttributes;
+      bdi: HTMLAttributes;
+      bdo: HTMLAttributes;
+      big: HTMLAttributes;
+      blockquote: HTMLAttributes;
+      body: HTMLAttributes;
+      br: HTMLAttributes;
+      button: HTMLAttributes;
+      canvas: HTMLAttributes;
+      caption: HTMLAttributes;
+      center: HTMLAttributes;
+      cite: HTMLAttributes;
+      code: HTMLAttributes;
+      col: HTMLAttributes;
+      colgroup: HTMLAttributes;
+      data: HTMLAttributes;
+      datalist: HTMLAttributes;
+      dd: HTMLAttributes;
+      del: HTMLAttributes;
+      details: HTMLAttributes;
+      dfn: HTMLAttributes;
+      dialog: HTMLAttributes;
+      div: HTMLAttributes;
+      dl: HTMLAttributes;
+      dt: HTMLAttributes;
+      em: HTMLAttributes;
+      embed: HTMLAttributes;
+      fieldset: HTMLAttributes;
+      figcaption: HTMLAttributes;
+      figure: HTMLAttributes;
+      footer: HTMLAttributes;
+      form: HTMLAttributes;
+      h1: HTMLAttributes;
+      h2: HTMLAttributes;
+      h3: HTMLAttributes;
+      h4: HTMLAttributes;
+      h5: HTMLAttributes;
+      h6: HTMLAttributes;
+      head: HTMLAttributes;
+      header: HTMLAttributes;
+      hgroup: HTMLAttributes;
+      hr: HTMLAttributes;
+      html: HTMLAttributes;
+      i: HTMLAttributes;
+      iframe: HTMLAttributes;
+      img: HTMLAttributes;
+      input: HTMLAttributes;
+      ins: HTMLAttributes;
+      kbd: HTMLAttributes;
+      keygen: HTMLAttributes;
+      label: HTMLAttributes;
+      legend: HTMLAttributes;
+      li: HTMLAttributes;
+      link: HTMLAttributes;
+      main: HTMLAttributes;
+      map: HTMLAttributes;
+      mark: HTMLAttributes;
+      menu: HTMLAttributes;
+      menuitem: HTMLAttributes;
+      meta: HTMLAttributes;
+      meter: HTMLAttributes;
+      nav: HTMLAttributes;
+      noindex: HTMLAttributes;
+      noscript: HTMLAttributes;
+      object: HTMLAttributes;
+      ol: HTMLAttributes;
+      optgroup: HTMLAttributes;
+      option: HTMLAttributes;
+      output: HTMLAttributes;
+      p: HTMLAttributes;
+      param: HTMLAttributes;
+      picture: HTMLAttributes;
+      pre: HTMLAttributes;
+      progress: HTMLAttributes;
+      q: HTMLAttributes;
+      rp: HTMLAttributes;
+      rt: HTMLAttributes;
+      ruby: HTMLAttributes;
+      s: HTMLAttributes;
+      samp: HTMLAttributes;
+      search: HTMLAttributes;
+      slot: HTMLAttributes;
+      script: HTMLAttributes;
+      section: HTMLAttributes;
+      select: HTMLAttributes;
+      small: HTMLAttributes;
+      source: HTMLAttributes;
+      span: HTMLAttributes;
+      strong: HTMLAttributes;
+      style: HTMLAttributes;
+      sub: HTMLAttributes;
+      summary: HTMLAttributes;
+      sup: HTMLAttributes;
+      table: HTMLAttributes;
+      template: HTMLAttributes;
+      tbody: HTMLAttributes;
+      td: HTMLAttributes;
+      textarea: HTMLAttributes;
+      tfoot: HTMLAttributes;
+      th: HTMLAttributes;
+      thead: HTMLAttributes;
+      time: HTMLAttributes;
+      title: HTMLAttributes;
+      tr: HTMLAttributes;
+      track: HTMLAttributes;
+      u: HTMLAttributes;
+      ul: HTMLAttributes;
+      "var": HTMLAttributes;
+      video: HTMLAttributes;
+      wbr: HTMLAttributes;
+      webview: HTMLAttributes;
+
+      // SVG
+      svg: HTMLAttributes;
+
+      animate: HTMLAttributes; // TODO: It is SVGAnimateElement but is not in TypeScript's lib.dom.d.ts for now.
+      animateMotion: HTMLAttributes;
+      animateTransform: HTMLAttributes; // TODO: It is SVGAnimateTransformElement but is not in TypeScript's lib.dom.d.ts for now.
+      circle: HTMLAttributes;
+      clipPath: HTMLAttributes;
+      defs: HTMLAttributes;
+      desc: HTMLAttributes;
+      ellipse: HTMLAttributes;
+      feBlend: HTMLAttributes;
+      feColorMatrix: HTMLAttributes;
+      feComponentTransfer: HTMLAttributes;
+      feComposite: HTMLAttributes;
+      feConvolveMatrix: HTMLAttributes;
+      feDiffuseLighting: HTMLAttributes;
+      feDisplacementMap: HTMLAttributes;
+      feDistantLight: HTMLAttributes;
+      feDropShadow: HTMLAttributes;
+      feFlood: HTMLAttributes;
+      feFuncA: HTMLAttributes;
+      feFuncB: HTMLAttributes;
+      feFuncG: HTMLAttributes;
+      feFuncR: HTMLAttributes;
+      feGaussianBlur: HTMLAttributes;
+      feImage: HTMLAttributes;
+      feMerge: HTMLAttributes;
+      feMergeNode: HTMLAttributes;
+      feMorphology: HTMLAttributes;
+      feOffset: HTMLAttributes;
+      fePointLight: HTMLAttributes;
+      feSpecularLighting: HTMLAttributes;
+      feSpotLight: HTMLAttributes;
+      feTile: HTMLAttributes;
+      feTurbulence: HTMLAttributes;
+      filter: HTMLAttributes;
+      foreignObject: HTMLAttributes;
+      g: HTMLAttributes;
+      image: HTMLAttributes;
+      line: HTMLAttributes;
+      linearGradient: HTMLAttributes;
+      marker: HTMLAttributes;
+      mask: HTMLAttributes;
+      metadata: HTMLAttributes;
+      mpath: HTMLAttributes;
+      path: HTMLAttributes;
+      pattern: HTMLAttributes;
+      polygon: HTMLAttributes;
+      polyline: HTMLAttributes;
+      radialGradient: HTMLAttributes;
+      rect: HTMLAttributes;
+      set: HTMLAttributes;
+      stop: HTMLAttributes;
+      switch: HTMLAttributes;
+      symbol: HTMLAttributes;
+      text: HTMLAttributes;
+      textPath: HTMLAttributes;
+      tspan: HTMLAttributes;
+      use: HTMLAttributes;
+      view: HTMLAttributes;
     }
 
     // interface IntrinsicAttributes {
@@ -1134,6 +1320,7 @@ declare global {
     // interface Element<T extends string | Function> extends VLayoutNode<T> {
     //   type: T;
     // }
+    type ElementType = string | FunctionComponent<any>
     interface Element extends VirtualLayoutJSON {}
   }
 }

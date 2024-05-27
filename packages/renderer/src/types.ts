@@ -114,7 +114,7 @@ export interface SingleFileModule<
 }
 
 export interface VirtualLayoutJSON extends LayoutStructTree {
-  key?: any;
+  key: any;
   flags: symbol | string;
   props: Record<string, any>;
   children?: (VirtualLayoutJSON | BaseDataType)[];
@@ -280,7 +280,7 @@ export type VNodeComponent2 = (...args: any[]) => any;
 
 export interface FunctionComponent<Props> {
   (p: Props): VirtualLayoutJSON;
-  [VNodeFunctionComponentSymbol]: boolean;
+  [VNodeFunctionComponentSymbol]?: boolean;
 }
 export interface ComposeComponent<Props> {
   (p: Props): VirtualLayoutJSON;
