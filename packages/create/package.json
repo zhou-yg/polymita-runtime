@@ -13,11 +13,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zhou-yg/tarat.git"
+    "url": "git+https://github.com/zhou-yg/polymita.git"
   },
   "author": "zhouyg",
   "bugs": {
-    "url": "https://github.com/zhou-yg/tarat/issues"
+    "url": "https://github.com/zhou-yg/polymita/issues"
   },
   "homepage": "https://tarat.run",
   "dependencies": {

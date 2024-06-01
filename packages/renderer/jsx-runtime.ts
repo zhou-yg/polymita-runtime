@@ -38,16 +38,16 @@ export interface Events {
   onBlur: FocusEvent;
 
   // form events
-  onChange: Event;
-  onBeforeinput: Event;
-  onInput: Event;
-  onReset: Event;
-  onSubmit: Event;
-  onInvalid: Event;
+  onChange: any;
+  onBeforeinput: any;
+  onInput: any;
+  onReset: any;
+  onSubmit: any;
+  onInvalid: any;
 
   // image events
-  onLoad: Event;
-  onError: Event;
+  onLoad: any;
+  onError: any;
 
   // keyboard events
   onKeydown: KeyboardEvent;
@@ -68,31 +68,31 @@ export interface Events {
   onMouseUp: MouseEvent;
 
   // media events
-  onAbort: Event;
-  onCanplay: Event;
-  onCanplaythrough: Event;
-  onDurationchange: Event;
-  onEmptied: Event;
-  onEncrypted: Event;
-  onEnded: Event;
-  onLoadeddata: Event;
-  onLoadedmetadata: Event;
-  onLoadstart: Event;
-  onPause: Event;
-  onPlay: Event;
-  onPlaying: Event;
-  onProgress: Event;
-  onRatechange: Event;
-  onSeeked: Event;
-  onSeeking: Event;
-  onStalled: Event;
-  onSuspend: Event;
-  onTimeupdate: Event;
-  onVolumechange: Event;
-  onWaiting: Event;
+  onAbort: any;
+  onCanplay: any;
+  onCanplaythrough: any;
+  onDurationchange: any;
+  onEmptied: any;
+  onEncrypted: any;
+  onEnded: any;
+  onLoadeddata: any;
+  onLoadedmetadata: any;
+  onLoadstart: any;
+  onPause: any;
+  onPlay: any;
+  onPlaying: any;
+  onProgress: any;
+  onRatechange: any;
+  onSeeked: any;
+  onSeeking: any;
+  onStalled: any;
+  onSuspend: any;
+  onTimeupdate: any;
+  onVolumechange: any;
+  onWaiting: any;
 
   // selection events
-  onSelect: Event;
+  onSelect: any;
 
   // UI events
   onScroll: UIEvent;
@@ -134,9 +134,11 @@ type Booleanish = boolean | "true" | "false";
 
 type Numberish = number | string;
 
-export interface HTMLAttributes extends EventHandlers<Events> {
+export interface MyHTMLAttributes extends EventHandlers<Events> {
+  [k: string]: any;
   // tarat-specific Attributes
   key?: any;
+  autofocus?: any
   _html?: string;
   children?: any;
   name?: string;
@@ -148,7 +150,6 @@ export interface HTMLAttributes extends EventHandlers<Events> {
   'checked-path'?: Numberish | Numberish[]
 
   type?: string
-  checked?: boolean
 
   className?: any;
   style?: CSSProperties;
@@ -219,7 +220,7 @@ export interface HTMLAttributes extends EventHandlers<Events> {
   is?: string;
 }
 
-export interface AnchorHTMLAttributes extends HTMLAttributes {
+export interface AnchorMyHTMLAttributes extends MyHTMLAttributes {
   download?: any;
   href?: string;
   hreflang?: string;
@@ -231,7 +232,7 @@ export interface AnchorHTMLAttributes extends HTMLAttributes {
   referrerpolicy?: string;
 }
 
-export interface AreaHTMLAttributes extends HTMLAttributes {
+export interface AreaMyHTMLAttributes extends MyHTMLAttributes {
   alt?: string;
   coords?: string;
   download?: any;
@@ -243,18 +244,18 @@ export interface AreaHTMLAttributes extends HTMLAttributes {
   target?: string;
 }
 
-export interface AudioHTMLAttributes extends MediaHTMLAttributes {}
+export interface AudioMyHTMLAttributes extends MediaMyHTMLAttributes {}
 
-export interface BaseHTMLAttributes extends HTMLAttributes {
+export interface BaseMyHTMLAttributes extends MyHTMLAttributes {
   href?: string;
   target?: string;
 }
 
-export interface BlockquoteHTMLAttributes extends HTMLAttributes {
+export interface BlockquoteMyHTMLAttributes extends MyHTMLAttributes {
   cite?: string;
 }
 
-export interface ButtonHTMLAttributes extends HTMLAttributes {
+export interface ButtonMyHTMLAttributes extends MyHTMLAttributes {
   autofocus?: Booleanish;
   disabled?: Booleanish;
   form?: string;
@@ -268,51 +269,51 @@ export interface ButtonHTMLAttributes extends HTMLAttributes {
   value?: string | string[] | number;
 }
 
-export interface CanvasHTMLAttributes extends HTMLAttributes {
+export interface CanvasMyHTMLAttributes extends MyHTMLAttributes {
   height?: Numberish;
   width?: Numberish;
 }
 
-export interface ColHTMLAttributes extends HTMLAttributes {
+export interface ColMyHTMLAttributes extends MyHTMLAttributes {
   span?: Numberish;
   width?: Numberish;
 }
 
-export interface ColgroupHTMLAttributes extends HTMLAttributes {
+export interface ColgroupMyHTMLAttributes extends MyHTMLAttributes {
   span?: Numberish;
 }
 
-export interface DataHTMLAttributes extends HTMLAttributes {
+export interface DataMyHTMLAttributes extends MyHTMLAttributes {
   value?: string | string[] | number;
 }
 
-export interface DetailsHTMLAttributes extends HTMLAttributes {
+export interface DetailsMyHTMLAttributes extends MyHTMLAttributes {
   open?: Booleanish;
 }
 
-export interface DelHTMLAttributes extends HTMLAttributes {
+export interface DelMyHTMLAttributes extends MyHTMLAttributes {
   cite?: string;
   datetime?: string;
 }
 
-export interface DialogHTMLAttributes extends HTMLAttributes {
+export interface DialogMyHTMLAttributes extends MyHTMLAttributes {
   open?: Booleanish;
 }
 
-export interface EmbedHTMLAttributes extends HTMLAttributes {
+export interface EmbedMyHTMLAttributes extends MyHTMLAttributes {
   height?: Numberish;
   src?: string;
   type?: string;
   width?: Numberish;
 }
 
-export interface FieldsetHTMLAttributes extends HTMLAttributes {
+export interface FieldsetMyHTMLAttributes extends MyHTMLAttributes {
   disabled?: Booleanish;
   form?: string;
   name?: string;
 }
 
-export interface FormHTMLAttributes extends HTMLAttributes {
+export interface FormMyHTMLAttributes extends MyHTMLAttributes {
   acceptcharset?: string;
   action?: string;
   autocomplete?: string;
@@ -323,11 +324,11 @@ export interface FormHTMLAttributes extends HTMLAttributes {
   target?: string;
 }
 
-export interface HtmlHTMLAttributes extends HTMLAttributes {
+export interface HtmlMyHTMLAttributes extends MyHTMLAttributes {
   manifest?: string;
 }
 
-export interface IframeHTMLAttributes extends HTMLAttributes {
+export interface IframeMyHTMLAttributes extends MyHTMLAttributes {
   allow?: string;
   allowfullscreen?: Booleanish;
   allowtransparency?: Booleanish;
@@ -345,7 +346,7 @@ export interface IframeHTMLAttributes extends HTMLAttributes {
   width?: Numberish;
 }
 
-export interface ImgHTMLAttributes extends HTMLAttributes {
+export interface ImgMyHTMLAttributes extends MyHTMLAttributes {
   alt?: string;
   crossorigin?: "anonymous" | "use-credentials" | "";
   decoding?: "async" | "auto" | "sync";
@@ -357,19 +358,19 @@ export interface ImgHTMLAttributes extends HTMLAttributes {
   width?: Numberish;
 }
 
-export interface InsHTMLAttributes extends HTMLAttributes {
+export interface InsMyHTMLAttributes extends MyHTMLAttributes {
   cite?: string;
   datetime?: string;
 }
 
-export interface InputHTMLAttributes extends HTMLAttributes {
+export interface InputMyHTMLAttributes extends MyHTMLAttributes {
   accept?: string;
   alt?: string;
   autocomplete?: string;
   autofocus?: Booleanish;
   autoFocus?: Booleanish;
   capture?: boolean | "user" | "environment"; // https://www.w3.org/tr/html-media-capture/#the-capture-attribute
-  checked?: Booleanish | any[] | StateSignal<boolean> | ComputedSignal<boolean>; // for IDE v-model multi-checkbox support
+  checked?: Booleanish;
   crossorigin?: string;
   disabled?: Booleanish;
   form?: string;
@@ -404,7 +405,7 @@ export interface InputHTMLAttributes extends HTMLAttributes {
   width?: Numberish;
 }
 
-export interface KeygenHTMLAttributes extends HTMLAttributes {
+export interface KeygenMyHTMLAttributes extends MyHTMLAttributes {
   autofocus?: Booleanish;
   challenge?: string;
   disabled?: Booleanish;
@@ -414,16 +415,16 @@ export interface KeygenHTMLAttributes extends HTMLAttributes {
   name?: string;
 }
 
-export interface LabelHTMLAttributes extends HTMLAttributes {
+export interface LabelMyHTMLAttributes extends MyHTMLAttributes {
   for?: string;
   form?: string;
 }
 
-export interface LiHTMLAttributes extends HTMLAttributes {
+export interface LiMyHTMLAttributes extends MyHTMLAttributes {
   value?: string | string[] | number;
 }
 
-export interface LinkHTMLAttributes extends HTMLAttributes {
+export interface LinkMyHTMLAttributes extends MyHTMLAttributes {
   as?: string;
   crossorigin?: string;
   href?: string;
@@ -435,15 +436,15 @@ export interface LinkHTMLAttributes extends HTMLAttributes {
   type?: string;
 }
 
-export interface MapHTMLAttributes extends HTMLAttributes {
+export interface MapMyHTMLAttributes extends MyHTMLAttributes {
   name?: string;
 }
 
-export interface MenuHTMLAttributes extends HTMLAttributes {
+export interface MenuMyHTMLAttributes extends MyHTMLAttributes {
   type?: string;
 }
 
-export interface MediaHTMLAttributes extends HTMLAttributes {
+export interface MediaMyHTMLAttributes extends MyHTMLAttributes {
   autoplay?: Booleanish;
   controls?: Booleanish;
   controlslist?: string;
@@ -456,14 +457,14 @@ export interface MediaHTMLAttributes extends HTMLAttributes {
   src?: string;
 }
 
-export interface MetaHTMLAttributes extends HTMLAttributes {
+export interface MetaMyHTMLAttributes extends MyHTMLAttributes {
   charset?: string;
   content?: string;
   httpequiv?: string;
   name?: string;
 }
 
-export interface MeterHTMLAttributes extends HTMLAttributes {
+export interface MeterMyHTMLAttributes extends MyHTMLAttributes {
   form?: string;
   high?: Numberish;
   low?: Numberish;
@@ -473,11 +474,11 @@ export interface MeterHTMLAttributes extends HTMLAttributes {
   value?: string | string[] | number;
 }
 
-export interface QuoteHTMLAttributes extends HTMLAttributes {
+export interface QuoteMyHTMLAttributes extends MyHTMLAttributes {
   cite?: string;
 }
 
-export interface ObjectHTMLAttributes extends HTMLAttributes {
+export interface ObjectMyHTMLAttributes extends MyHTMLAttributes {
   classid?: string;
   data?: string;
   form?: string;
@@ -489,41 +490,41 @@ export interface ObjectHTMLAttributes extends HTMLAttributes {
   wmode?: string;
 }
 
-export interface OlHTMLAttributes extends HTMLAttributes {
+export interface OlMyHTMLAttributes extends MyHTMLAttributes {
   reversed?: Booleanish;
   start?: Numberish;
   type?: "1" | "a" | "A" | "i" | "I";
 }
 
-export interface OptgroupHTMLAttributes extends HTMLAttributes {
+export interface OptgroupMyHTMLAttributes extends MyHTMLAttributes {
   disabled?: Booleanish;
   label?: string;
 }
 
-export interface OptionHTMLAttributes extends HTMLAttributes {
+export interface OptionMyHTMLAttributes extends MyHTMLAttributes {
   disabled?: Booleanish;
   label?: string;
   selected?: Booleanish;
   value?: any; // we support :value to be bound to anything w/ v-model
 }
 
-export interface OutputHTMLAttributes extends HTMLAttributes {
+export interface OutputMyHTMLAttributes extends MyHTMLAttributes {
   for?: string;
   form?: string;
   name?: string;
 }
 
-export interface ParamHTMLAttributes extends HTMLAttributes {
+export interface ParamMyHTMLAttributes extends MyHTMLAttributes {
   name?: string;
   value?: string | string[] | number;
 }
 
-export interface ProgressHTMLAttributes extends HTMLAttributes {
+export interface ProgressMyHTMLAttributes extends MyHTMLAttributes {
   max?: Numberish;
   value?: string | string[] | number;
 }
 
-export interface ScriptHTMLAttributes extends HTMLAttributes {
+export interface ScriptMyHTMLAttributes extends MyHTMLAttributes {
   async?: Booleanish;
   charset?: string;
   crossorigin?: string;
@@ -535,7 +536,7 @@ export interface ScriptHTMLAttributes extends HTMLAttributes {
   type?: string;
 }
 
-export interface SelectHTMLAttributes extends HTMLAttributes {
+export interface SelectMyHTMLAttributes extends MyHTMLAttributes {
   autocomplete?: string;
   autofocus?: Booleanish;
   disabled?: Booleanish;
@@ -553,7 +554,7 @@ export interface SelectHTMLAttributes extends HTMLAttributes {
     | ComputedSignal<number | string>;
 }
 
-export interface SourceHTMLAttributes extends HTMLAttributes {
+export interface SourceMyHTMLAttributes extends MyHTMLAttributes {
   media?: string;
   sizes?: string;
   src?: string;
@@ -561,20 +562,20 @@ export interface SourceHTMLAttributes extends HTMLAttributes {
   type?: string;
 }
 
-export interface StyleHTMLAttributes extends HTMLAttributes {
+export interface StyleMyHTMLAttributes extends MyHTMLAttributes {
   media?: string;
   nonce?: string;
   scoped?: Booleanish;
   type?: string;
 }
 
-export interface TableHTMLAttributes extends HTMLAttributes {
+export interface TableMyHTMLAttributes extends MyHTMLAttributes {
   cellpadding?: Numberish;
   cellspacing?: Numberish;
   summary?: string;
 }
 
-export interface TextareaHTMLAttributes extends HTMLAttributes {
+export interface TextareaMyHTMLAttributes extends MyHTMLAttributes {
   autocomplete?: string;
   autofocus?: Booleanish;
   cols?: Numberish;
@@ -599,7 +600,7 @@ export interface TextareaHTMLAttributes extends HTMLAttributes {
   wrap?: string;
 }
 
-export interface TdHTMLAttributes extends HTMLAttributes {
+export interface TdMyHTMLAttributes extends MyHTMLAttributes {
   align?: "left" | "center" | "right" | "justify" | "char";
   colspan?: Numberish;
   headers?: string;
@@ -608,7 +609,7 @@ export interface TdHTMLAttributes extends HTMLAttributes {
   valign?: "top" | "middle" | "bottom" | "baseline";
 }
 
-export interface ThHTMLAttributes extends HTMLAttributes {
+export interface ThMyHTMLAttributes extends MyHTMLAttributes {
   align?: "left" | "center" | "right" | "justify" | "char";
   colspan?: Numberish;
   headers?: string;
@@ -616,11 +617,11 @@ export interface ThHTMLAttributes extends HTMLAttributes {
   scope?: string;
 }
 
-export interface TimeHTMLAttributes extends HTMLAttributes {
+export interface TimeMyHTMLAttributes extends MyHTMLAttributes {
   datetime?: string;
 }
 
-export interface TrackHTMLAttributes extends HTMLAttributes {
+export interface TrackMyHTMLAttributes extends MyHTMLAttributes {
   default?: Booleanish;
   kind?: string;
   label?: string;
@@ -628,7 +629,7 @@ export interface TrackHTMLAttributes extends HTMLAttributes {
   srclang?: string;
 }
 
-export interface VideoHTMLAttributes extends MediaHTMLAttributes {
+export interface VideoMyHTMLAttributes extends MediaMyHTMLAttributes {
   height?: Numberish;
   playsinline?: Booleanish;
   poster?: string;
@@ -636,7 +637,7 @@ export interface VideoHTMLAttributes extends MediaHTMLAttributes {
   disablePictureInPicture?: Booleanish;
 }
 
-export interface WebViewHTMLAttributes extends HTMLAttributes {
+export interface WebViewMyHTMLAttributes extends MyHTMLAttributes {
   allowfullscreen?: Booleanish;
   allowpopups?: Booleanish;
   autoFocus?: Booleanish;
@@ -940,120 +941,120 @@ export interface SVGAttributes extends EventHandlers<Events> {
 }
 
 interface IntrinsicElementAttributes {
-  a: AnchorHTMLAttributes;
-  abbr: HTMLAttributes;
-  address: HTMLAttributes;
-  area: AreaHTMLAttributes;
-  article: HTMLAttributes;
-  aside: HTMLAttributes;
-  audio: AudioHTMLAttributes;
-  b: HTMLAttributes;
-  base: BaseHTMLAttributes;
-  bdi: HTMLAttributes;
-  bdo: HTMLAttributes;
-  blockquote: BlockquoteHTMLAttributes;
-  body: HTMLAttributes;
-  br: HTMLAttributes;
-  button: ButtonHTMLAttributes;
-  canvas: CanvasHTMLAttributes;
-  caption: HTMLAttributes;
-  cite: HTMLAttributes;
-  code: HTMLAttributes;
-  col: ColHTMLAttributes;
-  colgroup: ColgroupHTMLAttributes;
-  data: DataHTMLAttributes;
-  datalist: HTMLAttributes;
-  dd: HTMLAttributes;
-  del: DelHTMLAttributes;
-  details: DetailsHTMLAttributes;
-  dfn: HTMLAttributes;
-  dialog: DialogHTMLAttributes;
-  div: HTMLAttributes;
-  dl: HTMLAttributes;
-  dt: HTMLAttributes;
-  em: HTMLAttributes;
-  embed: EmbedHTMLAttributes;
-  fieldset: FieldsetHTMLAttributes;
-  figcaption: HTMLAttributes;
-  figure: HTMLAttributes;
-  footer: HTMLAttributes;
-  form: FormHTMLAttributes;
-  h1: HTMLAttributes;
-  h2: HTMLAttributes;
-  h3: HTMLAttributes;
-  h4: HTMLAttributes;
-  h5: HTMLAttributes;
-  h6: HTMLAttributes;
-  head: HTMLAttributes;
-  header: HTMLAttributes;
-  hgroup: HTMLAttributes;
-  hr: HTMLAttributes;
-  html: HtmlHTMLAttributes;
-  i: HTMLAttributes;
-  iframe: IframeHTMLAttributes;
-  img: ImgHTMLAttributes;
-  input: InputHTMLAttributes;
-  ins: InsHTMLAttributes;
-  kbd: HTMLAttributes;
-  keygen: KeygenHTMLAttributes;
-  label: LabelHTMLAttributes;
-  legend: HTMLAttributes;
-  li: LiHTMLAttributes;
-  link: LinkHTMLAttributes;
-  main: HTMLAttributes;
-  map: MapHTMLAttributes;
-  mark: HTMLAttributes;
-  menu: MenuHTMLAttributes;
-  meta: MetaHTMLAttributes;
-  meter: MeterHTMLAttributes;
-  nav: HTMLAttributes;
-  noindex: HTMLAttributes;
-  noscript: HTMLAttributes;
-  object: ObjectHTMLAttributes;
-  ol: OlHTMLAttributes;
-  optgroup: OptgroupHTMLAttributes;
-  option: OptionHTMLAttributes;
-  output: OutputHTMLAttributes;
-  p: HTMLAttributes;
-  param: ParamHTMLAttributes;
-  picture: HTMLAttributes;
-  pre: HTMLAttributes;
-  progress: ProgressHTMLAttributes;
-  q: QuoteHTMLAttributes;
-  rp: HTMLAttributes;
-  rt: HTMLAttributes;
-  ruby: HTMLAttributes;
-  s: HTMLAttributes;
-  samp: HTMLAttributes;
-  script: ScriptHTMLAttributes;
-  section: HTMLAttributes;
-  select: SelectHTMLAttributes;
-  small: HTMLAttributes;
-  source: SourceHTMLAttributes;
-  span: HTMLAttributes;
-  strong: HTMLAttributes;
-  style: StyleHTMLAttributes;
-  sub: HTMLAttributes;
-  summary: HTMLAttributes;
-  sup: HTMLAttributes;
-  table: TableHTMLAttributes;
-  template: HTMLAttributes;
-  tbody: HTMLAttributes;
-  td: TdHTMLAttributes;
-  textarea: TextareaHTMLAttributes;
-  tfoot: HTMLAttributes;
-  th: ThHTMLAttributes;
-  thead: HTMLAttributes;
-  time: TimeHTMLAttributes;
-  title: HTMLAttributes;
-  tr: HTMLAttributes;
-  track: TrackHTMLAttributes;
-  u: HTMLAttributes;
-  ul: HTMLAttributes;
-  var: HTMLAttributes;
-  video: VideoHTMLAttributes;
-  wbr: HTMLAttributes;
-  webview: WebViewHTMLAttributes;
+  a: AnchorMyHTMLAttributes;
+  abbr: MyHTMLAttributes;
+  address: MyHTMLAttributes;
+  area: AreaMyHTMLAttributes;
+  article: MyHTMLAttributes;
+  aside: MyHTMLAttributes;
+  audio: AudioMyHTMLAttributes;
+  b: MyHTMLAttributes;
+  base: BaseMyHTMLAttributes;
+  bdi: MyHTMLAttributes;
+  bdo: MyHTMLAttributes;
+  blockquote: BlockquoteMyHTMLAttributes;
+  body: MyHTMLAttributes;
+  br: MyHTMLAttributes;
+  button: ButtonMyHTMLAttributes;
+  canvas: CanvasMyHTMLAttributes;
+  caption: MyHTMLAttributes;
+  cite: MyHTMLAttributes;
+  code: MyHTMLAttributes;
+  col: ColMyHTMLAttributes;
+  colgroup: ColgroupMyHTMLAttributes;
+  data: DataMyHTMLAttributes;
+  datalist: MyHTMLAttributes;
+  dd: MyHTMLAttributes;
+  del: DelMyHTMLAttributes;
+  details: DetailsMyHTMLAttributes;
+  dfn: MyHTMLAttributes;
+  dialog: DialogMyHTMLAttributes;
+  div: MyHTMLAttributes;
+  dl: MyHTMLAttributes;
+  dt: MyHTMLAttributes;
+  em: MyHTMLAttributes;
+  embed: EmbedMyHTMLAttributes;
+  fieldset: FieldsetMyHTMLAttributes;
+  figcaption: MyHTMLAttributes;
+  figure: MyHTMLAttributes;
+  footer: MyHTMLAttributes;
+  form: FormMyHTMLAttributes;
+  h1: MyHTMLAttributes;
+  h2: MyHTMLAttributes;
+  h3: MyHTMLAttributes;
+  h4: MyHTMLAttributes;
+  h5: MyHTMLAttributes;
+  h6: MyHTMLAttributes;
+  head: MyHTMLAttributes;
+  header: MyHTMLAttributes;
+  hgroup: MyHTMLAttributes;
+  hr: MyHTMLAttributes;
+  html: HtmlMyHTMLAttributes;
+  i: MyHTMLAttributes;
+  iframe: IframeMyHTMLAttributes;
+  img: ImgMyHTMLAttributes;
+  input: InputMyHTMLAttributes;
+  ins: InsMyHTMLAttributes;
+  kbd: MyHTMLAttributes;
+  keygen: KeygenMyHTMLAttributes;
+  label: LabelMyHTMLAttributes;
+  legend: MyHTMLAttributes;
+  li: LiMyHTMLAttributes;
+  link: LinkMyHTMLAttributes;
+  main: MyHTMLAttributes;
+  map: MapMyHTMLAttributes;
+  mark: MyHTMLAttributes;
+  menu: MenuMyHTMLAttributes;
+  meta: MetaMyHTMLAttributes;
+  meter: MeterMyHTMLAttributes;
+  nav: MyHTMLAttributes;
+  noindex: MyHTMLAttributes;
+  noscript: MyHTMLAttributes;
+  object: ObjectMyHTMLAttributes;
+  ol: OlMyHTMLAttributes;
+  optgroup: OptgroupMyHTMLAttributes;
+  option: OptionMyHTMLAttributes;
+  output: OutputMyHTMLAttributes;
+  p: MyHTMLAttributes;
+  param: ParamMyHTMLAttributes;
+  picture: MyHTMLAttributes;
+  pre: MyHTMLAttributes;
+  progress: ProgressMyHTMLAttributes;
+  q: QuoteMyHTMLAttributes;
+  rp: MyHTMLAttributes;
+  rt: MyHTMLAttributes;
+  ruby: MyHTMLAttributes;
+  s: MyHTMLAttributes;
+  samp: MyHTMLAttributes;
+  script: ScriptMyHTMLAttributes;
+  section: MyHTMLAttributes;
+  select: SelectMyHTMLAttributes;
+  small: MyHTMLAttributes;
+  source: SourceMyHTMLAttributes;
+  span: MyHTMLAttributes;
+  strong: MyHTMLAttributes;
+  style: StyleMyHTMLAttributes;
+  sub: MyHTMLAttributes;
+  summary: MyHTMLAttributes;
+  sup: MyHTMLAttributes;
+  table: TableMyHTMLAttributes;
+  template: MyHTMLAttributes;
+  tbody: MyHTMLAttributes;
+  td: TdMyHTMLAttributes;
+  textarea: TextareaMyHTMLAttributes;
+  tfoot: MyHTMLAttributes;
+  th: ThMyHTMLAttributes;
+  thead: MyHTMLAttributes;
+  time: TimeMyHTMLAttributes;
+  title: MyHTMLAttributes;
+  tr: MyHTMLAttributes;
+  track: TrackMyHTMLAttributes;
+  u: MyHTMLAttributes;
+  ul: MyHTMLAttributes;
+  var: MyHTMLAttributes;
+  video: VideoMyHTMLAttributes;
+  wbr: MyHTMLAttributes;
+  webview: WebViewMyHTMLAttributes;
 
   // SVG
   svg: SVGAttributes;
@@ -1124,190 +1125,7 @@ type NativeElements = {
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      [elemName: string]: HTMLAttributes;
-
-      // HTML
-      a: HTMLAttributes;
-      abbr: HTMLAttributes;
-      address: HTMLAttributes;
-      area: HTMLAttributes;
-      article: HTMLAttributes;
-      aside: HTMLAttributes;
-      audio: HTMLAttributes;
-      b: HTMLAttributes;
-      base: HTMLAttributes;
-      bdi: HTMLAttributes;
-      bdo: HTMLAttributes;
-      big: HTMLAttributes;
-      blockquote: HTMLAttributes;
-      body: HTMLAttributes;
-      br: HTMLAttributes;
-      button: HTMLAttributes;
-      canvas: HTMLAttributes;
-      caption: HTMLAttributes;
-      center: HTMLAttributes;
-      cite: HTMLAttributes;
-      code: HTMLAttributes;
-      col: HTMLAttributes;
-      colgroup: HTMLAttributes;
-      data: HTMLAttributes;
-      datalist: HTMLAttributes;
-      dd: HTMLAttributes;
-      del: HTMLAttributes;
-      details: HTMLAttributes;
-      dfn: HTMLAttributes;
-      dialog: HTMLAttributes;
-      div: HTMLAttributes;
-      dl: HTMLAttributes;
-      dt: HTMLAttributes;
-      em: HTMLAttributes;
-      embed: HTMLAttributes;
-      fieldset: HTMLAttributes;
-      figcaption: HTMLAttributes;
-      figure: HTMLAttributes;
-      footer: HTMLAttributes;
-      form: HTMLAttributes;
-      h1: HTMLAttributes;
-      h2: HTMLAttributes;
-      h3: HTMLAttributes;
-      h4: HTMLAttributes;
-      h5: HTMLAttributes;
-      h6: HTMLAttributes;
-      head: HTMLAttributes;
-      header: HTMLAttributes;
-      hgroup: HTMLAttributes;
-      hr: HTMLAttributes;
-      html: HTMLAttributes;
-      i: HTMLAttributes;
-      iframe: HTMLAttributes;
-      img: HTMLAttributes;
-      input: HTMLAttributes;
-      ins: HTMLAttributes;
-      kbd: HTMLAttributes;
-      keygen: HTMLAttributes;
-      label: HTMLAttributes;
-      legend: HTMLAttributes;
-      li: HTMLAttributes;
-      link: HTMLAttributes;
-      main: HTMLAttributes;
-      map: HTMLAttributes;
-      mark: HTMLAttributes;
-      menu: HTMLAttributes;
-      menuitem: HTMLAttributes;
-      meta: HTMLAttributes;
-      meter: HTMLAttributes;
-      nav: HTMLAttributes;
-      noindex: HTMLAttributes;
-      noscript: HTMLAttributes;
-      object: HTMLAttributes;
-      ol: HTMLAttributes;
-      optgroup: HTMLAttributes;
-      option: HTMLAttributes;
-      output: HTMLAttributes;
-      p: HTMLAttributes;
-      param: HTMLAttributes;
-      picture: HTMLAttributes;
-      pre: HTMLAttributes;
-      progress: HTMLAttributes;
-      q: HTMLAttributes;
-      rp: HTMLAttributes;
-      rt: HTMLAttributes;
-      ruby: HTMLAttributes;
-      s: HTMLAttributes;
-      samp: HTMLAttributes;
-      search: HTMLAttributes;
-      slot: HTMLAttributes;
-      script: HTMLAttributes;
-      section: HTMLAttributes;
-      select: HTMLAttributes;
-      small: HTMLAttributes;
-      source: HTMLAttributes;
-      span: HTMLAttributes;
-      strong: HTMLAttributes;
-      style: HTMLAttributes;
-      sub: HTMLAttributes;
-      summary: HTMLAttributes;
-      sup: HTMLAttributes;
-      table: HTMLAttributes;
-      template: HTMLAttributes;
-      tbody: HTMLAttributes;
-      td: HTMLAttributes;
-      textarea: HTMLAttributes;
-      tfoot: HTMLAttributes;
-      th: HTMLAttributes;
-      thead: HTMLAttributes;
-      time: HTMLAttributes;
-      title: HTMLAttributes;
-      tr: HTMLAttributes;
-      track: HTMLAttributes;
-      u: HTMLAttributes;
-      ul: HTMLAttributes;
-      "var": HTMLAttributes;
-      video: HTMLAttributes;
-      wbr: HTMLAttributes;
-      webview: HTMLAttributes;
-
-      // SVG
-      svg: HTMLAttributes;
-
-      animate: HTMLAttributes; // TODO: It is SVGAnimateElement but is not in TypeScript's lib.dom.d.ts for now.
-      animateMotion: HTMLAttributes;
-      animateTransform: HTMLAttributes; // TODO: It is SVGAnimateTransformElement but is not in TypeScript's lib.dom.d.ts for now.
-      circle: HTMLAttributes;
-      clipPath: HTMLAttributes;
-      defs: HTMLAttributes;
-      desc: HTMLAttributes;
-      ellipse: HTMLAttributes;
-      feBlend: HTMLAttributes;
-      feColorMatrix: HTMLAttributes;
-      feComponentTransfer: HTMLAttributes;
-      feComposite: HTMLAttributes;
-      feConvolveMatrix: HTMLAttributes;
-      feDiffuseLighting: HTMLAttributes;
-      feDisplacementMap: HTMLAttributes;
-      feDistantLight: HTMLAttributes;
-      feDropShadow: HTMLAttributes;
-      feFlood: HTMLAttributes;
-      feFuncA: HTMLAttributes;
-      feFuncB: HTMLAttributes;
-      feFuncG: HTMLAttributes;
-      feFuncR: HTMLAttributes;
-      feGaussianBlur: HTMLAttributes;
-      feImage: HTMLAttributes;
-      feMerge: HTMLAttributes;
-      feMergeNode: HTMLAttributes;
-      feMorphology: HTMLAttributes;
-      feOffset: HTMLAttributes;
-      fePointLight: HTMLAttributes;
-      feSpecularLighting: HTMLAttributes;
-      feSpotLight: HTMLAttributes;
-      feTile: HTMLAttributes;
-      feTurbulence: HTMLAttributes;
-      filter: HTMLAttributes;
-      foreignObject: HTMLAttributes;
-      g: HTMLAttributes;
-      image: HTMLAttributes;
-      line: HTMLAttributes;
-      linearGradient: HTMLAttributes;
-      marker: HTMLAttributes;
-      mask: HTMLAttributes;
-      metadata: HTMLAttributes;
-      mpath: HTMLAttributes;
-      path: HTMLAttributes;
-      pattern: HTMLAttributes;
-      polygon: HTMLAttributes;
-      polyline: HTMLAttributes;
-      radialGradient: HTMLAttributes;
-      rect: HTMLAttributes;
-      set: HTMLAttributes;
-      stop: HTMLAttributes;
-      switch: HTMLAttributes;
-      symbol: HTMLAttributes;
-      text: HTMLAttributes;
-      textPath: HTMLAttributes;
-      tspan: HTMLAttributes;
-      use: HTMLAttributes;
-      view: HTMLAttributes;
+      [elemName: string]: MyHTMLAttributes;
     }
 
     // interface IntrinsicAttributes {
