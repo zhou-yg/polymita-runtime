@@ -360,7 +360,7 @@ export async function composeSignal(c: IConfig) {
         if (dependencyDrivers.find(v => v.name === driverName)) {
           driverName = camelCase(`${moduleName}.${name}`)
           if (dependencyDrivers.find(v => v.name === driverName)) {
-            throw new Error('[tarat] can not handle hook name confict betwwen all dependency modules')
+            throw new Error('[tarat] can not handle hook name conflict between all dependency modules')
           }
         }
         dependencyDrivers.push({

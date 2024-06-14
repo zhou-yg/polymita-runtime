@@ -102,7 +102,7 @@ export default async (cwd: string) => {
 
   await Promise.all([
     composeSchema(config),
-    composeSignal(config)  
+    composeSignal(config) 
   ])
   await preCheckSchema(config);
 

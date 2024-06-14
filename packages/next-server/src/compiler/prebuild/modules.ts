@@ -5,7 +5,7 @@ import * as layoutTypes from './layoutTypes'
 
 import { buildDTS, esbuild } from '../bundleUtility';
 import loadModuleToView from '../plugins/esbuild-load-module';
-import { traverseDir } from '../../util';
+import { logFrame, traverseDir } from '../../util';
 import aliasAtCodeToCwd from '../plugins/esbuild-alias-at';
 
 import tailwindcss from 'tailwindcss'
@@ -94,6 +94,8 @@ export async function generateViewFromModule (c: IConfig) {
   await Promise.all(tsFiles.map(([f, content]) => {
     return fs.promises.writeFile(f, content)
   }))
+
+  logFrame('generate view: \n' + tsFiles.map(([f]) => f.replace(c.cwd, '')).join('\n'))
 
   await buildDTS(c, tsFiles.map(f => f[0]), c.pointFiles.outputViewsDir)
 

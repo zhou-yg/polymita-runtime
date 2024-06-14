@@ -55,7 +55,7 @@ export function h(
   }
 
   const result: VirtualLayoutJSON = {
-    key: props.key,
+    key: props?.key,
     flags: VirtualNodeTypeSymbol,
     type,
     props: props || {},
