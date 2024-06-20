@@ -11,11 +11,8 @@ const instance = spawn('rollup', ['--config', 'rollup.config.mjs'], {
 instance.on('close', () => {
   
   const ejsArr = [
-    'src/compiler/prebuild/preset/signalsMapTemplate.ejs',
-    'src/compiler/prebuild/preset/actionsTemplate.ejs',
-    'src/compiler/prebuild/preset/hooksTemplate.ejs',
-    'src/compiler/prebuild/preset/connectTemplate.ejs',
-    'src/compiler/plugins/esbuildLoadViewTemplate.ejs',
+    'src/compiler/prebuild/preset/*.ejs',
+    'src/compiler/plugins/*.ejs',
   ]
 
   ejsArr.forEach(from => {

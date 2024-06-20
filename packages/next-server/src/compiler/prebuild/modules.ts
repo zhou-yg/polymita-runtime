@@ -68,7 +68,7 @@ export async function buildModules(c: IConfig) {
   await buildDTS(c, moduleFiles, outputModulesDir)
 }
 
-export async function generateViewFromModule (c: IConfig) {
+export async function generateViewFromModule (c: IConfig, externalModule?: boolean) {
   const moduleFiles = c.modules.map(f => {
     return f.path
   })
@@ -84,12 +84,14 @@ export async function generateViewFromModule (c: IConfig) {
     plugins: [
       loadModuleToView({
         modulesDir: path.join(c.cwd, c.modulesDirectory),
+        modulesDirName: c.modulesDirectory,
+        externalModule,
         onFile([f, content]) {
           tsFiles.push([f, content])
         },
       }),
     ]
-  })
+  });
 
   await Promise.all(tsFiles.map(([f, content]) => {
     return fs.promises.writeFile(f, content)

@@ -2,12 +2,19 @@ import * as esbuild from 'esbuild';
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { compile } from 'ejs'
-import { traverseDir } from "../../util";
 
-const moduleViewTemplateFile = './esbuildLoadViewTemplate.ejs'
-const moduleViewTemplateFilePath = path.join(__dirname, moduleViewTemplateFile)
+const esbuildLoadRenderToReactFile = './esbuildLoadRenderToReact.ejs'
+const esbuildLoadRenderToReactFilePath = path.join(__dirname, esbuildLoadRenderToReactFile)
 
-const moduleViewTemplate = compile(fs.readFileSync(moduleViewTemplateFilePath).toString())
+const moduleViewTemplateBuiltinFile = './esbuildLoadViewTemplateBuiltin.ejs'
+const moduleViewTemplateBuiltinFilePath = path.join(__dirname, moduleViewTemplateBuiltinFile)
+
+const moduleViewTemplateExternalFile = './esbuildLoadViewTemplateExternal.ejs'
+const moduleViewTemplateExternalFilePath = path.join(__dirname, moduleViewTemplateExternalFile)
+
+const moduleViewRenderToReactTemplate = compile(fs.readFileSync(esbuildLoadRenderToReactFilePath).toString())
+const moduleViewBuiltinTemplate = compile(fs.readFileSync(moduleViewTemplateBuiltinFilePath).toString())
+const moduleViewExternalTemplate = compile(fs.readFileSync(moduleViewTemplateExternalFilePath).toString())
 
 const splitImports = (code: string) => {
   const rows = code.split('\n')
@@ -34,10 +41,12 @@ function getName () {
 
 export default function loadModuleToView (arg: {
   modulesDir: string
+  modulesDirName: string
+  externalModule?: boolean
   onFile: (f: [string, string]) => void
 }): esbuild.Plugin {
 
-  const { modulesDir, onFile } = arg
+  const { modulesDirName, modulesDir, onFile, externalModule } = arg
 
   return {
     name: 'loadModuleToView',
@@ -60,12 +69,26 @@ export default function loadModuleToView (arg: {
 
         const hasImportSignal = /@polymita\/signal/.test(moduleCode)
 
-        const viewContentTS = moduleViewTemplate({
+        let content1 = '';
+        if (externalModule) {
+          content1 = moduleViewExternalTemplate({
+            moduleImports: `../${modulesDirName}/${relativePath.replace(/\.\w+$/, '')}`
+          })
+        } else {
+          content1 = moduleViewBuiltinTemplate({
+            name,
+            moduleImports: moduleCodeParts.imports,
+            moduleCode: moduleCodeParts.codes,
+            hasImportSignal,
+          })
+        }
+
+        const content2 = moduleViewRenderToReactTemplate({
           name,
-          moduleImports: moduleCodeParts.imports,
-          moduleCode: moduleCodeParts.codes,
           hasImportSignal,
         })
+
+        const viewContentTS = content1 + '\n' + content2
 
         const tsFile = path.join(build.initialOptions.outdir, relativePath)
         onFile([tsFile, viewContentTS])
