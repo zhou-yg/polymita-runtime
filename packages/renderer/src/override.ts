@@ -518,14 +518,14 @@ export function getModulesByBase(
 export function getActiveModuleByBase(
   m: SingleFileModule<any, any, any, any>,
   mp: GlobalModulesLinkMap,
-  activeSet: GlobalModulesActiveMap
+  activeModules: GlobalModulesActiveMap
 ): SingleFileModule<any, any, any, any>[] | null {
-  if (m && mp && activeSet) {
-    const key = moduleIndexKey(m);
+  const key = moduleIndexKey(m);
+  if (m && mp && activeModules) {
     const modules = mp.get(key);
     let result: [number, SingleFileModule<any, any, any, any>][] = [];
     modules?.forEach((m) => {
-      const i = activeSet.indexOf(moduleIndexKey(m));
+      const i = activeModules.indexOf(moduleIndexKey(m));
       if (i >= 0) {
         result.push([i, m]);
       }
@@ -548,11 +548,16 @@ export function registerModule(
     } else {
       mp.set(key, [m]);
     }
-
-    if (m.base) {
-      const baseKey = moduleIndexKey(m.base);
-      const modules = mp.get(baseKey);
-      modules?.push(m);
+  }
+  if (mp && m?.base) {
+    const baseKey = moduleIndexKey(m.base);
+    const baseModules = mp.get(baseKey);
+    if (baseModules) {
+      if (!baseModules.includes(m)) {
+        baseModules.push(m);
+      }  
+    } else {
+      mp.set(baseKey, [m])
     }
   }
 }
