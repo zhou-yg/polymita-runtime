@@ -14,14 +14,14 @@ async function buildEverything (c: IConfig) {
 
   await generateViewFromModule(c)
 
-  await generateSignalsAndDeps(c)
+  // await generateSignalsAndDeps(c)
   
-  generateLayoutTypes(c)
+  // generateLayoutTypes(c)
 
-  await Promise.all([
-    buildModelIndexes(c),
-    generateModelTypes2(c),
-  ])
+  // await Promise.all([
+  //   buildModelIndexes(c),
+  //   generateModelTypes2(c),
+  // ])
 }
 
 function prepareDirs(c: IConfig) {

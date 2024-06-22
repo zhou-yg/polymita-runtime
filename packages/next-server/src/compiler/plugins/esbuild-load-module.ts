@@ -21,11 +21,25 @@ const splitImports = (code: string) => {
   const imports: string[] = []
   const codes: string[] = []
 
-  rows.forEach(row => {
+  let importMulti = false
+
+  rows.forEach((row, i) => {
     if (/^import /.test(row)) {
+      if (!/from /.test(row)) {
+        importMulti = true
+      }
       imports.push(row)
     } else {
-      codes.push(row)
+      if (/from /.test(row)) {
+        imports.push(row)
+        importMulti = false
+      } else {
+        if (importMulti) {
+          imports.push(row)
+        } else {
+          codes.push(row)
+        }
+      }
     }
   })
 
@@ -87,6 +101,8 @@ export default function loadModuleToView (arg: {
           name,
           hasImportSignal,
         })
+        console.log('content1 >>>: ', content1);
+        console.log('content2 >>>: ', content2);
 
         const viewContentTS = content1 + '\n' + content2
 
