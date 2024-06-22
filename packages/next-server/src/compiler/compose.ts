@@ -315,7 +315,6 @@ export { default } from '${arg.path}'
 async function generateReferrenceDrivers (c: IConfig, h: IDependencyHook[]) {
   const curDriversDir = path.join(c.cwd, c.signalsDirectory, c.composeDriversDirectory)
 
-  console.log('h: ', h);
   if (!fs.existsSync(curDriversDir) && h.length > 0) {
     fs.mkdirSync(curDriversDir, { recursive: true })
   }
