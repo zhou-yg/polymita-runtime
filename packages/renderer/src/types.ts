@@ -132,7 +132,7 @@ export interface RenderHost {
     lib: any;
   };
   moduleOverride?: {
-    enable: boolean;
+    enable?: boolean;
     modulesLinkMap?: GlobalModulesLinkMap;
     modulesActiveMap?: GlobalModulesActiveMap;
   };

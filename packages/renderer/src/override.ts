@@ -555,9 +555,9 @@ export function registerModule(
     if (baseModules) {
       if (!baseModules.includes(m)) {
         baseModules.push(m);
-      }  
+      }
     } else {
-      mp.set(baseKey, [m])
+      mp.set(baseKey, [m]);
     }
   }
 }
