@@ -386,19 +386,22 @@ export async function readConfig (arg: {
 
   const thirdPartEntry = path.join(cwd, config.thirdPartDir)
 
-
-  const modelEnhance = path.join(cwd, config.modelsDirectory, config.modelEnhance)
-  const schemaPrisma = path.join(cwd, config.modelsDirectory, config.targetSchemaPrisma)
-  const schemaIndexes = path.join(cwd, config.modelsDirectory, config.schemaIndexes)
+  const modelDir = path.join(cwd, config.modelsDirectory)
+  const modelEnhance = path.join(modelDir, config.modelEnhance)
+  const schemaPrisma = path.join(modelDir, config.targetSchemaPrisma)
+  const partSchemaPrisma = path.join(modelDir, config.prismaModelPart)
+  const schemaIndexes = path.join(modelDir, config.schemaIndexes)
 
   const tailwindConfigPath = getTailwindConfigPath(cwd)
 
   return {
     ...config,
     modelFiles: {
+      modelDir,
       modelEnhance,
       schemaPrisma,
       schemaIndexes,
+      partSchemaPrisma,
     },
     tailwindConfigPath,
     project,

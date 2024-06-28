@@ -25,7 +25,7 @@ const splitImports = (code: string) => {
 
   rows.forEach((row, i) => {
     if (/^import /.test(row)) {
-      if (!/from /.test(row)) {
+      if (!/from /.test(row) && !/import ('|")/.test(row) && /import[\s]+{/.test(row)) {
         importMulti = true
       }
       imports.push(row)
@@ -101,8 +101,6 @@ export default function loadModuleToView (arg: {
           name,
           hasImportSignal,
         })
-        console.log('content1 >>>: ', content1);
-        console.log('content2 >>>: ', content2);
 
         const viewContentTS = content1 + '\n' + content2
 

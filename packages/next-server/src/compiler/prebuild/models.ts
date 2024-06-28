@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as prismaInternals from '@prisma/internals'
-import { readCurrentPrisma, readExsitPrismaPart, transformModelName } from '../compose';
+import { readCurrentPrisma, readExistingPrismaPart, transformModelName } from '../compose';
 import shelljs from 'shelljs'
 
 const { cp } = shelljs;
@@ -96,45 +96,51 @@ export async function generateModelTypes2(c: IConfig) {
 export async function buildModelIndexes(c: IConfig) {
   if (c.model.engine === 'prisma') {
 
-    const dependentIndexes = findDependentIndexes(c)
+    if (fs.existsSync(c.modelFiles.modelDir)) {
 
-    let existPrismaPart = readExsitPrismaPart(c)
-
-    if (existPrismaPart.length <= 0) {
-      existPrismaPart = [].concat(readCurrentPrisma(c))
+      const dependentIndexes = findDependentIndexes(c)
+  
+      let existPrismaPart = readExistingPrismaPart(c)
+  
+      if (existPrismaPart.length <= 0) {
+        const current = readCurrentPrisma(c);
+        if (current.content) {
+          existPrismaPart = [].concat(current)
+        }
+      }
+  
+      const schemaIndexesFile = path.join(c.cwd, c.modelsDirectory, c.schemaIndexes)
+  
+      const objArr = await Promise.all(existPrismaPart.map(async ({ content }) => {
+        const model = await prismaInternals.getDMMF({
+          datamodel: content
+        })
+        const models = model.datamodel.models
+        const r: Record<string, string | Record<string, string>> = {}
+        models.forEach(m => {
+          r[lowerFirst(m.name)] = lowerFirst(m.name)
+        })
+        return r
+      }))
+      const mergedObj: IModelIndexesBase = objArr.reduce((p, n) => Object.assign(p, n), {})
+  
+      dependentIndexes.forEach(obj => {
+        const dependentIndexesWithNamespace = deepInsertName(obj.moduleName, obj.indexes)
+  
+        mergedObj[obj.moduleName] = dependentIndexesWithNamespace
+      })
+  
+      /**
+       * eg
+       * mergedObj = {
+       *   modelA: string
+       *   anyModule: {
+       *     modelA: `anyModule`_modelA
+       *   }
+       * }
+       */
+      fs.writeFileSync(schemaIndexesFile, JSON.stringify(mergedObj, null, 2))
     }
-
-    const schemaIndexesFile = path.join(c.cwd, c.modelsDirectory, c.schemaIndexes)
-
-    const objArr = await Promise.all(existPrismaPart.map(async ({ content }) => {
-      const model = await prismaInternals.getDMMF({
-        datamodel: content
-      })
-      const models = model.datamodel.models
-      const r: Record<string, string | Record<string, string>> = {}
-      models.forEach(m => {
-        r[lowerFirst(m.name)] = lowerFirst(m.name)
-      })
-      return r
-    }))
-    const mergedObj: IModelIndexesBase = objArr.reduce((p, n) => Object.assign(p, n), {})
-
-    dependentIndexes.forEach(obj => {
-      const dependentIndexesWithNamespace = deepInsertName(obj.moduleName, obj.indexes)
-
-      mergedObj[obj.moduleName] = dependentIndexesWithNamespace
-    })
-
-    /**
-     * eg
-     * mergedObj = {
-     *   modelA: string
-     *   anyModule: {
-     *     modelA: `anyModule`_modelA
-     *   }
-     * }
-     */
-    fs.writeFileSync(schemaIndexesFile, JSON.stringify(mergedObj, null, 2))
   }
 }
 
@@ -156,26 +162,28 @@ export function runPrismaDev (c: IConfig) {
 
 export async function preCheckSchema(c: IConfig) {
   const schemaFile = path.join(c.cwd, c.modelsDirectory, c.targetSchemaPrisma)
-  const schemaContent = fs.readFileSync(schemaFile, 'utf-8');
-  // const model = await prismaInternals.getDMMF({
-  //   datamodel: schemaContent
-  // })
-  // const gen = await prismaInternals.getGenerator({
-  //   schemaPath: schemaFile,
-  //   dataProxy: false
-  // })
-
-  const config = await prismaInternals.getConfig({
-    datamodel: schemaContent
-  })
-  const file = config.datasources[0].url.value;
-  const relativeDbPath = file?.replace('file:', '')
-  if (relativeDbPath) {
-    const dbPath = path.join(c.cwd, c.modelsDirectory, relativeDbPath)
-    const dbExists = fs.existsSync(dbPath)
-    if (!dbExists) {
-      console.log(`[preCheckSchema] error, db file not found: ${dbPath}`)
-      await runPrismaDev(c)
+  if (fs.existsSync(schemaFile)) {
+    const schemaContent = fs.readFileSync(schemaFile, 'utf-8');
+    // const model = await prismaInternals.getDMMF({
+    //   datamodel: schemaContent
+    // })
+    // const gen = await prismaInternals.getGenerator({
+    //   schemaPath: schemaFile,
+    //   dataProxy: false
+    // })
+  
+    const config = await prismaInternals.getConfig({
+      datamodel: schemaContent
+    })
+    const file = config.datasources[0].url.value;
+    const relativeDbPath = file?.replace('file:', '')
+    if (relativeDbPath) {
+      const dbPath = path.join(c.cwd, c.modelsDirectory, relativeDbPath)
+      const dbExists = fs.existsSync(dbPath)
+      if (!dbExists) {
+        console.log(`[preCheckSchema] error, db file not found: ${dbPath}`)
+        await runPrismaDev(c)
+      }
     }
   }
 }

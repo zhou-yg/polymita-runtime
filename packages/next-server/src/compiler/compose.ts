@@ -228,8 +228,12 @@ async function generateNewSchema (c: IConfig, schemaContentArr: IPrismaFile[], e
 /**
  * read all exist partial schema, return all files content
  */
-export function readExsitPrismaPart (c: IConfig) {
+export function readExistingPrismaPart (c: IConfig) {
   const modelsDir = path.join(c.cwd, c.modelsDirectory)
+  if (!fs.existsSync(modelsDir)) {
+    return []
+  }
+
   const existPrismaParts: IPrismaFile[] = []
   fs.readdirSync(modelsDir).forEach(file => {
     if (new RegExp(`${c.prismaModelPart}$`).test(file)) {
@@ -249,7 +253,7 @@ export function readCurrentPrisma (c: IConfig): IPrismaFile {
 
   return {
     path: file,
-    content: fs.readFileSync(file).toString()
+    content: fs.existsSync(file) ? fs.readFileSync(file).toString() : ''
   }
 }
 
@@ -263,42 +267,44 @@ async function generateSchemaFile (file: string, str: string[]) {
 }
 
 export async function composeSchema (c: IConfig) {
-  const { modelEnhance: enhanceFile, schemaPrisma: targetFile } = c.modelFiles
+  const { modelDir, modelEnhance: enhanceFile, schemaPrisma: targetFile } = c.modelFiles
   
   let enhanceJSON: IEnhancement | undefined
   if (fs.existsSync(enhanceFile)) {
     enhanceJSON = loadJSON(enhanceFile)
   }
   if (c.model.engine === 'prisma') {
-    const taratPrismas = findDependentPrisma(c)
-
-    const partSchema = path.join(c.cwd, c.modelsDirectory, `schema.${c.prismaModelPart}`)
-    if (!fs.existsSync(partSchema) && taratPrismas.length > 0) {
-      cp(targetFile, partSchema)
+    if (fs.existsSync(modelDir)) {
+      const taratPrismas = findDependentPrisma(c)
+  
+      const partSchema = path.join(c.cwd, c.modelsDirectory, `schema.${c.prismaModelPart}`)
+      if (!fs.existsSync(partSchema) && taratPrismas.length > 0) {
+        cp(targetFile, partSchema)
+      }
+  
+      const existPrismaPart = readExistingPrismaPart(c)
+  
+      /**
+       * if detect the dependent prisma, must backup orignal schema.prisma
+       */
+      const newSchemaContent = await generateNewSchema(
+        c,
+        existPrismaPart.concat(taratPrismas),
+        enhanceJSON
+      )
+  
+      const existPrismaPartWithoutModels = pickExpectModel(existPrismaPart)
+      
+      await generateSchemaFile(
+        targetFile,
+        [
+          '// original writing schema',
+          ...existPrismaPartWithoutModels,
+          '// auto composing schema ',
+          newSchemaContent,
+        ]
+      )
     }
-
-    const existPrismaPart = readExsitPrismaPart(c)
-
-    /**
-     * if detect the dependent prisma, must backup orignal schema.prisma
-     */
-    const newSchemaContent = await generateNewSchema(
-      c,
-      existPrismaPart.concat(taratPrismas),
-      enhanceJSON
-    )
-
-    const existPrismaPartWithoutModels = pickExpectModel(existPrismaPart)
-    
-    await generateSchemaFile(
-      targetFile,
-      [
-        '// original writing schema',
-        ...existPrismaPartWithoutModels,
-        '// auto composing schema ',
-        newSchemaContent,
-      ]
-    )
   }
 }
 

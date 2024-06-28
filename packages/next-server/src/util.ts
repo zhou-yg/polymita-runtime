@@ -8,6 +8,9 @@ import { spawn } from 'child_process';
 import chalk from 'chalk';
 
 export function loadJSON (f: string) {
+  if (!fs.existsSync(f)) {
+    return {}
+  }
   return JSON.parse(fs.readFileSync(f).toString())
 }
 

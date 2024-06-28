@@ -101,7 +101,7 @@ export async function generateViewFromModule (c: IConfig, externalModule?: boole
 
   await buildDTS(c, tsFiles.map(f => f[0]), c.pointFiles.outputViewsDir)
 
-  await Promise.all(tsFiles.map(([f]) => {
-    return fs.promises.unlink(f)
-  }))
+  // await Promise.all(tsFiles.map(([f]) => {
+  //   return fs.promises.unlink(f)
+  // }))
 }
