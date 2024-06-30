@@ -275,35 +275,37 @@ export async function composeSchema (c: IConfig) {
   }
   if (c.model.engine === 'prisma') {
     if (fs.existsSync(modelDir)) {
-      const taratPrismas = findDependentPrisma(c)
+      const dependentPrismaFiles = findDependentPrisma(c)
   
       const partSchema = path.join(c.cwd, c.modelsDirectory, `schema.${c.prismaModelPart}`)
-      if (!fs.existsSync(partSchema) && taratPrismas.length > 0) {
+      if (!fs.existsSync(partSchema) && dependentPrismaFiles.length > 0) {
         cp(targetFile, partSchema)
       }
   
       const existPrismaPart = readExistingPrismaPart(c)
   
-      /**
-       * if detect the dependent prisma, must backup orignal schema.prisma
-       */
-      const newSchemaContent = await generateNewSchema(
-        c,
-        existPrismaPart.concat(taratPrismas),
-        enhanceJSON
-      )
-  
-      const existPrismaPartWithoutModels = pickExpectModel(existPrismaPart)
-      
-      await generateSchemaFile(
-        targetFile,
-        [
-          '// original writing schema',
-          ...existPrismaPartWithoutModels,
-          '// auto composing schema ',
-          newSchemaContent,
-        ]
-      )
+      if (existPrismaPart.length) {
+        /**
+         * if detect the dependent prisma, must backup orignal schema.prisma
+         */
+        const newSchemaContent = await generateNewSchema(
+          c,
+          existPrismaPart.concat(dependentPrismaFiles),
+          enhanceJSON
+        )
+    
+        const existPrismaPartWithoutModels = pickExpectModel(existPrismaPart)
+        
+        await generateSchemaFile(
+          targetFile,
+          [
+            '// original writing schema',
+            ...existPrismaPartWithoutModels,
+            '// auto composing schema ',
+            newSchemaContent,
+          ]
+        )
+      }
     }
   }
 }
