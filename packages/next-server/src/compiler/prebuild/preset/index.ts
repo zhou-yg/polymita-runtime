@@ -17,14 +17,28 @@ export function copyContextFiles (c: IConfig) {
   tryMkdir(c.generateFiles.root)
 
   const files = [
-    [path.join(__dirname, './actionsTemplate.ejs'), c.generateFiles.actionsFile],
-    [path.join(__dirname, './connectTemplate.ejs'), c.generateFiles.connectFile],
-    [path.join(__dirname, './hooksTemplate.ejs'), c.generateFiles.hooksFile],
-  ]
+    [
+      c.dependencyLibs.signalModel,
+      path.join(__dirname, './actionsTemplate.ejs'), c.generateFiles.actionsFile
+    ],
+    [
+      fs.existsSync(c.modelFiles.schemaPrisma),
+      path.join(__dirname, './connectTemplate.ejs'), c.generateFiles.connectFile
+    ],
+    [
+      c.dependencyLibs.signalModel,
+      path.join(__dirname, './hooksTemplate.ejs'), c.generateFiles.hooksFile
+    ],
+  ] as [boolean, string, string][];
 
-  files.forEach(([from, to]) => {
-    cp(from, to)
-  })
+  files
+    .forEach(([s, from, to]) => {
+      if (s) {
+        cp(from, to)
+      } else if (fs.existsSync(to)) {
+        fs.unlinkSync(to)
+      }
+    })
 }
 
 export function generateSignalMap (c: IConfig) {

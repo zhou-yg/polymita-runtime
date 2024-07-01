@@ -4,7 +4,7 @@ import l from 'lodash'
 import { defineRoutesTree, readViews } from './config/routes'
 import { IFile, isFileEmpty, loadJSON, logFrame, traverse, traverseDir } from './util'
 import chalk from 'chalk'
-import { findDependencies } from './config/deps'
+import { findDependencies, findDepLibs } from './config/deps'
 import type { JSONSchemaForNPMPackageJsonFiles } from '@schemastore/package'
 const { merge } = l
 import getPort, { makeRange as portNumbers } from "get-port";
@@ -375,6 +375,7 @@ export async function readConfig (arg: {
   const generateFiles = getGenerateFiles(config, cwd)
 
   const dependencyModules = findDependencies(cwd, packageJSON)
+  const dependencyLibs = findDepLibs(packageJSON)
 
   const appRootFile = getAppRootFile(cwd, config)
 
@@ -419,6 +420,7 @@ export async function readConfig (arg: {
     views,
     pages,
     dependencyModules,
+    dependencyLibs,
     modules,
     thirdPartEntry,
   }
