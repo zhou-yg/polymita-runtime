@@ -5,6 +5,7 @@ import shelljs from 'shelljs'
 
 import { equalFileContent, loadJSON, traverseDir, tryMkdir } from "../../../util";
 import { IConfig } from '../../../config';
+import { upperFirst } from 'lodash';
 
 const { cp } = shelljs;
 
@@ -16,13 +17,15 @@ const signalMapTemplate = compile(fs.readFileSync(signalMapTemplateFilePath).toS
 export function copyContextFiles (c: IConfig) {
   tryMkdir(c.generateFiles.root)
 
+  const r2 = fs.existsSync(c.modelFiles.schemaPrisma)
+
   const files = [
     [
-      c.dependencyLibs.signalModel,
+      r2 ||  c.dependencyLibs.signalModel,
       path.join(__dirname, './actionsTemplate.ejs'), c.generateFiles.actionsFile
     ],
     [
-      fs.existsSync(c.modelFiles.schemaPrisma),
+      r2,
       path.join(__dirname, './connectTemplate.ejs'), c.generateFiles.connectFile
     ],
     [
@@ -49,15 +52,14 @@ export function generateSignalMap (c: IConfig) {
     traverseDir(signalsDir,(f) => {
       if (!f.isDir) {
         const relativePath = `./signals/${f.relativeFile}`
+        const name = /^compose\//.test(f.relativeFile) ? `compose${upperFirst(f.name)}` : f.name
         relativeSignals.push({
-          name: f.name,
+          name,
           filePath: relativePath.replace(/\.\w+$/, '')
         })
       }
     })
   }
-
-
   const signalMapFileContent = signalMapTemplate({ files: relativeSignals })
 
   fs.writeFileSync(
