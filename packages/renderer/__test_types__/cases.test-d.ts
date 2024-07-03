@@ -11,7 +11,6 @@ import {
   RemoveItem,
 } from "../src/types-layout";
 
-
 // interface BaseModuleL {
 //   type: 'div',
 //   children: [

@@ -319,7 +319,7 @@ export function shouldNotRender(json: VirtualLayoutJSON) {
 }
 
 export function lowerCaseType(type: LayoutStructTree["type"]) {
-  return typeof type === "function" ? type : camelToLine(type);
+  return typeof type === "string" ? camelToLine(type) : type;
 }
 /**
  * fork from https://github.com/JedWatson/classnames/blob/main/index.js

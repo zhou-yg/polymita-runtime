@@ -398,7 +398,7 @@ export function useSingleOverride() {
           op: CommandOP.addChild,
           condition: props.show,
           target: jsonDraft.div,
-          child: (<span is-text>text</span>), // must type p
+          child: <span is-text>text</span>, // must type p
         },
       ] as const;
     },
@@ -412,7 +412,7 @@ export function useSingleOverride() {
         {
           op: CommandOP.addChild,
           target: root.div.span,
-          child: (<text></text>), // must type p
+          child: <text></text>, // must type p
         },
       ] as const;
     },
@@ -441,7 +441,7 @@ export function overrideAtModuleLayer() {
         {
           op: CommandOP.addChild,
           target: jsonDraft.div,
-          child: (<p></p>)
+          child: <p></p>,
         },
       ] as const;
     },
@@ -649,7 +649,7 @@ export function overrideAtUseModuleAndRender(): SingleFileModule<
         {
           op: CommandOP.addChild,
           target: jsonDraft.div.p,
-          child: (<text>123</text>)
+          child: <text>123</text>,
         },
       ] as const;
     },
