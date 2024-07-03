@@ -1,10 +1,10 @@
-// import { expectType } from 'tsd'
+import { expectType } from 'tsd'
 
-// import {
-//   PrintLayoutStructTree,
-//   ConvertToLayoutTreeDraft,
-//   h2
-// } from '../src/index'
+import {
+  ConvertToLayoutTreeDraft2,
+  h,
+  PrintLayoutStructTree,
+} from '../src/index'
 
 // // v value
 
@@ -65,3 +65,22 @@ type SplitType<T> = IntersectionOfFunctionsToType<
 type Test1 = SplitType<number>; // [number]
 type Test2 = SplitType<number | string>; // [string, number]
 type Test3 = SplitType<number | string | symbol>; // [string, number, symbol]
+
+type LayoutTypes = {
+  "type": "sourceItemContainer",
+  "children": [
+    {
+      "type": "sourceItemCount",
+      "children": []
+    },
+  ]
+} 
+type Draft2 = ConvertToLayoutTreeDraft2<LayoutTypes>
+
+type Draft2Display = PrintLayoutStructTree<Draft2>
+
+expectType<Draft2>({
+  sourceItemContainer: Object.assign(h('sourceItemContainer', {}), {
+    sourceItemCount: h('sourceItemCount', {})
+  })
+})

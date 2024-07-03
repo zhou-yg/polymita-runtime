@@ -10,7 +10,6 @@ import {
   VirtualLayoutJSON,
 } from "./types";
 import {
-  createVirtualNode,
   get,
   isFunctionComponentPath,
   isVirtualNode,

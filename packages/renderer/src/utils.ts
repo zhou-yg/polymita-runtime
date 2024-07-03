@@ -286,17 +286,6 @@ export function isVNodeFunctionComponent(
   return !!target?.type?.[VNodeFunctionComponentSymbol];
 }
 
-export function createVirtualNode(child: Partial<VirtualLayoutJSON>) {
-  return {
-    ...child,
-    id: -1,
-    props: (child as any).props || {},
-    flags: VirtualNodeTypeSymbol,
-    type: child.type,
-    children: child.children,
-  };
-}
-
 export function assignDefaultValueByPropTypes<T extends Record<string, any>>(
   props: T,
   propTypes?: Record<string, PropTypeValidator>

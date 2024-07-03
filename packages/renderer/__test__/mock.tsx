@@ -351,76 +351,6 @@ export function layoutHasTypes(): SingleFileModule<
     },
   };
 }
-const baseModule = layoutHasTypes();
-// type BaseProps = Parameters<(typeof baseModule['layout'])>['0']
-// type BaseLT = ReturnType<(typeof baseModule['layoutTree'])>
-// type BaseL = PrintLayoutStructTree<ReturnType<(typeof baseModule['layoutStruct'])>>
-// type BaseOverride = ReturnType<(typeof baseModule['override'])>['0']
-// type BaseOverrideL = ReturnType<ReturnType<(typeof baseModule['override'])>['0']['patchLayout']>
-
-const newModule2 = extendModule(baseModule, () => ({
-  patchLayout(props, jsonDraft) {
-    return [
-      {
-        op: CommandOP.addChild,
-        target: jsonDraft.div,
-        child: {
-          type: "p",
-          value: "123",
-        },
-      },
-    ] as const;
-  },
-}));
-
-type BaseProp2 = Parameters<(typeof newModule2)["layout"]>["0"];
-type BaseLT2 = ReturnType<(typeof newModule2)["layoutTree"]>;
-type BaseLT2D = BaseLT2["div"];
-type BaseLT2DD = BaseLT2["div"]["div"];
-type BaseLT2DP = BaseLT2["div"]["p"];
-type BaseBaseL = PrintLayoutStructTree<(typeof newModule2)["_L"]>;
-type BasePC2Arr = PrintLayoutStructTree<(typeof newModule2)["_pc2Arr"]>;
-type BaseFPC2Arr = PrintLayoutStructTree<(typeof newModule2)["_fpc2Arr"]>;
-type BaseL2 = PrintLayoutStructTree<(typeof newModule2)["layoutStruct"]>;
-type BaseOverride2 = ReturnType<(typeof newModule2)["override"]>;
-type BaseOverride2I0 = ReturnType<
-  ReturnType<(typeof newModule2)["override"]>["0"]["patchLayout"]
->;
-type BaseOverride2I1 = ReturnType<
-  ReturnType<(typeof newModule2)["override"]>["1"]["patchLayout"]
->;
-
-const newModule3 = extendModule(newModule2, () => ({
-  patchLayout(props, jsonDraft) {
-    return [
-      {
-        op: CommandOP.addChild,
-        target: jsonDraft.div.div, // { paths: [], condition: true }
-        condition: !!props.name,
-        child: {
-          type: "text",
-          value: "hello",
-        },
-      },
-    ] as const;
-  },
-}));
-type BaseProp3 = Parameters<(typeof newModule3)["layout"]>["0"];
-type BaseLT3 = (typeof newModule3)["layoutTree"];
-type BaseBaseL3 = PrintLayoutStructTree<(typeof newModule3)["_L"]>;
-type BasePC3Arr = PrintLayoutStructTree<(typeof newModule3)["_pc2Arr"]>;
-type BaseFPC3Arr = PrintLayoutStructTree<(typeof newModule3)["_fpc2Arr"]>;
-type BaseL3 = PrintLayoutStructTree<(typeof newModule3)["layoutStruct"]>;
-type BaseOverride3 = ReturnType<(typeof newModule3)["override"]>;
-type BaseOverride3I0 = ReturnType<
-  ReturnType<(typeof newModule3)["override"]>["0"]["patchLayout"]
->;
-type BaseOverride3I1 = ReturnType<
-  ReturnType<(typeof newModule3)["override"]>["1"]["patchLayout"]
->;
-type BaseOverride3I2 = ReturnType<
-  ReturnType<(typeof newModule3)["override"]>["2"]["patchLayout"]
->;
 
 interface BaseModuleForOverrideProps {
   text: string;
@@ -468,7 +398,7 @@ export function useSingleOverride() {
           op: CommandOP.addChild,
           condition: props.show,
           target: jsonDraft.div,
-          child: (<span is-text>text</span>) as { type: "span" }, // must type p
+          child: (<span is-text>text</span>), // must type p
         },
       ] as const;
     },
@@ -482,24 +412,24 @@ export function useSingleOverride() {
         {
           op: CommandOP.addChild,
           target: root.div.span,
-          child: (<text></text>) as { type: "text" }, // must type p
+          child: (<text></text>), // must type p
         },
       ] as const;
     },
   }));
-  const m4 = extendModule(m3, () => ({
-    patchLayout(props, root) {
-      /** root expect ot be below
-       * (parameter) root: {
-            div: readonly ["div"] & {
-                span: readonly ["div", "span"] & {
-                    span: readonly ["div", "span", "span"];
-                };
-            };
-        }
-       */
-    },
-  }));
+  // const m4 = extendModule(m3, () => ({
+  //   patchLayout(props, root) {
+  //     /** root expect ot be below
+  //      * (parameter) root: {
+  //           div: readonly ["div"] & {
+  //               span: readonly ["div", "span"] & {
+  //                   span: readonly ["div", "span", "span"];
+  //               };
+  //           };
+  //       }
+  //      */
+  //   },
+  // }));
 
   return m2;
 }
@@ -511,7 +441,7 @@ export function overrideAtModuleLayer() {
         {
           op: CommandOP.addChild,
           target: jsonDraft.div,
-          child: (<p></p>) as { type: "p" }, // must type p
+          child: (<p></p>)
         },
       ] as const;
     },
@@ -719,10 +649,7 @@ export function overrideAtUseModuleAndRender(): SingleFileModule<
         {
           op: CommandOP.addChild,
           target: jsonDraft.div.p,
-          child: (<text>123</text>) as unknown as {
-            readonly type: "text";
-            readonly children: readonly ["123"];
-          },
+          child: (<text>123</text>)
         },
       ] as const;
     },

@@ -1,5 +1,5 @@
 import { signal } from '@polymita/signal-model'
-import { CommandOP, createRSRenderer, createVirtualNode, extendModule } from '../../src'
+import { CommandOP, createRSRenderer, extendModule, h } from '../../src'
 import * as mock from '../mock'
 import { overridePatchRules } from '../mock'
 
@@ -15,7 +15,7 @@ describe('override', () => {
           {
             op: CommandOP.addChild,
             target: jsonDraft.div,
-            child: createVirtualNode({ type: 'p', props: { className: 'p-cls' }, children: ['123'] }) // h('p', {}, '123')
+            child: h('p', { className: 'p-cls' }, '123') // h('p', {}, '123')
           }
         ] as const
       }
@@ -58,7 +58,7 @@ describe('override', () => {
           {
             op: CommandOP.addChild,
             target: jsonDraft.div,
-            child: createVirtualNode({ type: 'p', props: { className: 'p-cls' }, children: ['123'] }) // h('p', {}, '123')
+            child: h('p', { className: 'p-cls' }, '123') // h('p', {}, '123')
           }
         ] as const
       }
@@ -97,7 +97,7 @@ describe('override', () => {
           {
             op: CommandOP.addChild,
             target: root.div.p,
-            child: createVirtualNode({ type: 'text', children: ['456'] }) // h('text', {}, '456')
+            child: h('text', {}, '456') // h('text', {}, '456')
           }
         ] as const 
       }

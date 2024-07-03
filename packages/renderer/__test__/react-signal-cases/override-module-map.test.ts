@@ -1,5 +1,4 @@
-import { signal } from '@polymita/signal-model'
-import { CommandOP, createRHRenderer, createRSRenderer, createVirtualNode, extendModule } from '../../src'
+import { createRHRenderer } from '../../src'
 import * as mock from '../mock'
 
 describe.only('override modules map', () => {

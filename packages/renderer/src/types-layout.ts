@@ -18,6 +18,11 @@ export interface LayoutStructTree {
   readonly children?: readonly (LayoutStructTree | BaseDataType)[];
 }
 
+export interface PureLayoutStructTree {
+  readonly type: string | Function;
+  readonly children?: readonly (PureLayoutStructTree)[];
+}
+
 /**
  * explicity convert layout tree to layout tree draft
  */
@@ -50,6 +55,24 @@ export type ConvertToLayoutTreeDraft<
         : readonly [...Keys, K];
     }
   : {};
+
+export type ConvertToLayoutTreeDraft2<
+  T extends PureLayoutStructTree,
+  Keys extends string[] = []
+> = T["type"] extends string
+  ? {
+      [K in T["type"]]: T["children"] extends readonly unknown[]
+        ? T["children"]['length'] extends 0 
+          ? VirtualLayoutJSON
+          : VirtualLayoutJSON & ConvertToLayoutTreeDraft2<T["children"][number], [...Keys, K]>
+        
+        : VirtualLayoutJSON;
+    }
+  : {};
+
+type obj = { children: [] }
+
+type ab = obj['children']['length'] extends 0 ? 'aa' : 'bb'
 
 // export type ConvertToLayoutTreeDraft<T extends LayoutStructTree, Keys extends unknown[] = []> = {
 //   [K in T['type']]: T['children'] extends readonly unknown[]

@@ -1,9 +1,5 @@
-import { CommandOP, PropTypes, SignalProps, SingleFileModule, UseModule } from '../../src';
+import { h, createFunctionComponent, useLayout, useLogic, createComposeComponent, CommandOP, PropTypes, SignalProps, SingleFileModule, UseModule, extendModule } from '../../src';
 import * as mock from '../mock'
-import {
-  extendModule, h, 
-  createFunctionComponent, useLayout, useLogic, createComposeComponent
-} from '../../src/render.new'
 import { signal } from '@polymita/signal-model';
 
 export const SimpleModuleComponent = createFunctionComponent(mock.simpleModule2());
@@ -141,7 +137,7 @@ export function patchDeepComposeComponent() {
         {
           op: CommandOP.addChild,
           target: layout.div.LayoutUseLogic.div,
-          child: (<span>deep</span>) as { type: 'span' }
+          child: (<span>deep</span>)
         }
       ] as const
     }

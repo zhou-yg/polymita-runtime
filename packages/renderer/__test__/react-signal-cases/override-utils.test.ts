@@ -12,10 +12,6 @@ import {
   CommandOP,
   h,
   getVirtualNodesByPath,
-  PropTypes,
-  assignDeclarationPatterns,
-  assignDefaultValueByPropTypes,
-  createVirtualNode,
 } from '../../src'
 
 describe('override-utils', () => {
@@ -55,17 +51,20 @@ describe('override-utils', () => {
   
   describe('applyJSONTreePatches', () => {
     const baseJSON = (): VirtualLayoutJSON => ({
+      key: 0,
       type: 'div',
       flags: VirtualNodeTypeSymbol,
       props: {},
       children: [
         {
+          key: 0,
           type: 'span',
           flags: VirtualNodeTypeSymbol,
           props: {},
           children: ['123']
         },
         {
+          key: 1,
           type: 'span',
           flags: VirtualNodeTypeSymbol,
           props: {},
@@ -78,7 +77,7 @@ describe('override-utils', () => {
         {
           op: CommandOP.addChild,
           path: ['div', 'span'],
-          value: createVirtualNode({ type: 'span2' })
+          value: h('span2', {})
         }
       ]
       const result = applyJSONTreePatches(baseJSON(), patches)
@@ -96,7 +95,7 @@ describe('override-utils', () => {
         {
           op: CommandOP.addFirst,
           path: ['div', 'span'],
-          value: createVirtualNode({ type: 'span2' })
+          value: h('span2', {})
         }
       ]
       const result = applyJSONTreePatches(baseJSON(), patches)
@@ -126,10 +125,7 @@ describe('override-utils', () => {
         {
           op: CommandOP.replace,
           path: ['div', 'span'],
-          value: createVirtualNode({
-            type: 'p',
-            children: [createVirtualNode({ type: 'i' })]
-          })
+          value: h('p', {}, h('i', {}))
         }
       ]
       const result = applyJSONTreePatches(baseJSON(), patches)
@@ -165,7 +161,7 @@ describe('override-utils', () => {
         {
           op: CommandOP.wrap,
           path: ['div', 'span'],
-          value: createVirtualNode({ type: 'p' })
+          value: h('p', {})
         }
       ]
       const result = applyJSONTreePatches(baseJSON(), patches)
@@ -193,7 +189,7 @@ describe('override-utils', () => {
         {
           op: CommandOP.wrapFirst,
           path: ['div', 'span'],
-          value: createVirtualNode({ type: 'p' })
+          value: h('p', {})
         }
       ]
       const result = applyJSONTreePatches(baseJSON(), patches)
@@ -220,7 +216,7 @@ describe('override-utils', () => {
         {
           op: CommandOP.wrapLast,
           path: ['div', 'span'],
-          value: createVirtualNode({ type: 'p' })
+          value: h('p', {})
         }
       ]
       const result = applyJSONTreePatches(baseJSON(), patches)

@@ -24,23 +24,11 @@ import {
 describe('utils', () => {
 
   it('buildLayoutNestedObj', () => {
-    const json: VirtualLayoutJSON = {
-      type: 'div',
-      flags: VirtualNodeTypeSymbol,
-      props: {
-        id: 'root'
-      },
-      children: [
-        {
-          type: 'div',
-          flags: VirtualNodeTypeSymbol,
-          props: {
-            id: 'child'
-          },
-          children: undefined
-        }
-      ]
-    }
+    const json: VirtualLayoutJSON = h(
+      'div',
+      { id: 'root' }, 
+      h('div', { id: 'child' })
+    )
 
     expect(buildLayoutNestedObj(json)).toEqual({
       div: {
