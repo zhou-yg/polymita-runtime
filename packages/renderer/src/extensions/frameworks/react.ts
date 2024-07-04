@@ -161,7 +161,9 @@ export function createReactContainer<
 
     const originModule = getModuleFromFunctionComponent(nodeType)
     if (originModule) {
+      // console.log('[render] originModule: ', options.modulesLinkMap, originModule.namespace, originModule.name);
       const alreadyActiveOverrideModules = getActiveModuleByBase(originModule, options.modulesLinkMap, options.modulesActiveMap)
+      // console.log('[render] readyActiveOverrideModules: ', alreadyActiveOverrideModules);
       if (alreadyActiveOverrideModules?.length) {
         const newModule = mergeOverrideModules(alreadyActiveOverrideModules)
         const newNodeType = createFunctionComponent(newModule)

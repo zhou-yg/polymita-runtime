@@ -533,31 +533,35 @@ export function getActiveModuleByBase(
   }
 }
 
+globalThis.xxx = []
+
 export function registerModule(
   m: SingleFileModule<any, any, any, any>,
   mp: GlobalModulesLinkMap
 ) {
   if (m && mp) {
     const key = moduleIndexKey(m);
-    const modules = mp.get(key);
+    let modules = mp.get(key);
     if (modules) {
       if (!modules.includes(m)) {
         modules.push(m);
       }
     } else {
-      mp.set(key, [m]);
+      modules = [m]
     }
+    mp.set(key, modules);
   }
   if (mp && m?.base) {
     const baseKey = moduleIndexKey(m.base);
-    const baseModules = mp.get(baseKey);
+    let baseModules = mp.get(baseKey);
     if (baseModules) {
       if (!baseModules.includes(m)) {
         baseModules.push(m);
       }
     } else {
-      mp.set(baseKey, [m]);
+      baseModules = [m]
     }
+    mp.set(baseKey, baseModules);
   }
 }
 
