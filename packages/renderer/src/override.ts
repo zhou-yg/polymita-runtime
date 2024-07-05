@@ -194,7 +194,7 @@ export function applyJSONTreePatches(
     if (path.length > 1) {
       parent = getVirtualNodesByPath(source, path.slice(0, -1))[0];
     }
-    console.log('[applyJSONTreePatches] path: ', source, path, current);
+    // console.log('[applyJSONTreePatches] path: ', source, path, current);
 
     if (isVNodeFunctionComponent(current[0])) {
       mergeConstructOverrideToNode(current, i, patch);
@@ -247,7 +247,7 @@ function assignPatchToNode(
       });
       break;
     case CommandOP.addChild:
-      console.log('[assignPatchToNode] current: ', current);
+      // console.log('[assignPatchToNode] current: ', current);
       current.forEach((node) => {
         if (node.children) {
           node.children = [].concat(node.children).concat(jsonValue);
@@ -387,7 +387,7 @@ export function getVirtualNodesByPath(
           return matchPolymita
         }
       );
-      console.log('[getVirtualNodesByPath] FunctionComponent Path current: ', newCurrent);
+      // console.log('[getVirtualNodesByPath] FunctionComponent Path current: ', newCurrent);
       /**
        * @TODO polymita-module默认无children嵌套结构，有patch均认为是修改内部，所以可以直接return
        */
