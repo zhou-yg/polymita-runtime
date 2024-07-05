@@ -12,6 +12,7 @@ import {
 import {
   get,
   isFunctionComponentPath,
+  isReactComponent,
   isVirtualNode,
   isVNodeFunctionComponent,
   set,
@@ -193,6 +194,7 @@ export function applyJSONTreePatches(
     if (path.length > 1) {
       parent = getVirtualNodesByPath(source, path.slice(0, -1))[0];
     }
+    console.log('[applyJSONTreePatches] path: ', source, path, current);
 
     if (isVNodeFunctionComponent(current[0])) {
       mergeConstructOverrideToNode(current, i, patch);
@@ -245,6 +247,7 @@ function assignPatchToNode(
       });
       break;
     case CommandOP.addChild:
+      console.log('[assignPatchToNode] current: ', current);
       current.forEach((node) => {
         if (node.children) {
           node.children = [].concat(node.children).concat(jsonValue);
@@ -360,24 +363,52 @@ export function getVirtualNodesByPath(
 ): [VirtualLayoutJSON[], number] {
   let current = [source];
   let i = 0;
+
+
+  // 'Card.CardContent.Button'
   for (; i < path.length; i++) {
     const type = path[i];
 
     if (isFunctionComponentPath(type)) {
-      current = current.filter(
-        (n) => isVNodeFunctionComponent(n) && n.type.name === type
+      /**
+       * 检查冲突情况
+       * @TODO 暂不考虑 polymita-module 和 react-component在同一层级且组件name同名的情况
+       */
+      // current.forEach(n => {
+      //    // 同层且name相同
+      // })
+      let isPolymitaModule = false
+      const newCurrent = current.filter(
+        (n) => {
+          const matchPolymita = isVNodeFunctionComponent(n) && n.type.name === type
+          if (matchPolymita) {
+            isPolymitaModule = true
+          }
+          return matchPolymita
+        }
       );
-      break;
+      console.log('[getVirtualNodesByPath] FunctionComponent Path current: ', newCurrent);
+      /**
+       * @TODO polymita-module默认无children嵌套结构，有patch均认为是修改内部，所以可以直接return
+       */
+      if (isPolymitaModule) {
+        current = newCurrent
+        break;
+      }
     }
 
     const newCurrent: VirtualLayoutJSON[] = [];
-    for (const node of current) {
+    current.forEach(node => {
       if (isVirtualNode(node)) {
+        // console.log('[getVirtualNodesByPath] node.type: ', (node.type as any));
         if (node.type === type) {
+          newCurrent.push(node);
+        } else if (isReactComponent(node.type) && node.type.render?.name === type) {
           newCurrent.push(node);
         }
       }
-    }
+    })
+
     if (newCurrent.length === 0) {
       if (i === 0) {
         current = [];
