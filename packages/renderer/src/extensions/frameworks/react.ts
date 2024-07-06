@@ -7,7 +7,7 @@ import {
   SEMATIC_RELATION_HAS, SEMATIC_RELATION_IS, mergeFromProps, renderHTMLProp, shouldNotRender, assignDefaultValueByPropTypes, ShouldRenderAttr, lowerCaseType, isVNodeComponent, 
   getNodeType,
   getModuleFromFunctionComponent} from '../../utils'
-import { runOverrides, proxyLayoutJSON, ProxyLayoutHandler, assignRules, getActiveModuleByBase, mergeOverrideModules } from "../../override";
+import { runLayoutAndRulesOverrides, proxyLayoutJSON, ProxyLayoutHandler, assignRules, getActiveModuleByBase, mergeOverrideModules, runLogicOverrides } from "../../override";
 
 import { LayoutStructTree, ConvertToLayoutTreeDraft, PatchCommand, BaseDataType } from "../../types-layout";
 import { NormalizeProps } from '../../types';
@@ -98,6 +98,12 @@ export function createReactContainer<
     cache.props = props
 
     return r
+  }
+  function updateLogic(r: any) {
+    let cache: ModuleCache = module[cacheSymbol]
+    if (cache) {
+      cache.logicResult = r
+    }
   }
 
   function runLogicFromCache () {
@@ -193,19 +199,31 @@ export function createReactContainer<
     OverrideModule<P, SingleFileModule<P, L, [...PCArr, NewRenderPC], ModuleName>['layoutStruct'], NewRenderPC>,
     OverrideModule<P, SingleFileModule<P, L, [...PCArr, NewRenderPC, NewConstructPC], ModuleName>['layoutStruct'], NewConstructPC>
   ]) {
+    /**
+     * 处理props
+     * 1.填充propTypes default
+     * 2.使用插件的convertProps拓展转换
+     */
     if (!props) {
       props = {} as any
     }
     const defaultPropsRef = React.useRef(null)
     if (!defaultPropsRef.current) {
-      defaultPropsRef.current = assignDefaultValueByPropTypes({}, module.propTypes)
+      defaultPropsRef.current = assignDefaultValueByPropTypes({}, modulePropTypes)
     }
-    props = Object.assign({}, defaultPropsRef.current, props)
 
-    /** maybe Signal */
+    props = Object.assign({}, defaultPropsRef.current, props)
     const convertedProps: P = convertProps(props, modulePropTypes) as unknown as P
 
-    initLogic(convertedProps)
+    const moduleOverrides = module.override?.() || []
+    const allOverrideModules = [...moduleOverrides, ...overrides] as unknown as OverrideModule<any, any, any>[]
+    // console.log('[construct] allOverrideModules: ', allOverrideModules[0]?.patchLayout.toString());
+
+    const logicResult = initLogic(convertedProps)
+    const overrideLogicResult = runLogicOverrides(allOverrideModules, convertedProps, logicResult)
+    if (overrideLogicResult !== logicResult) {
+      updateLogic(overrideLogicResult)
+    }
 
     const { proxyHandler } = getLayoutFromModule(convertedProps)
     if (proxyHandler) {
@@ -215,12 +233,7 @@ export function createReactContainer<
         assignRules(proxyHandler.draft, rules)
       }
 
-      const moduleOverrides = module.override?.() || []
-
-      const allOverrideModules = [...moduleOverrides, ...overrides] as unknown as OverrideModule<any, any, any>[]
-      // console.log('[construct] allOverrideModules: ', allOverrideModules[0]?.patchLayout.toString());
-
-      runOverrides(allOverrideModules, convertedProps, proxyHandler.draft);
+      runLayoutAndRulesOverrides(allOverrideModules, convertedProps, proxyHandler.draft);
       
       allOverrideModules.forEach(override => {
         proxyHandler.append(override.patches)

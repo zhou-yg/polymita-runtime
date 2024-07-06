@@ -211,7 +211,7 @@ export interface DraftPatch {
 export interface OverrideModule<
   Props extends VirtualLayoutJSON["props"] = unknown,
   L extends LayoutStructTree = any,
-  PC = []
+  PC = [],
 > {
   patches?: DraftPatch[];
   // patchRules?: (props: Props, root: ConvertToLayoutTreeDraft<L>) => StyleRule[];
@@ -219,6 +219,7 @@ export interface OverrideModule<
   layout?: (props: Props, layoutDraft: LayoutTreeProxyDraft) => void;
   // patchLayout?: (props: Props, root: ConvertToLayoutTreeDraft<L>) => PC;
   patchLayout?: (props: Props, root: any) => PatchCommand[];
+  patchLogic?: (props: Props, prevLogicResult: any) => any;
 }
 
 export type Func = (...args: any[]) => any;

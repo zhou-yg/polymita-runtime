@@ -352,6 +352,28 @@ export function layoutHasTypes(): SingleFileModule<
   };
 }
 
+export function layoutHasLogic(): SingleFileModule<
+  { name: string },
+  LayoutHasTypesStruct,
+  [[]],
+  "unknown"
+> {
+  return {
+    logic(...args) {
+      return {
+        a: 1,
+      }
+    },
+    layout(props) {
+      return (
+        <div>
+          <div>{props.name}</div>
+        </div>
+      );
+    },
+  };
+}
+
 interface BaseModuleForOverrideProps {
   text: string;
 }

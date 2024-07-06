@@ -1,5 +1,5 @@
 import { signal } from '@polymita/signal-model'
-import { CommandOP, createRSRenderer, extendModule, h } from '../../src'
+import { CommandOP, createRHRenderer, createRSRenderer, extendModule, h, useLogic } from '../../src'
 import * as mock from '../mock'
 import { overridePatchRules } from '../mock'
 
@@ -283,5 +283,27 @@ describe('override', () => {
         children: 'patch style rules'
       }
     })
+  })
+
+  it('patch logic', () => {
+    const newModule = extendModule(mock.layoutHasLogic(), () => ({
+      patchLogic(props, prevLogicResult) {
+        return {
+          ...prevLogicResult,
+          b: 2
+        }
+      },
+      patchLayout(props, root) {
+        const logic = useLogic();
+
+        expect(logic).toEqual({ a: 1, b: 2 })
+
+        return []
+      },
+    }))
+
+    const rr = createRHRenderer(newModule, { framework: mock.MockRectFramework });
+    const r1 = rr.construct({ name: 'patch style rules' })
+    const r2 = rr.render()
   })
 })

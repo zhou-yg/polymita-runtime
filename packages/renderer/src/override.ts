@@ -442,7 +442,19 @@ export function getVirtualNodesByPath(
   return [current, i];
 }
 
-export function runOverrides(
+export function runLogicOverrides(
+  overrides: OverrideModule<any, any, any>[],
+  props: Record<string, any>,
+  logicResult: any,
+) {
+  let prevLogicResult = logicResult
+  // patch logic
+  overrides.forEach((override) => {
+    prevLogicResult = override.patchLogic?.(props, prevLogicResult)
+  });
+  return prevLogicResult
+}
+export function runLayoutAndRulesOverrides(
   overrides: OverrideModule<any, any, any>[],
   props: Record<string, any>,
   draft: LayoutTreeProxyDraft
