@@ -364,7 +364,6 @@ export function getVirtualNodesByPath(
   let current = [source];
   let i = 0;
 
-
   // 'Card.CardContent.Button'
   for (; i < path.length; i++) {
     const type = path[i];
@@ -377,37 +376,39 @@ export function getVirtualNodesByPath(
       // current.forEach(n => {
       //    // 同层且name相同
       // })
-      let isPolymitaModule = false
-      const newCurrent = current.filter(
-        (n) => {
-          const matchPolymita = isVNodeFunctionComponent(n) && n.type.name === type
-          if (matchPolymita) {
-            isPolymitaModule = true
-          }
-          return matchPolymita
+      let isPolymitaModule = false;
+      const newCurrent = current.filter((n) => {
+        const matchPolymita =
+          isVNodeFunctionComponent(n) && n.type.name === type;
+        if (matchPolymita) {
+          isPolymitaModule = true;
         }
-      );
+        return matchPolymita;
+      });
       // console.log('[getVirtualNodesByPath] FunctionComponent Path current: ', newCurrent);
       /**
        * @TODO polymita-module默认无children嵌套结构，有patch均认为是修改内部，所以可以直接return
        */
       if (isPolymitaModule) {
-        current = newCurrent
+        current = newCurrent;
         break;
       }
     }
 
     const newCurrent: VirtualLayoutJSON[] = [];
-    current.forEach(node => {
+    current.forEach((node) => {
       if (isVirtualNode(node)) {
         // console.log('[getVirtualNodesByPath] node.type: ', (node.type as any));
         if (node.type === type) {
           newCurrent.push(node);
-        } else if (isReactComponent(node.type) && node.type.render?.name === type) {
+        } else if (
+          isReactComponent(node.type) &&
+          node.type.render?.name === type
+        ) {
           newCurrent.push(node);
         }
       }
-    })
+    });
 
     if (newCurrent.length === 0) {
       if (i === 0) {
@@ -445,14 +446,14 @@ export function getVirtualNodesByPath(
 export function runLogicOverrides(
   overrides: OverrideModule<any, any, any>[],
   props: Record<string, any>,
-  logicResult: any,
+  logicResult: any
 ) {
-  let prevLogicResult = logicResult
+  let prevLogicResult = logicResult;
   // patch logic
   overrides.forEach((override) => {
-    prevLogicResult = override.patchLogic?.(props, prevLogicResult)
+    prevLogicResult = override.patchLogic?.(props, prevLogicResult);
   });
-  return prevLogicResult
+  return prevLogicResult;
 }
 export function runLayoutAndRulesOverrides(
   overrides: OverrideModule<any, any, any>[],
@@ -576,7 +577,7 @@ export function getActiveModuleByBase(
   }
 }
 
-globalThis.xxx = []
+globalThis.xxx = [];
 
 export function registerModule(
   m: SingleFileModule<any, any, any, any>,
@@ -590,7 +591,7 @@ export function registerModule(
         modules.push(m);
       }
     } else {
-      modules = [m]
+      modules = [m];
     }
     mp.set(key, modules);
   }
@@ -602,7 +603,7 @@ export function registerModule(
         baseModules.push(m);
       }
     } else {
-      baseModules = [m]
+      baseModules = [m];
     }
     mp.set(baseKey, baseModules);
   }

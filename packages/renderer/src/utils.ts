@@ -192,11 +192,11 @@ export function isVirtualNode(node: any): node is VirtualLayoutJSON {
   );
 }
 
-export function isReactComponent(node: any): node is { $$typeof: Symbol, render: Function} {
-// export function isReactComponent(node: any): node is any {
-  return '$$typeof' in node &&
-    node.render &&
-    typeof node.render === 'function'
+export function isReactComponent(
+  node: any
+): node is { $$typeof: Symbol; render: Function } {
+  // export function isReactComponent(node: any): node is any {
+  return "$$typeof" in node && node.render && typeof node.render === "function";
 }
 
 /**
