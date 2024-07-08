@@ -71,13 +71,13 @@ export function prisma<T>(
       query.then((q) => {
         plugin
           .getPlugin("Model")
-          .find("next-connect", entity, q)
+          .find(namespace, entity, q)
           .then(callback);
       });
     } else {
       plugin
         .getPlugin("Model")
-        .find("next-connect", entity, query)
+        .find(namespace, entity, query)
         .then(callback);
     }
   };
@@ -111,7 +111,7 @@ export function writePrisma<T extends any[]>(name: string) {
 
   const create = (obj?: Partial<T[0]>) => {
     const model = plugin.getPlugin("Model")
-    return model.create("next-connect", entity, { data: obj }).then(res => {
+    return model.create(namespace, entity, { data: obj }).then(res => {
         modelEvents.emit(key)
         return res
       });
@@ -119,7 +119,7 @@ export function writePrisma<T extends any[]>(name: string) {
   const update = (whereId: number, obj?: Partial<T[0]>) => {
     return plugin
       .getPlugin("Model")
-      .update("next-connect", entity, { where: { id: whereId }, data: obj }).then(res => {
+      .update(namespace, entity, { where: { id: whereId }, data: obj }).then(res => {
         modelEvents.emit(key)
         return res
       });
@@ -130,7 +130,7 @@ export function writePrisma<T extends any[]>(name: string) {
   ) => {
     return plugin
       .getPlugin("Model")
-      .updateMany("next-connect", entity, { where, data: obj }).then(res => {
+      .updateMany(namespace, entity, { where, data: obj }).then(res => {
         modelEvents.emit(key)
         return res
       });
@@ -141,7 +141,7 @@ export function writePrisma<T extends any[]>(name: string) {
   ) => {
     return plugin
       .getPlugin("Model")
-      .upsert("next-connect", entity, { where, data: obj }).then(res => {
+      .upsert(namespace, entity, { where, data: obj }).then(res => {
         modelEvents.emit(key)
         return res
       });
@@ -149,7 +149,7 @@ export function writePrisma<T extends any[]>(name: string) {
   const remove = (whereId: number) => {
     return plugin
       .getPlugin("Model")
-      .remove("next-connect", entity, { where: { id: whereId } }).then(res => {
+      .remove(namespace, entity, { where: { id: whereId } }).then(res => {
         modelEvents.emit(key)
         return res
       });
