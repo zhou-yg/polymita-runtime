@@ -8,6 +8,7 @@ import { findDependencies, findDepLibs } from './config/deps'
 import type { JSONSchemaForNPMPackageJsonFiles } from '@schemastore/package'
 const { merge } = l
 import getPort, { makeRange as portNumbers } from "get-port";
+import { Request, Response } from 'koa'
 
 export { IViewConfig } from './config/routes'
 
@@ -24,6 +25,7 @@ export const defaultConfig = () => ({
   pageDirectory: 'pages',
   modulesDirectory: 'modules', // for polymita module dir
   testDirectory: 'test',
+  scriptDirectory: 'scripts', // for js script
 
   publicDirectory: 'public',
 
@@ -76,6 +78,17 @@ export const defaultConfig = () => ({
   // compose
   compose: []
 })
+
+interface ServerScriptConfig {
+  runtime: 'server',
+  onMounted: (req: Request, res: Response) => void;
+}
+interface EdgeScriptConfig {
+  runtime: 'edge',
+  onMounted: () => void;
+}
+
+export type ScriptConfig = EdgeScriptConfig | ServerScriptConfig
 
 export type IDefaultConfig = ReturnType<typeof defaultConfig> & {
   cjsDirectory: 'cjs',
@@ -202,6 +215,8 @@ function getGenerateFiles(config: IDefaultConfig, cwd:string) {
     hooksFile: path.join(generateRootPath, 'hooks.ts'),
     actionsFile: path.join(generateRootPath, 'actions.ts'),
     connectFile: path.join(generateRootPath, 'connect.ts'),
+    serverScriptsFile: path.join(generateRootPath, 'serverScripts.ts'),
+    edgeScriptsFile: path.join(generateRootPath, 'edgeScripts.ts'),
   }
 }
 
@@ -249,18 +264,29 @@ function getAppRootFile (cwd: string, c: IDefaultConfig) {
   }
 }
 
-function readdirDepth (dir: string) {
-  if (!fs.existsSync(dir)) {
-    return []
+function readScripts (dir: string) {
+  const result = {
+    server: [] as IFile[],
+    edge: [] as IFile[]
   }
-  const files: IFile[] = []
+
+  const serverDir = path.join(dir, 'server')
+  const edgeDir = path.join(dir, 'edge')
+
   traverseDir(dir, (f) => {
-    if (!f.isDir) {
-      files.push(f)
+    if (/\.ts/.test(f.path)) {
+      if (f.path.startsWith(edgeDir)) {
+        result.edge.push(f)
+      } else {
+        /**
+         * by default, all files treated as server runtime script
+         */
+        result.server.push(f)
+      }
     }
   })
 
-  return files
+  return result
 }
 
 interface UserCustomConfig {
@@ -327,6 +353,7 @@ export async function readConfig (arg: {
   const pagesDirectory = path.join(appDirectory, config.pageDirectory)
   const modulesDirectory = path.join(cwd, config.modulesDirectory)
   const modelsDirectory = path.join(cwd, config.modelsDirectory)
+  const scriptsDirectory = path.join(cwd, config.scriptDirectory)
 
   const views = readViews(viewsDirectory, '/')
   views.forEach(c => {
@@ -336,6 +363,8 @@ export async function readConfig (arg: {
   const pages = readPages(pagesDirectory, '/')
 
   const modules = readModules(modulesDirectory)
+
+  const scripts = readScripts(scriptsDirectory)
 
   // complement page file with page directory
   pages.forEach(c => {
@@ -407,6 +436,7 @@ export async function readConfig (arg: {
     tailwindConfigPath,
     project,
     port,
+    scripts,
     appRootFile,
     routesTree,
     packageJSON,

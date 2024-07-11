@@ -9,6 +9,7 @@ import {
   errorFrame,
   generateSignalsAndDeps,
   copyContextFiles,
+  generateScripts,
 } from '../src'
 
 const chokidarOptions = () => ({
@@ -23,10 +24,13 @@ const chokidarOptions = () => ({
 async function buildEverything (c: IConfig) {
   generateSignalMap(c)
   copyContextFiles(c)
+  
+  generateScripts(c)
 
-  await generateViewFromModule(c)
-
-  await generateSignalsAndDeps(c)
+  await Promise.all([
+    generateViewFromModule(c),
+    generateSignalsAndDeps(c),
+  ])
   
   generateLayoutTypes(c)
 

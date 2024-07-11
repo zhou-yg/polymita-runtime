@@ -2,17 +2,22 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { compile } from 'ejs'
 import shelljs from 'shelljs'
+import rimraf from 'rimraf'
 
-import { equalFileContent, loadJSON, traverseDir, tryMkdir } from "../../../util";
+import { equalFileContent, loadJSON, removeExt, traverseDir, tryMkdir } from "../../../util";
 import { IConfig } from '../../../config';
-import { upperFirst } from 'lodash';
+import { camelCase, upperFirst } from 'lodash';
 
 const { cp } = shelljs;
 
 const signalMapTemplateFile = './signalsMapTemplate.ejs'
 const signalMapTemplateFilePath = path.join(__dirname, signalMapTemplateFile)
 
+const scriptsTemplateFile = './scriptsTemplate.ejs'
+const scriptsTemplateFilePath = path.join(__dirname, scriptsTemplateFile)
+
 const signalMapTemplate = compile(fs.readFileSync(signalMapTemplateFilePath).toString())
+const scriptsTemplate = compile(fs.readFileSync(scriptsTemplateFilePath).toString())
 
 export function copyContextFiles (c: IConfig) {
   tryMkdir(c.generateFiles.root)
@@ -22,15 +27,18 @@ export function copyContextFiles (c: IConfig) {
   const files = [
     [
       r2 ||  c.dependencyLibs.signalModel,
-      path.join(__dirname, './actionsTemplate.ejs'), c.generateFiles.actionsFile
+      path.join(__dirname, './actionsTemplate.ejs'),
+      c.generateFiles.actionsFile
     ],
     [
       r2,
-      path.join(__dirname, './connectTemplate.ejs'), c.generateFiles.connectFile
+      path.join(__dirname, './connectTemplate.ejs'),
+      c.generateFiles.connectFile
     ],
     [
       c.dependencyLibs.signalModel,
-      path.join(__dirname, './hooksTemplate.ejs'), c.generateFiles.hooksFile
+      path.join(__dirname, './hooksTemplate.ejs'),
+      c.generateFiles.hooksFile
     ],
   ] as [boolean, string, string][];
 
@@ -66,4 +74,29 @@ export function generateSignalMap (c: IConfig) {
     path.join(c.generateFiles.signalMap),
     signalMapFileContent
   )
+}
+
+export function generateScripts(c: IConfig) {
+  const { scripts } = c;
+  
+  const arr = [
+    [scripts.server, c.generateFiles.serverScriptsFile], 
+    [scripts.edge, c.generateFiles.edgeScriptsFile],
+  ] as const;
+  
+  console.log('arr: ', arr);
+  arr.forEach(([files, destFile]) => {
+    if (files.length) {
+      const f = files.map(f => ({
+        name: camelCase(f.name),
+        path: removeExt(path.join('@/scripts', f.relativeFile)),
+      }))
+      const content = scriptsTemplate({
+        scripts: f
+      })
+      fs.writeFileSync(destFile, content)
+    } else {
+      rimraf.sync(destFile)
+    }
+  })
 }

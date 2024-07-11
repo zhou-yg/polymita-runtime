@@ -250,3 +250,7 @@ export function resolveNodeModulesLib (cwd: string, lib: string) {
 export function projectRelativePath (c: IConfig, p: string) {
   return p.replace(c.cwd, '')
 }
+
+export function removeExt(s: string) {
+  return s.replace(/\.\w+/, '')
+}

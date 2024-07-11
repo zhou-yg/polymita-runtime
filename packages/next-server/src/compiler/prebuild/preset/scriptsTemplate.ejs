@@ -1,0 +1,8 @@
+import 'server-only'
+<% scripts.forEach(s => { %>
+import * as <%= s.name %> from '<%= s.path %>'; <% }) %>
+
+export const onMounted = (...args: any[]) => {
+  <% scripts.forEach(s => { %>
+  <%= s.name %>.onMounted?.(...args) <% }) %>    
+}
