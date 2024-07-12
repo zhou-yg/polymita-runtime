@@ -1,0 +1,65 @@
+{
+  "name": "@polymita/basic-layout",
+  "version": "1.0.14",
+  "tarat": {},
+  "description": "a tarat unit",
+  "scripts": {
+    "p:dev": "prisma migrate dev && prisma generate",
+    "p:gen": "prisma generate",
+    "dev": "polymita dev",
+    "any": "polymita any",
+    "dev:next": "next dev",
+    "build": "polymita build",
+    "build:next": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "init": "pnpm i && npm run p:dev",
+    "p:deploy": "prisma migrate deploy",
+    "p:studio": "prisma studio",
+    "test": "polymita test"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "prisma": {
+    "schema": "./models/schema.prisma"
+  },
+  "files": [
+    "dist",
+    "pacakge.json",
+    "types",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
+    "@mui/material": "^5.16.0",
+    "@polymita/next-connect": "workspace:^",
+    "@polymita/next-server": "workspace:^",
+    "@polymita/renderer": "workspace:^",
+    "@prisma/client": "^5.10.2",
+    "date-fns": "^2.29.3",
+    "next": "14.1.0",
+    "prisma": "^5.10.2",
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.0.1",
+    "eslint": "^8",
+    "eslint-config-next": "14.1.0",
+    "postcss": "^8",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5"
+  },
+  "volta": {
+    "node": "20.11.1"
+  }
+}
