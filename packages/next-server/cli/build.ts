@@ -7,10 +7,12 @@ import { buildModelIndexes, buildModules, buildSignals, buildTailwindCSS, compos
 function copyFiles (config: IConfig) {
   copyModelFiles(config)
 
-  cp('-r', 
-    path.join(config.cwd, 'types'),
-    path.join(config.pointFiles.outputDir, 'types')
-  )
+  if (fs.existsSync(path.join(config.cwd, 'types'))) {
+    cp('-r', 
+      path.join(config.cwd, 'types'),
+      path.join(config.pointFiles.outputDir, 'types')
+    )
+  }
 }
 
 export default async (cwd: string) => {

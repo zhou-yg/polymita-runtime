@@ -159,7 +159,7 @@ interface JSONTreeComponent {
 
 type JSONTree = JSONTreeNode | JSONTreeComponent;
 
-function parse (fileContent: string) {
+export function parse (fileContent: string) {
   
   const { sourceFile, layoutAST} = pickLayoutAST(fileContent)
   
@@ -176,7 +176,7 @@ function parse (fileContent: string) {
   return jsonTree
 }
 
-function toDTS (json: JSONTree) {
+export function toTSD (json: JSONTree) {
   return JSON.stringify(json, (k, v) => {
     if (
       typeof v === 'object' ||
@@ -198,7 +198,7 @@ export function generateLayoutTypes (c: IConfig) {
     const content = fs.readFileSync(f.path, 'utf-8')
     const jsonTree = parse(content)
 
-    const dts = toDTS(jsonTree)
+    const dts = toTSD(jsonTree)
 
     const relativeName = f.path.replace(modulesDir, '').replace(/\.\w+$/, '')
 
