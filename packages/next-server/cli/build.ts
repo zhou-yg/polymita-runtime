@@ -35,12 +35,12 @@ export default async (cwd: string) => {
 
   let t1 = time()
 
-  await buildSignals(config)
-
-  logFrame(`build signals in ${t1()}s`)
+  await Promise.all([
+    buildSignals(config),
+    generateViewFromModule(config, true),
+  ])
 
   await Promise.all([
-    generateViewFromModule(config, true),
     buildModules(config),
     buildTailwindCSS(config),
   ])

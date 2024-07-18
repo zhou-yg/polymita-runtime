@@ -75,7 +75,7 @@ export default function loadModuleToView (arg: {
           name = path.parse(parsed.dir).name
         }
 
-        const relativePath = args.path.replace(modulesDir, '')
+        const relativePath = args.path.replace(modulesDir, '').replace(/^\//, '')
 
         const moduleCode = await fs.promises.readFile(args.path, 'utf8')
 

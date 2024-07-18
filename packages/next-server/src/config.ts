@@ -17,7 +17,7 @@ export const defaultConfig = () => ({
   platform: 'web', // 'desktop'
 
   // client about
-  viewsDirectory: 'views', // in tarat the display unit maybe page or component, they should belong to "views"
+  viewsDirectory: 'views', // in polymita the display unit maybe page or component, they should belong to "views"
   signalsDirectory: 'signals',
   composeDriversDirectory: 'compose',
   modelsDirectory: 'models',
@@ -26,7 +26,6 @@ export const defaultConfig = () => ({
   modulesDirectory: 'modules', // for polymita module dir
   testDirectory: 'test',
   scriptDirectory: 'scripts', // for js script
-
   publicDirectory: 'public',
 
   thirdPartDir: 'third_part',
@@ -42,12 +41,12 @@ export const defaultConfig = () => ({
   generateSignalsMap: 'signalsMap',
 
   entryServer: 'entry.server', // .(j|t)sx in app
-  routesServer: 'routes.server', // serve for tarat self
-  routes: 'routes', // serve for tarat self
+  routesServer: 'routes.server', // serve for polymita self
+  routes: 'routes', // serve for polymita self
 
   ts: false,
 
-  devCacheDirectory: '.tarat', // in cwd
+  devCacheDirectory: '.polymita', // in cwd
   buildDirectory: 'dist', // in cwd
   testCacheDirectory: '.test', // in cwd
 
@@ -424,6 +423,27 @@ export async function readConfig (arg: {
 
   const tailwindConfigPath = getTailwindConfigPath(cwd)
 
+  const rootTsconfig = path.join(cwd, 'tsconfig.json');
+
+  const preservedDirs = [
+    config.viewsDirectory,
+    config.signalsDirectory,
+    config.composeDriversDirectory,
+    config.modelsDirectory,
+    config.appDirectory,
+    config.pageDirectory,
+    config.modulesDirectory,
+    config.testDirectory,
+    config.scriptDirectory,
+    config.publicDirectory,
+    config.thirdPartDir,
+    config.entry,
+    config.appRoot,
+    config.devCacheDirectory,
+    config.buildDirectory,
+    config.testCacheDirectory,
+  ]
+
   return {
     ...config,
     modelFiles: {
@@ -453,5 +473,7 @@ export async function readConfig (arg: {
     dependencyLibs,
     modules,
     thirdPartEntry,
+    preservedDirs,
+    rootTsconfig,
   }
 }

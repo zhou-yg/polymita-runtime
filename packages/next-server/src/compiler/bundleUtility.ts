@@ -39,19 +39,9 @@ export async function buildDTS (c: IConfig, inputs: string[], outdir?: string) {
         cwd: c.cwd,
         env: process.env,
       },
-      // (err, stdout, stderr) => {
-      //   console.log('err: ', err);
-      //   console.log('stdout: ', stdout);
-      //   console.log('stderr: ', stderr);
-      //   if (err) {
-      //     reject(err)
-      //   } else {
-      //     resolve()
-      //   }
-      // }
     )
     instance.stderr.on('data', data => {
-      // console.log(`stderr:  ${data}`);
+      // console.log(`[buildDTS] stderr:  ${data}`);
     })
     instance.stdout.on('data', data => {
       // console.log(`stdout:  ${data}`);
@@ -60,18 +50,36 @@ export async function buildDTS (c: IConfig, inputs: string[], outdir?: string) {
       resolve()
     })
     instance.on('error', (err) => {
-      console.log('err: ', err);
+      console.log('[buildDTS] err: ', err);
       reject()
     })
   }))
+}
 
-  // if (fs.existsSync(output)) {
-  //   const outputTSD = fs.readFileSync(output, 'utf-8')
-  //   const rows = outputTSD.split('\n');
-  
-  //   fs.writeFileSync(
-  //     output,
-  //     rows.slice(1, rows.length - 2).join('\n'),
-  //   )
-  // }
+export async function runTSC (c: IConfig, inputs: string[], outdir?: string) {
+  const cli2 = `${inputs.join(' ')} --esModuleInterop --declaration --outdir ${outdir}`.split(' ')
+  console.log('cli2: ', cli2);
+  await new Promise<void>(((resolve, reject) => {
+    const instance = spawn(
+      tsc,
+      cli2,
+      {
+        cwd: c.cwd,
+        env: process.env,
+      },
+    )
+    instance.stderr.on('data', data => {
+      console.log(`[runTSC] stderr:  ${data}`);
+    })
+    instance.stdout.on('data', data => {
+      console.log(`[runTSC] stdout:  ${data}`);
+    })
+    instance.on('close', (code, s) => {
+      resolve()
+    })
+    instance.on('error', (err) => {
+      console.log('[runTSC err: ', err);
+      reject()
+    })
+  }))
 }

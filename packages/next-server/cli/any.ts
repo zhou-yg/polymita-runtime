@@ -8,11 +8,14 @@ import {
   time,
   errorFrame,
   generateSignalsAndDeps,
+  buildModules,
+  buildCommonDirs,
+  emptyDirectory,
 } from '../src'
 
 async function buildEverything (c: IConfig) {
 
-  await generateViewFromModule(c)
+  // await generateViewFromModule(c)
 
   // await generateSignalsAndDeps(c)
   
@@ -33,22 +36,13 @@ function prepareDirs(c: IConfig) {
 export default async (cwd: string) => {
   const config = await readConfig({
     cwd,
+    isProd: true,
   })
 
   let t1 = time()
 
+  emptyDirectory(config.pointFiles.outputDir)
   prepareDirs(config)
 
-  await Promise.all([
-    composeSchema(config),
-  ])
-  await preCheckSchema(config);
-
-  logFrame(`compose schema in ${t1()}s`)
-
-  t1 = time()
-
-  await buildEverything(config)
-
-  logFrame(`build everything in ${t1()}s`)
+  await buildCommonDirs(config)
 }
