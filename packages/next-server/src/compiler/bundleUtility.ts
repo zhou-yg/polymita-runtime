@@ -58,7 +58,6 @@ export async function buildDTS (c: IConfig, inputs: string[], outdir?: string) {
 
 export async function runTSC (c: IConfig, inputs: string[], outdir?: string) {
   const cli2 = `${inputs.join(' ')} --esModuleInterop --declaration --outdir ${outdir}`.split(' ')
-  console.log('cli2: ', cli2);
   await new Promise<void>(((resolve, reject) => {
     const instance = spawn(
       tsc,

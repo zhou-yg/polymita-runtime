@@ -2,7 +2,7 @@ import chalk from 'chalk'
 import * as path from 'path'
 import * as fs from 'fs'
 import { cp } from "shelljs"
-import { buildModelIndexes, buildModules, buildSignals, buildTailwindCSS, composeSchema, composeSignal, copyModelFiles, emptyDirectory, generateLayoutTypes, generateModelTypes2, generateViewFromModule, IConfig, logFrame, preCheckSchema, readConfig, time } from '../src'
+import { buildCommonDirs, buildModelIndexes, buildModules, buildSignals, buildTailwindCSS, composeSchema, composeSignal, copyModelFiles, emptyDirectory, generateLayoutTypes, generateModelTypes2, generateViewFromModule, IConfig, logFrame, preCheckSchema, readConfig, time } from '../src'
 
 function copyFiles (config: IConfig) {
   copyModelFiles(config)
@@ -38,6 +38,7 @@ export default async (cwd: string) => {
   await Promise.all([
     buildSignals(config),
     generateViewFromModule(config, true),
+    buildCommonDirs(config),
   ])
 
   await Promise.all([
