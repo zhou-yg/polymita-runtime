@@ -84,7 +84,6 @@ export function generateScripts(c: IConfig) {
     [scripts.edge, c.generateFiles.edgeScriptsFile],
   ] as const;
   
-  console.log('arr: ', arr);
   arr.forEach(([files, destFile]) => {
     if (files.length) {
       const f = files.map(f => ({

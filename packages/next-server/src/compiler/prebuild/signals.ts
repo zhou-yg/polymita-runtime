@@ -147,11 +147,12 @@ export async function generateSignalsAndDeps(c: IConfig) {
 
   // copy composed signals
   const composeDir = path.join(sourceSignalDir, c.composeDriversDirectory);
-  if (fs.existsSync(composeDir)) {
+  const destComposeDir = path.join(c.generateFiles.signalsDir, c.composeDriversDirectory)
+  if (fs.existsSync(composeDir) && fs.existsSync(destComposeDir)) {
     shelljs.cp(
       '-r', 
       composeDir,
-      path.join(c.generateFiles.signalsDir, c.composeDriversDirectory),
+      destComposeDir,
     )
   }
 }
