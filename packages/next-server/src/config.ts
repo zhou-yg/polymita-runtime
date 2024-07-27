@@ -2,7 +2,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import l from 'lodash'
 import { defineRoutesTree, readViews } from './config/routes'
-import { IFile, isFileEmpty, loadJSON, logFrame, traverse, traverseDir } from './util'
+import { IFile, isFileEmpty, loadJSON, logFrame, traverse, traverseDir, traverseFirstDir } from './util'
 import chalk from 'chalk'
 import { findDependencies, findDepLibs } from './config/deps'
 import type { JSONSchemaForNPMPackageJsonFiles } from '@schemastore/package'
@@ -50,7 +50,9 @@ export const defaultConfig = () => ({
   buildDirectory: 'dist', // in cwd
   testCacheDirectory: '.test', // in cwd
 
+  composeDir: 'compose',
   clientDir: 'client',
+  edgeDir: 'edge',
   serverDir: 'server',
 
   appClientChunk: 'chunks',
@@ -196,6 +198,10 @@ function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) 
     outputModulesDir: path.join(outputDir, config.modulesDirectory),    
     //
     outputCSS: path.join(outputDir, 'index.css'),    
+
+    outputScriptsDir: path.join(outputDir, config.scriptDirectory),    
+    outputServerScriptsDir: path.join(outputDir, config.scriptDirectory, config.serverDir),    
+    outputEdgeScriptsDir: path.join(outputDir, config.scriptDirectory, config.edgeDir),    
   }
 }
 
@@ -272,8 +278,8 @@ function readScripts (dir: string) {
   const serverDir = path.join(dir, 'server')
   const edgeDir = path.join(dir, 'edge')
 
-  traverseDir(dir, (f) => {
-    if (/\.ts/.test(f.path)) {
+  traverseFirstDir(dir, (f) => {
+    if (/\.(t|)s/.test(f.path)) {
       if (f.path.startsWith(edgeDir)) {
         result.edge.push(f)
       } else {

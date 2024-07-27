@@ -11,6 +11,8 @@ import {
   buildModules,
   buildCommonDirs,
   emptyDirectory,
+  buildScripts,
+  composeScripts,
 } from '../src'
 
 async function buildEverything (c: IConfig) {
@@ -44,5 +46,7 @@ export default async (cwd: string) => {
   emptyDirectory(config.pointFiles.outputDir)
   prepareDirs(config)
 
-  await buildCommonDirs(config)
+  // await buildCommonDirs(config)
+  // await buildScripts(config)
+  composeScripts(config)
 }

@@ -1,7 +1,7 @@
 import { IConfig } from "../config";
 import * as fs from 'fs'
 import * as path from 'path'
-import { equalFileContent, loadJSON } from "../util";
+import { equalFileContent, loadJSON, traverseFirstDir, tryMkdir } from "../util";
 import * as prismaInternals from '@prisma/internals'
 import os from 'os'
 import { cp } from "shelljs";
@@ -378,4 +378,31 @@ export async function composeSignal(c: IConfig) {
       })
   })
   await generateReferrenceDrivers(c, dependencyDrivers)
+}
+
+export function composeScripts (c: IConfig) {
+  const destDir = path.join(c.cwd, c.scriptDirectory, c.composeDir)
+
+  c.dependencyModules.forEach(moduleName => {
+    const depModuleDir = path.join(c.cwd, 'node_modules', moduleName)
+    const distScriptsDir = path.join(depModuleDir, c.buildDirectory, c.scriptDirectory)
+
+    ;[c.serverDir, c.edgeDir].forEach(serverOrEdge => {
+      const scriptDir = path.join(distScriptsDir, serverOrEdge)
+      if (fs.existsSync(scriptDir)) {
+        traverseFirstDir(scriptDir, f => {
+          const modulePath = path.join(
+            moduleName, c.buildDirectory, c.scriptDirectory, serverOrEdge,
+            f.relativeFile,
+          )
+          const fileTemp = `export * from "${modulePath}"`
+          
+          const destFile = path.join(destDir, serverOrEdge, `${f.name}.ts`)
+          const { dir } = path.parse(destFile)
+          tryMkdir(dir)
+          fs.writeFileSync(destFile, fileTemp)
+        })
+      }
+    })
+  })
 }

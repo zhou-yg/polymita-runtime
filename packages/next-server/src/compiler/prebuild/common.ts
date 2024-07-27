@@ -1,8 +1,9 @@
 import { readdirSync } from "fs";
 import { IConfig } from "../../config";
 import { join } from "path";
-import { runTSC } from "../bundleUtility";
-import { traverseDir } from "../../util";
+import { buildDTS, esbuild, runTSC } from "../bundleUtility";
+import { traverseDir, tryMkdir } from "../../util";
+import { cp } from "shelljs";
 
 export async function buildCommonDirs(c: IConfig) {
   const dirs = readdirSync(c.cwd)
@@ -29,4 +30,40 @@ export async function buildCommonDirs(c: IConfig) {
   dirs.forEach(name => {
     console.log(`build dir "${name}" done`)
   })
+}
+
+export async function  buildScripts(c: IConfig) {
+
+  const buildEntries: string[] = []
+
+  ;[
+    [c.serverDir, c.pointFiles.outputServerScriptsDir],
+    [c.edgeDir, c.pointFiles.outputEdgeScriptsDir],
+  ].forEach(([type, destDir]) => {
+    const dir = join(c.cwd, c.scriptDirectory, type)
+
+    tryMkdir(destDir)
+
+    traverseDir(dir, f => {
+      if (f.isDir) {
+        tryMkdir(join(c.pointFiles.outputScriptsDir, type, f.relativeFile))
+      } else {
+        if (/\.ts(x)?/.test(f.file)) {
+          buildEntries.push(f.path)
+        } else if (!/^\./.test(f.file)) {
+          cp(f.path, join(destDir, f.relativeFile))
+        }
+      }
+    })
+  })
+
+  if (buildEntries.length) {
+    await Promise.all([
+      esbuild({
+        entryPoints: buildEntries,
+        outdir: c.pointFiles.outputScriptsDir,
+        outbase: join(c.cwd, c.scriptDirectory),
+      }),
+    ])
+  }
 }

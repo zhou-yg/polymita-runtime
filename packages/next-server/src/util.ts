@@ -6,6 +6,7 @@ import os from "os";
 import { BM, isEqual } from "@polymita/signal-model";
 import { spawn } from 'child_process';
 import chalk from 'chalk';
+import { pick } from 'lodash';
 
 export function loadJSON (f: string) {
   if (!fs.existsSync(f)) {
@@ -140,6 +141,38 @@ export function traverseDir (dir: string, callback: (f: IFile) => void, relative
     if (isDir) {
       traverseDir(p, callback, path.join(relativeBase, f))
     }
+  })
+}
+export function traverseFirstDir (dir: string, callback: (f: IFile) => void, relativeBase = '') {
+  if (!fs.existsSync(dir)) {
+    return
+  }
+  const files = fs.readdirSync(dir)
+  files.forEach(f => {
+    const p = path.join(dir, f)
+    const dirIndex = path.join(f, 'index.ts')
+    const indexP = path.join(dir, dirIndex)
+    const isDir = fs.lstatSync(p).isDirectory()
+    const name = f.replace(/\.\w+$/, '')
+    const fileObj = {
+      isDir,
+      name,
+      dir,
+      file: f,
+      relativeFile: path.join(relativeBase, f),
+      path: p
+    }
+    if (isDir && fs.existsSync(indexP)) {
+      Object.assign(fileObj, {
+        isDir: false,
+        name,
+        dir: p,
+        file: `${dirIndex}.ts`,
+        relativeFile: path.join(relativeBase, dirIndex),
+        path: indexP,
+      })
+    }
+    callback(fileObj)
   })
 }
 
