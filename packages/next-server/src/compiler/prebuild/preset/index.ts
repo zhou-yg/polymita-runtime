@@ -80,15 +80,15 @@ export function generateScripts(c: IConfig) {
   const { scripts } = c;
   
   const arr = [
-    [scripts.server, c.generateFiles.serverScriptsFile], 
-    [scripts.edge, c.generateFiles.edgeScriptsFile],
+    [c.serverDir, scripts.server, c.generateFiles.serverScriptsFile], 
+    [c.edgeDir, scripts.edge, c.generateFiles.edgeScriptsFile],
   ] as const;
   
-  arr.forEach(([files, destFile]) => {
+  arr.forEach(([serverOrEdge, files, destFile]) => {
     if (files.length) {
       const f = files.map(f => ({
         name: camelCase(f.name),
-        path: removeExt(path.join('@/scripts', f.relativeFile)),
+        path: removeExt(path.join('@/scripts/', serverOrEdge, f.relativeFile)),
       }))
       const content = scriptsTemplate({
         scripts: f

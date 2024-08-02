@@ -278,17 +278,19 @@ function readScripts (dir: string) {
   const serverDir = path.join(dir, 'server')
   const edgeDir = path.join(dir, 'edge')
 
-  traverseFirstDir(dir, (f) => {
-    if (/\.(t|)s/.test(f.path)) {
-      if (f.path.startsWith(edgeDir)) {
-        result.edge.push(f)
-      } else {
-        /**
-         * by default, all files treated as server runtime script
-         */
-        result.server.push(f)
+  ;[serverDir, edgeDir].forEach(dir => {
+    traverseFirstDir(dir, (f) => {
+      if (/\.(t|j)s(x?)/.test(f.path) || f.dir) {
+        if (f.path.startsWith(edgeDir)) {
+          result.edge.push(f)
+        } else {
+          /**
+           * by default, all files treated as server runtime script
+           */
+          result.server.push(f)
+        }
       }
-    }
+    })
   })
 
   return result
