@@ -69,10 +69,10 @@ export default function loadModuleToView (arg: {
   return {
     name: 'loadModuleToView',
     setup(build) {
-      build.onResolve({ filter: /modules\/.*/ }, async (args) => {
+      build.onResolve({ filter: /(modules|overrides)\/.*/ }, async (args) => {
         return null
       })
-      build.onLoad({ filter: /modules\/.*/ }, async (args) => {
+      build.onLoad({ filter: /(modules|overrides)\/.*/ }, async (args) => {
         const parsed = path.parse(args.path)
         let { name } = parsed
         if (name === 'index') {
@@ -101,7 +101,7 @@ export default function loadModuleToView (arg: {
           })
         }
 
-        const content2 = onlyRegister ? moduleViewRegisterModuleTemplate : moduleViewRenderToReactTemplate({
+        const content2 = onlyRegister ? moduleViewRegisterModuleTemplate() : moduleViewRenderToReactTemplate({
           name,
           hasImportSignal,
         })
