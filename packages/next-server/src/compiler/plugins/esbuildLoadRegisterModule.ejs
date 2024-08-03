@@ -1,1 +1,3 @@
-registerModule(ComponentModule, moduleOverride.modulesLinkMap)
+export default (modulesLinkMap: Map<string, any>) => {
+  registerModule(ComponentModule, modulesLinkMap)
+}

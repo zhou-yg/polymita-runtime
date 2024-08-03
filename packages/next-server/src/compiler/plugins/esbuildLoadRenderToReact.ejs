@@ -1,5 +1,9 @@
-function RenderToReact<P>(module: SingleFileModule<P, any, any, any>) {
-  registerModule(module, moduleOverride.modulesLinkMap)
+function RenderToReact<P>(
+  module: SingleFileModule<P, any, any, any>,
+  modulesLinkMap: Map<string, any>,
+  moduleActiveLink: string[],
+) {
+  registerModule(module, modulesLinkMap)
 
   const renderer = <%= hasImportSignal ? 'createRSRenderer' : 'createRHRenderer' %>(module, {
     framework: {
@@ -7,20 +11,14 @@ function RenderToReact<P>(module: SingleFileModule<P, any, any, any>) {
       lib: React
     },
     moduleOverride: {
-      ...moduleOverride,
+      modulesLinkMap,
+      moduleActiveLink,
     },
   })
   return (p: P) => {
     const r = renderer.construct(p);
     return renderer.render()
   }
-}
-
-const Component = RenderToReact(ComponentModule);
-
-const <%= name %> = (props: ComponentModule.<%= name %>Props) => {
-
-  return React.createElement(Component, props)
 }
 
 export type <%= name %>Props = ComponentModule.<%= name %>Props
@@ -37,4 +35,14 @@ export const layout = ComponentModule.layout
 export const styleRules = ComponentModule.styleRules
 export const designPattern = ComponentModule.designPattern
 
-export default <%= name %>;
+export default (modulesLinkMap: Map<string, any>, moduleActiveLink: string[]) => {
+  
+  const Component = RenderToReact(ComponentModule, modulesLinkMap, moduleActiveLink);
+
+  const <%= name %> = (props: ComponentModule.<%= name %>Props) => {
+
+    return React.createElement(Component, props)
+  }
+
+  return <%= name %>;
+}

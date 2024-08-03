@@ -6,6 +6,7 @@ import {
   isPromise,
 } from "@polymita/signal-model";
 import EE from 'eventemitter3'
+import { StdioNull } from "child_process";
 
 export const ConnectContext = React.createContext<{
   plugin: Plugin;
@@ -19,6 +20,8 @@ export const genModelEventKey = (entity: string) => `${MODEL_UPDATE}:${entity}`
 
 export const PrismaNamespaceContext = React.createContext<{
   namespace: string;
+  modulesLinkMap?: Map<string, any>;
+  modulesActiveMap?: string[]
 }>(null);
 
 export function ConnectProvider(props: {
@@ -37,13 +40,22 @@ export function ConnectProvider(props: {
     props.children,
   );
 }
+
 export function PrismaNamespaceProvider(props: {
   children: any;
   namespace: string;
+  modulesLinkMap?: Map<string, any>;
+  modulesActiveMap?: string[]
 }) {
   return createElement(
     PrismaNamespaceContext.Provider,
-    { value: props },
+    {
+      value: {
+        namespace: props.namespace,
+        modulesLinkMap: props.modulesLinkMap,
+        modulesActiveMap: props.modulesActiveMap,
+      }
+    },
     props.children,
   );
 }
