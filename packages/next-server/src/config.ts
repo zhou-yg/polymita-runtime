@@ -27,6 +27,7 @@ export const defaultConfig = () => ({
   testDirectory: 'test',
   scriptDirectory: 'scripts', // for js script
   publicDirectory: 'public',
+  overridesDirectory: 'overrides',
 
   thirdPartDir: 'third_part',
 
@@ -196,6 +197,7 @@ function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) 
     outputViewsDir: path.join(outputDir, config.viewsDirectory),
     outputSignalsDir: path.join(outputDir, config.signalsDirectory),
     outputModulesDir: path.join(outputDir, config.modulesDirectory),    
+    outputOverridesDir: path.join(outputDir, config.overridesDirectory),    
     //
     outputCSS: path.join(outputDir, 'index.css'),    
 
@@ -359,6 +361,7 @@ export async function readConfig (arg: {
   const appDirectory = path.join(cwd, config.appDirectory)
   const pagesDirectory = path.join(appDirectory, config.pageDirectory)
   const modulesDirectory = path.join(cwd, config.modulesDirectory)
+  const overridesDirectory = path.join(cwd, config.overridesDirectory)
   const modelsDirectory = path.join(cwd, config.modelsDirectory)
   const scriptsDirectory = path.join(cwd, config.scriptDirectory)
 
@@ -370,6 +373,7 @@ export async function readConfig (arg: {
   const pages = readPages(pagesDirectory, '/')
 
   const modules = readModules(modulesDirectory)
+  const overrides = readModules(overridesDirectory)
 
   const scripts = readScripts(scriptsDirectory)
 
@@ -441,6 +445,7 @@ export async function readConfig (arg: {
     config.appDirectory,
     config.pageDirectory,
     config.modulesDirectory,
+    config.overridesDirectory,
     config.testDirectory,
     config.scriptDirectory,
     config.publicDirectory,
@@ -480,6 +485,7 @@ export async function readConfig (arg: {
     dependencyModules,
     dependencyLibs,
     modules,
+    overrides,
     thirdPartEntry,
     preservedDirs,
     rootTsconfig,

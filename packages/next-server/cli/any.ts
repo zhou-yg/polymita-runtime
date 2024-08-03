@@ -13,6 +13,7 @@ import {
   emptyDirectory,
   buildScripts,
   composeScripts,
+  buildOverrides,
 } from '../src'
 
 async function buildEverything (c: IConfig) {
@@ -48,5 +49,7 @@ export default async (cwd: string) => {
 
   // await buildCommonDirs(config)
   // await buildScripts(config)
-  composeScripts(config)
+  // composeScripts(config)
+  await buildModules(config)
+  await buildOverrides(config)
 }

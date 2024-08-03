@@ -5,6 +5,8 @@ import { compile } from 'ejs'
 
 const esbuildLoadRenderToReactFile = './esbuildLoadRenderToReact.ejs'
 const esbuildLoadRenderToReactFilePath = path.join(__dirname, esbuildLoadRenderToReactFile)
+const esbuildLoadRegisterModuleFile = './esbuildLoadRegisterModule.ejs'
+const esbuildLoadRegisterModuleFilePath = path.join(__dirname, esbuildLoadRegisterModuleFile)
 
 const moduleViewTemplateBuiltinFile = './esbuildLoadViewTemplateBuiltin.ejs'
 const moduleViewTemplateBuiltinFilePath = path.join(__dirname, moduleViewTemplateBuiltinFile)
@@ -13,6 +15,7 @@ const moduleViewTemplateExternalFile = './esbuildLoadViewTemplateExternal.ejs'
 const moduleViewTemplateExternalFilePath = path.join(__dirname, moduleViewTemplateExternalFile)
 
 const moduleViewRenderToReactTemplate = compile(fs.readFileSync(esbuildLoadRenderToReactFilePath).toString())
+const moduleViewRegisterModuleTemplate = compile(fs.readFileSync(esbuildLoadRegisterModuleFilePath).toString())
 const moduleViewBuiltinTemplate = compile(fs.readFileSync(moduleViewTemplateBuiltinFilePath).toString())
 const moduleViewExternalTemplate = compile(fs.readFileSync(moduleViewTemplateExternalFilePath).toString())
 
@@ -58,9 +61,10 @@ export default function loadModuleToView (arg: {
   modulesDirName: string
   externalModule?: boolean
   onFile: (f: [string, string]) => void
+  onlyRegister?: boolean
 }): esbuild.Plugin {
 
-  const { modulesDirName, modulesDir, onFile, externalModule } = arg
+  const { onlyRegister, modulesDirName, modulesDir, onFile, externalModule } = arg
 
   return {
     name: 'loadModuleToView',
@@ -97,7 +101,7 @@ export default function loadModuleToView (arg: {
           })
         }
 
-        const content2 = moduleViewRenderToReactTemplate({
+        const content2 = onlyRegister ? moduleViewRegisterModuleTemplate : moduleViewRenderToReactTemplate({
           name,
           hasImportSignal,
         })

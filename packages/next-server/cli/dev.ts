@@ -11,6 +11,7 @@ import {
   copyContextFiles,
   generateScripts,
   emptyDirectory,
+  generateViewFromOverrides,
 } from '../src'
 
 const chokidarOptions = () => ({
@@ -30,6 +31,7 @@ async function buildEverything (c: IConfig) {
 
   await Promise.all([
     generateViewFromModule(c),
+    generateViewFromOverrides(c),
     generateSignalsAndDeps(c),
   ])
   
@@ -52,9 +54,13 @@ function watchEverything (c: IConfig) {
   const modulesGroup = [
     path.join(c.cwd, c.modulesDirectory),
   ]
+  const overridesGroup = [
+    path.join(c.cwd, c.overridesDirectory),
+  ]
   const modelsWatcher = chokidar.watch(modelsGroup, chokidarOptions())
   const signalsWatcher = chokidar.watch(signalsGroup, chokidarOptions())
   const modulesWatcher = chokidar.watch(modulesGroup, chokidarOptions())
+  const overridesWatcher = chokidar.watch(overridesGroup, chokidarOptions())
 
   const config: IWatcherConfig[] = [
     {
@@ -77,6 +83,13 @@ function watchEverything (c: IConfig) {
       event: ['add', 'change', 'unlink'],
       callbackMode: 'sequence',
       callbacks: [generateViewFromModule, generateLayoutTypes],
+    },
+    {
+      watcher: overridesWatcher,
+      name: 'overrides-add-change-unlink',
+      event: ['add', 'change', 'unlink'],
+      callbackMode: 'sequence',
+      callbacks: [generateViewFromOverrides],
     },
   ]
 
@@ -109,7 +122,7 @@ export default async (cwd: string) => {
 
   await Promise.all([
     composeSchema(config),
-    composeSignal(config) 
+    composeSignal(config),
   ])
   await preCheckSchema(config);
 

@@ -68,16 +68,16 @@ export async function runTSC (c: IConfig, inputs: string[], outdir?: string) {
       },
     )
     instance.stderr.on('data', data => {
-      console.log(`[runTSC] stderr:  ${data}`);
+      console.log(`[runTSC] stderr: ${inputs}, ${data}`);
     })
     instance.stdout.on('data', data => {
-      console.log(`[runTSC] stdout:  ${data}`);
+      console.log(`[runTSC] stdout: ${inputs}, ${data}`);
     })
     instance.on('close', (code, s) => {
       resolve()
     })
     instance.on('error', (err) => {
-      console.log('[runTSC err: ', err);
+      console.log('[runTSC err: ', inputs, err);
       reject()
     })
   }))
