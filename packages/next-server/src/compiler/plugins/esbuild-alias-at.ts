@@ -1,5 +1,6 @@
 import * as esbuild from 'esbuild';
 import * as fs from 'node:fs'
+import * as path from 'node:path'
 
 export default function aliasAtCodeToCwd (cwd: string): esbuild.Plugin {
 
@@ -22,7 +23,13 @@ export default function aliasAtCodeToCwd (cwd: string): esbuild.Plugin {
 
         const moduleCode = await fs.promises.readFile(args.path, 'utf8')
 
-        const newCode = moduleCode.replace(/from\s("|')@\//g, 'from $1../')
+        const { dir } = path.parse(args.path)
+        let relativePath = path.relative(dir, cwd)
+        if (!/\/$/.test(relativePath)) {
+          relativePath += '/'
+        }
+
+        const newCode = moduleCode.replace(/from\s("|')@\//g, `from $1${relativePath}`)
 
         return {
           contents: newCode,
