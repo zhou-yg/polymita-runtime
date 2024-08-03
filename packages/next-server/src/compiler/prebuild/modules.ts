@@ -97,20 +97,22 @@ export async function generateViewFromModule (c: IConfig, externalModule?: boole
     return fs.promises.writeFile(f, content)
   }))
 
-  logFrame('generate view: \n' + tsFiles.map(([f]) => f.replace(c.cwd, '')).join('\n'))
-
-  // if (externalModule) {
-  //   /**
-  //    * externalModule模式变成了相对路径，导致dts会多生成嵌套，
-  //    * eg: dist/views/views/*.d, dist/views/modules/*.d
-  //    */
-  //   await buildDTS(c, tsFiles.map(f => f[0]), c.pointFiles.outputDir)
-  // } else {
-  //   await buildDTS(c, tsFiles.map(f => f[0]), c.pointFiles.outputViewsDir)
-  // }
-  await buildDTS(c, tsFiles.map(f => f[0]), c.pointFiles.outputViewsDir)
-
-  await Promise.all(tsFiles.map(([f]) => {
-    return fs.promises.unlink(f)
-  }))
+  if (tsFiles.length) {
+    logFrame('generate views: \n' + tsFiles.map(([f]) => `view= .${f.replace(c.cwd, '')}`).join('\n'))
+  
+    // if (externalModule) {
+    //   /**
+    //    * externalModule模式变成了相对路径，导致dts会多生成嵌套，
+    //    * eg: dist/views/views/*.d, dist/views/modules/*.d
+    //    */
+    //   await buildDTS(c, tsFiles.map(f => f[0]), c.pointFiles.outputDir)
+    // } else {
+    //   await buildDTS(c, tsFiles.map(f => f[0]), c.pointFiles.outputViewsDir)
+    // }
+    await buildDTS(c, tsFiles.map(f => f[0]), c.pointFiles.outputViewsDir)
+  
+    await Promise.all(tsFiles.map(([f]) => {
+      return fs.promises.unlink(f)
+    }))
+  }
 }

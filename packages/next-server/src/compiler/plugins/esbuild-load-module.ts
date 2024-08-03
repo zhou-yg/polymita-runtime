@@ -83,8 +83,6 @@ export default function loadModuleToView (arg: {
 
         const moduleCode = await fs.promises.readFile(args.path, 'utf8')
 
-        const moduleCodeParts = splitImports(moduleCode)
-
         const hasImportSignal = /@polymita\/signal/.test(moduleCode)
 
         let content1 = '';
@@ -93,6 +91,7 @@ export default function loadModuleToView (arg: {
             moduleImports: `../${modulesDirName}/${relativePath.replace(/\.\w+$/, '')}`
           })
         } else {
+          const moduleCodeParts = splitImports(moduleCode)
           content1 = moduleViewBuiltinTemplate({
             name,
             moduleImports: moduleCodeParts.imports,

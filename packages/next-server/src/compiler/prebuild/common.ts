@@ -2,7 +2,7 @@ import { readdirSync } from "fs";
 import { IConfig } from "../../config";
 import { join } from "path";
 import { buildDTS, esbuild, runTSC } from "../bundleUtility";
-import { traverseDir, tryMkdir } from "../../util";
+import { logFrame, traverseDir, tryMkdir } from "../../util";
 import { cp } from "shelljs";
 
 export async function buildCommonDirs(c: IConfig) {
@@ -28,7 +28,7 @@ export async function buildCommonDirs(c: IConfig) {
   }))
 
   dirs.forEach(name => {
-    console.log(`build dir "${name}" done`)
+    logFrame(`build dir "${name}" done`)
   })
 }
 

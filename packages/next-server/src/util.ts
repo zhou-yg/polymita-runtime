@@ -71,10 +71,10 @@ const LOG_PREFIX = 'polymita'
 //   return console.log(`${chalk.blue('polymita')}: `, content);
 // }
 export function logFrame (...content: any[]) {
-  return console.log(`${chalk.blue('polymita')}: `, LOG_PREFIX, ...content);
+  return console.log(`${chalk.blue(LOG_PREFIX)}: `, ...content);
 }
 export function errorFrame (...content: any[]) {
-  return console.error(`${chalk.red('polymita')}: `, LOG_PREFIX, ...content);
+  return console.error(`${chalk.red(LOG_PREFIX)}: `, ...content);
 }
 
 export function getAddress() {

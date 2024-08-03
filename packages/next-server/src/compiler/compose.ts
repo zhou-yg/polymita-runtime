@@ -1,7 +1,7 @@
 import { IConfig } from "../config";
 import * as fs from 'fs'
 import * as path from 'path'
-import { equalFileContent, loadJSON, traverseFirstDir, tryMkdir } from "../util";
+import { equalFileContent, loadJSON, logFrame, traverseFirstDir, tryMkdir } from "../util";
 import * as prismaInternals from '@prisma/internals'
 import os from 'os'
 import { cp } from "shelljs";
@@ -41,7 +41,7 @@ export function findDependentPrisma (c: IConfig) {
   const schemaFiles: Array<IPrismaFile> = []
 
   c.dependencyModules.forEach(moduleName => {
-    console.log('moduleName: ', moduleName);
+    logFrame('prisma moduleName: ', moduleName);
     const dir = path.join(c.cwd, 'node_modules', moduleName)
 
     const depSchemaPath = path.join(dir, c.buildDirectory, c.modelsDirectory, 'schema.prisma')

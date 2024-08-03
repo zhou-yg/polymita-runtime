@@ -18,6 +18,17 @@ export default function aliasAtCodeToCwd (cwd: string): esbuild.Plugin {
 
         return { path: newPath + existExt }
       })
+      build.onLoad({ filter: /(modules|overrides)\/.*/ }, async (args) => {
+
+        const moduleCode = await fs.promises.readFile(args.path, 'utf8')
+
+        const newCode = moduleCode.replace(/from\s("|')@\//g, 'from $1../')
+
+        return {
+          contents: newCode,
+          loader: 'tsx'
+        }
+      })
     },
   };
 };
