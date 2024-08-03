@@ -10,6 +10,7 @@ import {
   generateSignalsAndDeps,
   copyContextFiles,
   generateScripts,
+  emptyDirectory,
 } from '../src'
 
 const chokidarOptions = () => ({
@@ -83,7 +84,9 @@ function watchEverything (c: IConfig) {
 }
 
 function prepareDirs(c: IConfig) {
-  if (!fs.existsSync(c.generateFiles.root)) {
+  if (fs.existsSync(c.generateFiles.root)) {
+    emptyDirectory(c.generateFiles.root)
+  } else {
     fs.mkdirSync(c.generateFiles.root, { recursive: true })
   }
 }
