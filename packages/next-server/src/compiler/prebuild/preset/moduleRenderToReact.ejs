@@ -1,0 +1,42 @@
+import React from 'react'
+import { createRHRenderer, SingleFileModule, registerModule } from '@polymita/renderer'
+import '@polymita/renderer/jsx-runtime';
+
+function RenderToReact<P extends Record<string, any>>(
+  module: SingleFileModule<P, any, any, any>,
+  modulesLinkMap: Map<string, any>,
+  modulesActiveLink: string[],
+) {
+  registerModule(module, modulesLinkMap)
+
+  const renderer = createRHRenderer(module, {
+    framework: {
+      name: 'react',
+      lib: React
+    },
+    moduleOverride: {
+      modulesLinkMap,
+      modulesActiveMap: modulesActiveLink,
+    },
+  })
+  return (p: P) => {
+    const r = renderer.construct(p);
+    return renderer.render()
+  }
+}
+
+<% names.forEach(CptName => { %>
+const forward<%= CptName %> = (modulesLinkMap: Map<string, any>, modulesActiveLink: string[]) => {
+  const Component = RenderToReact(<%= CptName %> as any, modulesLinkMap, modulesActiveLink);
+  const inner<%= CptName %> = (props: <%= CptName %>.<%= CptName %>Props) => {
+    return React.createElement(Component, props)
+  }
+  return inner<%= CptName %>;
+}
+<% }) %>
+
+export const views = {
+  <% names.forEach(CptName => { %>
+  <%= CptName %>: forward<%= CptName %>, <% }) %>
+
+}

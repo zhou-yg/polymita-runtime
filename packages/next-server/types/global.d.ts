@@ -1,5 +1,6 @@
 declare module 'xx'
 declare module '@vitejs/plugin-react'
+declare module 'esbuild-plugin-umd-wrapper'
 
 interface Require {
   (id: string): any;

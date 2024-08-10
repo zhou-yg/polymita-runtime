@@ -24,6 +24,10 @@ const signalMapTemplate = compile(fs.readFileSync(signalMapTemplateFilePath).toS
 const scriptsTemplate = compile(fs.readFileSync(scriptsTemplateFilePath).toString())
 const routesClientTemplate = compile(fs.readFileSync(templateClientFilePath).toString())
 
+const moduleRenderToReactFile = './moduleRenderToReact.ejs'
+const moduleRenderToReactFilePath = path.join(__dirname, moduleRenderToReactFile)
+const moduleRenderToReactFilePathTemplate = compile(fs.readFileSync(moduleRenderToReactFilePath).toString())
+
 
 export function copyContextFiles (c: IConfig) {
   tryMkdir(c.generateFiles.root)
@@ -196,4 +200,42 @@ export async function generateClientRoutes(c: IConfig) {
   })
   // generate for vite.js so that this file doesn't need to be compiled to js
   fs.writeFileSync(clientRoutes, await prettier.format(routesStr2, { parser: 'typescript' }))
+}
+
+export async function generateBuildingIndex(c: IConfig) {
+  const exportModulesConfig = [
+    ['modules', c.currentFiles.modulesDirectory, c.modules],
+    ['overrides', c.currentFiles.overridesDirectory, c.overrides],
+    ['scriptsClient', c.currentFiles.scriptsClientDirectory, c.scripts.edge],
+    ['signals', c.currentFiles.signalsDirectory, c.signals],
+  ] as const;
+  
+  const contents: string[] = []
+  const tail: string[] = []
+
+  exportModulesConfig.forEach(([exportName, dir, files]) => {
+    if (fs.existsSync(dir) && files.length) {
+      files.forEach(f => {
+        const relativePath = path.relative(c.devFiles.outputDir, f.dir)
+        contents.push(
+          `import * as ${f.name} from '${path.join(relativePath, f.name)}'`
+        )
+      })
+      tail.push(`export const ${exportName} = { ${files.map(f => f.name).join(', ')} }`)
+    }
+  })
+
+  tryMkdir(c.devFiles.outputDir)
+
+  const viewsContent = moduleRenderToReactFilePathTemplate({
+    names: [
+      ...c.modules.map(f => f.name),
+      ...c.overrides.map(f => f.name),
+    ]
+  })
+
+  contents.push(viewsContent)
+  contents.push(...tail)
+
+  fs.writeFileSync(c.devFiles.virtualIndex, contents.join('\n'))
 }

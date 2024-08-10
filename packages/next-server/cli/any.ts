@@ -14,6 +14,9 @@ import {
   composeScripts,
   buildOverrides,
   generateClientRoutes,
+  generateBuildingIndex,
+  buildIndex,
+  buildPolymitaConfig,
 } from '../src'
 
 async function buildEverything (c: IConfig) {
@@ -47,12 +50,9 @@ export default async (cwd: string) => {
   emptyDirectory(config.pointFiles.outputDir)
   prepareDirs(config)
 
-  console.log('config: ', config.pages);
-  console.log('config: ', config.routesTree);
-  await generateClientRoutes(config);
-  // await buildCommonDirs(config)
-  // await buildScripts(config)
-  // composeScripts(config)
-  // await buildModules(config)
-  // await buildOverrides(config)
+  await generateBuildingIndex(config);
+
+  await buildIndex(config)
+  await buildScripts(config)
+  await buildPolymitaConfig(config)
 }

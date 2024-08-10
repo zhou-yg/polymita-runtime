@@ -19,6 +19,11 @@ export async function buildTailwindCSS(c: IConfig) {
   }
 
   const globalCSSPath = path.join(c.cwd, 'app/globals.css')
+
+  if (!fs.existsSync(globalCSSPath)) {
+    return
+  }
+
   const contents = await fs.promises.readFile(globalCSSPath)  
 
   const result = await postcss([

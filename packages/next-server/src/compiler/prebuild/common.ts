@@ -1,9 +1,11 @@
-import { readdirSync } from "fs";
-import { IConfig } from "../../config";
-import { join } from "path";
-import { buildDTS, esbuild, runTSC } from "../bundleUtility";
-import { logFrame, traverseDir, tryMkdir } from "../../util";
-import { cp } from "shelljs";
+import { existsSync, readdirSync } from 'fs';
+import { IConfig } from '../../config';
+import { join, parse } from 'path';
+import { buildDTS, esbuild, runTSC } from '../bundleUtility';
+import { logFrame, traverseDir, tryMkdir } from '../../util';
+import { cp } from 'shelljs';
+import { nodeExternalsPlugin } from 'esbuild-node-externals'
+import { umdWrapper } from 'esbuild-plugin-umd-wrapper';
 
 export async function buildCommonDirs(c: IConfig) {
   const dirs = readdirSync(c.cwd)
@@ -28,8 +30,18 @@ export async function buildCommonDirs(c: IConfig) {
   }))
 
   dirs.forEach(name => {
-    logFrame(`build dir "${name}" done`)
+    logFrame(`build dir '${name}' done`)
   })
+}
+
+export async function buildPolymitaConfig(c: IConfig) {
+  if (existsSync(c.configFile)) {
+    esbuild({
+      entryPoints: [c.configFile],
+      outfile: c.pointFiles.configFile,
+      format: 'cjs',
+    })
+  }
 }
 
 export async function  buildScripts(c: IConfig) {
@@ -38,7 +50,6 @@ export async function  buildScripts(c: IConfig) {
 
   ;[
     [c.serverDir, c.pointFiles.outputServerScriptsDir],
-    [c.edgeDir, c.pointFiles.outputEdgeScriptsDir],
   ].forEach(([type, destDir]) => {
     const dir = join(c.cwd, c.scriptDirectory, type)
 
@@ -66,4 +77,33 @@ export async function  buildScripts(c: IConfig) {
       }),
     ])
   }
+}
+
+/**
+ * virtual index
+ */
+export async function buildIndex(c: IConfig) {
+  const entry = c.devFiles.virtualIndex
+  esbuild({
+    entryPoints: [entry],
+    bundle: true,
+    format: 'umd' as any,
+    outfile: c.pointFiles.outputIndex,
+    external: [
+      '@emotion/react',
+      '@emotion/styled',
+      '@mui/material',
+      '@polymita/next-connect',
+      '@polymita/next-server',
+      '@polymita/renderer',
+      'react',
+      'react-dom',
+      'react-router-dom'
+    ],
+    plugins: [
+      umdWrapper({
+        libraryName: c.packageJSON.name
+      }),
+    ],
+  })
 }

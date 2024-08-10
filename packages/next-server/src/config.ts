@@ -31,11 +31,14 @@ export const defaultConfig = () => ({
   scriptDirectory: 'scripts', // for js script
   publicDirectory: 'public',
   overridesDirectory: 'overrides',
+  configDirectory: 'config',
 
   thirdPartDir: 'third_part',
 
   entry: 'entry', // jsx|tsx|css|less|json
 
+  outputIndex: 'index.js',
+  outputApp: 'app.js',
   /**
    * https://nextjs.org/docs/app/building-your-application/upgrading/app-router-migration#migrating-_documentjs-and-_appjs
    */
@@ -276,6 +279,11 @@ function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) 
 
   return {
     outputDir, 
+    // output index
+    outputIndex: path.join(outputDir, config.outputIndex),
+    outputApp: path.join(outputDir, config.outputApp),
+    configFile: path.join(outputDir, config.configDirectory, configFile),
+
     // prisma
     outputModelsDir: path.join(outputDir, config.modelsDirectory),
     outputSchemaPrisma: path.join(outputDir, config.modelsDirectory, config.targetSchemaPrisma),
@@ -291,6 +299,16 @@ function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) 
     outputScriptsDir: path.join(outputDir, config.scriptDirectory),    
     outputServerScriptsDir: path.join(outputDir, config.scriptDirectory, config.serverDir),    
     outputEdgeScriptsDir: path.join(outputDir, config.scriptDirectory, config.edgeDir),    
+  }
+}
+
+function getDevFiles (config: IDefaultConfig, cwd: string) {
+  const dir = path.join(cwd, config.devCacheDirectory)
+
+  return {
+    outputDir: dir,
+    /**  */
+    virtualIndex: path.join(dir, 'index.ts'),
   }
 }
 
@@ -474,11 +492,16 @@ export async function readConfig (arg: {
   )
 
   const currentFiles = {
-    viewsDirectory,
-    signalsDirectory,
     appDirectory,
     pagesDirectory,
+    viewsDirectory,
+    signalsDirectory,
+    scriptsDirectory,
+    scriptsServerDirectory: path.join(scriptsDirectory, config.serverDir),
+    scriptsClientDirectory: path.join(scriptsDirectory, config.edgeDir),
     modulesDirectory,
+    modelsDirectory,
+    overridesDirectory,
     configFile: configFileInPath,
     schemaIndexes: path.join(modelsDirectory, config.schemaIndexes),
     schemaIndexesTypes: path.join(modelsDirectory, config.schemaIndexesTypes),
@@ -492,10 +515,9 @@ export async function readConfig (arg: {
 
   const buildPointFiles = getOutputFiles(config, cwd, path.join(cwd, config.buildDirectory))
   const devPointFiles = getOutputFiles(config, cwd, path.join(cwd, config.appDirectory, config.generateRoot))
-
   const pointFiles = isProd ? buildPointFiles : devPointFiles
-
   const generateFiles = getGenerateFiles(config, cwd)
+  const devFiles = getDevFiles(config, cwd)
 
   const dependencyModules = findDependencies(cwd, packageJSON)
   const dependencyLibs = findDepLibs(packageJSON)
@@ -549,6 +571,7 @@ export async function readConfig (arg: {
       schemaIndexes,
       partSchemaPrisma,
     },
+    configFile,
     tailwindConfigPath,
     project,
     port,
@@ -561,6 +584,7 @@ export async function readConfig (arg: {
     currentFiles,
     pointFiles,
     entryFiles,
+    devFiles,
     cwd,
     signals,
     pages,

@@ -45,7 +45,6 @@ export default async (cwd: string) => {
     buildSignals(config),
     generateViewFromModule(config, true),
     generateViewFromOverrides(config, true),
-    buildCommonDirs(config),
     buildScripts(config),
   ])
 
