@@ -30,9 +30,9 @@ export interface IViewConfig {
   dynamic: boolean
 }
 
-const isIndexFlagn = (f: string) => /^index.(j|t)sx$/.test(f) || /\/index.(j|t)sx$/.test(f)
+const isIndexFlag = (f: string) => /^page.(j|t)sx$/.test(f) || /\/page.(j|t)sx$/.test(f)
 
-const isPageFile = (f: string) => /\.(j|t)sx$/.test(f)
+const isPageFile = (f: string) => /page\.(j|t)sx$/.test(f)
 
 function defineView (viewDir: string, file: string, name: string, parent?: IViewConfig): IViewConfig[] {
 
@@ -41,17 +41,18 @@ function defineView (viewDir: string, file: string, name: string, parent?: IView
   const current: IViewConfig = {
     id: file,
     parentId: parent?.id || '',
-    path: file.replace(/\.\w+/, ''),
+    path: file.replace(/page\.\w+/, ''),
     file,
     filePath: currentFileOrDirPath,
     name: name.replace(/\.\w+/, ''),
-    index: isIndexFlagn(file),
+    index: isIndexFlag(file),
     dir: fs.lstatSync(currentFileOrDirPath).isDirectory(),
     isDir: fs.lstatSync(currentFileOrDirPath).isDirectory(),
     dynamic: /^\:/.test(name)
   }
   if (current.isDir) {
     const childConfigs = readViews(viewDir, file, current)
+    console.log('childConfigs: ', childConfigs);
     configs.push(...childConfigs)
   }
   configs.push(current)
@@ -59,6 +60,9 @@ function defineView (viewDir: string, file: string, name: string, parent?: IView
   return configs
 }
 
+/**
+ * according next@14 app
+ */
 export function readViews (viewDir: string, dir: string, parent?: IViewConfig) {
   const d = path.join(viewDir, dir)
   if (!fs.existsSync(d)) {

@@ -82,14 +82,17 @@ export async function generateViewFromModule (c: IConfig, externalModule?: boole
     format: 'esm',
     treeShaking: true,
     plugins: [
-      loadModuleToView({
-        modulesDir: path.join(c.cwd, c.modulesDirectory),
-        modulesDirName: c.modulesDirectory,
-        externalModule,
-        onFile([f, content]) {
-          tsFiles.push([f, content])
-        },
-      }),
+      loadModuleToView(
+        c,
+        {
+          modulesDir: path.join(c.cwd, c.modulesDirectory),
+          modulesDirName: c.modulesDirectory,
+          externalModule,
+          onFile([f, content]) {
+            tsFiles.push([f, content])
+          },
+        }
+      ),
     ]
   });
 

@@ -3,9 +3,10 @@ import * as path from 'path'
 import { compile } from 'ejs'
 import shelljs from 'shelljs'
 import rimraf from 'rimraf'
+import * as prettier from 'prettier'
 
-import { equalFileContent, loadJSON, removeExt, traverseDir, tryMkdir } from "../../../util";
-import { IConfig } from '../../../config';
+import { equalFileContent, implicitImportPath, loadJSON, removeExt, traverseDir, tryMkdir, upperFirstVariable } from "../../../util";
+import { IConfig, IRouteChild, PageConfig } from '../../../config';
 import { camelCase, upperFirst } from 'lodash';
 
 const { cp } = shelljs;
@@ -16,8 +17,13 @@ const signalMapTemplateFilePath = path.join(__dirname, signalMapTemplateFile)
 const scriptsTemplateFile = './scriptsTemplate.ejs'
 const scriptsTemplateFilePath = path.join(__dirname, scriptsTemplateFile)
 
+const templateClientFile = './routesClientTemplate.ejs'
+const templateClientFilePath = path.join(__dirname, templateClientFile)
+
 const signalMapTemplate = compile(fs.readFileSync(signalMapTemplateFilePath).toString())
 const scriptsTemplate = compile(fs.readFileSync(scriptsTemplateFilePath).toString())
+const routesClientTemplate = compile(fs.readFileSync(templateClientFilePath).toString())
+
 
 export function copyContextFiles (c: IConfig) {
   tryMkdir(c.generateFiles.root)
@@ -98,4 +104,96 @@ export function generateScripts(c: IConfig) {
       rimraf.sync(destFile)
     }
   })
+}
+
+
+function generateRoutesImports (routes: IRouteChild[], parentName = '') {
+  let importsArr: [string, string][] = []
+  routes.forEach(r => {
+    r.children.forEach(r => {
+      if (r.path) {
+        importsArr.push([
+          `${upperFirstVariable(parentName)}${upperFirstVariable(r.name)}`,
+          r.path,
+        ])
+      }
+    })
+  })
+
+  return importsArr
+}
+
+function generateRoutesContent (routes: IRouteChild[], depth = 0, parentName = ''): string {
+
+  const routeArr = routes.map((r, i) => {
+    let element = ''
+
+    const child = r.children.map(p => {
+      const Cpt = `${upperFirstVariable(parentName)}${upperFirstVariable(p.name)}`
+      if (Cpt) {
+        element = `element={<${Cpt} />}`
+      }
+  
+      return [
+        `<Route path="${p.routerPath}" ${element} >`,
+        `</Route>`
+      ].join('\n');
+    }).join('\n')
+  })
+
+  return routeArr.join('\n')
+}
+
+export async function generateClientRoutes(c: IConfig) {
+  const {
+    clientRoutes,
+    appClientEntry,
+  } = c.entryFiles
+
+  const {
+    appRootFile,
+    routesTree: routesTreeArr,
+  } = c
+  // imports
+  const imports = generateRoutesImports(routesTreeArr)
+  const r = generateRoutesContent(routesTreeArr)
+
+  const importsWithAbsolutePathClient = imports.map(([n, f]) => {
+    return `import ${n} from '${implicitImportPath(f, c.ts)}'`
+  }).join('\n')
+
+  // app info
+  const rootName = upperFirstVariable(appRootFile?.name)
+  const rootAppInfo = {
+    rootPath: appRootFile?.path,
+    rootName,
+    rootStart: appRootFile?.name ? `<${rootName}>` : '',
+    rootEnd: appRootFile?.name ? `</${rootName}>` : ''
+  }
+
+  // model indexes
+  const modelIndexesJSON = path.join(c.cwd, c.modelsDirectory, c.schemaIndexes)
+  let modelIndexes = '{}'
+  if (fs.existsSync(modelIndexesJSON)) {
+    modelIndexes = fs.readFileSync(modelIndexesJSON).toString()
+  }
+
+  // entry file
+  let clientEntry: {name: string, path: string }
+  if (fs.existsSync(appClientEntry)) {
+    clientEntry = {
+      name: 'ClientEntry',
+      path: appClientEntry.replace(/\.(j|t)s(x?)$/, '')
+    }
+  }
+
+  const routesStr2 = routesClientTemplate({
+    ...rootAppInfo,
+    imports: importsWithAbsolutePathClient,
+    routes: r,
+    modelIndexes,
+    clientEntry
+  })
+  // generate for vite.js so that this file doesn't need to be compiled to js
+  fs.writeFileSync(clientRoutes, await prettier.format(routesStr2, { parser: 'typescript' }))
 }

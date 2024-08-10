@@ -1,4 +1,5 @@
 declare module 'xx'
+declare module '@vitejs/plugin-react'
 
 interface Require {
   (id: string): any;

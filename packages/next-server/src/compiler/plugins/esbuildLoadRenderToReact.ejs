@@ -12,7 +12,7 @@ function RenderToReact<P>(
     },
     moduleOverride: {
       modulesLinkMap,
-      modulesActiveLink,
+      modulesActiveMap: modulesActiveLink,
     },
   })
   return (p: P) => {

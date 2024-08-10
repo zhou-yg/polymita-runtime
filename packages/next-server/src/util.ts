@@ -287,3 +287,17 @@ export function projectRelativePath (c: IConfig, p: string) {
 export function removeExt(s: string) {
   return s.replace(/\.\w+/, '')
 }
+
+
+export function upperFirstVariable (s: string = '') {
+  s = s.replace(/\]|\[|\:|-/g, '_').replace(/^_/, '')
+  return s ? (s[0].toUpperCase() + s.substring(1)) : ''
+}
+
+export function implicitImportPath (path: string, ts: boolean) {
+  if (ts) {
+    return path.replace(/\.ts(x?)$/, '')
+  }
+
+  return path
+}

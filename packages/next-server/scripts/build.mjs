@@ -13,6 +13,7 @@ instance.on('close', () => {
   const ejsArr = [
     'src/compiler/prebuild/preset/*.ejs',
     'src/compiler/plugins/*.ejs',
+    'src/server/*/*.ejs',
   ]
 
   ejsArr.forEach(from => {

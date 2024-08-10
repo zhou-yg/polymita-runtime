@@ -1,7 +1,6 @@
 import * as path from 'path'
 import * as fs from 'fs'
 import l from 'lodash'
-import { defineRoutesTree, readViews } from './config/routes'
 import { IFile, isFileEmpty, loadJSON, logFrame, traverse, traverseDir, traverseFirstDir } from './util'
 import chalk from 'chalk'
 import { findDependencies, findDepLibs } from './config/deps'
@@ -13,6 +12,10 @@ import { Request, Response } from 'koa'
 export { IViewConfig } from './config/routes'
 
 export const defaultConfig = () => ({
+  app: {
+    title: '',
+  },
+
   //
   platform: 'web', // 'desktop'
 
@@ -103,8 +106,75 @@ export type IDefaultConfig = ReturnType<typeof defaultConfig> & {
 
 const configFile = 'polymita.config.js'
 
-function readPages (viewDir: string, dir: string) {
-  const pages = readViews(viewDir, dir)
+/**
+ * app/page -> /
+ * app/xxx/page -> /xxx
+ */
+const definePage = (f: IFile, viewDir: string) => {
+  const isRoot = viewDir === f.dir
+
+  const parsedDir = path.parse(f.dir)
+  const prefix = f.dir.replace(viewDir, '')
+
+  const name = isRoot ? '' : parsedDir.name
+
+  const parentPath = prefix.split('/').slice(0, -1).join('/')
+
+  return {
+    name: isRoot ? 'root' : name,
+    parentPath: isRoot ? '' : parentPath || '/',
+    routerPath: prefix || '/',
+    path: f.path,
+    relativeImportPath: path.join('./', f.relativeFile.replace(/\.\w+$/, '')),
+    layout: replaceToLayout(f.path),
+    layoutExists: fs.existsSync(replaceToLayout(f.path)),
+  }
+};
+
+export type PageConfig = ReturnType<typeof definePage>
+
+export type IRouteChild = {
+  routerPath: string
+  children: PageConfig[]
+}
+
+export interface IRoutesTree {
+  [k: string]: IRouteChild
+}
+
+function defineRoutesTree (pages: PageConfig[]) {
+  const routesMap: IRoutesTree = {}
+  pages.forEach(p => {
+    routesMap[p.parentPath] = {
+      routerPath: p.parentPath,
+      children: []
+    }
+  })
+
+  pages.forEach(p => {
+    if (p.parentPath) {
+      const child = routesMap[p.parentPath]
+      child.children.push(p)
+    }
+  })
+
+  return Object.values(routesMap)
+}
+
+const isPageFile = (f: string) => /page\.(j|t)sx$/.test(f)
+const replaceToLayout = (f: string) => f.replace(/page\.(\w+)$/, `layout.$1`)
+
+function readPages (config: IDefaultConfig, viewDir: string) {
+
+  const pages: Array<PageConfig> = []
+
+  traverseDir(viewDir, (f) => {
+    if (!f.relativeFile.includes(config.generateRoot)) {
+      if (isPageFile(f.file)) {
+        pages.push(definePage(f, viewDir))
+      }
+    }
+  })
 
   return pages
 }
@@ -185,6 +255,23 @@ export interface IConfig extends IReadConfigResult{
   }
 }
 
+function getEntry (cwd: string, config: IDefaultConfig) {
+
+  // {cwd}/dist or {cwd}/app
+  const dir = path.join(cwd, config.appDirectory)
+
+  const entryCSS = readEntryCSS(path.join(dir, config.entry));
+
+
+  return {
+    entryCSS,
+    // routes.tsx including react-router
+    clientRoutes: path.join(dir, `${config.routes}.tsx`),
+    // entry.tsx including app entry
+    appClientEntry: path.join(dir, `${config.entry}.tsx`),
+  }
+}
+
 function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) {
 
   return {
@@ -199,8 +286,8 @@ function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) 
     outputModulesDir: path.join(outputDir, config.modulesDirectory),    
     outputOverridesDir: path.join(outputDir, config.overridesDirectory),    
     //
-    outputCSS: path.join(outputDir, 'index.css'),    
-
+    outputCSS: path.join(outputDir, 'index.css'),
+    //
     outputScriptsDir: path.join(outputDir, config.scriptDirectory),    
     outputServerScriptsDir: path.join(outputDir, config.scriptDirectory, config.serverDir),    
     outputEdgeScriptsDir: path.join(outputDir, config.scriptDirectory, config.edgeDir),    
@@ -234,7 +321,7 @@ function readEntryCSS (pre: string, ) {
     const f = `${pre}.${p}`
     if(fs.existsSync(f)) {
       if (r) {
-        throw new Error(`[config.readEntryCSS] should not have duplcate style file from ${postfix}`)
+        throw new Error(`[config.readEntryCSS] should not have duplicate style file from ${postfix}`)
       } else {
         r = f
       }
@@ -365,22 +452,15 @@ export async function readConfig (arg: {
   const modelsDirectory = path.join(cwd, config.modelsDirectory)
   const scriptsDirectory = path.join(cwd, config.scriptDirectory)
 
-  const views = readViews(viewsDirectory, '/')
-  views.forEach(c => {
-    c.file = path.join('./', config.viewsDirectory, c.file)
-  })
-
-  const pages = readPages(pagesDirectory, '/')
+  // to next@14
+  // complement page file with page directory
+  const pages = readPages(config, appDirectory)
 
   const modules = readModules(modulesDirectory)
   const overrides = readModules(overridesDirectory)
 
   const scripts = readScripts(scriptsDirectory)
 
-  // complement page file with page directory
-  pages.forEach(c => {
-    c.file = path.join('./', config.appDirectory, config.pageDirectory, c.file)
-  })
 
   const signals = filterComposeSignals(
     cwd,
@@ -405,7 +485,10 @@ export async function readConfig (arg: {
     targetSchemaPrisma: path.join(modelsDirectory, config.targetSchemaPrisma),
   }
 
-  const entryCSS = readEntryCSS(path.join(cwd, config.appDirectory, config.entry))
+  const entryFiles = getEntry(
+    cwd, 
+    config
+  );
 
   const buildPointFiles = getOutputFiles(config, cwd, path.join(cwd, config.buildDirectory))
   const devPointFiles = getOutputFiles(config, cwd, path.join(cwd, config.appDirectory, config.generateRoot))
@@ -474,13 +557,12 @@ export async function readConfig (arg: {
     routesTree,
     packageJSON,
     isProd,
-    entryCSS,
     generateFiles,
     currentFiles,
     pointFiles,
+    entryFiles,
     cwd,
     signals,
-    views,
     pages,
     dependencyModules,
     dependencyLibs,

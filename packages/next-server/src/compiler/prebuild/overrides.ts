@@ -56,15 +56,18 @@ export async function generateViewFromOverrides (c: IConfig, externalModule?: bo
     format: 'esm',
     treeShaking: true,
     plugins: [
-      loadModuleToView({
-        modulesDir: path.join(c.cwd, c.overridesDirectory),
-        modulesDirName: c.overridesDirectory,
-        externalModule,
-        onFile([f, content]) {
-          tsFiles.push([f, content])
-        },
-        onlyRegister: true,
-      }),
+      loadModuleToView(
+        c,
+        {
+          modulesDir: path.join(c.cwd, c.overridesDirectory),
+          modulesDirName: c.overridesDirectory,
+          externalModule,
+          onFile([f, content]) {
+            tsFiles.push([f, content])
+          },
+          onlyRegister: true,
+        }
+      ),
     ]
   });
 

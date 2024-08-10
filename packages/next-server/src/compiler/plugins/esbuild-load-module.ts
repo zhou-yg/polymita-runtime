@@ -2,6 +2,7 @@ import * as esbuild from 'esbuild';
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import { compile } from 'ejs'
+import { IConfig } from '../..';
 
 const esbuildLoadRenderToReactFile = './esbuildLoadRenderToReact.ejs'
 const esbuildLoadRenderToReactFilePath = path.join(__dirname, esbuildLoadRenderToReactFile)
@@ -52,11 +53,15 @@ const splitImports = (code: string) => {
   }
 }
 
+const replaceToRelativeToModule = (config: IConfig, im: string) => {
+  return im.replace(new RegExp(`@/${config.modulesDirectory}/`), './')
+}
+
 function getName () {
 
 }
 
-export default function loadModuleToView (arg: {
+export default function loadModuleToView (c: IConfig, arg: {
   modulesDir: string
   modulesDirName: string
   externalModule?: boolean
@@ -94,7 +99,7 @@ export default function loadModuleToView (arg: {
           const moduleCodeParts = splitImports(moduleCode)
           content1 = moduleViewBuiltinTemplate({
             name,
-            moduleImports: moduleCodeParts.imports,
+            moduleImports: replaceToRelativeToModule(c, moduleCodeParts.imports),
             moduleCode: moduleCodeParts.codes,
             hasImportSignal,
           })

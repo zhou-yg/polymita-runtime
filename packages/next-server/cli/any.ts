@@ -3,7 +3,6 @@ import * as fs from 'fs'
 import chokidar from 'chokidar'
 import {
   IConfig, IWatcherConfig, buildModelIndexes, composeSchema, generateLayoutTypes, generateModelTypes2, generateSignalMap, generateViewFromModule, preCheckSchema, readConfig, watchByConfig,
-  createDevServer,
   logFrame,
   time,
   errorFrame,
@@ -14,6 +13,7 @@ import {
   buildScripts,
   composeScripts,
   buildOverrides,
+  generateClientRoutes,
 } from '../src'
 
 async function buildEverything (c: IConfig) {
@@ -47,9 +47,12 @@ export default async (cwd: string) => {
   emptyDirectory(config.pointFiles.outputDir)
   prepareDirs(config)
 
+  console.log('config: ', config.pages);
+  console.log('config: ', config.routesTree);
+  await generateClientRoutes(config);
   // await buildCommonDirs(config)
   // await buildScripts(config)
   // composeScripts(config)
-  await buildModules(config)
-  await buildOverrides(config)
+  // await buildModules(config)
+  // await buildOverrides(config)
 }

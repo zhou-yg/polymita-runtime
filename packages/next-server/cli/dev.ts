@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import chokidar from 'chokidar'
 import {
   IConfig, IWatcherConfig, buildModelIndexes, composeSignal, composeSchema, generateLayoutTypes, generateModelTypes2, generateSignalMap, generateViewFromModule, preCheckSchema, readConfig, watchByConfig,
-  createDevServer,
+  createDevNextServer,
   logFrame,
   time,
   errorFrame,
@@ -142,5 +142,5 @@ export default async (cwd: string) => {
     errorFrame(e)
   }
 
-  createDevServer(config)
+  createDevNextServer(config)
 }
