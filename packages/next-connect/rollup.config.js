@@ -1,5 +1,6 @@
-import tsPlugin from 'rollup-plugin-typescript2'
-import dts from "rollup-plugin-dts"
+const tsPlugin = require('rollup-plugin-typescript2')
+const dts = require("rollup-plugin-dts").default
+const pkg = require('./package.json')
 
 const base = {
   plugins: [
@@ -11,7 +12,7 @@ const base = {
   input: 'src/index.ts',
 }
 
-export default [
+module.exports = [
   ['index', base],
   // ['react', reactBase]
 ].map(([name, config]) => {
@@ -19,15 +20,9 @@ export default [
     {
       ...config,
       output: {
-        file: `dist/${name}.js`,
-        format: 'commonjs'
-      },
-    },
-    {
-      ...config,
-      output: {
-        file: `dist/${name}.esm.js`,
-        format: 'esm'
+        file: `dist/${name}.umd.js`,
+        format: 'umd',
+        name: pkg.name,
       },
     },
     {

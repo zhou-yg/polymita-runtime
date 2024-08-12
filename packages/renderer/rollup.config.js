@@ -1,5 +1,5 @@
-import tsPlugin from 'rollup-plugin-typescript2'
-import dts from "rollup-plugin-dts"
+const tsPlugin = require('rollup-plugin-typescript2')
+const dts = require("rollup-plugin-dts").default
 
 function json() {
   return {
@@ -53,26 +53,19 @@ function treatRendererAsRelativeAndExternal (format) {
   }
 }
 
-export default [
+module.exports = [
   {
     ...base,
     output: {
-      file: 'dist/renderer.js',
-      format: 'commonjs'
-    },
-  },
-  {
-    ...base,
-    output: {
-      file: 'dist/renderer.esm.js',
-      format: 'esm'
+      file: 'dist/renderer.umd.js',
+      format: 'umd',
+      name: require('./package.json').name,
     },
   },
   {
     input: "src/index.ts",
     output: [
-      { file: "dist/renderer.d.ts", format: "es" },
-      { file: "dist/renderer.esm.d.ts", format: "es" }
+      { file: "dist/renderer.umd.d.ts", format: "es" },
     ],
     plugins: [
       dts(),
@@ -96,31 +89,4 @@ export default [
       treatRendererAsRelativeAndExternal('esm'),
     ]
   },
-  {
-    input: 'jsx-runtime.ts',
-    output: {
-      file: 'dist/jsx-runtime.js',
-      format: 'cjs',
-      paths: {
-        src: './'
-      }
-    },
-    plugins: [
-      tsPlugin({
-        clean: true,
-        tsconfig: './tsconfig.json',
-      }),
-      json(),  
-      treatRendererAsRelativeAndExternal('cjs'),
-    ]
-  },
-  // {
-  //   input: "jsx-runtime.ts",
-  //   output: [
-  //     { file: "dist/jsx-runtime.d.ts", format: "es" }
-  //   ],
-  //   plugins: [
-  //     dts(),
-  //   ],
-  // }
 ]

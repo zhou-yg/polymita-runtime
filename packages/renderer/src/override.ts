@@ -559,7 +559,7 @@ export function getModulesByBase(
 }
 
 /**
- * 
+ *
  * module link Map relation
  * {
  *   [module.namespace1-name1]: [Module1, ...],
@@ -567,8 +567,8 @@ export function getModulesByBase(
  * }
  * active modules:
  * [module.namespace1-name1]
- * @param m 
- * @param mp 
+ * @param m
+ * @param mp
  */
 export function getActiveModuleByBase(
   m: SingleFileModule<any, any, any, any>,
@@ -596,8 +596,8 @@ globalThis.xxx = [];
  *   [module.namespace1-name1]: [Module1, ...],
  *   [module.namespace2-name2]: [Module2, Module2-override, ...],
  * }
- * @param m 
- * @param mp 
+ * @param m
+ * @param mp
  */
 export function registerModule(
   m: SingleFileModule<any, any, any, any>,

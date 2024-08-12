@@ -13,8 +13,8 @@
     "test-ci": "jest --coverage",
     "test": "npm run test-unit",
     "format": "prettier --write --parser typescript \"*/*.ts?(x)\"",
-    "build": "rm -rf dist/ && npm run format && rollup --config rollup.config.mjs && sh after-build.sh",
-    "build:watch": "rm -rf dist/ && npm run format && rollup --config rollup.config.mjs --watch",
+    "build": "rm -rf dist/ && npm run format && rollup --config rollup.config.js && sh after-build.sh",
+    "build:watch": "rm -rf dist/ && npm run format && rollup --config rollup.config.js --watch",
     "release": "npm run build && npm run test-ci && npm run tsd && bump --commit \"release: @polymita/renderer v%s\""
   },
   "exports": {

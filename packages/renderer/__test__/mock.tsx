@@ -362,7 +362,7 @@ export function layoutHasLogic(): SingleFileModule<
     logic(...args) {
       return {
         a: 1,
-      }
+      };
     },
     layout(props) {
       return (

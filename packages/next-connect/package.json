@@ -8,8 +8,8 @@
   "scripts": {
     "format": "prettier --write --parser typescript \"*/*.ts?(x)\"",
     "format:commit": "npm run format && git commit -a -m 'feat(core): lint'",
-    "build": "rm -rf dist && npm run format && rollup --config rollup.config.mjs",
-    "build:watch": "rm -rf dist/ && npm run format && rollup --config rollup.config.mjs --watch"
+    "build": "rm -rf dist && npm run format && rollup --config rollup.config.js",
+    "build:watch": "rm -rf dist/ && npm run format && rollup --config rollup.config.js --watch"
   },
   "typesVersions": {
     "*": {
