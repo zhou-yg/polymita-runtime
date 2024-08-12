@@ -8,18 +8,11 @@
   <% css.forEach((path, i) => { %>
   <link rel="stylesheet" href="<%- css[i] %>">
   <% }) %>
-  <script>
-    taratConfig = <%- configJSON %>
-    hookContextMap = <%- hookContextMap %>
-  </script> 
-  <script>
-    hookContextMapBackup = <%- hookContextMap %>
-  </script>
+
+  
 </head>
 <body>
-  <div id="app">
-    <%- ssrHTML %>
-  </div>
+  <div id="app"></div>
 </body>
 <script type="module" src="<%= src %>"></script>
 </html>

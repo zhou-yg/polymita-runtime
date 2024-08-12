@@ -25,13 +25,13 @@ export function setupBasicServer (c: IConfig) {
   app.use(async (ctx, next) => {
     const contentLength = ctx.request.headers['content-length'];
     if (contentLength && parseInt(contentLength)) {
-      console.log('[@polymita/server] request payload contentLength: ', `${parseInt(contentLength) / 1024 / 1024}mb`);
+      console.log('[@polymita/next-server] request payload contentLength: ', `${parseInt(contentLength) / 1024 / 1024}mb`);
     }
     await next();
   })
   app.use(koaBody({
     multipart: true,
-    jsonLimit: '1000mb',
+    jsonLimit: '100mb',
   }))
   app.use(cors())
   app.use(staticServe(c.publicDirectory))

@@ -94,7 +94,6 @@ export async function buildIndex(c: IConfig) {
       '@emotion/styled',
       '@mui/material',
       '@polymita/next-connect',
-      '@polymita/next-server',
       '@polymita/renderer',
       'react',
       'react-dom',
