@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "description": "useHook serverless framework",
   "main": "./dist/index.js",
-  "module": "./dist/index.esm.js",
   "types": "./dist/index.d.ts",
   "scripts": {
     "format": "prettier --write --parser typescript \"*/*.ts?(x)\"",
