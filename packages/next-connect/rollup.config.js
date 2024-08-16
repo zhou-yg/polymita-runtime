@@ -28,7 +28,7 @@ module.exports = [
     {
       input: config.input,
       output: [
-        { file: `dist/${name}.d.ts`, format: 'es' }
+        { file: `dist/${name}.umd.d.ts`, format: 'es' }
       ],
       plugins: [
         dts(),
