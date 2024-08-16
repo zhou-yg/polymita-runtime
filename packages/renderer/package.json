@@ -19,11 +19,11 @@
   "exports": {
     ".": {
       "import": "./dist/renderer.esm.js",
-      "require": "./dist/renderer.js"
+      "default": "./dist/renderer.umd.js"
     },
     "./jsx-runtime": {
       "import": "./dist/jsx-runtime.esm.js",
-      "require": "./dist/jsx-runtime.js"
+      "default": "./dist/jsx-runtime.esm.js"
     }
   },
   "typesVersions": {

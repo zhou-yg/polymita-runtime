@@ -72,6 +72,22 @@ module.exports = [
     ],
   },
   {
+    ...base,
+    output: {
+      file: 'dist/renderer.esm.js',
+      format: 'esm',
+    },
+  },
+  {
+    input: "src/index.ts",
+    output: [
+      { file: "dist/renderer.esm.d.ts", format: "es" },
+    ],
+    plugins: [
+      dts(),
+    ],
+  },
+  {
     input: 'jsx-runtime.ts',
     output: {
       file: 'dist/jsx-runtime.esm.js',

@@ -12,11 +12,11 @@ export * from "./extensions/stateManagements/react-signal";
 
 import PKG from "../package.json";
 if (typeof window !== "undefined") {
-  if (window["@polymita/renderer"]) {
-    throw new Error("[@polymita/renderer] already loaded");
+  if (window["@polymita/renderer/meta"]) {
+    throw new Error("[@polymita/renderer/meta] already loaded");
   }
   // @ts-ignore
-  window["@polymita/renderer"] = {
+  window["@polymita/renderer/meta"] = {
     version: PKG.version,
   };
 }
