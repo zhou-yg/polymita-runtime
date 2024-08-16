@@ -281,7 +281,7 @@ export function resolveNodeModulesLib (cwd: string, lib: string) {
  * 将config的一些全局绝对路径转换为当前项目工程的相对路径
  */
 export function projectRelativePath (c: IConfig, p: string) {
-  return p.replace(c.cwd, '')
+  return p.replace(c.cwd, '.')
 }
 
 export function removeExt(s: string) {

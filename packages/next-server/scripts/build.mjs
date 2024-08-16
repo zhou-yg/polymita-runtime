@@ -1,7 +1,7 @@
 import { spawn } from 'child_process'
 import shelljs from 'shelljs'
 
-const { cp } = shelljs;
+const { cp, mkdir } = shelljs;
 
 const instance = spawn('rollup', ['--config', 'rollup.config.mjs'], {
   cwd: process.cwd(),
@@ -18,6 +18,8 @@ instance.on('close', () => {
   const jsArr = [
     'src/server/internalStatic/*.js',
     'src/server/internalStatic/*.map',
+  ]
+  const jsArr2 = [
     'src/server/internalStatic/dev/*.js',
     'src/server/internalStatic/dev/*.map',
   ]
@@ -26,8 +28,14 @@ instance.on('close', () => {
     cp(from, 'dist/cli/')
     cp(from, 'dist/')  
   })
+
+  mkdir('dist/internalStatic/')
   jsArr.forEach(from => {
     cp(from, 'dist/internalStatic/')
+  })
+  mkdir('dist/internalStatic/dev')
+  jsArr2.forEach(from => {
+    cp(from, 'dist/internalStatic/dev')
   })
 
   console.log('build end')

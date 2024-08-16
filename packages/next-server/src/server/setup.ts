@@ -10,6 +10,8 @@ import e2k from 'express-to-koa'
 import chalk from 'chalk'
 import page from "./middlewares/page";
 import react from '@vitejs/plugin-react'
+import sendApp from './middlewares/sendApp'
+import createExternal from 'vite-plugin-external';
 
 import * as vite from "vite";
 
@@ -19,6 +21,7 @@ import getPort, { makeRange as portNumbers } from "get-port";
 import pureDevCache from "./middlewares/pureDevCache";
 import { getAddress, getDefaultRoute, logFrame } from "../util";
 import moduleTranslatorRollupPlugin from "../compiler/plugins/rollup-plugin-module-translator";
+import inlineStatic from "./middlewares/inlineStatic";
 
 export function setupBasicServer (c: IConfig) {
   const app = new Koa()
@@ -70,14 +73,12 @@ async function startApp(app: Application, c: IConfig) {
     const allList = c.pages.filter(v => v.routerPath).map(v => {
       return `
         ${v.name}:
-        localhost: ${chalk.green(`http://localhost:${port}${v.path}`)}
-        ${address ? `ip: ${chalk.green(`http://${address}:${port}${v.path}`)}` : ''  }`
-    }).join('\n')
-  
+        localhost: ${chalk.green(`http://localhost:${port}${v.routerPath}`)}
+        ${address ? `ip: ${chalk.green(`http://${address}:${port}${v.routerPath}`)}` : ''  }`
+    }).join('\n')  
   
     logFrame(`
-      Tarat App Server started at
-  
+      Tarat App Server started at  
       ${allList}
     `)
   })
@@ -106,20 +107,33 @@ export async function createDevViteServer (c: IConfig) {
     config: c
   }))
 
+  app.use(inlineStatic({ config: c }))
+
   const viteServer = await vite.createServer({
+    server: { middlewareMode: true },
+    appType: 'custom',
     clearScreen: false,
-    root: c.cwd,
     optimizeDeps: {
       force: true
     },
-    css: {},
-    plugins: [
-      // tsconfigPaths(),
-      {
-        ...moduleTranslatorRollupPlugin(c),
-        enforce: 'pre' 
-      },
+    plugins: [      
+      // {
+      //   ...moduleTranslatorRollupPlugin(c),
+      //   enforce: 'pre' 
+      // },
       react(),
+      createExternal({
+        externals: {
+          react: 'React',
+          'react-dom': 'ReactDOM',
+          'react-router-dom': 'ReactRouterDOM',
+          '@emotion/react': 'emotionReact',
+          '@emotion/styled': 'emotionStyled',
+          '@mui/material': 'MaterialUI',
+          '@polymita/next-connect': 'window["@polymita/next-connect"]',
+          '@polymita/renderer': 'window["@polymita/renderer"]'
+        }
+      }) as any
     ],
     resolve: {
       extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx', '.json', '.less', '.css'],
@@ -134,6 +148,7 @@ export async function createDevViteServer (c: IConfig) {
 
   app.use(e2k(viteServer.middlewares))
 
+  // app.use(sendApp({ config: c }))
 
   app.use(page({
     config: c,
@@ -144,12 +159,11 @@ export async function createDevViteServer (c: IConfig) {
 }
 
 
-export async function createServer(c: IConfig) {
+export async function createDevServer(c: IConfig) {
   const app = setupBasicServer(c)
  
   app.use(staticServe(c.buildDirectory))
 
-  // depends on dist/{distServerRoutes, distEntryJS}
   app.use(page({
     config: c,
   }))
@@ -158,7 +172,6 @@ export async function createServer(c: IConfig) {
 
   return app
 }
-
 
 export async function createTestServer(c: IConfig) {
   const app = setupBasicServer(c)

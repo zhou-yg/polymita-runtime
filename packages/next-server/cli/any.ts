@@ -17,6 +17,9 @@ import {
   generateBuildingIndex,
   buildIndex,
   buildPolymitaConfig,
+  createDevServer,
+  createDevViteServer,
+  generateViewFromOverrides,
 } from '../src'
 
 async function buildEverything (c: IConfig) {
@@ -42,7 +45,7 @@ function prepareDirs(c: IConfig) {
 export default async (cwd: string) => {
   const config = await readConfig({
     cwd,
-    isProd: true,
+    isProd: false,
   })
 
   let t1 = time()
@@ -50,9 +53,19 @@ export default async (cwd: string) => {
   emptyDirectory(config.pointFiles.outputDir)
   prepareDirs(config)
 
-  await generateBuildingIndex(config);
+  const c = config;
+  await Promise.all([
+    generateViewFromModule(c),
+    generateViewFromOverrides(c),
+    generateSignalsAndDeps(c),
+  ])
+  
+  generateLayoutTypes(c)
 
-  await buildIndex(config)
-  await buildScripts(config)
-  await buildPolymitaConfig(config)
+  await Promise.all([
+    buildModelIndexes(c),
+    generateModelTypes2(c),
+  ])
+
+  createDevViteServer(config)
 }

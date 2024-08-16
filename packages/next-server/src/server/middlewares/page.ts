@@ -52,6 +52,7 @@ function transformIndexHtml (html: string, c: IConfig) {
       configJSON: JSON.stringify({})
     })
 
+    console.log('html: ', ctx.request.url, html);
     // use on dev
     if (args.vite && !config.isProd) {
       html = await args.vite.transformIndexHtml(pathname, html)

@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import l from 'lodash'
 import { IFile, isFileEmpty, loadJSON, logFrame, traverse, traverseDir, traverseFirstDir } from './util'
 import chalk from 'chalk'
-import { findDependencies, findDepLibs } from './config/deps'
+import { findDependencies, findDepLibs, findStaticDeps } from './config/deps'
 import type { JSONSchemaForNPMPackageJsonFiles } from '@schemastore/package'
 const { merge } = l
 import getPort, { makeRange as portNumbers } from "get-port";
@@ -108,6 +108,7 @@ export type IDefaultConfig = ReturnType<typeof defaultConfig> & {
 
 
 const configFile = 'polymita.config.js'
+export const configFileName = 'polymita.config.js'
 
 /**
  * app/page -> /
@@ -444,7 +445,7 @@ function getTailwindConfigPath(cwd: string) {
 
 export async function readConfig (arg: {
   cwd: string,
-  isProd?: boolean | 'prod' | 'dev' | 'test',
+  isProd?: boolean,
   port?: number
 }) {
   const { cwd, isProd } = arg
@@ -519,8 +520,9 @@ export async function readConfig (arg: {
   const generateFiles = getGenerateFiles(config, cwd)
   const devFiles = getDevFiles(config, cwd)
 
-  const dependencyModules = findDependencies(cwd, packageJSON)
+  const dependencyModules = findDependencies(cwd, configFileName, packageJSON)
   const dependencyLibs = findDepLibs(packageJSON)
+  const staticDeps = findStaticDeps(isProd, cwd, dependencyModules)
 
   const appRootFile = getAppRootFile(cwd, config)
 
@@ -595,5 +597,7 @@ export async function readConfig (arg: {
     thirdPartEntry,
     preservedDirs,
     rootTsconfig,
+    configFileName,
+    staticDeps,
   }
 }

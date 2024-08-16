@@ -19,7 +19,7 @@ function resolveNext(c: IConfig) {
   return require(path.join(c.cwd, './node_modules/next/'))
 }
 
-export { createDevViteServer } from './server/setup'
+export { createDevViteServer, createDevServer } from './server/setup'
 
 
 export async function createDevNextServer (c: IConfig) {  
