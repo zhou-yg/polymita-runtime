@@ -1,9 +1,9 @@
-import tsPlugin from 'rollup-plugin-typescript2'
-import dts from "rollup-plugin-dts"
-import replace from '@rollup/plugin-replace';
-// import { nodeResolve } from '@rollup/plugin-node-resolve';
+const tsPlugin = require('rollup-plugin-typescript2')
+const dts = require("rollup-plugin-dts").default
+const replace = require('@rollup/plugin-replace')
+const pkg = require('./package.json')
 
-const libName = 'signal-model'
+const libName = 'index'
 
 const base = {
   plugins: [
@@ -39,15 +39,16 @@ export default [
       }),
     ],
     output: {
-      file: `dist/${libName}.js`,
-      format: 'cjs'
+      file: `dist/${libName}.umd.js`,
+      name: pkg.name,
+      format: 'umd'
     }
   },
   {
     input: "src/index.ts",
     output: [
       { file: `dist/${libName}.esm.d.ts`, format: "es" },
-      { file: `dist/${libName}.d.ts`, format: "es" },
+      { file: `dist/${libName}.umd.d.ts`, format: "es" },
     ],
     plugins: [
       dts(),

@@ -1,7 +1,6 @@
-import tsPlugin from 'rollup-plugin-typescript2'
-import dts from "rollup-plugin-dts"
-import replace from '@rollup/plugin-replace';
-// import { nodeResolve } from '@rollup/plugin-node-resolve';
+const tsPlugin = require('rollup-plugin-typescript2')
+const dts = require("rollup-plugin-dts").default
+const pkg = require('./package.json')
 
 const base = {
   plugins: [
@@ -21,8 +20,9 @@ export default [
       ...base.plugins,
     ],
     output: {
-      file: 'dist/signal.js',
-      format: 'commonjs',
+      file: 'dist/index.umd.js',
+      format: 'umd',
+      name: pkg.name,
       sourcemap: true,
     },
   },
@@ -32,7 +32,7 @@ export default [
       ...base.plugins,
     ],
     output: {
-      file: 'dist/signal.esm.js',
+      file: 'dist/index.esm.js',
       format: 'esm',
       sourcemap: true,
     },
@@ -40,8 +40,8 @@ export default [
   {
     input: "src/index.ts",
     output: [
-      { file: "dist/signal.esm.d.ts", format: "es" },
-      { file: "dist/signal.d.ts", format: "es" },
+      { file: "dist/index.esm.d.ts", format: "es" },
+      { file: "dist/index.umd.d.ts", format: "es" },
     ],
     plugins: [
       dts(),
