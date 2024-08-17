@@ -2,8 +2,8 @@
   "name": "@polymita/next-connect",
   "version": "0.0.1",
   "description": "useHook serverless framework",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.umd.js",
+  "types": "./dist/index.umd.d.ts",
   "scripts": {
     "format": "prettier --write --parser typescript \"*/*.ts?(x)\"",
     "format:commit": "npm run format && git commit -a -m 'feat(core): lint'",

@@ -25,7 +25,7 @@ export const PrismaNamespaceContext = React.createContext<{
 }>(null);
 
 export function ConnectProvider(props: {
-  children: any;
+  children?: any;
   plugin: Plugin;
   modelIndexes: IModelIndexesBase;
 }) {
@@ -42,7 +42,7 @@ export function ConnectProvider(props: {
 }
 
 export function PrismaNamespaceProvider(props: {
-  children: any;
+  children?: any;
   namespace: string;
   modulesLinkMap?: Map<string, any>;
   modulesActiveMap?: string[]
