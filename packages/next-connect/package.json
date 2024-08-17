@@ -10,13 +10,6 @@
     "build": "rm -rf dist && npm run format && rollup --config rollup.config.js",
     "build:watch": "rm -rf dist/ && npm run format && rollup --config rollup.config.js --watch"
   },
-  "typesVersions": {
-    "*": {
-      "connect": [
-        "./dist/index.d.ts"
-      ]
-    }
-  },
   "files": [
     "src",
     "dist",
@@ -41,7 +34,7 @@
   },
   "devDependencies": {
     "@types/node": "^18.6.2",
-    "@types/react": "18.2.18",
+    "@types/react": "18.3.3",
     "prettier": "^3.0.0",
     "rollup": "^2.74.1",
     "rollup-plugin-dts": "^4.2.2",

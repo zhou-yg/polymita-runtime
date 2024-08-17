@@ -6,7 +6,6 @@ import {
   isPromise,
 } from "@polymita/signal-model";
 import EE from 'eventemitter3'
-import { StdioNull } from "child_process";
 
 export const ConnectContext = React.createContext<{
   plugin: Plugin;
