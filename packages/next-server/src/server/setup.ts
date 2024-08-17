@@ -16,12 +16,11 @@ import createExternal from 'vite-plugin-external';
 import * as vite from "vite";
 
 import { IConfig } from "../config";
-import getPort, { makeRange as portNumbers } from "get-port";
 
 import pureDevCache from "./middlewares/pureDevCache";
-import { getAddress, getDefaultRoute, logFrame } from "../util";
-import moduleTranslatorRollupPlugin from "../compiler/plugins/rollup-plugin-module-translator";
+import { getAddress, logFrame } from "../util";
 import inlineStatic from "./middlewares/inlineStatic";
+import { externalModules } from "../compiler";
 
 export function setupBasicServer (c: IConfig) {
   const app = new Koa()
@@ -124,14 +123,7 @@ export async function createDevViteServer (c: IConfig) {
       react(),
       createExternal({
         externals: {
-          react: 'React',
-          'react-dom': 'ReactDOM',
-          'react-router-dom': 'ReactRouterDOM',
-          '@emotion/react': 'emotionReact',
-          '@emotion/styled': 'emotionStyled',
-          '@mui/material': 'MaterialUI',
-          '@polymita/next-connect': 'window["@polymita/next-connect"]',
-          '@polymita/renderer': 'window["@polymita/renderer"]'
+          ...externalModules(c.dependencyModules),
         }
       }) as any
     ],

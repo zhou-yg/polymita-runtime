@@ -12,6 +12,8 @@ import {
   generateScripts,
   emptyDirectory,
   generateViewFromOverrides,
+  createDevViteServer,
+  generateClientRoutes,
 } from '../src'
 
 const chokidarOptions = () => ({
@@ -24,8 +26,8 @@ const chokidarOptions = () => ({
 })
 
 async function buildEverything (c: IConfig) {
-  generateSignalMap(c)
-  copyContextFiles(c)
+  // generateSignalMap(c)
+  // copyContextFiles(c)
   
   generateScripts(c)
 
@@ -33,6 +35,7 @@ async function buildEverything (c: IConfig) {
     generateViewFromModule(c),
     generateViewFromOverrides(c),
     generateSignalsAndDeps(c),
+    generateClientRoutes(c),
   ])
   
   generateLayoutTypes(c)
@@ -40,6 +43,7 @@ async function buildEverything (c: IConfig) {
   await Promise.all([
     buildModelIndexes(c),
     generateModelTypes2(c),
+    
   ])
 }
 
@@ -57,18 +61,29 @@ function watchEverything (c: IConfig) {
   const overridesGroup = [
     path.join(c.cwd, c.overridesDirectory),
   ]
+  const appGroup = [
+    path.join(c.cwd, c.appDirectory),
+  ]
   const modelsWatcher = chokidar.watch(modelsGroup, chokidarOptions())
   const signalsWatcher = chokidar.watch(signalsGroup, chokidarOptions())
   const modulesWatcher = chokidar.watch(modulesGroup, chokidarOptions())
   const overridesWatcher = chokidar.watch(overridesGroup, chokidarOptions())
+  const appWatcher = chokidar.watch(appGroup, chokidarOptions())
 
   const config: IWatcherConfig[] = [
+    {
+      watcher: appWatcher,
+      name: 'app-change',
+      event: ['add', 'unlink'],
+      callbackMode: 'sequence',
+      callbacks: [generateClientRoutes],
+    },
     {
       watcher: signalsWatcher,
       name: 'signals-change',
       event: 'change',
       callbackMode: 'sequence',
-      callbacks: [generateSignalsAndDeps, generateSignalMap],
+      callbacks: [generateSignalsAndDeps],
     },
     {
       watcher: modelsWatcher,
@@ -142,5 +157,5 @@ export default async (cwd: string) => {
     errorFrame(e)
   }
 
-  createDevNextServer(config)
+  createDevViteServer(config)
 }

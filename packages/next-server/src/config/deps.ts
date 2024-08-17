@@ -48,32 +48,6 @@ interface Dep {
   resources?: string[]
 }
 
-function mergeDependencies(deps: Dep[]): Dep[] {
-  const mergedMap = new Map<string, Dep>();
-
-  for (const dep of deps) {
-    if (mergedMap.has(dep.name)) {
-      const existingDep = mergedMap.get(dep.name)!;
-      
-      // Merge resources arrays if both exist
-      if (existingDep.resources && dep.resources) {
-        existingDep.resources = [...new Set([...existingDep.resources, ...dep.resources])];
-      } 
-      // If only the new dep has resources, use those
-      else if (dep.resources) {
-        existingDep.resources = dep.resources;
-      }
-      
-      // Keep the existing resourceDir (you might want to handle conflicts differently)
-      mergedMap.set(dep.name, existingDep);
-    } else {
-      mergedMap.set(dep.name, { ...dep });
-    }
-  }
-
-  return Array.from(mergedMap.values());
-}
-
 export function findStaticDeps (isProd: boolean, cwd: string, modules: string[]) {
   const arr: Dep[] = [
     {
@@ -94,10 +68,12 @@ export function findStaticDeps (isProd: boolean, cwd: string, modules: string[])
         path.join(cwd, 'node_modules/@polymita/next-connect/dist/index.umd.js'),
       ],
     },
-    ...modules.map(name => ({
-      name: 'modules.js',
-      resources: [ path.join(cwd, 'node_modules', name ,'/dist/index.js') ]
-    }))
+    {
+      name: 'module.js',
+      resources: [
+        ...modules.map(name => (path.join(cwd, 'node_modules', name ,'/dist/index.js'))),
+       ]
+    }
   ]
 
   arr.forEach(d1 => {
@@ -112,5 +88,5 @@ export function findStaticDeps (isProd: boolean, cwd: string, modules: string[])
     }
   })
 
-  return mergeDependencies(arr)
+  return arr
 }

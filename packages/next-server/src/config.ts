@@ -281,6 +281,7 @@ function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) 
   return {
     outputDir, 
     // output index
+    outputVirtualIndex: path.join(outputDir, 'index.ts'),
     outputIndex: path.join(outputDir, config.outputIndex),
     outputApp: path.join(outputDir, config.outputApp),
     configFile: path.join(outputDir, config.configDirectory, configFile),
@@ -300,16 +301,6 @@ function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) 
     outputScriptsDir: path.join(outputDir, config.scriptDirectory),    
     outputServerScriptsDir: path.join(outputDir, config.scriptDirectory, config.serverDir),    
     outputEdgeScriptsDir: path.join(outputDir, config.scriptDirectory, config.edgeDir),    
-  }
-}
-
-function getDevFiles (config: IDefaultConfig, cwd: string) {
-  const dir = path.join(cwd, config.devCacheDirectory)
-
-  return {
-    outputDir: dir,
-    /**  */
-    virtualIndex: path.join(dir, 'index.ts'),
   }
 }
 
@@ -518,8 +509,10 @@ export async function readConfig (arg: {
   const devPointFiles = getOutputFiles(config, cwd, path.join(cwd, config.appDirectory, config.generateRoot))
   const pointFiles = isProd ? buildPointFiles : devPointFiles
   const generateFiles = getGenerateFiles(config, cwd)
-  const devFiles = getDevFiles(config, cwd)
 
+  /**
+   * @polymita/* business modules
+   */
   const dependencyModules = findDependencies(cwd, configFileName, packageJSON)
   const dependencyLibs = findDepLibs(packageJSON)
   const staticDeps = findStaticDeps(isProd, cwd, dependencyModules)
@@ -586,7 +579,6 @@ export async function readConfig (arg: {
     currentFiles,
     pointFiles,
     entryFiles,
-    devFiles,
     cwd,
     signals,
     pages,

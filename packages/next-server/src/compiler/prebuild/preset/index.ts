@@ -8,6 +8,7 @@ import * as prettier from 'prettier'
 import { equalFileContent, implicitImportPath, loadJSON, removeExt, traverseDir, tryMkdir, upperFirstVariable } from "../../../util";
 import { IConfig, IRouteChild, PageConfig } from '../../../config';
 import { camelCase, upperFirst } from 'lodash';
+import { buildDTS } from '../../bundleUtility'
 
 const { cp } = shelljs;
 
@@ -143,6 +144,8 @@ function generateRoutesContent (routes: IRouteChild[], depth = 0, parentName = '
         `</Route>`
       ].join('\n');
     }).join('\n')
+
+    return child
   })
 
   return routeArr.join('\n')
@@ -204,28 +207,30 @@ export async function generateClientRoutes(c: IConfig) {
 
 export async function generateBuildingIndex(c: IConfig) {
   const exportModulesConfig = [
-    ['modules', c.currentFiles.modulesDirectory, c.modules],
-    ['overrides', c.currentFiles.overridesDirectory, c.overrides],
-    ['scriptsClient', c.currentFiles.scriptsClientDirectory, c.scripts.edge],
-    ['signals', c.currentFiles.signalsDirectory, c.signals],
+    ['modules', c.pointFiles.outputModulesDir, c.modules],
+    ['overrides', c.pointFiles.outputOverridesDir, c.overrides],
+    ['scriptsClient', c.pointFiles.outputEdgeScriptsDir, c.scripts.edge],
+    // ['signals', c.pointFiles.outputSignalsDir, c.signals],
   ] as const;
   
   const contents: string[] = []
   const tail: string[] = []
 
   exportModulesConfig.forEach(([exportName, dir, files]) => {
+    console.log('[generateBuildingIndex]', exportName, fs.existsSync(dir) , files.length);
     if (fs.existsSync(dir) && files.length) {
+      const relativeDir = path.relative(c.pointFiles.outputDir, dir)
+
       files.forEach(f => {
-        const relativePath = path.relative(c.devFiles.outputDir, f.dir)
         contents.push(
-          `import * as ${f.name} from '${path.join(relativePath, f.name)}'`
+          `import * as ${f.name} from './${path.join(relativeDir, removeExt(f.relativeFile))}'`
         )
       })
       tail.push(`export const ${exportName} = { ${files.map(f => f.name).join(', ')} }`)
     }
   })
 
-  tryMkdir(c.devFiles.outputDir)
+  tryMkdir(c.pointFiles.outputDir)
 
   const viewsContent = moduleRenderToReactFilePathTemplate({
     names: [
@@ -237,5 +242,5 @@ export async function generateBuildingIndex(c: IConfig) {
   contents.push(viewsContent)
   contents.push(...tail)
 
-  fs.writeFileSync(c.devFiles.virtualIndex, contents.join('\n'))
+  fs.writeFileSync(c.pointFiles.outputVirtualIndex, contents.join('\n'))
 }

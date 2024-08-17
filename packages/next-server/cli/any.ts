@@ -45,7 +45,7 @@ function prepareDirs(c: IConfig) {
 export default async (cwd: string) => {
   const config = await readConfig({
     cwd,
-    isProd: false,
+    isProd: true,
   })
 
   let t1 = time()
@@ -54,18 +54,7 @@ export default async (cwd: string) => {
   prepareDirs(config)
 
   const c = config;
-  await Promise.all([
-    generateViewFromModule(c),
-    generateViewFromOverrides(c),
-    generateSignalsAndDeps(c),
-  ])
-  
-  generateLayoutTypes(c)
 
-  await Promise.all([
-    buildModelIndexes(c),
-    generateModelTypes2(c),
-  ])
-
-  createDevViteServer(config)
+  await generateBuildingIndex(c)
+  buildIndex(c)
 }

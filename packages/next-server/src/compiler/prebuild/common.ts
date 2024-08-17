@@ -1,7 +1,7 @@
 import { existsSync, readdirSync } from 'fs';
 import { IConfig } from '../../config';
 import { join, parse } from 'path';
-import { buildDTS, esbuild, runTSC } from '../bundleUtility';
+import { buildDTS, buildDTS2, esbuild, runTSC } from '../bundleUtility';
 import { logFrame, traverseDir, tryMkdir } from '../../util';
 import { cp } from 'shelljs';
 import { nodeExternalsPlugin } from 'esbuild-node-externals'
@@ -79,25 +79,31 @@ export async function  buildScripts(c: IConfig) {
   }
 }
 
+export const externalModules = (modules: string[] = []) => ({
+  react: 'React',
+  'react-dom': 'ReactDOM',
+  'react-router-dom': 'ReactRouterDOM',
+  '@emotion/react': 'emotionReact',
+  '@emotion/styled': 'emotionStyled',
+  '@mui/material': 'MaterialUI',
+  '@polymita/next-connect': 'window["@polymita/next-connect"]',
+  '@polymita/renderer': 'window["@polymita/renderer"]',
+  ...Object.fromEntries(modules.map(name => [name, `window["${name}"]`]))
+})
+
+
 /**
  * virtual index
  */
 export async function buildIndex(c: IConfig) {
-  const entry = c.devFiles.virtualIndex
-  esbuild({
+  const entry = c.pointFiles.outputVirtualIndex
+  await esbuild({
     entryPoints: [entry],
     bundle: true,
     format: 'umd' as any,
     outfile: c.pointFiles.outputIndex,
     external: [
-      '@emotion/react',
-      '@emotion/styled',
-      '@mui/material',
-      '@polymita/next-connect',
-      '@polymita/renderer',
-      'react',
-      'react-dom',
-      'react-router-dom'
+      ...Object.keys(externalModules()),
     ],
     plugins: [
       umdWrapper({
@@ -105,4 +111,10 @@ export async function buildIndex(c: IConfig) {
       }),
     ],
   })
+
+  await buildDTS2(
+    c,
+    [entry],
+    c.pointFiles.outputDir,
+  )
 }
