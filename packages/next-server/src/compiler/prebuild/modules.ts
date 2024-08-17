@@ -106,7 +106,7 @@ export async function generateViewFromModule (c: IConfig, externalModule?: boole
   }))
 
   if (tsFiles.length) {
-    logFrame('generate views: \n' + tsFiles.map(([f]) => `view= .${f.replace(c.cwd, '')}`).join('\n'))
+    logFrame('[modules] generate views: \n' + tsFiles.map(([f]) => `view= .${f.replace(c.cwd, '')}`).join('\n'))
   
     // if (externalModule) {
     //   /**

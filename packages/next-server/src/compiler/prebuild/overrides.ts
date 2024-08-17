@@ -76,7 +76,7 @@ export async function generateViewFromOverrides (c: IConfig, externalModule?: bo
   }))
 
   if (tsFiles.length) {
-    logFrame('generate views: \n' + tsFiles.map(([f]) => `view= .${f.replace(c.cwd, '')}`).join('\n'))
+    logFrame('[overrides] generate views: \n' + tsFiles.map(([f]) => `view= .${f.replace(c.cwd, '')}`).join('\n'))
   
     // if (externalModule) {
     //   /**

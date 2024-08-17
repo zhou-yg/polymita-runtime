@@ -44,10 +44,10 @@ export async function buildDTS (c: IConfig, inputs: string[], outdir?: string) {
       },
     )
     instance.stderr.on('data', data => {
-      console.log(`[buildDTS] stderr:  ${data}`);
+      // console.log(`[buildDTS] stderr:  ${data}`);
     })
     instance.stdout.on('data', data => {
-      console.log(`stdout:  ${data}`);
+      // console.log(`stdout:  ${data}`);
     })
     instance.on('close', (code, s) => {
       resolve()
@@ -73,9 +73,9 @@ export async function buildDTS2 (c: IConfig, inputs: string[], outdir?: string) 
     // instance.stderr.on('data', data => {
     //   console.log(`[buildDTS2] stderr:  ${data}`);
     // })
-    instance.stdout.on('data', data => {
-      console.log(`[buildDTS2 stdout:  ${data}`);
-    })
+    // instance.stdout.on('data', data => {
+    //   console.log(`[buildDTS2 stdout:  ${data}`);
+    // })
     instance.on('close', (code, s) => {
       resolve()
     })

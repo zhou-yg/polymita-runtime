@@ -97,6 +97,7 @@ export const externalModules = (modules: string[] = []) => ({
  */
 export async function buildIndex(c: IConfig) {
   const entry = c.pointFiles.outputVirtualIndex
+  console.log('[buildIndex] entry: ', entry);
   await esbuild({
     entryPoints: [entry],
     bundle: true,
@@ -112,7 +113,7 @@ export async function buildIndex(c: IConfig) {
     ],
   })
 
-  await buildDTS2(
+  await buildDTS(
     c,
     [entry],
     c.pointFiles.outputDir,
