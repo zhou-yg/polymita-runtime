@@ -301,3 +301,7 @@ export function implicitImportPath (path: string, ts: boolean) {
 
   return path
 }
+
+export function isBlankObject (obj: any) {
+  return obj && typeof obj === 'object' && Object.keys(obj).length === 0
+}

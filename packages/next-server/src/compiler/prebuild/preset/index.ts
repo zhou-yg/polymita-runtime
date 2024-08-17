@@ -210,7 +210,7 @@ export async function generateBuildingIndex(c: IConfig) {
     ['modules', c.pointFiles.outputModulesDir, c.modules],
     ['overrides', c.pointFiles.outputOverridesDir, c.overrides],
     ['scriptsClient', c.pointFiles.outputEdgeScriptsDir, c.scripts.edge],
-    // ['signals', c.pointFiles.outputSignalsDir, c.signals],
+    ['signals', c.pointFiles.outputSignalsDir, c.signals],
   ] as const;
   
   const contents: string[] = []
@@ -221,10 +221,16 @@ export async function generateBuildingIndex(c: IConfig) {
     if (fs.existsSync(dir) && files.length) {
       const relativeDir = path.relative(c.pointFiles.outputDir, dir)
 
-      files.forEach(f => {
-        contents.push(
-          `import * as ${f.name} from './${path.join(relativeDir, removeExt(f.relativeFile))}'`
-        )
+      files.forEach((f) => {
+        if (exportName === 'signals') {
+          contents.push(
+            `import ${f.name} from './${path.join(relativeDir, removeExt(f.relativeFile))}'`
+          )
+        } else {
+          contents.push(
+            `import * as ${f.name} from './${path.join(relativeDir, removeExt(f.relativeFile))}'`
+          )
+        }
       })
       tail.push(`export const ${exportName} = { ${files.map(f => f.name).join(', ')} }`)
     }
@@ -236,7 +242,7 @@ export async function generateBuildingIndex(c: IConfig) {
     names: [
       ...c.modules.map(f => f.name),
       ...c.overrides.map(f => f.name),
-    ]
+    ],
   })
 
   contents.push(viewsContent)

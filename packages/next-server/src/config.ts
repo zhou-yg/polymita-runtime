@@ -74,7 +74,7 @@ export const defaultConfig = () => ({
   schemaIndexesTypes: 'indexesTypes.d.ts',
 
   // server side
-  apiPre: '_hook',
+  apiPre: '/api/prisma',
 
   diffPath: '_diff',
 
@@ -183,7 +183,7 @@ function readPages (config: IDefaultConfig, viewDir: string) {
   return pages
 }
 
-export interface IServerHookConfig {
+export interface IServerHookConfig extends IFile{
   /** full path */
   filePath: string
   file: string
@@ -241,6 +241,9 @@ export function readSignals(dir: string) {
       filePath,
       file: f,
       name,
+      isDir: false,
+      path: filePath,
+      relativeFile: filePath.replace(dir, '')
     }
   })
 

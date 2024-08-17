@@ -21,6 +21,7 @@ import pureDevCache from "./middlewares/pureDevCache";
 import { getAddress, logFrame } from "../util";
 import inlineStatic from "./middlewares/inlineStatic";
 import { externalModules } from "../compiler";
+import prisma from "./middlewares/prisma";
 
 export function setupBasicServer (c: IConfig) {
   const app = new Koa()
@@ -107,6 +108,7 @@ export async function createDevViteServer (c: IConfig) {
   }))
 
   app.use(inlineStatic({ config: c }))
+  app.use(prisma({ config: c }))
 
   const viteServer = await vite.createServer({
     server: { middlewareMode: true },

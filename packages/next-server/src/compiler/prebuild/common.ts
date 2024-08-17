@@ -16,12 +16,13 @@ export async function buildCommonDirs(c: IConfig) {
     })
 
   await Promise.all(dirs.map(name => {
+    console.log('name: ', name);
     const dir = join(c.cwd, name)
     const dest = join(c.pointFiles.outputDir, name)
 
     const files: string[] = []
     traverseDir(dir, f => {
-      if (/\.ts(x)?/.test(f.file)) {
+      if (/\.tsx?/.test(f.file)) {
         files.push(f.path)
       }
     })
@@ -88,6 +89,9 @@ export const externalModules = (modules: string[] = []) => ({
   '@mui/material': 'MaterialUI',
   '@polymita/next-connect': 'window["@polymita/next-connect"]',
   '@polymita/renderer': 'window["@polymita/renderer"]',
+  '@polymita/signal': 'window["@polymita/signal"]',
+  '@polymita/signal-model': 'window["@polymita/signal-model"]',
+  'eventemitter3': 'EventEmitter3',
   ...Object.fromEntries(modules.map(name => [name, `window["${name}"]`]))
 })
 

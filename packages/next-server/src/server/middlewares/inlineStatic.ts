@@ -20,7 +20,10 @@ export default function inlineStatic (args: {
 
       if (resources) {
         code = resources.resources.reduce((prev, file) => {
-          return prev + '\n' + fs.readFileSync(file, 'utf-8')
+          if (fs.existsSync(file)) {
+            return prev + '\n\n\n' + fs.readFileSync(file, 'utf-8')
+          }
+          return prev
         }, '')
       } 
       ctx.set('Content-Type', 'application/javascript');

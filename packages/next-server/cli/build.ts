@@ -36,7 +36,8 @@ export default async (cwd: string) => {
 
   await Promise.all([
     buildModelIndexes(config),
-    generateModelTypes2(config)
+    generateModelTypes2(config),
+    buildCommonDirs(config),
   ])
 
   logFrame(`build models in ${t1()}s`)

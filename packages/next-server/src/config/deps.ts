@@ -56,14 +56,20 @@ export function findStaticDeps (isProd: boolean, cwd: string, modules: string[])
         isProd 
           ? path.join(cwd, 'node_modules/@polymita/next-server/dist/internalStatic')
           : path.join(cwd, 'node_modules/@polymita/next-server/dist/internalStatic/dev'),
+      /**
+       * "dev" state maybe using prod resources
+       * */    
       resources: isProd ? [] : [
         path.join(cwd, 'node_modules/@polymita/next-server/dist/internalStatic/emotion-react.umd.min.js'),
         path.join(cwd, 'node_modules/@polymita/next-server/dist/internalStatic/emotion-styled.umd.min.js'),
+        path.join(cwd, 'node_modules/@polymita/next-server/dist/internalStatic/eventemitter3.js'),
       ]
     },
     {
       name: 'runtime.js',
       resources: [
+        path.join(cwd, 'node_modules/@polymita/signal/dist/index.umd.js'),
+        path.join(cwd, 'node_modules/@polymita/signal-model/dist/index.umd.js'),
         path.join(cwd, 'node_modules/@polymita/renderer/dist/renderer.umd.js'),
         path.join(cwd, 'node_modules/@polymita/next-connect/dist/index.umd.js'),
       ],
