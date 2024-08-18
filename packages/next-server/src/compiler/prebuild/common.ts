@@ -6,6 +6,7 @@ import { logFrame, traverseDir, tryMkdir } from '../../util';
 import { cp } from 'shelljs';
 import { nodeExternalsPlugin } from 'esbuild-node-externals'
 import { umdWrapper } from 'esbuild-plugin-umd-wrapper';
+import externalGlobals from '../plugins/esbuild-globals';
 
 export async function buildCommonDirs(c: IConfig) {
   const dirs = readdirSync(c.cwd)
@@ -111,6 +112,7 @@ export async function buildIndex(c: IConfig) {
       ...Object.keys(externalModules()),
     ],
     plugins: [
+      externalGlobals(externalModules()),
       umdWrapper({
         libraryName: c.packageJSON.name
       }),
