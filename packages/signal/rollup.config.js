@@ -32,6 +32,17 @@ export default [
       ...base.plugins,
     ],
     output: {
+      file: 'dist/index.cjs.js',
+      format: 'cjs',
+      sourcemap: true,
+    },
+  },
+  {
+    ...base,
+    plugins: [
+      ...base.plugins,
+    ],
+    output: {
       file: 'dist/index.esm.js',
       format: 'esm',
       sourcemap: true,
@@ -42,6 +53,7 @@ export default [
     output: [
       { file: "dist/index.esm.d.ts", format: "es" },
       { file: "dist/index.umd.d.ts", format: "es" },
+      { file: "dist/index.cjs.d.ts", format: "es" },
     ],
     plugins: [
       dts(),

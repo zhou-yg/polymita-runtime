@@ -23,6 +23,9 @@ module.exports = [
         file: `dist/${name}.umd.js`,
         format: 'umd',
         name: pkg.name,
+        globals: {
+          '@polymita/signal-model': '@polymita/signal-model',
+        }
       },
     },
     {

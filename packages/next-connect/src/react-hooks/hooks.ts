@@ -4,13 +4,13 @@ import {
   IModelIndexesBase,
   IModelQuery,
   isPromise,
+  EventEmitter,
 } from "@polymita/signal-model";
-import EE from 'eventemitter3'
 
 export const ConnectContext = React.createContext<{
   plugin: Plugin;
   modelIndexes: IModelIndexesBase;
-  modelEvents: EE
+  modelEvents: EventEmitter
 }>(null);
 
 const MODEL_UPDATE = 'MODEL_UPDATE'
@@ -33,7 +33,7 @@ export function ConnectProvider(props: {
     {
       value: {
         ...props,
-        modelEvents: new EE,
+        modelEvents: new EventEmitter(),
       }
     },
     props.children,

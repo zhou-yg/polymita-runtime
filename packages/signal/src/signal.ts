@@ -33,11 +33,13 @@ import {
   THookDepUnit,
   mergeInitialArgs,
 } from "./util";
-import EventEmitter from "eventemitter3";
+import EventEmitter from "./lib/eventemitter3";
 import type { Draft } from "immer";
 import { produceWithPatches, enablePatches } from "immer";
 import { Plugin, TCacheFrom } from "./plugin2";
+
 export { produceWithPatches, applyPatches } from "immer";
+export { default as EventEmitter } from "./lib/eventemitter3";
 
 enablePatches();
 
