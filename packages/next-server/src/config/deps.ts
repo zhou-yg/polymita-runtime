@@ -79,7 +79,13 @@ export function findStaticDeps (isProd: boolean, cwd: string, modules: string[])
       resources: [
         ...modules.map(name => (path.join(cwd, 'node_modules', name ,'/dist/index.js'))),
        ]
-    }
+    },
+    {
+      name: 'module.css',
+      resources: [
+        ...modules.map(name => (path.join(cwd, 'node_modules', name ,'/dist/index.css'))),
+       ]
+    },
   ]
 
   arr.forEach(d1 => {

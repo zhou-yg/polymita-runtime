@@ -1,4 +1,4 @@
-import { existsSync, readdirSync } from 'fs';
+import { existsSync, readdirSync, unlinkSync } from 'fs';
 import { IConfig } from '../../config';
 import { join, parse } from 'path';
 import { buildDTS, buildDTS2, esbuild, runTSC } from '../bundleUtility';
@@ -124,4 +124,5 @@ export async function buildIndex(c: IConfig) {
     [entry],
     c.pointFiles.outputDir,
   )
+  unlinkSync(entry)
 }

@@ -211,6 +211,7 @@ export async function generateBuildingIndex(c: IConfig) {
     ['overrides', c.pointFiles.outputOverridesDir, c.overrides],
     ['scriptsClient', c.pointFiles.outputEdgeScriptsDir, c.scripts.edge],
     ['signals', c.pointFiles.outputSignalsDir, c.signals],
+    ['contexts', c.pointFiles.outputContextDir, c.contexts],
   ] as const;
   
   const contents: string[] = []
@@ -241,8 +242,10 @@ export async function generateBuildingIndex(c: IConfig) {
   const viewsContent = moduleRenderToReactFilePathTemplate({
     names: [
       ...c.modules.map(f => f.name),
-      ...c.overrides.map(f => f.name),
     ],
+    overrides: [
+      ...c.overrides.map(f => f.name),
+    ]
   })
 
   contents.push(viewsContent)

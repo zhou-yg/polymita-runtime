@@ -12,7 +12,7 @@ export default function inlineStatic (args: {
 
   return async (ctx, next) => {
     const url = ctx.request.url
-    const name = url.match(/\/static\/(\w+\.js)/)?.[1]
+    const name = url.match(/\/static\/(\w+\.(js|css))/)?.[1]
 
     if (name) {
       const resources = config.staticDeps.find(p => p.name === name);
@@ -26,7 +26,11 @@ export default function inlineStatic (args: {
           return prev
         }, '')
       } 
-      ctx.set('Content-Type', 'application/javascript');
+      if (/\.js/.test(name)) {
+        ctx.set('Content-Type', 'application/javascript');
+      } else if (/\.css$/.test(name)) {
+        ctx.set('Content-Type', 'text/css');
+      }
       ctx.body = code
     } else {
       await next()

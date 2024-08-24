@@ -40,6 +40,8 @@ export default async (cwd: string) => {
     buildCommonDirs(config),
   ])
 
+  copyFiles(config)
+
   logFrame(`build models in ${t1()}s`)
 
   await Promise.all([
@@ -61,6 +63,4 @@ export default async (cwd: string) => {
   generateLayoutTypes(config)
 
   logFrame(`build modules/overrides/index in ${t1()}s`)
-
-  copyFiles(config) 
 }

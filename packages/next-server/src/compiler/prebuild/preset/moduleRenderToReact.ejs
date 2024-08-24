@@ -35,8 +35,17 @@ const forward<%= CptName %> = (modulesLinkMap: Map<string, any>, modulesActiveLi
 }
 <% }) %>
 
+<% overrides.forEach(CptName => { %>
+const forward<%= CptName %> = (modulesLinkMap: Map<string, any>) => {
+  registerModule(<%= CptName %> as any, modulesLinkMap);
+}
+<% }) %>
+
 export const views = {
   <% names.forEach(CptName => { %>
+  <%= CptName %>: forward<%= CptName %>, <% }) %>
+
+  <% overrides.forEach(CptName => { %>
   <%= CptName %>: forward<%= CptName %>, <% }) %>
 
 }

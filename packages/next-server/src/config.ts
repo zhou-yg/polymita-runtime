@@ -32,6 +32,7 @@ export const defaultConfig = () => ({
   publicDirectory: 'public',
   overridesDirectory: 'overrides',
   configDirectory: 'config',
+  contextDirectory: 'contexts',
 
   thirdPartDir: 'third_part',
 
@@ -288,6 +289,8 @@ function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) 
     outputIndex: path.join(outputDir, config.outputIndex),
     outputApp: path.join(outputDir, config.outputApp),
     configFile: path.join(outputDir, config.configDirectory, configFile),
+    //
+    outputContextDir: path.join(outputDir, config.contextDirectory),
 
     // prisma
     outputModelsDir: path.join(outputDir, config.modelsDirectory),
@@ -369,6 +372,19 @@ function getAppRootFile (cwd: string, c: IDefaultConfig) {
       ext: jsx
     }
   }
+}
+
+function readContexts (dir: string) {
+
+  const result: IFile[] = []
+
+  traverseFirstDir(dir, (f) => {
+    if (/\.(t|j)s(x?)/.test(f.path)) {
+      result.push(f)
+    }
+  })
+
+  return result
 }
 
 function readScripts (dir: string) {
@@ -464,6 +480,7 @@ export async function readConfig (arg: {
   const overridesDirectory = path.join(cwd, config.overridesDirectory)
   const modelsDirectory = path.join(cwd, config.modelsDirectory)
   const scriptsDirectory = path.join(cwd, config.scriptDirectory)
+  const contextsDirectory = path.join(cwd, config.contextDirectory)
 
   // to next@14
   // complement page file with page directory
@@ -474,6 +491,7 @@ export async function readConfig (arg: {
 
   const scripts = readScripts(scriptsDirectory)
 
+  const contexts = readContexts(contextsDirectory)
 
   const signals = filterComposeSignals(
     cwd,
@@ -584,6 +602,7 @@ export async function readConfig (arg: {
     entryFiles,
     cwd,
     signals,
+    contexts,
     pages,
     dependencyModules,
     dependencyLibs,
