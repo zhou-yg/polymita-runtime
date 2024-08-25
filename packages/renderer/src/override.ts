@@ -647,11 +647,17 @@ export function extendModule<
   ModuleName
 >(
   module: SingleFileModule<Props, L, PCArr, ModuleName>,
-  override: () => OverrideModule<
-    NewProps,
-    SingleFileModule<NewProps, L, PCArr, ModuleName>["layoutStruct"],
-    NewPC
-  >
+  override: () =>
+    | OverrideModule<
+        NewProps,
+        SingleFileModule<NewProps, L, PCArr, ModuleName>["layoutStruct"],
+        NewPC
+      >
+    | OverrideModule<
+        NewProps,
+        SingleFileModule<NewProps, L, PCArr, ModuleName>["layoutStruct"],
+        NewPC
+      >[]
 ) {
   const newModule = {
     ...module,
@@ -659,7 +665,7 @@ export function extendModule<
     override() {
       const p1 = module.override?.() || [];
       const p2 = override();
-      return [...p1, p2];
+      return [].concat(p1).concat(p2);
     },
   } as unknown as SingleFileModule<
     NewProps,
