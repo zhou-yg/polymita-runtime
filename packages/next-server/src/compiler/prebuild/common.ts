@@ -109,10 +109,10 @@ export async function buildIndex(c: IConfig) {
     format: 'umd' as any,
     outfile: c.pointFiles.outputIndex,
     external: [
-      ...Object.keys(externalModules()),
+      ...Object.keys(externalModules(c.dependencyModules)),
     ],
     plugins: [
-      externalGlobals(externalModules()),
+      externalGlobals(externalModules(c.dependencyModules)),
       umdWrapper({
         libraryName: c.packageJSON.name
       }),
