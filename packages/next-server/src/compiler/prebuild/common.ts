@@ -46,17 +46,21 @@ export async function buildPolymitaConfig(c: IConfig) {
   }
 }
 
+
 export async function  buildScripts(c: IConfig) {
 
   const buildEntries: string[] = []
 
+  /**
+   * only server
+   * edge scripts compiled within UI
+   */
   ;[
     [c.serverDir, c.pointFiles.outputServerScriptsDir],
   ].forEach(([type, destDir]) => {
     const dir = join(c.cwd, c.scriptDirectory, type)
 
-    tryMkdir(destDir)
-
+    tryMkdir(destDir)          
     traverseDir(dir, f => {
       if (f.isDir) {
         tryMkdir(join(c.pointFiles.outputScriptsDir, type, f.relativeFile))
@@ -64,6 +68,7 @@ export async function  buildScripts(c: IConfig) {
         if (/\.ts(x)?/.test(f.file)) {
           buildEntries.push(f.path)
         } else if (!/^\./.test(f.file)) {
+          // ignore hidden files
           cp(f.path, join(destDir, f.relativeFile))
         }
       }

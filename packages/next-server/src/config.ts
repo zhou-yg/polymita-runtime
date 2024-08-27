@@ -263,13 +263,16 @@ export interface IConfig extends IReadConfigResult{
   }
 }
 
-function getEntry (cwd: string, config: IDefaultConfig) {
+function getEntry (cwd: string, config: IDefaultConfig, isProd: boolean) {
 
   // {cwd}/dist or {cwd}/app
   const dir = path.join(cwd, config.appDirectory)
 
   const entryCSS = readEntryCSS(path.join(dir, config.entry));
 
+  const serverScripts = isProd 
+    ? path.join(cwd, config.buildDirectory, config.scriptDirectory, 'server/index.js')
+    : path.join(cwd, config.scriptDirectory, 'server/index.js')
 
   return {
     entryCSS,
@@ -277,6 +280,8 @@ function getEntry (cwd: string, config: IDefaultConfig) {
     clientRoutes: path.join(dir, `${config.routes}.tsx`),
     // entry.tsx including app entry
     appClientEntry: path.join(dir, `${config.entry}.tsx`),
+
+    serverScripts,
   }
 }
 
@@ -307,6 +312,8 @@ function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) 
     outputScriptsDir: path.join(outputDir, config.scriptDirectory),    
     outputServerScriptsDir: path.join(outputDir, config.scriptDirectory, config.serverDir),    
     outputEdgeScriptsDir: path.join(outputDir, config.scriptDirectory, config.edgeDir),    
+    // scripts
+    scriptsServerEntry: path.join(cwd, )
   }
 }
 
@@ -523,7 +530,8 @@ export async function readConfig (arg: {
 
   const entryFiles = getEntry(
     cwd, 
-    config
+    config,
+    isProd,
   );
 
   const buildPointFiles = getOutputFiles(config, cwd, path.join(cwd, config.buildDirectory))

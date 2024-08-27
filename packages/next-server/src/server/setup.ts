@@ -22,6 +22,7 @@ import { getAddress, logFrame } from "../util";
 import inlineStatic from "./middlewares/inlineStatic";
 import { externalModules } from "../compiler";
 import prisma from "./middlewares/prisma";
+import serverScripts from "./middlewares/serverScripts";
 
 export function setupBasicServer (c: IConfig) {
   const app = new Koa()
@@ -42,6 +43,7 @@ export function setupBasicServer (c: IConfig) {
     console.log('[@polymita/server] >> request path=', ctx.request.path)
     await next()
   })
+  app.use(serverScripts({ config: c }))
 
   return app
 }
