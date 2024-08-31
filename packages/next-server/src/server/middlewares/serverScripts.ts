@@ -9,10 +9,11 @@ export default function serverScripts (args: {
 }) : Application.Middleware {
   const config = args.config
   const r = fs.existsSync( config.entryFiles.serverScripts)
+  console.log('[serverScripts]: ', config.entryFiles.serverScripts);
   let loaded = false
   return async (ctx, next) => {
     if (r && !loaded) {
-      require(config.entryFiles.serverScripts)
+      require(config.entryFiles.serverScripts)?.onMounted?.()
       loaded = true
       logFrame(`load scripts ${config.entryFiles.serverScripts.replace(config.cwd, '')}`)
     }
