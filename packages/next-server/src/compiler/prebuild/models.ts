@@ -8,7 +8,7 @@ const { cp } = shelljs;
 
 import { IConfig } from "../../config"
 import { loadJSON, lowerFirst, traverse, tryMkdir } from '../../util'
-import { set, upperFirst } from 'lodash';
+import { cloneDeep, merge, set, upperFirst } from 'lodash';
 import { spawn } from 'child_process';
 
 interface IModelIndexesBase {
@@ -127,9 +127,13 @@ export async function buildModelIndexes(c: IConfig) {
       dependentIndexes.forEach(obj => {
         const dependentIndexesWithNamespace = deepInsertName(obj.moduleName, obj.indexes)
   
-        mergedObj[obj.moduleName] = dependentIndexesWithNamespace
+        mergedObj[obj.moduleName] = {
+          namespace: obj.moduleName,
+          ...dependentIndexesWithNamespace,
+        }
       })
-  
+
+      mergedObj.namespace = c.packageJSON.name
       /**
        * eg
        * mergedObj = {
