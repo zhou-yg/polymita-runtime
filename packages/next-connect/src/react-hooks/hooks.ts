@@ -60,12 +60,12 @@ export function PrismaNamespaceProvider(props: {
 }
 
 export function prisma<T>(
+  namespace: string,
   name: string,
   queryFn?: () => Promise<IModelQuery["query"]> | IModelQuery["query"],
   options?: { immediate?: boolean; deps: any[] },
 ): T | undefined {
   const { plugin, modelIndexes, modelEvents } = useContext(ConnectContext);
-  const { namespace } = useContext(PrismaNamespaceContext);
 
   const entity = (namespace ? modelIndexes[namespace] : modelIndexes)?.[name];
 
@@ -112,9 +112,8 @@ export function prisma<T>(
   return data;
 }
 
-export function writePrisma<T extends any[]>(name: string) {
+export function writePrisma<T extends any[]>(namespace: string, name: string) {
   const { plugin, modelIndexes, modelEvents } = useContext(ConnectContext);
-  const { namespace } = useContext(PrismaNamespaceContext);
 
   const entity = (namespace ? modelIndexes[namespace] : modelIndexes)?.[name];
 
