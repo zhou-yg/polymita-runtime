@@ -112,10 +112,10 @@ function watchEverything (c: IConfig) {
 }
 
 function prepareDirs(c: IConfig) {
-  if (fs.existsSync(c.generateFiles.root)) {
-    emptyDirectory(c.generateFiles.root)
+  if (fs.existsSync(c.pointFiles.generates.root)) {
+    emptyDirectory(c.pointFiles.generates.root)
   } else {
-    fs.mkdirSync(c.generateFiles.root, { recursive: true })
+    fs.mkdirSync(c.pointFiles.generates.root, { recursive: true })
   }
 }
 

@@ -101,18 +101,18 @@ export async function buildSignals(c: IConfig) {
 
   const result = await bundleUtility.esbuild({
     entryPoints: entry,
-    outdir: c.pointFiles.outputSignalsDir,
+    outdir: c.pointFiles.output.signalsDir,
   })
 
   await bundleUtility.buildDTS(
     c,
     entry,
-    c.pointFiles.outputSignalsDir
+    c.pointFiles.output.signalsDir
   )
 
-  generateHookDeps(c.pointFiles.outputSignalsDir)
+  generateHookDeps(c.pointFiles.output.signalsDir)
 
-  traverseDir(c.pointFiles.outputSignalsDir, f => {
+  traverseDir(c.pointFiles.output.signalsDir, f => {
     if (/\.js$/.test(f.file)) {
       injectDeps(c, f.path)
     }
@@ -126,15 +126,15 @@ export async function generateSignalsAndDeps(c: IConfig) {
 
   await bundleUtility.esbuild({
     entryPoints: entry,
-    outdir: c.generateFiles.signalsDir,
+    outdir: c.pointFiles.generates.signalsDir,
   })
 
-  const clearDeps = generateHookDeps(c.generateFiles.signalsDir, true)
+  const clearDeps = generateHookDeps(c.pointFiles.generates.signalsDir, true)
 
   const sourceSignalDir = path.join(c.cwd, c.signalsDirectory)
   c.signals.forEach(f => {
     const relativePath = f.filePath.replace(sourceSignalDir, '').replace(/^\/+/, '')
-    const dest = path.join(c.generateFiles.signalsDir, relativePath)
+    const dest = path.join(c.pointFiles.generates.signalsDir, relativePath)
     fs.copyFileSync(
       f.filePath,
       dest
@@ -147,7 +147,7 @@ export async function generateSignalsAndDeps(c: IConfig) {
 
   // copy composed signals
   const composeDir = path.join(sourceSignalDir, c.composeDriversDirectory);
-  const destComposeDir = c.generateFiles.signalsDir
+  const destComposeDir = c.pointFiles.generates.signalsDir
 
   if (fs.existsSync(composeDir)) {
     tryMkdir(destComposeDir)

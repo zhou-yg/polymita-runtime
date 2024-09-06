@@ -8,14 +8,14 @@ export default function serverScripts (args: {
   config: IConfig
 }) : Application.Middleware {
   const config = args.config
-  const r = fs.existsSync( config.entryFiles.serverScripts)
-  console.log('[serverScripts]: ', config.entryFiles.serverScripts);
+  const r = fs.existsSync(config.pointFiles.env.serverScriptsIndex)
+  console.log('[serverScripts]: ', config.pointFiles.env.serverScriptsIndex);
   let loaded = false
   return async (ctx, next) => {
     if (r && !loaded) {
-      require(config.entryFiles.serverScripts)?.onMounted?.()
+      require(config.pointFiles.env.serverScriptsIndex)?.onMounted?.()
       loaded = true
-      logFrame(`load scripts ${config.entryFiles.serverScripts.replace(config.cwd, '')}`)
+      logFrame(`load scripts ${config.pointFiles.env.serverScriptsIndex.replace(config.cwd, '')}`)
     }
     await next()
   }

@@ -54,14 +54,14 @@ export async function generateModelTypes2(c: IConfig) {
   if (c.model.engine !== 'prisma') {
     return
   }
-  const schemaIndexes = loadJSON(c.currentFiles.schemaIndexes);
+  const schemaIndexes = loadJSON(c.pointFiles.currentFiles.modelFiles.schemaIndexes);
   
   if (Object.values(schemaIndexes).length <= 0) {
     return;
   }
 
   const model = await prismaInternals.getGenerator({
-    schemaPath: c.currentFiles.targetSchemaPrisma,
+    schemaPath: c.pointFiles.currentFiles.modelFiles.schemaPrisma,
     dataProxy: false,
   })
   const clientOutput = model.config.output.value;
@@ -89,14 +89,13 @@ export async function generateModelTypes2(c: IConfig) {
   ${result.join(',\n  ')} 
 } from '${path.join(clientOutput, 'index')}'`
 
-  fs.writeFileSync(c.currentFiles.schemaIndexesTypes, dts)
-
+  fs.writeFileSync(c.pointFiles.currentFiles.modelFiles.schemaIndexesTypes, dts)
 }
 
 export async function buildModelIndexes(c: IConfig) {
   if (c.model.engine === 'prisma') {
 
-    if (fs.existsSync(c.modelFiles.modelDir)) {
+    if (fs.existsSync(c.pointFiles.currentFiles.modelFiles.modelDir)) {
 
       const dependentIndexes = findDependentIndexes(c)
   
@@ -195,14 +194,14 @@ export async function preCheckSchema(c: IConfig) {
 
 export function copyModelFiles (config: IConfig) {
 
-  const { schemaPrisma, schemaIndexes } = config.modelFiles
+  const { schemaPrisma, schemaIndexes } = config.pointFiles.currentFiles.modelFiles
 
-  tryMkdir(config.pointFiles.outputModelsDir)
+  tryMkdir(config.pointFiles.output.modelsDir)
 
   if (fs.existsSync(schemaPrisma)) {
-    cp(schemaPrisma, config.pointFiles.outputSchemaPrisma)
+    cp(schemaPrisma, config.pointFiles.output.schemaPrisma)
   }
   if (fs.existsSync(schemaIndexes)) {
-    cp(schemaIndexes, config.pointFiles.outputSchemaIndexes)
+    cp(schemaIndexes, config.pointFiles.output.schemaIndexes)
   }
 }

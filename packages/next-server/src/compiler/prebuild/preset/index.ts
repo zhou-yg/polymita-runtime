@@ -31,25 +31,25 @@ const moduleRenderToReactFilePathTemplate = compile(fs.readFileSync(moduleRender
 
 
 export function copyContextFiles (c: IConfig) {
-  tryMkdir(c.generateFiles.root)
+  tryMkdir(c.pointFiles.output.root)
 
-  const r2 = fs.existsSync(c.modelFiles.schemaPrisma)
+  const r2 = fs.existsSync(c.pointFiles.currentFiles.modelFiles.schemaPrisma)
 
   const files = [
     [
       r2 ||  c.dependencyLibs.signalModel,
       path.join(__dirname, './actionsTemplate.ejs'),
-      c.generateFiles.actionsFile
+      c.pointFiles.generates.actionsFile
     ],
     [
       r2,
       path.join(__dirname, './connectTemplate.ejs'),
-      c.generateFiles.connectFile
+      c.pointFiles.generates.connectFile
     ],
     [
       c.dependencyLibs.signalModel,
       path.join(__dirname, './hooksTemplate.ejs'),
-      c.generateFiles.hooksFile
+      c.pointFiles.generates.hooksFile
     ],
   ] as [boolean, string, string][];
 
@@ -82,7 +82,7 @@ export function generateSignalMap (c: IConfig) {
   const signalMapFileContent = signalMapTemplate({ files: relativeSignals })
 
   fs.writeFileSync(
-    path.join(c.generateFiles.signalMap),
+    path.join(c.pointFiles.generates.signalMap),
     signalMapFileContent
   )
 }
@@ -91,8 +91,8 @@ export function generateScripts(c: IConfig) {
   const { scripts } = c;
   
   const arr = [
-    [c.serverDir, scripts.server, c.generateFiles.serverScriptsFile], 
-    [c.edgeDir, scripts.edge, c.generateFiles.edgeScriptsFile],
+    [c.serverDir, scripts.server, c.pointFiles.generates.serverScriptsFile], 
+    [c.edgeDir, scripts.edge, c.pointFiles.generates.edgeScriptsFile],
   ] as const;
   
   arr.forEach(([serverOrEdge, files, destFile]) => {
@@ -155,7 +155,7 @@ export async function generateClientRoutes(c: IConfig) {
   const {
     clientRoutes,
     appClientEntry,
-  } = c.entryFiles
+  } = c.pointFiles.app
 
   const {
     appRootFile,
@@ -207,11 +207,11 @@ export async function generateClientRoutes(c: IConfig) {
 
 export async function generateBuildingIndex(c: IConfig) {
   const exportModulesConfig = [
-    ['modules', c.pointFiles.outputModulesDir, c.modules],
-    ['overrides', c.pointFiles.outputOverridesDir, c.overrides],
-    ['scriptsClient', c.pointFiles.outputEdgeScriptsDir, c.scripts.edge],
-    ['signals', c.pointFiles.outputSignalsDir, c.signals],
-    ['contexts', c.pointFiles.outputContextDir, c.contexts],
+    ['modules', c.pointFiles.output.modulesDir, c.modules],
+    ['overrides', c.pointFiles.output.overridesDir, c.overrides],
+    ['scriptsClient', c.pointFiles.output.edgeScriptsDir, c.scripts.edge],
+    ['signals', c.pointFiles.output.signalsDir, c.signals],
+    ['contexts', c.pointFiles.output.contextDir, c.contexts],
   ] as const;
   
   const contents: string[] = []
@@ -220,7 +220,7 @@ export async function generateBuildingIndex(c: IConfig) {
   exportModulesConfig.forEach(([exportName, dir, files]) => {
     console.log('[generateBuildingIndex]', exportName, fs.existsSync(dir) , files.length);
     if (fs.existsSync(dir) && files.length) {
-      const relativeDir = path.relative(c.pointFiles.outputDir, dir)
+      const relativeDir = path.relative(c.pointFiles.output.root, dir)
 
       files.forEach((f) => {
         if (exportName === 'signals') {
@@ -237,7 +237,7 @@ export async function generateBuildingIndex(c: IConfig) {
     }
   })
 
-  tryMkdir(c.pointFiles.outputDir)
+  tryMkdir(c.pointFiles.output.root)
 
   const viewsContent = moduleRenderToReactFilePathTemplate({
     names: [
@@ -251,5 +251,5 @@ export async function generateBuildingIndex(c: IConfig) {
   contents.push(viewsContent)
   contents.push(...tail)
 
-  fs.writeFileSync(c.pointFiles.outputVirtualIndex, contents.join('\n'))
+  fs.writeFileSync(c.pointFiles.output.virtualIndex, contents.join('\n'))
 }

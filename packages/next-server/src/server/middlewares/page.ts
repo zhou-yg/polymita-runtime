@@ -35,7 +35,7 @@ function transformIndexHtml (html: string, c: IConfig) {
   return async (ctx, next) => {
     const pathname = ctx.request.path
 
-    const { entryCSS, clientRoutes } = config.entryFiles
+    const { entryCSS, clientRoutes } = config.pointFiles.app
 
     const src = clientRoutes
 

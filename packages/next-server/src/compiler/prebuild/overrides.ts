@@ -10,7 +10,7 @@ import aliasAtCodeToCwd from '../plugins/esbuild-alias-at';
 
 export async function buildOverrides(c: IConfig) {
 
-  const { outputOverridesDir } = c.pointFiles;
+  const outputOverridesDir = c.pointFiles.output.overridesDir;
   const originalDir = path.join(c.cwd, c.overridesDirectory);
 
   const sourceFiles: string[] = []
@@ -51,7 +51,7 @@ export async function generateViewFromOverrides (c: IConfig, externalModule?: bo
 
   await esbuild({
     entryPoints: sourceFiles,
-    outdir: c.pointFiles.outputViewsDir,
+    outdir: c.pointFiles.output.viewsDir,
     platform: 'browser',
     format: 'esm',
     treeShaking: true,
@@ -87,7 +87,7 @@ export async function generateViewFromOverrides (c: IConfig, externalModule?: bo
     // } else {
     //   await buildDTS(c, tsFiles.map(f => f[0]), c.pointFiles.outputViewsDir)
     // }
-    await buildDTS(c, tsFiles.map(f => f[0]), c.pointFiles.outputViewsDir)
+    await buildDTS(c, tsFiles.map(f => f[0]), c.pointFiles.output.viewsDir)
   
     await Promise.all(tsFiles.map(([f]) => {
       return fs.promises.unlink(f)

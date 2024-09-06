@@ -17,11 +17,9 @@ instance.on('close', () => {
   ]
   const jsArr = [
     'src/server/internalStatic/*.js',
-    'src/server/internalStatic/*.map',
   ]
   const jsArr2 = [
     'src/server/internalStatic/dev/*.js',
-    'src/server/internalStatic/dev/*.map',
   ]
 
   ejsArr.forEach(from => {

@@ -10,7 +10,7 @@ function copyFiles (config: IConfig) {
   if (fs.existsSync(path.join(config.cwd, 'types'))) {
     cp('-r', 
       path.join(config.cwd, 'types'),
-      path.join(config.pointFiles.outputDir, 'types')
+      path.join(config.pointFiles.output.root, 'types')
     )
   }
 }
@@ -21,7 +21,7 @@ export default async (cwd: string) => {
     isProd: true,
   })
 
-  emptyDirectory(config.pointFiles.outputDir)
+  emptyDirectory(config.pointFiles.output.root)
 
   let t1 = time()
 

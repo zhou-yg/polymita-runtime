@@ -10,7 +10,7 @@ export default function pureDevCache (args: {
  return async (ctx, next) => {
   for (const k in require.cache) {
     if (
-      k.startsWith(config.pointFiles.outputDir) ||
+      k.startsWith(config.pointFiles.output.root) ||
       k.startsWith(join(config.cwd, config.modelsDirectory)) // delete the models/indexes.json
     ) {
       delete require.cache[k]

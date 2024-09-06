@@ -19,7 +19,7 @@ export async function buildCommonDirs(c: IConfig) {
   await Promise.all(dirs.map(name => {
     console.log('name: ', name);
     const dir = join(c.cwd, name)
-    const dest = join(c.pointFiles.outputDir, name)
+    const dest = join(c.pointFiles.output.root, name)
 
     const files: string[] = []
     traverseDir(dir, f => {
@@ -40,7 +40,7 @@ export async function buildPolymitaConfig(c: IConfig) {
   if (existsSync(c.configFile)) {
     esbuild({
       entryPoints: [c.configFile],
-      outfile: c.pointFiles.configFile,
+      outfile: c.pointFiles.output.configFile,
       format: 'cjs',
     })
   }
@@ -56,14 +56,14 @@ export async function  buildScripts(c: IConfig) {
    * edge scripts compiled within UI
    */
   ;[
-    [c.serverDir, c.pointFiles.outputServerScriptsDir],
+    [c.serverDir, c.pointFiles.output.scriptsDir],
   ].forEach(([type, destDir]) => {
     const dir = join(c.cwd, c.scriptDirectory, type)
 
     tryMkdir(destDir)          
     traverseDir(dir, f => {
       if (f.isDir) {
-        tryMkdir(join(c.pointFiles.outputScriptsDir, type, f.relativeFile))
+        tryMkdir(join(c.pointFiles.output.scriptsDir, type, f.relativeFile))
       } else {
         if (/\.ts(x)?/.test(f.file)) {
           buildEntries.push(f.path)
@@ -79,7 +79,7 @@ export async function  buildScripts(c: IConfig) {
     await Promise.all([
       esbuild({
         entryPoints: buildEntries,
-        outdir: c.pointFiles.outputScriptsDir,
+        outdir: c.pointFiles.output.scriptsDir,
         outbase: join(c.cwd, c.scriptDirectory),
       }),
     ])
@@ -106,13 +106,13 @@ export const externalModules = (modules: string[] = []) => ({
  * virtual index
  */
 export async function buildIndex(c: IConfig) {
-  const entry = c.pointFiles.outputVirtualIndex
+  const entry = c.pointFiles.output.virtualIndex
   console.log('[buildIndex] entry: ', entry);
   await esbuild({
     entryPoints: [entry],
     bundle: true,
     format: 'umd' as any,
-    outfile: c.pointFiles.outputIndex,
+    outfile: c.pointFiles.output.index,
     external: [
       ...Object.keys(externalModules(c.dependencyModules)),
     ],
@@ -127,7 +127,7 @@ export async function buildIndex(c: IConfig) {
   await buildDTS(
     c,
     [entry],
-    c.pointFiles.outputDir,
+    c.pointFiles.output.root,
   )
   unlinkSync(entry)
 }

@@ -37,8 +37,8 @@ async function buildEverything (c: IConfig) {
 }
 
 function prepareDirs(c: IConfig) {
-  if (!fs.existsSync(c.generateFiles.root)) {
-    fs.mkdirSync(c.generateFiles.root, { recursive: true })
+  if (!fs.existsSync(c.pointFiles.generates.root)) {
+    fs.mkdirSync(c.pointFiles.generates.root, { recursive: true })
   }
 }
 
@@ -50,7 +50,7 @@ export default async (cwd: string) => {
 
   let t1 = time()
 
-  emptyDirectory(config.pointFiles.outputDir)
+  emptyDirectory(config.pointFiles.output.root)
   prepareDirs(config)
 
   const c = config;

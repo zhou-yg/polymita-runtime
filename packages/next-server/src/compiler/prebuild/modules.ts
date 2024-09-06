@@ -33,15 +33,15 @@ export async function buildTailwindCSS(c: IConfig) {
     autoprefixer() as any
   ]).process(contents, {
     from: globalCSSPath,
-    to: c.pointFiles.outputCSS,
+    to: c.pointFiles.output.css,
     syntax: less,
   });
-  fs.writeFileSync(c.pointFiles.outputCSS, result.css)
+  fs.writeFileSync(c.pointFiles.output.css, result.css)
 }
 
 export async function buildModules(c: IConfig) {
 
-  const { outputModulesDir } = c.pointFiles;
+  const outputModulesDir = c.pointFiles.output.modulesDir;
   const originalModulesDir = path.join(c.cwd, c.modulesDirectory);
 
   const moduleFiles: string[] = []
@@ -82,7 +82,7 @@ export async function generateViewFromModule (c: IConfig, externalModule?: boole
 
   await esbuild({
     entryPoints: moduleFiles,
-    outdir: c.pointFiles.outputViewsDir,
+    outdir: c.pointFiles.output.viewsDir,
     platform: 'browser',
     format: 'esm',
     treeShaking: true,
@@ -117,7 +117,7 @@ export async function generateViewFromModule (c: IConfig, externalModule?: boole
     // } else {
     //   await buildDTS(c, tsFiles.map(f => f[0]), c.pointFiles.outputViewsDir)
     // }
-    await buildDTS(c, tsFiles.map(f => f[0]), c.pointFiles.outputViewsDir)
+    await buildDTS(c, tsFiles.map(f => f[0]), c.pointFiles.output.viewsDir)
   
     await Promise.all(tsFiles.map(([f]) => {
       return fs.promises.unlink(f)

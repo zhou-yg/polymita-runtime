@@ -56,6 +56,7 @@ export const defaultConfig = () => ({
 
   devCacheDirectory: '.polymita', // in cwd
   buildDirectory: 'dist', // in cwd
+  releaseDirectory: 'release', // in cwd
   testCacheDirectory: '.test', // in cwd
 
   composeDir: 'compose',
@@ -263,77 +264,131 @@ export interface IConfig extends IReadConfigResult{
   }
 }
 
-function getEntry (cwd: string, config: IDefaultConfig, isProd: boolean) {
-
-  // {cwd}/dist or {cwd}/app
-  const dir = path.join(cwd, config.appDirectory)
-
-  const entryCSS = readEntryCSS(path.join(dir, config.entry));
-
-  const serverScripts = isProd 
-    ? path.join(cwd, config.buildDirectory, config.scriptDirectory, 'server/index.js')
-    : path.join(cwd, config.scriptDirectory, 'server/index.js')
-
-  return {
-    entryCSS,
-    // routes.tsx including react-router
-    clientRoutes: path.join(dir, `${config.routes}.tsx`),
-    // entry.tsx including app entry
-    appClientEntry: path.join(dir, `${config.entry}.tsx`),
-
-    serverScripts,
-  }
-}
-
-function getOutputFiles (config: IDefaultConfig, cwd:string, outputDir: string) {
-
-  return {
-    outputDir, 
-    // output index
-    outputVirtualIndex: path.join(outputDir, 'index.ts'),
-    outputIndex: path.join(outputDir, config.outputIndex),
-    outputApp: path.join(outputDir, config.outputApp),
-    configFile: path.join(outputDir, config.configDirectory, configFile),
-    //
-    outputContextDir: path.join(outputDir, config.contextDirectory),
-
-    // prisma
-    outputModelsDir: path.join(outputDir, config.modelsDirectory),
-    outputSchemaPrisma: path.join(outputDir, config.modelsDirectory, config.targetSchemaPrisma),
-    outputSchemaIndexes: path.join(outputDir, config.modelsDirectory, config.schemaIndexes),
-    // views/modules/drivers
-    outputViewsDir: path.join(outputDir, config.viewsDirectory),
-    outputSignalsDir: path.join(outputDir, config.signalsDirectory),
-    outputModulesDir: path.join(outputDir, config.modulesDirectory),    
-    outputOverridesDir: path.join(outputDir, config.overridesDirectory),    
-    //
-    outputCSS: path.join(outputDir, 'index.css'),
-    //
-    outputScriptsDir: path.join(outputDir, config.scriptDirectory),    
-    outputServerScriptsDir: path.join(outputDir, config.scriptDirectory, config.serverDir),    
-    outputEdgeScriptsDir: path.join(outputDir, config.scriptDirectory, config.edgeDir),    
-    // scripts
-    scriptsServerEntry: path.join(cwd, )
-  }
-}
-
-function getGenerateFiles(config: IDefaultConfig, cwd:string) {
-
+/**
+ * building: output files
+ * dev and building: generate files
+ * 
+ * relationships:
+ *  dev -> m
+ *  dev -> m -(g)-> app
+ *  dev -> app 
+ *  start -> app -(b)-> dist
+ *  start -> m -(b)-> dist
+ *  pkg(or release) -> ?
+ * 
+ * so: 
+ *   any file -(dev/prod/release) -> mapping path
+ */
+function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, isRelease: boolean) {
+  const outputDir = isRelease
+    ? path.join(cwd, config.releaseDirectory, config.buildDirectory)
+    : path.join(cwd, config.buildDirectory)
+  
   const generateRootPath = path.join(cwd, config.appDirectory, config.generateRoot)
 
-  const ext = config.ts ? '.ts' : '.js'
+  const appDir = path.join(cwd, config.appDirectory)
+
+  const entryCSS = readEntryCSS(path.join(appDir, config.entry));
+  
+  const configFileInPath = path.join(cwd, configFile)
+
+  const viewsDirectory = path.join(cwd, config.viewsDirectory)
+  const signalsDirectory = path.join(cwd, config.signalsDirectory)
+  const appDirectory = path.join(cwd, config.appDirectory)
+  const pagesDirectory = path.join(appDirectory, config.pageDirectory)
+  const modulesDirectory = path.join(cwd, config.modulesDirectory)
+  const overridesDirectory = path.join(cwd, config.overridesDirectory)
+  const modelsDirectory = path.join(cwd, config.modelsDirectory)
+  const scriptsDirectory = path.join(cwd, config.scriptDirectory)
+  const contextsDirectory = path.join(cwd, config.contextDirectory)
+  
+  const modelDir = path.join(cwd, config.modelsDirectory)
+  const modelEnhance = path.join(modelDir, config.modelEnhance)
+  const schemaPrisma = path.join(modelDir, config.targetSchemaPrisma)
+  const partSchemaPrisma = path.join(modelDir, config.prismaModelPart)
+  const schemaIndexes = path.join(modelDir, config.schemaIndexes)
+  const schemaIndexesTypes = path.join(modelDir, config.schemaIndexesTypes)
+  
+  const modelFiles = {
+    modelDir,
+    modelEnhance,
+    schemaPrisma,
+    schemaIndexes,
+    partSchemaPrisma,
+    schemaIndexesTypes,
+  }
+
+  const currentFiles = {
+    appDirectory,
+    pagesDirectory,
+    viewsDirectory,
+    signalsDirectory,
+    scriptsDirectory,
+    scriptsServerDirectory: path.join(scriptsDirectory, config.serverDir),
+    scriptsClientDirectory: path.join(scriptsDirectory, config.edgeDir),
+    modulesDirectory,
+    modelsDirectory,
+    overridesDirectory,
+    configFile: configFileInPath,
+    modelFiles,
+    contextsDirectory,
+  }  
 
   return {
-    root: generateRootPath,
-    signalMap: path.join(generateRootPath, `${config.generateSignalsMap}${ext}`),
-    viewsDir: path.join(generateRootPath, config.viewsDirectory),
-    signalsDir: path.join(generateRootPath, config.signalsDirectory),
+    env: {
+      get serverScriptsIndex() {
+        return isProd 
+          ? path.join(cwd, config.buildDirectory, config.scriptDirectory, 'server/index.js')
+          : path.join(cwd, config.scriptDirectory, 'server/index.js')
+      }
+    },
 
-    hooksFile: path.join(generateRootPath, 'hooks.ts'),
-    actionsFile: path.join(generateRootPath, 'actions.ts'),
-    connectFile: path.join(generateRootPath, 'connect.ts'),
-    serverScriptsFile: path.join(generateRootPath, 'serverScripts.ts'),
-    edgeScriptsFile: path.join(generateRootPath, 'edgeScripts.ts'),
+    output: {
+      root: outputDir, 
+      virtualIndex: path.join(outputDir, 'index.ts'),
+      index: path.join(outputDir, config.outputIndex),
+      app: path.join(outputDir, config.outputApp),
+      configFile: path.join(outputDir, config.configDirectory, configFile),
+      contextDir: path.join(outputDir, config.contextDirectory),
+      // prisma
+      modelsDir: path.join(outputDir, config.modelsDirectory),
+      schemaPrisma: path.join(outputDir, config.modelsDirectory, config.targetSchemaPrisma),
+      schemaIndexes: path.join(outputDir, config.modelsDirectory, config.schemaIndexes),
+      // views/modules/drivers
+      viewsDir: path.join(outputDir, config.viewsDirectory),
+      signalsDir: path.join(outputDir, config.signalsDirectory),
+      modulesDir: path.join(outputDir, config.modulesDirectory),    
+      overridesDir: path.join(outputDir, config.overridesDirectory),    
+      //
+      css: path.join(outputDir, 'index.css'),
+      //
+      scriptsDir: path.join(outputDir, config.scriptDirectory),    
+      serverScriptsDir: path.join(outputDir, config.scriptDirectory, config.serverDir),    
+      edgeScriptsDir: path.join(outputDir, config.scriptDirectory, config.edgeDir),    
+    },
+
+    app: {
+      root: appDir,
+      entryCSS,
+      // routes.tsx including react-router
+      clientRoutes: path.join(appDir, `${config.routes}.tsx`),
+      // entry.tsx including app entry
+      appClientEntry: path.join(appDir, `${config.entry}.tsx`),
+    },
+    currentFiles,
+
+    generates: {
+      root: generateRootPath,
+      signalMap: path.join(generateRootPath, `${config.generateSignalsMap}.ts`),
+      viewsDir: path.join(generateRootPath, config.viewsDirectory),
+      signalsDir: path.join(generateRootPath, config.signalsDirectory),
+  
+      hooksFile: path.join(generateRootPath, 'hooks.ts'),
+      actionsFile: path.join(generateRootPath, 'actions.ts'),
+      connectFile: path.join(generateRootPath, 'connect.ts'),
+      serverScriptsFile: path.join(generateRootPath, 'serverScripts.ts'),
+      edgeScriptsFile: path.join(generateRootPath, 'edgeScripts.ts'),
+    }
   }
 }
 
@@ -463,9 +518,10 @@ function getTailwindConfigPath(cwd: string) {
 export async function readConfig (arg: {
   cwd: string,
   isProd?: boolean,
+  isRelease?: boolean,
   port?: number
 }) {
-  const { cwd, isProd } = arg
+  const { cwd, isProd, isRelease } = arg
   const configFileInPath = path.join(cwd, configFile)
 
   let config = defaultConfig() as IDefaultConfig
@@ -479,15 +535,18 @@ export async function readConfig (arg: {
   const packageJSONPath = path.join(cwd, 'package.json')
   const packageJSON: null | JSONSchemaForNPMPackageJsonFiles = fs.existsSync(packageJSONPath) ? loadJSON(packageJSONPath) : null
 
-  const viewsDirectory = path.join(cwd, config.viewsDirectory)
-  const signalsDirectory = path.join(cwd, config.signalsDirectory)
-  const appDirectory = path.join(cwd, config.appDirectory)
-  const pagesDirectory = path.join(appDirectory, config.pageDirectory)
-  const modulesDirectory = path.join(cwd, config.modulesDirectory)
-  const overridesDirectory = path.join(cwd, config.overridesDirectory)
-  const modelsDirectory = path.join(cwd, config.modelsDirectory)
-  const scriptsDirectory = path.join(cwd, config.scriptDirectory)
-  const contextsDirectory = path.join(cwd, config.contextDirectory)
+  const pointFiles = getOutputFiles(cwd, config, isProd, isRelease)
+
+  const {
+    appDirectory,
+    modulesDirectory,
+    overridesDirectory,
+    scriptsDirectory,
+    contextsDirectory,
+    signalsDirectory,
+  } = pointFiles.currentFiles
+
+
 
   // to next@14
   // complement page file with page directory
@@ -511,41 +570,14 @@ export async function readConfig (arg: {
     })
   )
 
-  const currentFiles = {
-    appDirectory,
-    pagesDirectory,
-    viewsDirectory,
-    signalsDirectory,
-    scriptsDirectory,
-    scriptsServerDirectory: path.join(scriptsDirectory, config.serverDir),
-    scriptsClientDirectory: path.join(scriptsDirectory, config.edgeDir),
-    modulesDirectory,
-    modelsDirectory,
-    overridesDirectory,
-    configFile: configFileInPath,
-    schemaIndexes: path.join(modelsDirectory, config.schemaIndexes),
-    schemaIndexesTypes: path.join(modelsDirectory, config.schemaIndexesTypes),
-    targetSchemaPrisma: path.join(modelsDirectory, config.targetSchemaPrisma),
-  }
-
-  const entryFiles = getEntry(
-    cwd, 
-    config,
-    isProd,
-  );
-
-  const buildPointFiles = getOutputFiles(config, cwd, path.join(cwd, config.buildDirectory))
-  const devPointFiles = getOutputFiles(config, cwd, path.join(cwd, config.appDirectory, config.generateRoot))
-  const pointFiles = isProd ? buildPointFiles : devPointFiles
-  const generateFiles = getGenerateFiles(config, cwd)
-
   /**
    * @polymita/* business modules
    */
   const dependencyModules = findDependencies(cwd, configFileName, packageJSON)
-  const dependencyLibs = findDepLibs(packageJSON)
   const staticDeps = findStaticDeps(isProd, cwd, dependencyModules)
-
+  
+  const dependencyLibs = findDepLibs(packageJSON)
+  
   const appRootFile = getAppRootFile(cwd, config)
 
   const routesTree = defineRoutesTree(pages)
@@ -555,12 +587,6 @@ export async function readConfig (arg: {
   })
 
   const thirdPartEntry = path.join(cwd, config.thirdPartDir)
-
-  const modelDir = path.join(cwd, config.modelsDirectory)
-  const modelEnhance = path.join(modelDir, config.modelEnhance)
-  const schemaPrisma = path.join(modelDir, config.targetSchemaPrisma)
-  const partSchemaPrisma = path.join(modelDir, config.prismaModelPart)
-  const schemaIndexes = path.join(modelDir, config.schemaIndexes)
 
   const tailwindConfigPath = getTailwindConfigPath(cwd)
 
@@ -588,13 +614,6 @@ export async function readConfig (arg: {
 
   return {
     ...config,
-    modelFiles: {
-      modelDir,
-      modelEnhance,
-      schemaPrisma,
-      schemaIndexes,
-      partSchemaPrisma,
-    },
     configFile,
     tailwindConfigPath,
     project,
@@ -604,10 +623,7 @@ export async function readConfig (arg: {
     routesTree,
     packageJSON,
     isProd,
-    generateFiles,
-    currentFiles,
     pointFiles,
-    entryFiles,
     cwd,
     signals,
     contexts,
