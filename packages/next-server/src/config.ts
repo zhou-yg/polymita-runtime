@@ -126,11 +126,11 @@ const definePage = (f: IFile, viewDir: string) => {
 
   const name = isRoot ? '' : parsedDir.name
 
-  const parentPath = prefix.split('/').slice(0, -1).join('/')
+  const parentRouterPath = prefix.split('/').slice(0, -1).join('/')
 
   return {
-    name: isRoot ? 'root' : name,
-    parentPath: isRoot ? '' : parentPath || '/',
+    name: isRoot ? '' : name,
+    parentRouterPath: isRoot ? '' : parentRouterPath || '/',
     routerPath: prefix || '/',
     path: f.path,
     relativeImportPath: path.join('./', f.relativeFile.replace(/\.\w+$/, '')),
@@ -143,7 +143,8 @@ export type PageConfig = ReturnType<typeof definePage>
 
 export type IRouteChild = {
   routerPath: string
-  children: PageConfig[]
+  pageConfig?: PageConfig,
+  children: IRouteChild[]
 }
 
 export interface IRoutesTree {
@@ -153,20 +154,28 @@ export interface IRoutesTree {
 function defineRoutesTree (pages: PageConfig[]) {
   const routesMap: IRoutesTree = {}
   pages.forEach(p => {
-    routesMap[p.parentPath] = {
-      routerPath: p.parentPath,
-      children: []
+    if (!routesMap[p.parentRouterPath]) {
+      routesMap[p.parentRouterPath] = {
+        routerPath: p.parentRouterPath,
+        children: []
+      }
     }
-  })
-
-  pages.forEach(p => {
-    if (p.parentPath) {
-      const child = routesMap[p.parentPath]
-      child.children.push(p)
+    if (routesMap[p.routerPath]) {
+      routesMap[p.routerPath].pageConfig = p
+    } else {
+      routesMap[p.routerPath] = {
+        routerPath: p.routerPath,
+        pageConfig: p,
+        children: []
+      }
     }
+    const child = routesMap[p.parentRouterPath]
+    const current = routesMap[p.routerPath]
+    child.children.push(current)
   })
+  const root = routesMap['/']
 
-  return Object.values(routesMap)
+  return root;
 }
 
 const isPageFile = (f: string) => /page\.(j|t)sx$/.test(f)
@@ -338,13 +347,7 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
   }  
 
   return {
-    env: {
-      get serverScriptsIndex() {
-        return isProd 
-          ? path.join(cwd, config.buildDirectory, config.scriptDirectory, 'server/index.js')
-          : path.join(cwd, config.scriptDirectory, 'server/index.js')
-      }
-    },
+    
 
     output: {
       root: outputDir, 
@@ -397,6 +400,21 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
       connectFile: path.join(generateRootPath, 'connect.ts'),
       serverScriptsFile: path.join(generateRootPath, 'serverScripts.ts'),
       edgeScriptsFile: path.join(generateRootPath, 'edgeScripts.ts'),
+    }
+  }
+}
+
+function getEnvFiles (files: ReturnType<typeof getOutputFiles>, isProd: boolean, isRelease: boolean) {
+  return {
+    get serverScriptsIndex() {
+      return isProd 
+        ? path.join(files.output.serverScriptsDir, 'index.js')
+        : path.join(files.currentFiles.scriptsDirectory, 'index.js')
+    },
+    get viewsDir () {
+      return isProd
+        ? files.output.viewsDir
+        : files.generates.viewsDir
     }
   }
 }
@@ -556,6 +574,7 @@ export async function readConfig (arg: {
   } = pointFiles.currentFiles
 
 
+  const envFiles = getEnvFiles(pointFiles, isProd, isRelease)
 
   // to next@14
   // complement page file with page directory
@@ -633,6 +652,7 @@ export async function readConfig (arg: {
     packageJSON,
     isProd,
     pointFiles,
+    envFiles,
     cwd,
     signals,
     contexts,

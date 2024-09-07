@@ -111,43 +111,53 @@ export function generateScripts(c: IConfig) {
 }
 
 
-function generateRoutesImports (routes: IRouteChild[], parentName = '') {
-  let importsArr: [string, string][] = []
-  routes.forEach(r => {
-    r.children.forEach(r => {
-      if (r.path) {
-        importsArr.push([
-          `${upperFirstVariable(parentName)}${upperFirstVariable(r.name)}`,
-          r.path,
-        ])
-      }
-    })
-  })
+function generateRoutesImports (routes: IRouteChild) {
+  const importsArr: [string, string][] = []
+
+  function traverseRoutes(route: IRouteChild, parentName = '') {
+    if (route.pageConfig) {
+      const name = `${upperFirstVariable(parentName)}${upperFirstVariable(route.pageConfig.name || 'Root')}`;
+      importsArr.push([name, `./${route.pageConfig.relativeImportPath}`]);
+    }
+
+    route.children.forEach(childRoute => {
+      traverseRoutes(childRoute, parentName + (route.pageConfig?.name || ''));
+    });
+  }
+
+  traverseRoutes(routes);
 
   return importsArr
 }
 
-function generateRoutesContent (routes: IRouteChild[], depth = 0, parentName = ''): string {
+function generateRoutesContent (routes: IRouteChild, depth = 0, parentName = ''): string {
 
-  const routeArr = routes.map((r, i) => {
-    let element = ''
+  const generateRouteObject = (route: IRouteChild, parentName = '') => {
+    const name = route.pageConfig 
+      ? `${upperFirstVariable(parentName)}${upperFirstVariable(route.pageConfig.name || 'Root')}`
+      : '';
+    
+    let routeObject = {
+      path: route.routerPath,
+      element: name ? `<${name} />` : 'null',
+      children: [],
+    }
 
-    const child = r.children.map(p => {
-      const Cpt = `${upperFirstVariable(parentName)}${upperFirstVariable(p.name)}`
-      if (Cpt) {
-        element = `element={<${Cpt} />}`
-      }
-  
-      return [
-        `<Route path="${p.routerPath}" ${element} >`,
-        `</Route>`
-      ].join('\n');
-    }).join('\n')
+    if (route.children.length > 0) {
+      const childrenRoutes = route.children
+        .map(child => generateRouteObject(child, parentName + (route.pageConfig?.name || '')))
+      
+      routeObject.children = childrenRoutes
+    }
 
-    return child
-  })
+    return routeObject;
+  };
 
-  return routeArr.join('\n')
+  const result = generateRouteObject(routes);
+
+  const treeStr = JSON.stringify(result, null, 2).replaceAll('"<', '<').replaceAll('>"', '>');
+
+  return treeStr;
 }
 
 export async function generateClientRoutes(c: IConfig) {
@@ -157,50 +167,28 @@ export async function generateClientRoutes(c: IConfig) {
   } = c.pointFiles.app
 
   const {
-    appRootFile,
     routesTree: routesTreeArr,
   } = c
-  // imports
+
   const imports = generateRoutesImports(routesTreeArr)
-  const r = generateRoutesContent(routesTreeArr)
+
+  const routesContent = generateRoutesContent(routesTreeArr)
 
   const importsWithAbsolutePathClient = imports.map(([n, f]) => {
     return `import ${n} from '${implicitImportPath(f, c.ts)}'`
   }).join('\n')
 
-  // app info
-  const rootName = upperFirstVariable(appRootFile?.name)
-  const rootAppInfo = {
-    rootPath: appRootFile?.path,
-    rootName,
-    rootStart: appRootFile?.name ? `<${rootName}>` : '',
-    rootEnd: appRootFile?.name ? `</${rootName}>` : ''
-  }
-
-  // model indexes
   const modelIndexesJSON = path.join(c.cwd, c.modelsDirectory, c.schemaIndexes)
   let modelIndexes = '{}'
   if (fs.existsSync(modelIndexesJSON)) {
     modelIndexes = fs.readFileSync(modelIndexesJSON).toString()
   }
 
-  // entry file
-  let clientEntry: {name: string, path: string }
-  if (fs.existsSync(appClientEntry)) {
-    clientEntry = {
-      name: 'ClientEntry',
-      path: appClientEntry.replace(/\.(j|t)s(x?)$/, '')
-    }
-  }
-
   const routesStr2 = routesClientTemplate({
-    ...rootAppInfo,
     imports: importsWithAbsolutePathClient,
-    routes: r,
+    routes: routesContent,
     modelIndexes,
-    clientEntry
   })
-  // generate for vite.js so that this file doesn't need to be compiled to js
   fs.writeFileSync(clientRoutes, await prettier.format(routesStr2, { parser: 'typescript' }))
 }
 

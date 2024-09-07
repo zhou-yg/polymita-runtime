@@ -51,7 +51,7 @@ export async function generateViewFromOverrides (c: IConfig, externalModule?: bo
 
   await esbuild({
     entryPoints: sourceFiles,
-    outdir: c.pointFiles.output.viewsDir,
+    outdir: c.envFiles.viewsDir,
     platform: 'browser',
     format: 'esm',
     treeShaking: true,
@@ -87,7 +87,7 @@ export async function generateViewFromOverrides (c: IConfig, externalModule?: bo
     // } else {
     //   await buildDTS(c, tsFiles.map(f => f[0]), c.pointFiles.outputViewsDir)
     // }
-    await buildDTS(c, tsFiles.map(f => f[0]), c.pointFiles.output.viewsDir)
+    await buildDTS(c, tsFiles.map(f => f[0]), c.envFiles.viewsDir)
   
     await Promise.all(tsFiles.map(([f]) => {
       return fs.promises.unlink(f)
