@@ -2,9 +2,12 @@ import fs from 'fs';
 import * as path from 'path'
 import chalk from 'chalk';
 import { spawn, execSync } from 'child_process';
-import { IConfig } from '../config';
-import { logFrame } from '../util';
+import { IConfig } from '../../config';
+import { logFrame } from '../../util';
 import { compile } from 'ejs'
+import { esbuild } from '../../compiler/bundleUtility';
+import { externalModules } from '../../compiler';
+import externalGlobals from '../../compiler/plugins/esbuild-globals';
 
 const builderConfigTemplateFile = './builderConfig.ejs'
 const builderConfigFilePath = path.join(__dirname, builderConfigTemplateFile)
@@ -120,4 +123,23 @@ export const installAppDeps = async (config: IConfig) => {
       }
     });
   });
+}
+/**
+ * build main.js for electron
+ */
+export async function buildMain(c: IConfig) {
+  const entry = c.pointFiles.app.clientRoutes
+  console.log('[buildMain] entry: ', entry);
+  await esbuild({
+    entryPoints: [entry],
+    bundle: true,
+    format: 'iife',
+    outfile: c.pointFiles.output.index,
+    external: [
+      ...Object.keys(externalModules(c.dependencyModules)),
+    ],
+    plugins: [
+      externalGlobals(externalModules(c.dependencyModules)),
+    ],
+  })
 }
