@@ -29,7 +29,6 @@ const moduleRenderToReactFile = './moduleRenderToReact.ejs'
 const moduleRenderToReactFilePath = path.join(__dirname, moduleRenderToReactFile)
 const moduleRenderToReactFilePathTemplate = compile(fs.readFileSync(moduleRenderToReactFilePath).toString())
 
-
 export function copyContextFiles (c: IConfig) {
   tryMkdir(c.pointFiles.output.root)
 

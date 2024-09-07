@@ -15,10 +15,11 @@ function copyFiles (config: IConfig) {
   }
 }
 
-export default async (cwd: string) => {
+export default async (cwd: string, isRelease?: boolean) => {
   const config = await readConfig({
     cwd,
     isProd: true,
+    isRelease: !!isRelease,
   })
 
   emptyDirectory(config.pointFiles.output.root)
@@ -63,4 +64,6 @@ export default async (cwd: string) => {
   generateLayoutTypes(config)
 
   logFrame(`build modules/overrides/index in ${t1()}s`)
+
+  return config
 }

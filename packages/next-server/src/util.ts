@@ -20,7 +20,7 @@ export function emptyDirectory (dir: string) {
     rimraf.sync(dir)
   }
 
-  fs.mkdirSync(dir)
+  fs.mkdirSync(dir, { recursive: true })
 }
 
 export function lowerFirst (s: string) {

@@ -54,6 +54,8 @@ export const defaultConfig = () => ({
 
   ts: false,
 
+  electtronMainJs: 'dist/main.js',
+
   devCacheDirectory: '.polymita', // in cwd
   buildDirectory: 'dist', // in cwd
   releaseDirectory: 'release', // in cwd
@@ -281,7 +283,7 @@ export interface IConfig extends IReadConfigResult{
  */
 function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, isRelease: boolean) {
   const outputDir = isRelease
-    ? path.join(cwd, config.releaseDirectory, config.buildDirectory)
+    ? path.join(cwd, config.releaseDirectory, config.appDirectory, config.buildDirectory)
     : path.join(cwd, config.buildDirectory)
   
   const generateRootPath = path.join(cwd, config.appDirectory, config.generateRoot)
@@ -308,7 +310,7 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
   const partSchemaPrisma = path.join(modelDir, config.prismaModelPart)
   const schemaIndexes = path.join(modelDir, config.schemaIndexes)
   const schemaIndexesTypes = path.join(modelDir, config.schemaIndexesTypes)
-  
+
   const modelFiles = {
     modelDir,
     modelEnhance,
@@ -332,6 +334,7 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
     configFile: configFileInPath,
     modelFiles,
     contextsDirectory,
+    node_modules: path.join(cwd, 'node_modules'),
   }  
 
   return {
@@ -347,7 +350,11 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
       root: outputDir, 
       virtualIndex: path.join(outputDir, 'index.ts'),
       index: path.join(outputDir, config.outputIndex),
+
+      node_modules: path.join(outputDir, 'node_modules'),
+
       app: path.join(outputDir, config.outputApp),
+
       configFile: path.join(outputDir, config.configDirectory, configFile),
       contextDir: path.join(outputDir, config.contextDirectory),
       // prisma
@@ -378,6 +385,8 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
     currentFiles,
 
     generates: {
+      appPkgJSON: path.join(cwd, config.releaseDirectory, config.appDirectory, 'package.json'),
+
       root: generateRootPath,
       signalMap: path.join(generateRootPath, `${config.generateSignalsMap}.ts`),
       viewsDir: path.join(generateRootPath, config.viewsDirectory),
@@ -637,5 +646,6 @@ export async function readConfig (arg: {
     rootTsconfig,
     configFileName,
     staticDeps,
+    packageJSONPath,
   }
 }

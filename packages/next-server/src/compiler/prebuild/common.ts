@@ -17,7 +17,7 @@ export async function buildCommonDirs(c: IConfig) {
     })
 
   await Promise.all(dirs.map(name => {
-    console.log('name: ', name);
+
     const dir = join(c.cwd, name)
     const dest = join(c.pointFiles.output.root, name)
 
@@ -27,8 +27,9 @@ export async function buildCommonDirs(c: IConfig) {
         files.push(f.path)
       }
     })
-
-    return runTSC(c, files, dest)
+    if (files.length) {
+      return runTSC(c, files, dest)
+    }
   }))
 
   dirs.forEach(name => {
