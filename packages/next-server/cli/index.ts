@@ -26,7 +26,11 @@ cac
 cac
   .command('release', 'compile current project')
   .action(async () => {
-    release(cwd)
+    try {
+      await release(cwd)
+    } catch (e) {
+      console.log('release error: ', e);
+    }
   })
 
 cac

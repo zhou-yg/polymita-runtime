@@ -1,5 +1,6 @@
 import { loadJSON, logFrame } from "../util"
 import * as path from 'path'
+import * as fs from 'fs'
 import { existsSync, lstatSync, readdirSync } from "fs"
 import chalk from 'chalk'
 import { JSONSchemaForNPMPackageJsonFiles } from "@schemastore/package"
@@ -46,6 +47,15 @@ interface Dep {
   name: string
   resourceDir?: string
   resources?: string[]
+}
+
+export function combineStaticToCode (resources: string[]) {
+  return resources.reduce((prev, file) => {
+    if (fs.existsSync(file)) {
+      return prev + '\n\n\n' + fs.readFileSync(file, 'utf-8')
+    }
+    return prev
+  }, '')
 }
 
 export function findStaticDeps (isProd: boolean, cwd: string, modules: string[]) {

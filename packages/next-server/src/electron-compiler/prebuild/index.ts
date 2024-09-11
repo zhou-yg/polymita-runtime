@@ -9,27 +9,16 @@ import { esbuild } from '../../compiler/bundleUtility';
 import { externalModules } from '../../compiler';
 import externalGlobals from '../../compiler/plugins/esbuild-globals';
 
+export * from './generate'
+
 const builderConfigTemplateFile = './builderConfig.ejs'
 const builderConfigFilePath = path.join(__dirname, builderConfigTemplateFile)
 const builderConfigTemplate = compile(fs.readFileSync(builderConfigFilePath).toString())
 
-const releaseAppPkgTemplateFile = './releaseAppPkg.ejs'
-const releaseAppPkgFilePath = path.join(__dirname, releaseAppPkgTemplateFile)
-const releaseAppPkgTemplate = compile(fs.readFileSync(releaseAppPkgFilePath).toString())
-
-export function generateReleaseAppPkg (c: IConfig) {
-  const pkg = releaseAppPkgTemplate({
-    name: c.packageJSON.name,
-    version: c.packageJSON.version,
-    main: c.electtronMainJs,
-  })
-  fs.writeFileSync(c.pointFiles.generates.appPkgJSON, pkg)
-}
-
 export const injectElectronBuilderConfig = (config: IConfig) => {
-  if (config.packageJSON.build) {
-    return
-  }
+  // if (config.packageJSON.build) {
+  //   return
+  // }
 
   const name = config.packageJSON.name.replace(/[^a-zA-Z0-9]/gi, '').toLowerCase()
   const newBuilderConfigStr = builderConfigTemplate({
@@ -55,7 +44,7 @@ export const checkNativeDep = (config: IConfig) => {
       .readdirSync('node_modules')
       .filter((folder) => fs.existsSync(`node_modules/${folder}/binding.gyp`));
     if (nativeDeps.length === 0) {
-      process.exit(0);
+      return
     }
     try {
       // Find the reason for why the dependency is installed. If it is installed
@@ -72,27 +61,26 @@ export const checkNativeDep = (config: IConfig) => {
         const plural = filteredRootDependencies.length > 1;
         console.log(`
    ${chalk.whiteBright.bgYellow.bold(
-     'Webpack does not work with native dependencies.',
-   )}
-  ${chalk.bold(filteredRootDependencies.join(', '))} ${
-          plural ? 'are native dependencies' : 'is a native dependency'
-        } and should be installed inside of the "./release/app" folder.
+          'Webpack does not work with native dependencies.',
+        )}
+  ${chalk.bold(filteredRootDependencies.join(', '))} ${plural ? 'are native dependencies' : 'is a native dependency'
+          } and should be installed inside of the "./release/app" folder.
    First, uninstall the packages from "./package.json":
   ${chalk.whiteBright.bgGreen.bold('npm uninstall your-package')}
    ${chalk.bold(
-     'Then, instead of installing the package to the root "./package.json":',
-   )}
+            'Then, instead of installing the package to the root "./package.json":',
+          )}
   ${chalk.whiteBright.bgRed.bold('npm install your-package')}
    ${chalk.bold('Install the package to "./release/app/package.json"')}
   ${chalk.whiteBright.bgGreen.bold(
-    'cd ./release/app && npm install your-package',
-  )}
+            'cd ./release/app && npm install your-package',
+          )}
    Read more about native dependencies at:
   ${chalk.bold(
-    'https://electron-react-boilerplate.js.org/docs/adding-dependencies/#module-structure',
-  )}
+            'https://electron-react-boilerplate.js.org/docs/adding-dependencies/#module-structure',
+          )}
    `);
-        process.exit(1);
+        return
       }
     } catch (e) {
       console.log('Native dependencies could not be checked');
@@ -127,19 +115,28 @@ export const installAppDeps = async (config: IConfig) => {
 /**
  * build main.js for electron
  */
-export async function buildMain(c: IConfig) {
+export async function buildApp(c: IConfig) {
   const entry = c.pointFiles.app.clientRoutes
-  console.log('[buildMain] entry: ', entry);
+  
+  
   await esbuild({
     entryPoints: [entry],
     bundle: true,
     format: 'iife',
-    outfile: c.pointFiles.output.index,
+    outfile: c.pointFiles.output.app,
     external: [
       ...Object.keys(externalModules(c.dependencyModules)),
     ],
+    minify: false,
+    define: {
+      'process.env.HASH_ROUTER': '"true"',
+    },
     plugins: [
       externalGlobals(externalModules(c.dependencyModules)),
     ],
   })
+}
+
+export const generateElectronApp = async (c: IConfig) => {
+
 }

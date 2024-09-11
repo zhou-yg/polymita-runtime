@@ -110,14 +110,23 @@ export function generateScripts(c: IConfig) {
   })
 }
 
+function getRouteElementName(route: IRouteChild, parentName = '') {
+  return route.pageConfig.name 
+    ? `${upperFirstVariable(parentName)}${upperFirstVariable(route.pageConfig.name)}` 
+    : 'Root';
+}
 
 function generateRoutesImports (routes: IRouteChild) {
   const importsArr: [string, string][] = []
 
   function traverseRoutes(route: IRouteChild, parentName = '') {
     if (route.pageConfig) {
-      const name = `${upperFirstVariable(parentName)}${upperFirstVariable(route.pageConfig.name || 'Root')}`;
+      const name = getRouteElementName(route, parentName);
       importsArr.push([name, `./${route.pageConfig.relativeImportPath}`]);
+
+      if (route.pageConfig.layoutExists) {
+        importsArr.push([`${name}Layout`, `./${route.pageConfig.relativeLayoutImportPath}`]);
+      }
     }
 
     route.children.forEach(childRoute => {
@@ -130,24 +139,36 @@ function generateRoutesImports (routes: IRouteChild) {
   return importsArr
 }
 
+interface IRouteObject {
+  index?: boolean;
+  path?: string;
+  element: string;
+  children?: IRouteObject[];
+}
+
 function generateRoutesContent (routes: IRouteChild, depth = 0, parentName = ''): string {
 
   const generateRouteObject = (route: IRouteChild, parentName = '') => {
-    const name = route.pageConfig 
-      ? `${upperFirstVariable(parentName)}${upperFirstVariable(route.pageConfig.name || 'Root')}`
-      : '';
+    const name = getRouteElementName(route, parentName);
     
-    let routeObject = {
+    const layoutName = `${name}Layout`;
+
+    let routeObject: IRouteObject = {
       path: route.routerPath,
-      element: name ? `<${name} />` : 'null',
-      children: [],
-    }
+      element: route.pageConfig.layoutExists ? `<${layoutName} />` : null,
+      children: [
+        name && {
+          element: `<${name} />`,
+          index: true,
+        }
+      ].filter(Boolean),
+    };
 
     if (route.children.length > 0) {
       const childrenRoutes = route.children
         .map(child => generateRouteObject(child, parentName + (route.pageConfig?.name || '')))
       
-      routeObject.children = childrenRoutes
+      routeObject.children = routeObject.children.concat(childrenRoutes)
     }
 
     return routeObject;
@@ -167,12 +188,12 @@ export async function generateClientRoutes(c: IConfig) {
   } = c.pointFiles.app
 
   const {
-    routesTree: routesTreeArr,
+    routesTree,
   } = c
 
-  const imports = generateRoutesImports(routesTreeArr)
+  const imports = generateRoutesImports(routesTree)
 
-  const routesContent = generateRoutesContent(routesTreeArr)
+  const routesContent = generateRoutesContent(routesTree)
 
   const importsWithAbsolutePathClient = imports.map(([n, f]) => {
     return `import ${n} from '${implicitImportPath(f, c.ts)}'`

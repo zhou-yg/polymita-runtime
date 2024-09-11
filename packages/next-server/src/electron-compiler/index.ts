@@ -1,1 +1,1 @@
-export * from './prebuild'
+export * from './prebuild/index'

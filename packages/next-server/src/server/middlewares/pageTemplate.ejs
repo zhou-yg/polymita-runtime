@@ -9,13 +9,17 @@
   <link rel="stylesheet" href="<%- css[i] %>">
   <% }) %>
 
-  <link rel="stylesheet" href="/static/module.css" >
+  <link rel="stylesheet" href="./static/module.css" >
   
   <!-- deps -->
-  <script src="/static/deps.js"></script>
-  <script src="/static/runtime.js"></script>
+  <script src="./static/deps.js"></script>
+  <script src="./static/runtime.js"></script>
   <!-- modules -->
-  <script src="/static/module.js"></script>
+  <script src="./static/module.js"></script>
+  
+  <% scripts.forEach((path, i) => { %>
+  <script src="<%- scripts[i] %>"></script>
+  <% }) %>
   
 </head>
 <body>

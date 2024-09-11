@@ -6,6 +6,7 @@ import * as ReactDOM from 'react-dom/client'
 import {
   RouterProvider,
   createBrowserRouter,
+  createHashRouter,
 } from "react-router-dom"
 
 <%- imports %>
@@ -13,8 +14,7 @@ import {
 function RootApplication({
   location
 }) {
-  
-  const router = createBrowserRouter([
+  const router = (process.env.HASH_ROUTER === 'true' ? createHashRouter : createBrowserRouter)([
     <%- routes %>
   ])
   

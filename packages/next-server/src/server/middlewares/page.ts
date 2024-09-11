@@ -9,7 +9,31 @@ import { projectRelativePath } from "../../util";
 const templateFile = './pageTemplate.ejs'
 const templateFilePath = path.join(__dirname, templateFile)
 
-const template = compile(fs.readFileSync(templateFilePath).toString())
+export const pageTemplate = compile(fs.readFileSync(templateFilePath).toString())
+
+const buildPageTemplate = (
+  config: IConfig,
+  scripts: string[] = []
+) => {
+  const { entryCSS, clientRoutes } = config.pointFiles.app
+
+  const src = clientRoutes
+
+  const css = [ fs.existsSync(entryCSS) && entryCSS ]
+    .filter(Boolean)
+    .map(path => projectRelativePath(config, path))
+
+
+  const html = pageTemplate({
+    title: config.app?.title,
+    src: projectRelativePath(config, src),
+    css,
+    ssrHTML: '',
+    scripts,
+  })
+
+  return html
+}
 
 function transformIndexHtml (html: string, c: IConfig) {
   return html
@@ -35,22 +59,7 @@ function transformIndexHtml (html: string, c: IConfig) {
   return async (ctx, next) => {
     const pathname = ctx.request.path
 
-    const { entryCSS, clientRoutes } = config.pointFiles.app
-
-    const src = clientRoutes
-
-    const css = [ fs.existsSync(entryCSS) && entryCSS ]
-      .filter(Boolean)
-      .map(path => projectRelativePath(config, path))
-  
-
-    let html = template({
-      title: config.app?.title,
-      src: projectRelativePath(config, src),
-      css,
-      ssrHTML: '',
-      configJSON: JSON.stringify({})
-    })
+    let html = buildPageTemplate(config)
 
     // console.log('html: ', ctx.request.url, html);
     // use on dev

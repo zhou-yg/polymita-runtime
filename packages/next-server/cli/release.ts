@@ -1,21 +1,35 @@
 import build from "./build"
 import fs from 'fs';
-import { checkNativeDep, generateReleaseAppPkg, injectElectronBuilderConfig, installAppDeps } from '../src/index'
+import {
+  buildApp,
+  checkNativeDep,
+  generateClientRoutes,
+  generateIndexHtml,
+  generateReleaseAppPkg,
+  generateStaticResources,
+  injectElectronBuilderConfig,
+  installAppDeps,
+  readConfig,
+} from '../src/index'
 
 export default async (cwd: string) => {
-  const config = await build(cwd, true)
+  const config = await readConfig({
+    cwd,
+    isProd: true,
+    isRelease: true,
+  })
+  // const config = await build(cwd, true)
 
-  const src = config.pointFiles.currentFiles.node_modules;
-  const to = config.pointFiles.output.node_modules;
+  await generateClientRoutes(config)
+  await buildApp(config)
 
-  // if (!fs.existsSync(to) && fs.existsSync(src)) {
-  //   fs.symlinkSync(to, src, 'junction');
-  // }
+  generateIndexHtml(config)
+  
   generateReleaseAppPkg(config)
-
   injectElectronBuilderConfig(config)
-
+  generateStaticResources(config)
+  
+  return;
   checkNativeDep(config)
-
   await installAppDeps(config)
 }

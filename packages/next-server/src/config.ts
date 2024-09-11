@@ -13,7 +13,7 @@ export { IViewConfig } from './config/routes'
 
 export const defaultConfig = () => ({
   app: {
-    title: '',
+    title: 'polymita',
   },
 
   //
@@ -40,9 +40,8 @@ export const defaultConfig = () => ({
 
   outputIndex: 'index.js',
   outputApp: 'app.js',
-  /**
-   * https://nextjs.org/docs/app/building-your-application/upgrading/app-router-migration#migrating-_documentjs-and-_appjs
-   */
+  outputAppCSS: 'app.css',
+
   appRoot: 'layout', // the app root that extension in jsx|tsx
 
   generateRoot: 'polymita',
@@ -54,7 +53,9 @@ export const defaultConfig = () => ({
 
   ts: false,
 
-  electtronMainJs: 'dist/main.js',
+  electtronMainJs: 'main.js',
+  electtronIndexHtml: 'index.html',
+  electtronPreload: 'preload.js',
 
   devCacheDirectory: '.polymita', // in cwd
   buildDirectory: 'dist', // in cwd
@@ -134,6 +135,7 @@ const definePage = (f: IFile, viewDir: string) => {
     routerPath: prefix || '/',
     path: f.path,
     relativeImportPath: path.join('./', f.relativeFile.replace(/\.\w+$/, '')),
+    relativeLayoutImportPath: path.join('./', replaceToLayout(f.relativeFile)),
     layout: replaceToLayout(f.path),
     layoutExists: fs.existsSync(replaceToLayout(f.path)),
   }
@@ -303,6 +305,8 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
   
   const configFileInPath = path.join(cwd, configFile)
 
+  const electronAppDir = path.join(cwd, config.releaseDirectory, config.appDirectory)
+
   const viewsDirectory = path.join(cwd, config.viewsDirectory)
   const signalsDirectory = path.join(cwd, config.signalsDirectory)
   const appDirectory = path.join(cwd, config.appDirectory)
@@ -357,6 +361,7 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
       node_modules: path.join(outputDir, 'node_modules'),
 
       app: path.join(outputDir, config.outputApp),
+      appCSS: path.join(outputDir, config.outputAppCSS),
 
       configFile: path.join(outputDir, config.configDirectory, configFile),
       contextDir: path.join(outputDir, config.contextDirectory),
@@ -388,8 +393,14 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
     currentFiles,
 
     generates: {
-      appPkgJSON: path.join(cwd, config.releaseDirectory, config.appDirectory, 'package.json'),
-
+      // for electron
+      electronAppDir,
+      appPkgJSON: path.join(electronAppDir, 'package.json'),
+      appIndexHtml: path.join(electronAppDir, config.electtronIndexHtml),
+      appPreload: path.join(electronAppDir, config.electtronPreload),
+      main: path.join(electronAppDir, 'main', config.electtronMainJs),
+      staticResourcesDir: path.join(electronAppDir, 'static'),
+      //
       root: generateRootPath,
       signalMap: path.join(generateRootPath, `${config.generateSignalsMap}.ts`),
       viewsDir: path.join(generateRootPath, config.viewsDirectory),

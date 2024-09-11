@@ -90,6 +90,7 @@ export async function  buildScripts(c: IConfig) {
 export const externalModules = (modules: string[] = []) => ({
   react: 'React',
   'react-dom': 'ReactDOM',
+  'react-dom/client': 'ReactDOM',
   'react-router-dom': 'ReactRouterDOM',
   '@emotion/react': 'emotionReact',
   '@emotion/styled': 'emotionStyled',

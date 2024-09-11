@@ -13,7 +13,7 @@ instance.on('close', () => {
   const ejsArr = [
     'src/compiler/prebuild/preset/*.ejs',
     'src/compiler/plugins/*.ejs',
-    'src/electron-compiler/*.ejs',
+    'src/electron-compiler/*/*.ejs',
     'src/server/*/*.ejs',
   ]
   const jsArr = [

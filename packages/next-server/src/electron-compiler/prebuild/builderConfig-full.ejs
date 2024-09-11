@@ -1,7 +1,7 @@
 {
   "productName": "<%= name %>",
   "appId": "com.<%= appId %>",
-  "asar": false,
+  "asar": true,
   "asarUnpack": "**\\*.{node,dll}",
   "files": [
     "dist",
@@ -26,7 +26,7 @@
   },
   "directories": {
     "app": "release/app",
-    "buildResources": "release/app/assets",
+    "buildResources": "assets",
     "output": "release/build"
   },
   "extraResources": [

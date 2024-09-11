@@ -1,0 +1,49 @@
+import fs from 'fs';
+import * as path from 'path'
+import chalk from 'chalk';
+import { spawn, execSync } from 'child_process';
+import { IConfig } from '../../config';
+import { pageTemplate } from '../../server/middlewares/page';
+import { combineStaticToCode } from '../../config/deps';
+import { implicitImportPath } from '../../util';
+import { compile } from 'ejs'
+
+function toElectronAppRelativePath(c: IConfig, p: string) {
+  return p.replace(c.pointFiles.generates.electronAppDir, '.')
+}
+
+const releaseAppPkgTemplateFile = './appPackageJSON.ejs'
+const releaseAppPkgFilePath = path.join(__dirname, releaseAppPkgTemplateFile)
+const releaseAppPkgTemplate = compile(fs.readFileSync(releaseAppPkgFilePath).toString())
+
+export function generateReleaseAppPkg(c: IConfig) {
+  const pkg = releaseAppPkgTemplate({
+    name: c.packageJSON.name,
+    version: c.packageJSON.version,
+    main: toElectronAppRelativePath(c, c.pointFiles.generates.main),
+  })
+  fs.writeFileSync(c.pointFiles.generates.appPkgJSON, pkg)
+}
+
+export const generateIndexHtml = (c: IConfig) => {
+  const html = pageTemplate({
+    title: c.app?.title || c.packageJSON.name,
+    src: toElectronAppRelativePath(c, c.pointFiles.output.app),
+    css: [
+      toElectronAppRelativePath(c, c.pointFiles.output.css),
+    ],
+    scripts: [],
+  })
+  
+  fs.writeFileSync(c.pointFiles.generates.appIndexHtml, html)
+}
+
+
+export const generateStaticResources = (c: IConfig) => {
+  fs.mkdirSync(c.pointFiles.generates.staticResourcesDir, { recursive: true })
+  c.staticDeps.forEach(dep => {
+    const code = combineStaticToCode(dep.resources)
+    
+    fs.writeFileSync(path.join(c.pointFiles.generates.staticResourcesDir, dep.name), code)
+  })
+}
