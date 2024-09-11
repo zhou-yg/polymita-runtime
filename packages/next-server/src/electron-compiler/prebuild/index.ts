@@ -10,6 +10,7 @@ import { externalModules } from '../../compiler';
 import externalGlobals from '../../compiler/plugins/esbuild-globals';
 
 export * from './generate'
+export * from './generateMain'
 
 const builderConfigTemplateFile = './builderConfig.ejs'
 const builderConfigFilePath = path.join(__dirname, builderConfigTemplateFile)

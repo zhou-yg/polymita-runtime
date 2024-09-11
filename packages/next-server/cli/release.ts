@@ -5,6 +5,7 @@ import {
   checkNativeDep,
   generateClientRoutes,
   generateIndexHtml,
+  generateMainFiles,
   generateReleaseAppPkg,
   generateStaticResources,
   injectElectronBuilderConfig,
@@ -24,6 +25,7 @@ export default async (cwd: string) => {
   await buildApp(config)
 
   generateIndexHtml(config)
+  generateMainFiles(config)
   
   generateReleaseAppPkg(config)
   injectElectronBuilderConfig(config)

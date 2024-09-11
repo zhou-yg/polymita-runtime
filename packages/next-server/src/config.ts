@@ -54,6 +54,7 @@ export const defaultConfig = () => ({
   ts: false,
 
   electtronMainJs: 'main.js',
+  electtronMainMenu: 'menu.js',
   electtronIndexHtml: 'index.html',
   electtronPreload: 'preload.js',
 
@@ -395,11 +396,14 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
     generates: {
       // for electron
       electronAppDir,
-      appPkgJSON: path.join(electronAppDir, 'package.json'),
-      appIndexHtml: path.join(electronAppDir, config.electtronIndexHtml),
-      appPreload: path.join(electronAppDir, config.electtronPreload),
-      main: path.join(electronAppDir, 'main', config.electtronMainJs),
-      staticResourcesDir: path.join(electronAppDir, 'static'),
+      app: {
+        pkgJSON: path.join(electronAppDir, 'package.json'),
+        indexHtml: path.join(electronAppDir, config.electtronIndexHtml),
+        preload: path.join(electronAppDir, 'main',config.electtronPreload),
+        main: path.join(electronAppDir, 'main', config.electtronMainJs),
+        menu: path.join(electronAppDir, 'main', config.electtronMainMenu),
+        staticResourcesDir: path.join(electronAppDir, 'static'),
+      },
       //
       root: generateRootPath,
       signalMap: path.join(generateRootPath, `${config.generateSignalsMap}.ts`),
