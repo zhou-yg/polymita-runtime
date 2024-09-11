@@ -17,7 +17,6 @@ import {
   generateBuildingIndex,
   buildIndex,
   buildPolymitaConfig,
-  createDevServer,
   createDevViteServer,
   generateViewFromOverrides,
 } from '../src'

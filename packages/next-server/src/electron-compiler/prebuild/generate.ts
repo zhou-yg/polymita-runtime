@@ -25,6 +25,19 @@ export function generateReleaseAppPkg(c: IConfig) {
   fs.writeFileSync(c.pointFiles.generates.app.pkgJSON, pkg)
 }
 
+export const generateIndexHtml = (c: IConfig) => {
+  const html = pageTemplate({
+    title: c.app?.title || c.packageJSON.name,
+    src: toElectronAppRelativePath(c, c.pointFiles.output.app),
+    css: [
+      toElectronAppRelativePath(c, c.pointFiles.output.css),
+    ],
+    scripts: [],
+  })
+  
+  fs.writeFileSync(c.pointFiles.generates.app.indexHtml, html)
+}
+
 
 export const generateStaticResources = (c: IConfig) => {
   fs.mkdirSync(c.pointFiles.generates.app.staticResourcesDir, { recursive: true })

@@ -16,18 +16,23 @@ const buildPageTemplate = (
   scripts: string[] = []
 ) => {
   const { entryCSS, clientRoutes } = config.pointFiles.app
+  const { app, css: outputCSS } = config.pointFiles.output
 
-  const src = clientRoutes
+  const src = config.isProd ? app : clientRoutes
 
-  const css = [ fs.existsSync(entryCSS) && entryCSS ]
-    .filter(Boolean)
-    .map(path => projectRelativePath(config, path))
+  const css = config.isProd ? [
+    outputCSS
+  ] : [
+    entryCSS 
+  ]
+    
 
+  const relativeSrc = projectRelativePath(config, src)
 
   const html = pageTemplate({
     title: config.app?.title,
-    src: projectRelativePath(config, src),
-    css,
+    src: relativeSrc,
+    css: css.filter(p => fs.existsSync(p)).map(path => projectRelativePath(config, path)),
     ssrHTML: '',
     scripts,
   })

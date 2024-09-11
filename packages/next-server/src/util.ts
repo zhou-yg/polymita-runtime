@@ -278,7 +278,7 @@ export function resolveNodeModulesLib (cwd: string, lib: string) {
   return path.join(cwd, 'node_modules/@polymita/server/dist', lib)
 }
 /**
- * 将config的一些全局绝对路径转换为当前项目工程的相对路径
+ * Convert some global absolute paths in the config to relative paths for the current project
  */
 export function projectRelativePath (c: IConfig, p: string) {
   return p.replace(c.cwd, '.')

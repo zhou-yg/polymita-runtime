@@ -155,11 +155,13 @@ export async function createDevViteServer (c: IConfig) {
 }
 
 
-export async function createDevServer(c: IConfig) {
+export async function createServer(c: IConfig) {
   const app = setupBasicServer(c)
- 
-  app.use(staticServe(c.buildDirectory))
 
+  app.use(staticServe(c.cwd))
+
+  app.use(inlineStatic({ config: c }))
+  app.use(prisma({ config: c }))
   app.use(page({
     config: c,
   }))

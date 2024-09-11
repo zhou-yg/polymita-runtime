@@ -4,6 +4,8 @@ import dev from "./dev";
 import build from "./build";
 import any from "./any";
 import release from "./release";
+import start from "./start";
+
 const cac = cacFactory('tarat-server')
 
 const cwd = process.cwd()
@@ -21,6 +23,11 @@ cac
   .command('build', 'compile current project')
   .action(async () => {
     build(cwd)
+  })
+cac
+  .command('start', 'compile current project')
+  .action(async () => {
+    start(cwd)
   })
 
 cac
