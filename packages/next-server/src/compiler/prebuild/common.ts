@@ -1,10 +1,13 @@
-import { existsSync, readdirSync, unlinkSync } from 'fs';
+import { existsSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from 'fs';
 import { IConfig } from '../../config';
 import { join, parse } from 'path';
 import { buildDTS, buildDTS2, esbuild, runTSC } from '../bundleUtility';
 import { logFrame, traverseDir, tryMkdir } from '../../util';
 import { cp } from 'shelljs';
-import { nodeExternalsPlugin } from 'esbuild-node-externals'
+import tailwindcss from 'tailwindcss'
+import autoprefixer from 'autoprefixer';
+import postcss from 'postcss'
+import less from 'postcss-less'
 import { umdWrapper } from 'esbuild-plugin-umd-wrapper';
 import externalGlobals from '../plugins/esbuild-globals';
 
@@ -132,4 +135,31 @@ export async function buildIndex(c: IConfig) {
     c.pointFiles.output.root,
   )
   unlinkSync(entry)
+}
+
+export async function buildTailwindCSS(c: IConfig) {
+
+  if (!c.tailwindConfigPath) {
+    return
+  }
+
+  const globalCSSPath = join(c.cwd, 'app/globals.css')
+
+  if (!existsSync(globalCSSPath)) {
+    return
+  }
+  const contents = readFileSync(globalCSSPath, 'utf-8')
+
+  const result = await postcss([
+    tailwindcss({
+      config: c.tailwindConfigPath,
+    }),
+    autoprefixer() as any
+  ]).process(contents, {
+    from: globalCSSPath,
+    to: c.pointFiles.output.css,
+    syntax: less,
+  });
+
+  writeFileSync(c.pointFiles.output.css, result.css)
 }

@@ -16,7 +16,7 @@ async function startApp(app: Koa, c: IConfig) {
 }
 
 function resolveNext(c: IConfig) {
-  return require(path.join(c.cwd, './node_modules/next/'))
+  return require(path.join(c.nodeModulesDir, './next/'))
 }
 
 export { createDevViteServer, createServer } from './server/setup'

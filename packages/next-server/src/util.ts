@@ -122,15 +122,24 @@ export interface IFile {
    */
   relativeFile: string
 }
-export function traverseDir (dir: string, callback: (f: IFile) => void, relativeBase = '') {
+export function traverseDir (
+  dir: string,
+  callback: (f: IFile) => void | false,
+  relativeBase = '',
+  cache = new Map<string, boolean>()
+) {
   if (!fs.existsSync(dir)) {
     return
   }
+  if (cache.has(dir)) {
+    return
+  }
+  cache.set(dir, true)
   const files = fs.readdirSync(dir)
   files.forEach(f => {
     const p = path.join(dir, f)
     const isDir = fs.lstatSync(p).isDirectory()
-    callback({
+    const continueFlag = callback({
       isDir,
       name: f.replace(/\.\w+$/, ''),
       dir,
@@ -138,8 +147,8 @@ export function traverseDir (dir: string, callback: (f: IFile) => void, relative
       relativeFile: path.join(relativeBase, f),
       path: p
     })
-    if (isDir) {
-      traverseDir(p, callback, path.join(relativeBase, f))
+    if (isDir && continueFlag !== false) {
+      traverseDir(p, callback, path.join(relativeBase, f), cache)
     }
   })
 }
@@ -274,9 +283,6 @@ export function startElectronProcess () {
 }
 
 
-export function resolveNodeModulesLib (cwd: string, lib: string) {
-  return path.join(cwd, 'node_modules/@polymita/server/dist', lib)
-}
 /**
  * Convert some global absolute paths in the config to relative paths for the current project
  */

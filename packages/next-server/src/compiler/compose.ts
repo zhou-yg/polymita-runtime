@@ -42,7 +42,7 @@ export function findDependentPrisma (c: IConfig) {
 
   c.dependencyModules.forEach(moduleName => {
     logFrame('prisma moduleName: ', moduleName);
-    const dir = path.join(c.cwd, 'node_modules', moduleName)
+    const dir = path.join(c.nodeModulesDir, moduleName)
 
     const depSchemaPath = path.join(dir, c.buildDirectory, c.modelsDirectory, 'schema.prisma')
     const r2 = fs.existsSync(depSchemaPath)
@@ -353,7 +353,7 @@ export async function composeSignal(c: IConfig) {
   const dependencyDrivers: IDependencyHook[] = []
   
   c.dependencyModules.forEach(moduleName => {
-    const dir = path.join(c.cwd, 'node_modules', moduleName)
+    const dir = path.join(c.nodeModulesDir, moduleName)
     const distSignalsDir = path.join(dir, c.buildDirectory, c.signalsDirectory)
     if (!fs.existsSync(distSignalsDir)) {
       console.error(`[composeSignal] drivers not found in "${moduleName}/${c.buildDirectory}/${c.signalsDirectory}"`)
@@ -384,7 +384,7 @@ export function composeScripts (c: IConfig) {
   const destDir = path.join(c.cwd, c.scriptDirectory, c.composeDir)
 
   c.dependencyModules.forEach(moduleName => {
-    const depModuleDir = path.join(c.cwd, 'node_modules', moduleName)
+    const depModuleDir = path.join(c.nodeModulesDir, moduleName)
     const distScriptsDir = path.join(depModuleDir, c.buildDirectory, c.scriptDirectory)
 
     ;[c.serverDir, c.edgeDir].forEach(serverOrEdge => {

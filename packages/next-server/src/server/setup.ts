@@ -80,7 +80,7 @@ async function startApp(app: Application, c: IConfig) {
     }).join('\n')  
   
     logFrame(`
-      Tarat App Server started at  
+      Tarat App Server started at "${port}"
       ${allList}
     `)
   })

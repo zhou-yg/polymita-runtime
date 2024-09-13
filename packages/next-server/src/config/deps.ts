@@ -16,11 +16,11 @@ const internalLibs = {
   signal: '@polymita/signal',
 }
 
-export function findDependencies (cwd: string, configFileName: string, pkgJSON: null | JSONSchemaForNPMPackageJsonFiles) {
+export function findDependencies (nodeModulesDir: string,configFileName: string, pkgJSON: null | JSONSchemaForNPMPackageJsonFiles) {
   const pkgModules = Object.keys(pkgJSON?.dependencies || {})
 
   const modules: string[] = pkgModules.filter(moduleName => {
-    const dir = path.join(cwd, 'node_modules', moduleName)
+    const dir = path.join(nodeModulesDir, moduleName)
     const pkg = path.join(dir, 'package.json')
     const configFile = path.join(dir, configFileName)
     if (existsSync(configFile)) {
@@ -58,42 +58,42 @@ export function combineStaticToCode (resources: string[]) {
   }, '')
 }
 
-export function findStaticDeps (isProd: boolean, cwd: string, modules: string[]) {
+export function findStaticDeps (isProd: boolean, nodeModulesDir: string, modules: string[]) {
   const arr: Dep[] = [
     {
       name: 'deps.js',
       resourceDir: 
         isProd 
-          ? path.join(cwd, 'node_modules/@polymita/next-server/dist/internalStatic')
-          : path.join(cwd, 'node_modules/@polymita/next-server/dist/internalStatic/dev'),
+          ? path.join(nodeModulesDir, '@polymita/next-server/dist/internalStatic')
+          : path.join(nodeModulesDir, '@polymita/next-server/dist/internalStatic/dev'),
       /**
        * "dev" state maybe using prod resources
        * */    
       resources: isProd ? [] : [
-        path.join(cwd, 'node_modules/@polymita/next-server/dist/internalStatic/emotion-react.umd.min.js'),
-        path.join(cwd, 'node_modules/@polymita/next-server/dist/internalStatic/emotion-styled.umd.min.js'),
-        path.join(cwd, 'node_modules/@polymita/next-server/dist/internalStatic/eventemitter3.js'),
+        path.join(nodeModulesDir, '@polymita/next-server/dist/internalStatic/emotion-react.umd.min.js'),
+        path.join(nodeModulesDir, '@polymita/next-server/dist/internalStatic/emotion-styled.umd.min.js'),
+        path.join(nodeModulesDir, '@polymita/next-server/dist/internalStatic/eventemitter3.js'),
       ]
     },
     {
       name: 'runtime.js',
       resources: [
-        path.join(cwd, 'node_modules/@polymita/signal/dist/index.umd.js'),
-        path.join(cwd, 'node_modules/@polymita/signal-model/dist/index.umd.js'),
-        path.join(cwd, 'node_modules/@polymita/renderer/dist/renderer.umd.js'),
-        path.join(cwd, 'node_modules/@polymita/next-connect/dist/index.umd.js'),
+        path.join(nodeModulesDir, '@polymita/signal/dist/index.umd.js'),
+        path.join(nodeModulesDir, '@polymita/signal-model/dist/index.umd.js'),
+        path.join(nodeModulesDir, '@polymita/renderer/dist/renderer.umd.js'),
+        path.join(nodeModulesDir, '@polymita/next-connect/dist/index.umd.js'),
       ],
     },
     {
       name: 'module.js',
       resources: [
-        ...modules.map(name => (path.join(cwd, 'node_modules', name ,'/dist/index.js'))),
+        ...modules.map(name => (path.join(nodeModulesDir, `${name}/dist/index.js`))),
        ]
     },
     {
       name: 'module.css',
       resources: [
-        ...modules.map(name => (path.join(cwd, 'node_modules', name ,'/dist/index.css'))),
+        ...modules.map(name => (path.join(nodeModulesDir, `${name}/dist/index.css`))),
        ]
     },
   ]

@@ -1,12 +1,12 @@
-import fs from 'fs';
+import fs, { readdirSync } from 'fs';
 import * as path from 'path'
 import chalk from 'chalk';
 import { spawn, execSync } from 'child_process';
 import { IConfig } from '../../config';
-import { logFrame } from '../../util';
+import { logFrame, traverseDir, tryMkdir } from '../../util';
 import { compile } from 'ejs'
 import { esbuild } from '../../compiler/bundleUtility';
-import { externalModules } from '../../compiler';
+import { externalModules, generateClientRoutes } from '../../compiler';
 import externalGlobals from '../../compiler/plugins/esbuild-globals';
 
 export * from './generate'
@@ -117,8 +117,9 @@ export const installAppDeps = async (config: IConfig) => {
  * build main.js for electron
  */
 export async function buildApp(c: IConfig) {
+  await generateClientRoutes(c)
+
   const entry = c.pointFiles.app.clientRoutes
-  
   
   await esbuild({
     entryPoints: [entry],
@@ -130,7 +131,7 @@ export async function buildApp(c: IConfig) {
     ],
     minify: false,
     define: {
-      'process.env.HASH_ROUTER': '"true"',
+      // 'process.env.HASH_ROUTER': '"true"',
     },
     plugins: [
       externalGlobals(externalModules(c.dependencyModules)),
@@ -140,4 +141,29 @@ export async function buildApp(c: IConfig) {
 
 export const generateElectronApp = async (c: IConfig) => {
 
+}
+
+
+export const linkModules = (c: IConfig) => {
+  const srcNodeModulesPath = path.join(c.nodeModulesDir);
+  const appNodeModulesPath = path.join(c.pointFiles.generates.app.root, 'node_modules');
+
+  traverseDir(srcNodeModulesPath, (f) => {
+    if (!f.name) {
+      return false
+    }
+    const appModulePath = path.join(appNodeModulesPath, f.relativeFile)
+    if (f.isDir) {
+      tryMkdir(appModulePath)
+    } else {
+      const appModulePath = path.join(appNodeModulesPath, f.relativeFile)
+      if (!fs.existsSync(appModulePath)) {
+        fs.symlink(f.path, appModulePath, 'junction', err => {
+          if (err) {
+            console.error('error:', err)
+          }
+        });
+      }
+    }
+  })
 }

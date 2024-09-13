@@ -6,6 +6,8 @@ import any from "./any";
 import release from "./release";
 import start from "./start";
 
+export * as nextServer from '../src/index'
+
 const cac = cacFactory('tarat-server')
 
 const cwd = process.cwd()

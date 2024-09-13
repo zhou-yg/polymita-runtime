@@ -26,12 +26,12 @@ export function esbuild (op: officialEsbuild.BuildOptions) {
   })
 }
 
-const tsc = 'node_modules/typescript/bin/tsc';
-
 /**
  * width jsxFactory
  */
 export async function buildDTS (c: IConfig, inputs: string[], outdir?: string) {
+  const tsc = path.join(c.nodeModulesDir, '/typescript/bin/tsc');
+
   const cli2 = `${inputs.join(' ')} --jsx react --module esnext --moduleResolution Node --jsxFactory h --allowJs --esModuleInterop --declaration --emitDeclarationOnly --outdir ${outdir}`.split(' ')
   
   await new Promise<void>(((resolve, reject) => {
@@ -59,6 +59,7 @@ export async function buildDTS (c: IConfig, inputs: string[], outdir?: string) {
   }))
 }
 export async function buildDTS2 (c: IConfig, inputs: string[], outdir?: string) {
+  const tsc = path.join(c.nodeModulesDir, '/typescript/bin/tsc');
   const cli2 = `${inputs.join(' ')} --jsx react --module esnext --moduleResolution Node --allowJs --esModuleInterop --declaration --emitDeclarationOnly --outdir ${outdir}`.split(' ')
   
   await new Promise<void>(((resolve, reject) => {
@@ -90,7 +91,7 @@ export async function runTSC (c: IConfig, inputs: string[], outdir?: string) {
   if (inputs.length === 0) {
     return console.trace('[runTSC] inputs is empty')
   }
-
+  const tsc = path.join(c.nodeModulesDir, '/typescript/bin/tsc');
   const cli2 = `${inputs.join(' ')} --esModuleInterop --declaration --outdir ${outdir}`.split(' ')
   await new Promise<void>(((resolve, reject) => {
     const instance = spawn(

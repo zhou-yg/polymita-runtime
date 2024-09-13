@@ -295,7 +295,8 @@ export interface IConfig extends IReadConfigResult{
  */
 function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, isRelease: boolean) {
   const outputDir = isRelease
-    ? path.join(cwd, config.releaseDirectory, config.appDirectory, config.buildDirectory)
+    ? path.join(cwd, config.releaseDirectory, config.appDirectory, 'renderer', config.buildDirectory)
+    // ? path.join(cwd, config.buildDirectory)
     : path.join(cwd, config.buildDirectory)
   
   const generateRootPath = path.join(cwd, config.appDirectory, config.generateRoot)
@@ -348,7 +349,6 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
     configFile: configFileInPath,
     modelFiles,
     contextsDirectory,
-    node_modules: path.join(cwd, 'node_modules'),
   }  
 
   return {
@@ -358,8 +358,6 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
       root: outputDir, 
       virtualIndex: path.join(outputDir, 'index.ts'),
       index: path.join(outputDir, config.outputIndex),
-
-      node_modules: path.join(outputDir, 'node_modules'),
 
       app: path.join(outputDir, config.outputApp),
       appCSS: path.join(outputDir, config.outputAppCSS),
@@ -395,8 +393,8 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
 
     generates: {
       // for electron
-      electronAppDir,
       app: {
+        root: electronAppDir,
         pkgJSON: path.join(electronAppDir, 'package.json'),
         indexHtml: path.join(electronAppDir, config.electtronIndexHtml),
         preload: path.join(electronAppDir, 'main',config.electtronPreload),
@@ -557,14 +555,18 @@ function getTailwindConfigPath(cwd: string) {
   }
 }
 
+
 export async function readConfig (arg: {
   cwd: string,
+  resolveNodeModulesDir?: string,
   isProd?: boolean,
   isRelease?: boolean,
   port?: number
 }) {
   const { cwd, isProd, isRelease } = arg
   const configFileInPath = path.join(cwd, configFile)
+
+  const nodeModulesDir = path.join(arg.resolveNodeModulesDir || cwd, 'node_modules')
 
   let config = defaultConfig() as IDefaultConfig
   if (fs.existsSync(configFileInPath)) {
@@ -616,8 +618,8 @@ export async function readConfig (arg: {
   /**
    * @polymita/* business modules
    */
-  const dependencyModules = findDependencies(cwd, configFileName, packageJSON)
-  const staticDeps = findStaticDeps(isProd, cwd, dependencyModules)
+  const dependencyModules = findDependencies(nodeModulesDir , configFileName, packageJSON)
+  const staticDeps = findStaticDeps(isProd, nodeModulesDir, dependencyModules)
   
   const dependencyLibs = findDepLibs(packageJSON)
   
@@ -658,6 +660,7 @@ export async function readConfig (arg: {
   return {
     ...config,
     configFile,
+    nodeModulesDir,
     tailwindConfigPath,
     project,
     port,

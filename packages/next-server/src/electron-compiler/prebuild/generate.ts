@@ -9,7 +9,7 @@ import { combineStaticToCode } from '../../config/deps';
 import { implicitImportPath } from '../../util';
 
 function toElectronAppRelativePath(c: IConfig, p: string) {
-  return p.replace(c.pointFiles.generates.electronAppDir, '.')
+  return p.replace(c.pointFiles.generates.app.root, '.')
 }
 
 const releaseAppPkgTemplateFile = './appPackageJSON.ejs'

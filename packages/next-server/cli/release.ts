@@ -2,6 +2,7 @@ import build from "./build"
 import fs from 'fs';
 import {
   buildApp,
+  buildTailwindCSS,
   checkNativeDep,
   generateClientRoutes,
   generateIndexHtml,
@@ -10,28 +11,31 @@ import {
   generateStaticResources,
   injectElectronBuilderConfig,
   installAppDeps,
+  linkModules,
   readConfig,
 } from '../src/index'
 
 export default async (cwd: string) => {
-  const config = await readConfig({
-    cwd,
-    isProd: true,
-    isRelease: true,
-  })
-  // const config = await build(cwd, true)
+  // const config = await readConfig({
+  //   cwd,
+  //   isProd: true,
+  //   isRelease: true,
+  // })
+  const config = await build(cwd, true)
 
-  await generateClientRoutes(config)
   await buildApp(config)
 
+  await buildTailwindCSS(config)
+
   generateIndexHtml(config)
-  generateMainFiles(config)
+  // generateMainFiles(config)
   
   generateReleaseAppPkg(config)
   injectElectronBuilderConfig(config)
   generateStaticResources(config)
   
-  return;
   checkNativeDep(config)
-  await installAppDeps(config)
+  // await installAppDeps(config)
+
+  linkModules(config)
 }

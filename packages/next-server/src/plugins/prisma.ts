@@ -18,7 +18,7 @@ export async function getPrismaConfig (config: IConfig)  {
   } else {
     // make sure import the prisma from current development project
     // @ts-ignore
-    client = (await import(join(cwd, 'node_modules/@prisma/client/index.js')))
+    client = (await import(join(config.nodeModulesDir, '@prisma/client/index.js')))
   }
 
   if (!client.PrismaClient) {

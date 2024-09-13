@@ -2,7 +2,7 @@ import chalk from 'chalk'
 import * as path from 'path'
 import * as fs from 'fs'
 import { cp } from "shelljs"
-import { buildCommonDirs, buildIndex, buildModelIndexes, buildModules, buildOverrides, buildScripts, buildSignals, buildTailwindCSS, composeSchema, composeScripts, composeSignal, copyModelFiles, emptyDirectory, generateBuildingIndex, generateLayoutTypes, generateModelTypes2, generateViewFromModule, generateViewFromOverrides, IConfig, logFrame, preCheckSchema, readConfig, time } from '../src'
+import { buildCommonDirs, buildIndex, buildModelIndexes, buildModules, buildOverrides, buildScripts, buildSignals, buildTailwindCSS, composeSchema, composeScripts, composeSignal, copyModelFiles, emptyDirectory, generateBuildingIndex, generateClientRoutes, generateLayoutTypes, generateModelTypes2, generateViewFromModule, generateViewFromOverrides, IConfig, logFrame, preCheckSchema, readConfig, time } from '../src'
 
 function copyFiles (config: IConfig) {
   copyModelFiles(config)

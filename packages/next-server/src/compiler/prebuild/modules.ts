@@ -8,37 +8,6 @@ import loadModuleToView from '../plugins/esbuild-load-module';
 import { logFrame, traverseDir } from '../../util';
 import aliasAtCodeToCwd from '../plugins/esbuild-alias-at';
 
-import tailwindcss from 'tailwindcss'
-import autoprefixer from 'autoprefixer';
-import postcss from 'postcss'
-import less from 'postcss-less'
-
-export async function buildTailwindCSS(c: IConfig) {
-  if (!c.tailwindConfigPath) {
-    return
-  }
-
-  const globalCSSPath = path.join(c.cwd, 'app/globals.css')
-
-  if (!fs.existsSync(globalCSSPath)) {
-    return
-  }
-
-  const contents = await fs.promises.readFile(globalCSSPath)  
-
-  const result = await postcss([
-    tailwindcss({
-      config: c.tailwindConfigPath,
-    }),
-    autoprefixer() as any
-  ]).process(contents, {
-    from: globalCSSPath,
-    to: c.pointFiles.output.css,
-    syntax: less,
-  });
-  fs.writeFileSync(c.pointFiles.output.css, result.css)
-}
-
 export async function buildModules(c: IConfig) {
 
   const outputModulesDir = c.pointFiles.output.modulesDir;

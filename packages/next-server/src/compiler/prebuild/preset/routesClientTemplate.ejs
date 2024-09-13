@@ -14,7 +14,7 @@ import {
 function RootApplication({
   location
 }) {
-  const router = (process.env.HASH_ROUTER === 'true' ? createHashRouter : createBrowserRouter)([
+  const router = (createBrowserRouter)([
     <%- routes %>
   ])
   
