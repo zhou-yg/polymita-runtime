@@ -12,6 +12,7 @@ import page from "./middlewares/page";
 import react from '@vitejs/plugin-react'
 import sendApp from './middlewares/sendApp'
 import createExternal from 'vite-plugin-external';
+import { createRouter } from './router'
 
 import * as vite from "vite";
 
@@ -49,6 +50,12 @@ export function setupBasicServer (c: IConfig) {
 }
 
 function appendMiddleware (app: Application, c: IConfig) {
+
+  const router = createRouter(c)
+
+  app.use(router.routes())
+  app.use(router.allowedMethods())
+
   /**
    * handle *.css
    */
@@ -127,7 +134,7 @@ export async function createDevViteServer (c: IConfig) {
       react(),
       createExternal({
         externals: {
-          ...externalModules(c.dependencyModules),
+          ...externalModules(c.dependencyModules.map(f => f.name)),
         }
       }) as any
     ],
@@ -143,8 +150,6 @@ export async function createDevViteServer (c: IConfig) {
   })
 
   app.use(e2k(viteServer.middlewares))
-
-  // app.use(sendApp({ config: c }))
 
   app.use(page({
     config: c,

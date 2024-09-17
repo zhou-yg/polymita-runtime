@@ -21,15 +21,14 @@ function findDependentIndexes (c: IConfig) {
     indexes: IModelIndexesBase
   }> = []
 
-  c.dependencyModules.forEach(moduleName => {
-    const dir = path.join(c.nodeModulesDir, moduleName)
+  c.dependencyModules.forEach(({ dir, name }) => {
 
     const depSchemaPath = path.join(dir, c.buildDirectory, c.modelsDirectory, c.schemaIndexes)
     const r2 = fs.existsSync(depSchemaPath)
 
     if (r2) {
       schemaFiles.push({
-        moduleName,
+        moduleName: name,
         indexes: JSON.parse(fs.readFileSync(depSchemaPath).toString())
       })
     }

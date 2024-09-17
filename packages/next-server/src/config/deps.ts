@@ -16,6 +16,21 @@ const internalLibs = {
   signal: '@polymita/signal',
 }
 
+/**
+ * load dynamic modules from server
+ */
+export function findDynamicModules (
+  dynamicModulesDir: string,
+) {
+  const modules = readdirSync(dynamicModulesDir)
+    .map(f => ({
+      name: f,
+      dir: path.join(dynamicModulesDir, f),
+    }))
+    .filter(f => lstatSync(f.dir).isDirectory())
+  return modules
+}
+
 export function findDependencies (nodeModulesDir: string,configFileName: string, pkgJSON: null | JSONSchemaForNPMPackageJsonFiles) {
   const pkgModules = Object.keys(pkgJSON?.dependencies || {})
 
@@ -34,7 +49,10 @@ export function findDependencies (nodeModulesDir: string,configFileName: string,
     }
   })
 
-  return modules
+  return modules.map(name => ({
+    dir: path.join(nodeModulesDir, name),
+    name,
+  }))
 }
 
 type k = keyof typeof internalLibs
@@ -87,13 +105,13 @@ export function findStaticDeps (isProd: boolean, nodeModulesDir: string, modules
     {
       name: 'module.js',
       resources: [
-        ...modules.map(name => (path.join(nodeModulesDir, `${name}/dist/index.js`))),
+        ...modules.map(name => (path.join(nodeModulesDir, `dist/index.js`))),
        ]
     },
     {
       name: 'module.css',
       resources: [
-        ...modules.map(name => (path.join(nodeModulesDir, `${name}/dist/index.css`))),
+        ...modules.map(name => (path.join(nodeModulesDir, `dist/index.css`))),
        ]
     },
   ]

@@ -64,16 +64,20 @@ function transformIndexHtml (html: string, c: IConfig) {
   return async (ctx, next) => {
     const pathname = ctx.request.path
 
-    let html = buildPageTemplate(config)
-
-    // console.log('html: ', ctx.request.url, html);
-    // use on dev
-    if (args.vite && !config.isProd) {
-      html = await args.vite.transformIndexHtml(pathname, html)
+    if (pathname.startsWith('/api')) {
+      return next()
     } else {
-      html = transformIndexHtml(html, config)
-    }
+      let html = buildPageTemplate(config)
 
-    ctx.body = html
+      // console.log('html: ', ctx.request.url, html);
+      // use on dev
+      if (args.vite && !config.isProd) {
+        html = await args.vite.transformIndexHtml(pathname, html)
+      } else {
+        html = transformIndexHtml(html, config)
+      }
+
+      ctx.body = html
+    }
   }
 }

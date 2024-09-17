@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import l from 'lodash'
 import { IFile, isFileEmpty, loadJSON, logFrame, traverse, traverseDir, traverseFirstDir } from './util'
 import chalk from 'chalk'
-import { findDependencies, findDepLibs, findStaticDeps } from './config/deps'
+import { findDependencies, findDepLibs, findDynamicModules, findStaticDeps } from './config/deps'
 import type { JSONSchemaForNPMPackageJsonFiles } from '@schemastore/package'
 const { merge } = l
 import getPort, { makeRange as portNumbers } from "get-port";
@@ -33,6 +33,7 @@ export const defaultConfig = () => ({
   overridesDirectory: 'overrides',
   configDirectory: 'config',
   contextDirectory: 'contexts',
+  dynamicModulesDirectory: 'dynamic_modules',
 
   thirdPartDir: 'third_part',
 
@@ -618,8 +619,16 @@ export async function readConfig (arg: {
   /**
    * @polymita/* business modules
    */
+  const dynamicModules = findDynamicModules(path.join(cwd, config.dynamicModulesDirectory))
   const dependencyModules = findDependencies(nodeModulesDir , configFileName, packageJSON)
-  const staticDeps = findStaticDeps(isProd, nodeModulesDir, dependencyModules)
+  const staticDeps = findStaticDeps(
+    isProd, nodeModulesDir,
+    [
+      ...dynamicModules,
+      ...dependencyModules
+    ].map(f => f.dir)
+  )
+  
   
   const dependencyLibs = findDepLibs(packageJSON)
   

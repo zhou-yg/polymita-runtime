@@ -127,14 +127,14 @@ export async function buildApp(c: IConfig) {
     format: 'iife',
     outfile: c.pointFiles.output.app,
     external: [
-      ...Object.keys(externalModules(c.dependencyModules)),
+      ...Object.keys(externalModules(c.dependencyModules.map(f => f.name))),
     ],
     minify: false,
     define: {
       // 'process.env.HASH_ROUTER': '"true"',
     },
     plugins: [
-      externalGlobals(externalModules(c.dependencyModules)),
+      externalGlobals(externalModules(c.dependencyModules.map(f => f.name))),
     ],
   })
 }
