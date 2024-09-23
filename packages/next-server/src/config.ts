@@ -685,6 +685,11 @@ export async function readConfig (arg: {
     contexts,
     pages,
     dependencyModules,
+    dynamicModules,
+    allDependencyModules: [
+      ...dependencyModules,
+      ...dynamicModules,
+    ],
     dependencyLibs,
     modules,
     overrides,

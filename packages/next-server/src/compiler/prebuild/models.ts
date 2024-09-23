@@ -21,7 +21,7 @@ function findDependentIndexes (c: IConfig) {
     indexes: IModelIndexesBase
   }> = []
 
-  c.dependencyModules.forEach(({ dir, name }) => {
+  ;c.allDependencyModules.forEach(({ dir, name }) => {
 
     const depSchemaPath = path.join(dir, c.buildDirectory, c.modelsDirectory, c.schemaIndexes)
     const r2 = fs.existsSync(depSchemaPath)

@@ -22,6 +22,10 @@ const internalLibs = {
 export function findDynamicModules (
   dynamicModulesDir: string,
 ) {
+  if (!fs.existsSync(dynamicModulesDir)) {
+    return []
+  }
+
   const modules = readdirSync(dynamicModulesDir)
     .map(f => ({
       name: f,
