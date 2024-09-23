@@ -6,7 +6,8 @@ import os from "os";
 import { BM, isEqual } from "@polymita/signal-model";
 import { spawn } from 'child_process';
 import chalk from 'chalk';
-import { pick } from 'lodash';
+import tar from 'tar'
+import AdmZip from 'adm-zip'
 
 export function loadJSON (f: string) {
   if (!fs.existsSync(f)) {
@@ -310,4 +311,19 @@ export function implicitImportPath (path: string, ts: boolean) {
 
 export function isBlankObject (obj: any) {
   return obj && typeof obj === 'object' && Object.keys(obj).length === 0
+}
+
+/**
+ * decompress zip or tar.gz file
+ */
+export async function decompress (zipPath: string, destDir: string) {
+  if (zipPath.endsWith('.tar.gz')) {
+    await tar.x({
+      file: zipPath,
+      cwd: destDir,
+    })
+    return
+  }
+  const zip = new AdmZip(zipPath)
+  zip.extractAllTo(destDir, true)
 }

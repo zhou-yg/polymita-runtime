@@ -75,6 +75,7 @@ export const defaultConfig = () => ({
   esmDirectory: 'esm',
 
   modelEnhance: 'model.enhance.json',
+  overrideActive: 'active.json',
   prismaModelPart: 'part.prisma', // postfix
   targetSchemaPrisma: 'schema.prisma',
   schemaIndexes: 'indexes.json',
@@ -347,6 +348,7 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
     modulesDirectory,
     modelsDirectory,
     overridesDirectory,
+    overridesActive: path.join(overridesDirectory, config.overrideActive),
     configFile: configFileInPath,
     modelFiles,
     contextsDirectory,
@@ -354,7 +356,6 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
 
   return {
     
-
     output: {
       root: outputDir, 
       virtualIndex: path.join(outputDir, 'index.ts'),
