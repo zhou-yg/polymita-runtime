@@ -8,5 +8,5 @@ interface UserCustomConfig {
 }
 
 export function getConfig (): UserCustomConfig {
-  return globalThis.projectConfig || {};
+  return globalThis.POLYMITA_CONFIG || {};
 }
