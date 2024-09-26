@@ -43,7 +43,7 @@ export async function buildModules(c: IConfig) {
 }
 
 export async function generateViewFromModule (c: IConfig, externalModule?: boolean) {
-  const moduleFiles = c.modules.map(f => {
+  const moduleFiles = c.pointFiles.currentFiles.moduleFiles.map(f => {
     return f.path
   })
 

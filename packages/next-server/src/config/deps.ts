@@ -16,26 +16,52 @@ const internalLibs = {
   signal: '@polymita/signal',
 }
 
+function getModuleByDir(
+  name: string,
+  fromNodeModules: boolean,
+  dir: string,
+  metaFileName: string
+) {
+  const pkg = path.join(dir, 'package.json')
+  const metaFile = path.join(dir, metaFileName)
+
+  const pkgJSON = loadJSON(pkg)
+  const metaJSON = loadJSON(metaFile)
+  return {
+    name,
+    pkgName: pkgJSON.name,
+    dir: dir,
+    meta: metaJSON,
+    fromNodeModules,
+  }
+}
+
 /**
  * load dynamic modules from server
  */
 export function findDynamicModules (
   dynamicModulesDir: string,
+  metaFileName: string,
 ) {
   if (!fs.existsSync(dynamicModulesDir)) {
     return []
   }
 
   const modules = readdirSync(dynamicModulesDir)
-    .map(f => ({
-      name: f,
-      dir: path.join(dynamicModulesDir, f),
-    }))
+    .map(f => {
+      const dir = path.join(dynamicModulesDir, f)
+      return getModuleByDir(f, false, dir, metaFileName)
+    })
     .filter(f => lstatSync(f.dir).isDirectory())
   return modules
 }
 
-export function findDependencies (nodeModulesDir: string,configFileName: string, pkgJSON: null | JSONSchemaForNPMPackageJsonFiles) {
+export function findDependencies (
+  nodeModulesDir: string,
+  configFileName: string, 
+  pkgJSON: null | JSONSchemaForNPMPackageJsonFiles,
+  metaFileName: string,
+) {
   const pkgModules = Object.keys(pkgJSON?.dependencies || {})
 
   const modules: string[] = pkgModules.filter(moduleName => {
@@ -53,10 +79,7 @@ export function findDependencies (nodeModulesDir: string,configFileName: string,
     }
   })
 
-  return modules.map(name => ({
-    dir: path.join(nodeModulesDir, name),
-    name,
-  }))
+  return modules.map(name => getModuleByDir(name, true, path.join(nodeModulesDir, name), metaFileName))
 }
 
 type k = keyof typeof internalLibs

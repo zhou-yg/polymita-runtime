@@ -13,7 +13,11 @@ export function loadJSON (f: string) {
   if (!fs.existsSync(f)) {
     return {}
   }
-  return JSON.parse(fs.readFileSync(f).toString())
+  try {
+    return JSON.parse(fs.readFileSync(f).toString())
+  } catch (e) {
+    return {}
+  }
 }
 
 export function emptyDirectory (dir: string) {
@@ -326,4 +330,8 @@ export async function decompress (zipPath: string, destDir: string) {
   }
   const zip = new AdmZip(zipPath)
   zip.extractAllTo(destDir, true)
+}
+
+export function convertModuleNameToVariableName(f: string) {
+  return f.replace(/@|-|\//g, '_')
 }

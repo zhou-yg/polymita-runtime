@@ -193,7 +193,7 @@ export function generateLayoutTypes (c: IConfig) {
   const destDir = c.isProd ? c.pointFiles.output.modulesDir : c.pointFiles.generates.viewsDir
   const modulesDir = path.join(c.cwd, c.modulesDirectory)
 
-  c.modules.forEach(f => {
+  c.pointFiles.currentFiles.moduleFiles.forEach(f => {
 
     const content = fs.readFileSync(f.path, 'utf-8')
     const jsonTree = parse(content)

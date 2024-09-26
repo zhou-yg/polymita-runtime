@@ -43,7 +43,7 @@ export async function buildOverrides(c: IConfig) {
 }
 
 export async function generateViewFromOverrides (c: IConfig, externalModule?: boolean) {
-  const sourceFiles = c.overrides.map(f => {
+  const sourceFiles = c.pointFiles.currentFiles.overridesFiles.map(f => {
     return f.path
   })
 

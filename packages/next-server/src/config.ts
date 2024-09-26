@@ -54,10 +54,10 @@ export const defaultConfig = () => ({
 
   ts: false,
 
-  electtronMainJs: 'main.js',
-  electtronMainMenu: 'menu.js',
-  electtronIndexHtml: 'index.html',
-  electtronPreload: 'preload.js',
+  electronMainJs: 'main.js',
+  electronMainMenu: 'menu.js',
+  electronIndexHtml: 'index.html',
+  electronPreload: 'preload.js',
 
   devCacheDirectory: '.polymita', // in cwd
   buildDirectory: 'dist', // in cwd
@@ -75,7 +75,7 @@ export const defaultConfig = () => ({
   esmDirectory: 'esm',
 
   modelEnhance: 'model.enhance.json',
-  overrideActive: 'active.json',
+  dynamicConfigFile: 'moduleConfig.json',
   prismaModelPart: 'part.prisma', // postfix
   targetSchemaPrisma: 'schema.prisma',
   schemaIndexes: 'indexes.json',
@@ -92,7 +92,13 @@ export const defaultConfig = () => ({
   },
 
   // compose
-  compose: []
+  compose: [],
+
+  moduleConfig: {} as UserCustomConfig,
+  globalConfigRefKey: 'POLYMITA_CONFIG',
+
+
+  metaFileName: 'meta.json',
 })
 
 interface ServerScriptConfig {
@@ -337,6 +343,7 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
     schemaIndexesTypes,
   }
 
+
   const currentFiles = {
     appDirectory,
     pagesDirectory,
@@ -348,11 +355,14 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
     modulesDirectory,
     modelsDirectory,
     overridesDirectory,
-    overridesActive: path.join(overridesDirectory, config.overrideActive),
+    dynamicConfigFile: path.join(overridesDirectory, config.dynamicConfigFile),
     configFile: configFileInPath,
     modelFiles,
     contextsDirectory,
   }  
+
+  const moduleFiles = readModules(modulesDirectory)
+  const overridesFiles = readModules(overridesDirectory)
 
   return {
     
@@ -391,17 +401,21 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
       // entry.tsx including app entry
       appClientEntry: path.join(appDir, `${config.entry}.tsx`),
     },
-    currentFiles,
+    currentFiles: {
+      ...currentFiles,
+      moduleFiles,
+      overridesFiles,
+    },
 
     generates: {
       // for electron
       app: {
         root: electronAppDir,
         pkgJSON: path.join(electronAppDir, 'package.json'),
-        indexHtml: path.join(electronAppDir, config.electtronIndexHtml),
-        preload: path.join(electronAppDir, 'main',config.electtronPreload),
-        main: path.join(electronAppDir, 'main', config.electtronMainJs),
-        menu: path.join(electronAppDir, 'main', config.electtronMainMenu),
+        indexHtml: path.join(electronAppDir, config.electronIndexHtml),
+        preload: path.join(electronAppDir, 'main',config.electronPreload),
+        main: path.join(electronAppDir, 'main', config.electronMainJs),
+        menu: path.join(electronAppDir, 'main', config.electronMainMenu),
         staticResourcesDir: path.join(electronAppDir, 'static'),
       },
       //
@@ -518,10 +532,16 @@ function readScripts (dir: string) {
   return result
 }
 
-interface UserCustomConfig {
+export interface UserCustomConfig {
   platform: 'browser' | 'desktop'
   ts?: boolean
   debugLog?: boolean
+
+  moduleOverride?: {
+    linkMap?: Map<string, string[]>
+    activeLink?: string[]
+    configMap?: Record<string, Record<string, any>>
+  }
 }
 
 function filterComposeSignals(
@@ -557,7 +577,6 @@ function getTailwindConfigPath(cwd: string) {
   }
 }
 
-
 export async function readConfig (arg: {
   cwd: string,
   resolveNodeModulesDir?: string,
@@ -574,6 +593,7 @@ export async function readConfig (arg: {
   if (fs.existsSync(configFileInPath)) {
     const configInFile: UserCustomConfig = require(configFileInPath)
     merge(config, configInFile)
+    config.moduleConfig = configInFile
   }
 
   const project = path.parse(cwd).name
@@ -599,9 +619,6 @@ export async function readConfig (arg: {
   // complement page file with page directory
   const pages = readPages(config, appDirectory)
 
-  const modules = readModules(modulesDirectory)
-  const overrides = readModules(overridesDirectory)
-
   const scripts = readScripts(scriptsDirectory)
 
   const contexts = readContexts(contextsDirectory)
@@ -620,8 +637,14 @@ export async function readConfig (arg: {
   /**
    * @polymita/* business modules
    */
-  const dynamicModules = findDynamicModules(path.join(cwd, config.dynamicModulesDirectory))
-  const dependencyModules = findDependencies(nodeModulesDir , configFileName, packageJSON)
+  const dynamicModules = findDynamicModules(
+    path.join(cwd, config.dynamicModulesDirectory),
+    config.metaFileName,
+  )
+  const dependencyModules = findDependencies(
+    nodeModulesDir, configFileName,
+    packageJSON, config.metaFileName
+  )
   const staticDeps = findStaticDeps(
     isProd, nodeModulesDir,
     [
@@ -629,7 +652,6 @@ export async function readConfig (arg: {
       ...dependencyModules
     ].map(f => f.dir)
   )
-  
   
   const dependencyLibs = findDepLibs(packageJSON)
   
@@ -692,8 +714,6 @@ export async function readConfig (arg: {
       ...dynamicModules,
     ],
     dependencyLibs,
-    modules,
-    overrides,
     thirdPartEntry,
     preservedDirs,
     rootTsconfig,

@@ -2,7 +2,7 @@ import Router from '@koa/router';
 import { IConfig } from '../../config';
 import * as path from 'path'
 import { decompress, tryMkdir } from '../../util';
-import { getActiveModules, overrideActivate, overrideInactivate, saveDynamicModule } from '../../config/dynamic';
+import { getCurrentDynamicConfig, overrideActivate, overrideInactivate, saveDynamicModule } from '../../config/dynamic';
 
 export function createModuleManager(c: IConfig) {
   const router = new Router()
@@ -11,7 +11,7 @@ export function createModuleManager(c: IConfig) {
     ctx.body = JSON.stringify({
       dependencyModules: c.dependencyModules,
       dynamicModules: c.dynamicModules,
-      activeModules: getActiveModules(c),
+      activeModules: getCurrentDynamicConfig(c),
     }, null, 2)
   })
 

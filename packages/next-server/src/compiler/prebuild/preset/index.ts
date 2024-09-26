@@ -5,7 +5,7 @@ import shelljs from 'shelljs'
 import rimraf from 'rimraf'
 import * as prettier from 'prettier'
 
-import { equalFileContent, implicitImportPath, loadJSON, removeExt, traverseDir, tryMkdir, upperFirstVariable } from "../../../util";
+import { convertModuleNameToVariableName, equalFileContent, implicitImportPath, loadJSON, removeExt, traverseDir, tryMkdir, upperFirstVariable } from "../../../util";
 import { IConfig, IRouteChild, PageConfig } from '../../../config';
 import { camelCase, upperFirst } from 'lodash';
 import { buildDTS } from '../../bundleUtility'
@@ -181,6 +181,51 @@ function generateRoutesContent (routes: IRouteChild, depth = 0, parentName = '')
   return treeStr;
 }
 
+function getDependencyModules(c: IConfig) {
+  return c.allDependencyModules.map(f => {
+
+    let importPath = ''
+    let importPathPKG = ''
+    if (f.fromNodeModules) {
+      importPath = f.dir;
+      importPath = importPath.replace(c.nodeModulesDir, ''); 
+      importPath = path.join(importPath, c.buildDirectory, c.outputIndex)
+      importPathPKG = path.join(importPath, 'package.json')
+    } else {
+      importPath = path.join('@', c.dynamicModulesDirectory, f.name, c.buildDirectory, c.outputIndex)
+      importPathPKG = path.join('@', c.dynamicModulesDirectory, f.name, 'package.json')
+    }
+
+    return {
+      pkgName: f.pkgName,
+      // package name maybe include '@' scope
+      name: convertModuleNameToVariableName(f.name),
+      path: importPath,
+      pathPKG: importPathPKG,
+    }
+  })
+}
+
+function generateDependencyModulesImportCode(
+  modulesContextName: string,
+  dependencyModules: ReturnType<typeof getDependencyModules>
+) {
+  const dependencyModulesImportCode = dependencyModules.map(({ name, path, pathPKG }) => {
+    return [
+      `import ${name} from '${path}'`,
+    ]
+  }).flat().join('\n')
+
+  const registerModulesCode = dependencyModules.map((obj) => {
+    return `${modulesContextName}.registerModule('${obj.pkgName}', ${obj.name})`
+  }).join('\n')
+  
+  return {
+    dependencyModulesImportCode,
+    registerModulesCode,
+  }
+}
+
 export async function generateClientRoutes(c: IConfig) {
   const {
     clientRoutes,
@@ -199,6 +244,15 @@ export async function generateClientRoutes(c: IConfig) {
     return `import ${n} from '${implicitImportPath(f, c.ts)}'`
   }).join('\n')
 
+  const dependencyModules = getDependencyModules(c)
+
+  const modulesContextName = 'modulesContext'
+
+  const {
+    dependencyModulesImportCode,
+    registerModulesCode,
+  } = generateDependencyModulesImportCode(modulesContextName, dependencyModules)
+
   const modelIndexesJSON = path.join(c.cwd, c.modelsDirectory, c.schemaIndexes)
   let modelIndexes = '{}'
   if (fs.existsSync(modelIndexesJSON)) {
@@ -206,17 +260,21 @@ export async function generateClientRoutes(c: IConfig) {
   }
 
   const routesStr2 = routesClientTemplate({
+    /** import all pages */
     imports: importsWithAbsolutePathClient,
+    /** all page routes tree */
     routes: routesContent,
-    modelIndexes,
+    modulesContextName,
+    registerModulesCode,
+    dependencyModulesImportCode,
   })
   fs.writeFileSync(clientRoutes, await prettier.format(routesStr2, { parser: 'typescript' }))
 }
 
 export async function generateBuildingIndex(c: IConfig) {
   const exportModulesConfig = [
-    ['modules', c.pointFiles.output.modulesDir, c.modules],
-    ['overrides', c.pointFiles.output.overridesDir, c.overrides],
+    ['modules', c.pointFiles.output.modulesDir, c.pointFiles.currentFiles.moduleFiles],
+    ['overrides', c.pointFiles.output.overridesDir, c.pointFiles.currentFiles.overridesFiles],
     ['scriptsClient', c.pointFiles.output.edgeScriptsDir, c.scripts.edge],
     ['signals', c.pointFiles.output.signalsDir, c.signals],
     ['contexts', c.pointFiles.output.contextDir, c.contexts],
@@ -249,10 +307,10 @@ export async function generateBuildingIndex(c: IConfig) {
 
   const viewsContent = moduleRenderToReactFilePathTemplate({
     names: [
-      ...c.modules.map(f => f.name),
+      ...c.pointFiles.currentFiles.moduleFiles.map(f => f.name),
     ],
     overrides: [
-      ...c.overrides.map(f => f.name),
+      ...c.pointFiles.currentFiles.overridesFiles.map(f => f.name),
     ]
   })
 
