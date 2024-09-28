@@ -11,6 +11,7 @@ import postcss from 'postcss'
 import less from 'postcss-less'
 import { umdWrapper } from 'esbuild-plugin-umd-wrapper';
 import externalGlobals from '../plugins/esbuild-globals';
+import { compressZip } from '../../util';
 
 export async function buildCommonDirs(c: IConfig) {
   const dirs = readdirSync(c.cwd)
@@ -169,4 +170,17 @@ export async function buildMeta(c: IConfig) {
   const meta = c.pointFiles.output.meta
 
   await writeFile(meta, JSON.stringify(c.moduleConfig, null, 2))
+}
+
+export async function zipOutput(c: IConfig) {
+  if (existsSync(c.pointFiles.output.zip)) {
+    unlinkSync(c.pointFiles.output.zip)
+  }
+
+  const files = [
+    ['dist', c.pointFiles.output.root],
+    ['', c.packageJSONPath],
+  ] as [string, string][];
+
+  compressZip(files, c.pointFiles.output.zip)
 }

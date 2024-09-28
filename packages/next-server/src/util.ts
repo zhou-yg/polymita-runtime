@@ -335,3 +335,15 @@ export async function decompress (zipPath: string, destDir: string) {
 export function convertModuleNameToVariableName(f: string) {
   return f.replace(/@|-|\//g, '_')
 }
+
+export function compressZip(files: [string, string][], dest: string) {
+  const zip = new AdmZip()
+  files.forEach(file => {
+    if (fs.lstatSync(file[1]).isDirectory()) {
+      zip.addLocalFolder(file[1], file[0], file => !file.endsWith('.zip'))
+    } else if (!file[1].endsWith('.zip')) {
+      zip.addLocalFile(file[1], file[0])
+    }
+  })
+  return zip.writeZipPromise(dest)
+}

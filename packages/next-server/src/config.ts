@@ -45,6 +45,8 @@ export const defaultConfig = () => ({
 
   appRoot: 'layout', // the app root that extension in jsx|tsx
 
+  outputZip: 'index.zip',
+
   generateRoot: 'polymita',
   generateSignalsMap: 'signalsMap',
 
@@ -371,7 +373,9 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
       virtualIndex: path.join(outputDir, 'index.ts'),
       meta: path.join(outputDir, config.metaFileName),
       index: path.join(outputDir, config.outputIndex),
-
+      
+      zip: path.join(outputDir, config.outputZip),
+      
       app: path.join(outputDir, config.outputApp),
       appCSS: path.join(outputDir, config.outputAppCSS),
 

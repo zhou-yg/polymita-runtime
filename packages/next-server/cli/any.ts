@@ -19,6 +19,7 @@ import {
   buildPolymitaConfig,
   createDevViteServer,
   generateViewFromOverrides,
+  zipOutput,
 } from '../src'
 
 async function buildEverything (c: IConfig) {
@@ -47,13 +48,5 @@ export default async (cwd: string) => {
     isProd: true,
   })
 
-  let t1 = time()
-
-  emptyDirectory(config.pointFiles.output.root)
-  prepareDirs(config)
-
-  const c = config;
-
-  await generateBuildingIndex(c)
-  buildIndex(c)
+  await zipOutput(config)
 }
