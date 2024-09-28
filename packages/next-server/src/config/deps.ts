@@ -4,6 +4,7 @@ import * as fs from 'fs'
 import { existsSync, lstatSync, readdirSync } from "fs"
 import chalk from 'chalk'
 import { JSONSchemaForNPMPackageJsonFiles } from "@schemastore/package"
+import type { UserCustomConfig } from "../config"
 
 interface IPkg {
   dependencies: {
@@ -16,14 +17,24 @@ const internalLibs = {
   signal: '@polymita/signal',
 }
 
+export interface IDynamicModule {
+  name: string,
+  pkgName: string,
+  dir: string,
+  meta: UserCustomConfig,
+  fromNodeModules: boolean,
+}
+
 function getModuleByDir(
   name: string,
   fromNodeModules: boolean,
   dir: string,
+  outputDirectoryName: string,
   metaFileName: string
-) {
+): IDynamicModule {
   const pkg = path.join(dir, 'package.json')
-  const metaFile = path.join(dir, metaFileName)
+  const metaFile = path.join(dir, outputDirectoryName, metaFileName)
+  console.log('metaFile: ', metaFile);
 
   const pkgJSON = loadJSON(pkg)
   const metaJSON = loadJSON(metaFile)
@@ -42,6 +53,7 @@ function getModuleByDir(
 export function findDynamicModules (
   dynamicModulesDir: string,
   metaFileName: string,
+  outputDirectoryName: string,
 ) {
   if (!fs.existsSync(dynamicModulesDir)) {
     return []
@@ -50,7 +62,7 @@ export function findDynamicModules (
   const modules = readdirSync(dynamicModulesDir)
     .map(f => {
       const dir = path.join(dynamicModulesDir, f)
-      return getModuleByDir(f, false, dir, metaFileName)
+      return getModuleByDir(f, false, dir, outputDirectoryName, metaFileName)
     })
     .filter(f => lstatSync(f.dir).isDirectory())
   return modules
@@ -61,6 +73,7 @@ export function findDependencies (
   configFileName: string, 
   pkgJSON: null | JSONSchemaForNPMPackageJsonFiles,
   metaFileName: string,
+  outputDirectoryName: string,
 ) {
   const pkgModules = Object.keys(pkgJSON?.dependencies || {})
 
@@ -79,7 +92,7 @@ export function findDependencies (
     }
   })
 
-  return modules.map(name => getModuleByDir(name, true, path.join(nodeModulesDir, name), metaFileName))
+  return modules.map(name => getModuleByDir(name, true, path.join(nodeModulesDir, name), outputDirectoryName, metaFileName))
 }
 
 type k = keyof typeof internalLibs
@@ -132,13 +145,13 @@ export function findStaticDeps (isProd: boolean, nodeModulesDir: string, modules
     {
       name: 'module.js',
       resources: [
-        ...modules.map(name => (path.join(nodeModulesDir, `dist/index.js`))),
+        ...modules.map(dir => (path.join(dir, `dist/index.js`))),
        ]
     },
     {
       name: 'module.css',
       resources: [
-        ...modules.map(name => (path.join(nodeModulesDir, `dist/index.css`))),
+        ...modules.map(dir => (path.join(dir, `dist/index.css`))),
        ]
     },
   ]

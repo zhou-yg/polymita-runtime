@@ -40,7 +40,7 @@ export default async (cwd: string, isRelease?: boolean) => {
     generateModelTypes2(config),
     buildCommonDirs(config),
     buildMeta(config),
-  ])
+  ]);
 
   copyFiles(config)
 

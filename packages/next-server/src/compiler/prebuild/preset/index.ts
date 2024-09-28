@@ -6,9 +6,8 @@ import rimraf from 'rimraf'
 import * as prettier from 'prettier'
 
 import { convertModuleNameToVariableName, equalFileContent, implicitImportPath, loadJSON, removeExt, traverseDir, tryMkdir, upperFirstVariable } from "../../../util";
-import { IConfig, IRouteChild, PageConfig } from '../../../config';
+import { IConfig, IDynamicModule, IRouteChild, PageConfig } from '../../../config';
 import { camelCase, upperFirst } from 'lodash';
-import { buildDTS } from '../../bundleUtility'
 
 const { cp } = shelljs;
 
@@ -146,7 +145,7 @@ interface IRouteObject {
   children?: IRouteObject[];
 }
 
-function generateRoutesContent (routes: IRouteChild, depth = 0, parentName = ''): string {
+function generateJSONRoutes (routes: IRouteChild, depth = 0, parentName = ''): IRouteObject {
 
   const generateRouteObject = (route: IRouteChild, parentName = '') => {
     const name = getRouteElementName(route, parentName);
@@ -176,11 +175,51 @@ function generateRoutesContent (routes: IRouteChild, depth = 0, parentName = '')
 
   const result = generateRouteObject(routes);
 
-  const treeStr = JSON.stringify(result, null, 2).replaceAll('"<', '<').replaceAll('>"', '>');
+  return result;
+}
+/**
+ * append dynamic modules pages
+ */
+function appendDynamicModulesToRoutes(
+  dynamicModules: IDynamicModule[],
+  routes: IRouteObject | undefined
+) {
+  if (!dynamicModules.length) {
+    return routes
+  }
 
-  return treeStr;
+  const dynamicRoutes = dynamicModules.map(f => {
+    return Object.entries(f.meta.routes?.pages || {}).map(([path, name]) => {
+      return {
+        path,
+        element: `<${convertModuleNameToVariableName(f.pkgName)}${name}Component />`,
+      } as IRouteObject
+    })
+  }).flat()
+
+  if (routes) {
+    routes.children = routes.children?.concat(dynamicRoutes)
+  } else {
+    routes = {
+      path: '/',
+      element: null,
+      children: dynamicRoutes,
+    }
+  }
+
+  return routes
 }
 
+function generateRoutesCode (routes: IRouteObject) {
+  const code = JSON.stringify(routes, null, 2).replaceAll('"<', '<').replaceAll('>"', '>');
+  return code;
+}
+
+/**
+ * for generating:
+ *  import * as _polymita_xxx a from '@polymita/xxx'
+ *  import * as xxx from '@/dynamic_modules/xxx'
+ */
 function getDependencyModules(c: IConfig) {
   return c.allDependencyModules.map(f => {
 
@@ -210,13 +249,14 @@ function generateDependencyModulesImportCode(
   modulesContextName: string,
   dependencyModules: ReturnType<typeof getDependencyModules>
 ) {
-  const dependencyModulesImportCode = dependencyModules.map(({ name, path, pathPKG }) => {
+  const dependencyModulesImportCode = dependencyModules.map(({ name, pkgName }) => {
     return [
-      `import * as ${name} from '${path}'`,
+      `const ${name} = (window as any)['${pkgName}'];`,
     ]
   }).flat().join('\n')
 
   const registerModulesCode = dependencyModules.map((obj) => {
+    
     return `${modulesContextName}.registerModule('${obj.pkgName}', ${obj.name})`
   }).join('\n')
   
@@ -224,6 +264,20 @@ function generateDependencyModulesImportCode(
     dependencyModulesImportCode,
     registerModulesCode,
   }
+}
+
+function generateDynamicModulesImportCode(
+  modulesContextName: string,
+  dynamicModules: IDynamicModule[]
+) {
+  
+  const dynamicModulesImportCode = dynamicModules.map((f) => {
+    return Object.entries(f.meta.routes?.pages || {}).map(([_, name]) => {
+      return `const ${convertModuleNameToVariableName(f.pkgName)}${name}Component = ${modulesContextName}.createViewComponent('${f.pkgName}', '${name}')`
+    })
+  }).flat().join('\n')
+
+  return dynamicModulesImportCode
 }
 
 export async function generateClientRoutes(c: IConfig) {
@@ -236,9 +290,16 @@ export async function generateClientRoutes(c: IConfig) {
     routesTree,
   } = c
 
+
+  const modulesContextName = 'modulesContext';
+
   const imports = routesTree ? generateRoutesImports(routesTree) : []
 
-  const routesContent = routesTree ? generateRoutesContent(routesTree) : ''
+  const routesJSONTree = routesTree ? generateJSONRoutes(routesTree) : undefined
+
+  const routesJSONTreeWithDynamic = appendDynamicModulesToRoutes(c.dynamicModules, routesJSONTree);
+
+  const routesCode = routesJSONTreeWithDynamic ? generateRoutesCode(routesJSONTreeWithDynamic) : ''
 
   const importsWithAbsolutePathClient = imports.map(([n, f]) => {
     return `import ${n} from '${implicitImportPath(f, c.ts)}'`
@@ -246,12 +307,12 @@ export async function generateClientRoutes(c: IConfig) {
 
   const dependencyModules = getDependencyModules(c)
 
-  const modulesContextName = 'modulesContext'
-
   const {
     dependencyModulesImportCode,
     registerModulesCode,
   } = generateDependencyModulesImportCode(modulesContextName, dependencyModules)
+
+  const dynamicModulesImportCode = generateDynamicModulesImportCode(modulesContextName, c.dynamicModules)
 
   const modelIndexesJSON = path.join(c.cwd, c.modelsDirectory, c.schemaIndexes)
   let modelIndexes = '{}'
@@ -262,13 +323,17 @@ export async function generateClientRoutes(c: IConfig) {
   const routesStr2 = routesClientTemplate({
     /** import all pages */
     imports: importsWithAbsolutePathClient,
+
+    dynamicModulesImportCode,
     /** all page routes tree */
-    routes: routesContent,
+    routes: routesCode,
+    // 
     modulesContextName,
     registerModulesCode,
     dependencyModulesImportCode,
   })
   fs.writeFileSync(clientRoutes, await prettier.format(routesStr2, { parser: 'typescript' }))
+  // fs.writeFileSync(clientRoutes, routesStr2)
 }
 
 export async function generateBuildingIndex(c: IConfig) {

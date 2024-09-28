@@ -9,6 +9,8 @@ const { merge } = l
 import getPort, { makeRange as portNumbers } from "get-port";
 import { Request, Response } from 'koa'
 
+export * from './config/deps'
+
 export { IViewConfig } from './config/routes'
 
 export const defaultConfig = () => ({
@@ -650,10 +652,14 @@ export async function readConfig (arg: {
   const dynamicModules = findDynamicModules(
     path.join(cwd, config.dynamicModulesDirectory),
     config.metaFileName,
-  )
+    config.buildDirectory,
+  );
+
   const dependencyModules = findDependencies(
     nodeModulesDir, configFileName,
-    packageJSON, config.metaFileName
+    packageJSON, 
+    config.buildDirectory,
+    config.metaFileName,
   )
   const staticDeps = findStaticDeps(
     !!isProd,

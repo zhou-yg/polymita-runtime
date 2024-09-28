@@ -138,6 +138,11 @@ export async function createDevViteServer (c: IConfig) {
         }
       }) as any
     ],
+    build: {
+      commonjsOptions: {
+        include: [/dynamic-modules/, /node_modules/],
+      },
+    },
     resolve: {
       extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx', '.json', '.less', '.css'],
       alias: [
