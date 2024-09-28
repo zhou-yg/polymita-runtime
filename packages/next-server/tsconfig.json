@@ -5,6 +5,7 @@
     "lib": ["esnext"],
     "moduleResolution": "Node",
     "types": ["node", "jest"],
+    "strictNullChecks": true,
     "typeRoots": [
       "node_modules/@types",
       "./src"
