@@ -47,29 +47,36 @@ export function createModulesContext (
       [pkg]: exports,
     }
     
-    Object.values(exports.overrides || {}).forEach(viewFn => {
-      viewFn(config.moduleOverride.linkMap);
+    Object.keys(exports.overrides || {}).forEach(keyName => {
+      exports.views[keyName](config.moduleOverride.linkMap);
     })
+  }
 
+  function createViewComponent (pkg: string, name: string) {
+    const moduleViews = getModule(pkg, 'views');
+    if (moduleViews) {
+      return moduleViews?.[name]?.(config.moduleOverride.linkMap, config.moduleOverride.activeLink)
+    }
   }
   
   function getModules () {
     return context
   }
   
-  function getModule (pkg: string, name: string) {
+  function getModule (pkg: string, scope: 'views' | 'modules' | 'overrides') {
     const modules = getModules()
     const module = modules[pkg]
     if (!module) {
       throw new Error(`[next-connect] Module ${pkg} not found`)
     }
-    return module[name]
+    return module[scope]
   }
 
   return {
     registerModule,
     getModule,  
     getModules,
+    createViewComponent,
   }
 }
 
