@@ -52,6 +52,9 @@ function getMemberExpressionKeys (m: MemberExpression, keys: string[] = []): str
         break
       default:
         const c = getCurrentContext()
+        if (!c) {
+          throw new Error('[getCurrentContext] unexpected error')
+        }
         // console.error(`[${c.file}][getMemberExpressionKeys] unExpect node type`, (m as any))
         const pieceCode = 'start' in m.object ? `code=${c.code.substring((m.object as any).start, (m.object as any).end).replace(/\n/g, '')}` : ''
         console.log(`[${c.file}][getMemberExpressionKeys] unexpected object type m.object.type="${m.object.type}" ${pieceCode}`, )
@@ -438,7 +441,7 @@ interface AnalyzerContext {
   code: string
 }
 
-let currentContext: AnalyzerContext = null
+let currentContext: AnalyzerContext | null = null
 
 function getCurrentContext () {
   return currentContext;

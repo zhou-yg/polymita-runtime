@@ -144,12 +144,12 @@ export function findStaticDeps (isProd: boolean, nodeModulesDir: string, modules
   ]
 
   arr.forEach(d1 => {
-    if (existsSync(d1.resourceDir)) {
+    if (d1.resourceDir && existsSync(d1.resourceDir)) {
       if (lstatSync(d1.resourceDir).isDirectory()) {
         d1.resources = (readdirSync(d1.resourceDir)
           .filter(f => /\.js$/.test(f))
           .map(f => {
-            return path.join(d1.resourceDir, f)
+            return path.join(d1.resourceDir!, f)
           })).concat((d1.resources || []))
       }
     }

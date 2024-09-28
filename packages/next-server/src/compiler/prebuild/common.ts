@@ -1,4 +1,5 @@
 import { existsSync, readdirSync, readFileSync, unlinkSync, writeFileSync } from 'fs';
+import { writeFile } from 'fs/promises';
 import { IConfig } from '../../config';
 import { join, parse } from 'path';
 import { buildDTS, buildDTS2, esbuild, runTSC } from '../bundleUtility';
@@ -162,4 +163,10 @@ export async function buildTailwindCSS(c: IConfig) {
   });
 
   writeFileSync(c.pointFiles.output.css, result.css)
+}
+
+export async function buildMeta(c: IConfig) {
+  const meta = c.pointFiles.output.meta
+
+  await writeFile(meta, JSON.stringify(c.moduleConfig, null, 2))
 }

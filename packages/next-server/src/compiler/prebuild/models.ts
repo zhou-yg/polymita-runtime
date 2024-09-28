@@ -63,9 +63,12 @@ export async function generateModelTypes2(c: IConfig) {
     schemaPath: c.pointFiles.currentFiles.modelFiles.schemaPrisma,
     dataProxy: false,
   })
-  const clientOutput = model.config.output.value;
+  const clientOutput = model.config?.output?.value;
   model.stop()
 
+  if (!clientOutput) {
+    return;
+  }
   const prismaTypesFile = path.join(clientOutput, 'index.d.ts')
 
   if (!fs.existsSync(prismaTypesFile)) {
@@ -103,7 +106,7 @@ export async function buildModelIndexes(c: IConfig) {
       if (existPrismaPart.length <= 0) {
         const current = readCurrentPrisma(c);
         if (current.content) {
-          existPrismaPart = [].concat(current)
+          existPrismaPart = [current]
         }
       }
   
@@ -131,7 +134,7 @@ export async function buildModelIndexes(c: IConfig) {
         }
       })
 
-      mergedObj.namespace = c.packageJSON.name
+      mergedObj.namespace = c.packageJSON.name || ''
       /**
        * eg
        * mergedObj = {

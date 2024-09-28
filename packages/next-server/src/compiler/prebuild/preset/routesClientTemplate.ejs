@@ -9,13 +9,13 @@ import {
   createHashRouter,
 } from "react-router-dom"
 
-import { createModulesContext } from '@polymita/next-connect'
+import { getConfig, createModulesContext } from '@polymita/next-connect'
 
 <%- imports %>
 
 <%- dependencyModulesImportCode %>
 
-const <%= modulesContextName %> = createModulesContext(globalThis.POLYMITA_MODULES || {});
+const <%= modulesContextName %> = createModulesContext(getConfig(), globalThis.POLYMITA_MODULES || {});
 
 <%- registerModulesCode %>
 

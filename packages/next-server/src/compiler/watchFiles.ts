@@ -78,7 +78,7 @@ export function watchByConfig (cwd: string, config: IWatcherConfig[]) {
 
   config.forEach((wc) => {
     const { watcher, name, event } = wc
-    ;[].concat(event).forEach((e) => {
+    ;([] as WatchEvent[]).concat(event).forEach((e) => {
       watcher.on(e, (path) => {
         if (/(\.css|\.less|\.scss)$/.test(path)) {
           logFrame(`[${name}.${e}] ignored by "${path}"`)

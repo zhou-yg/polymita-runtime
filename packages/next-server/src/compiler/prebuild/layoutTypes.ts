@@ -21,7 +21,7 @@ function pickLayoutAST (fileContent: string) {
     true
   );
 
-  let layoutAST: ts.VariableDeclaration = null;
+  let layoutAST: ts.VariableDeclaration | undefined;
 
   function loop (node: ts.Node) {
     if (layoutAST) {
@@ -46,8 +46,8 @@ function pickLayoutAST (fileContent: string) {
   return { sourceFile, layoutAST };
 }
 
-function pickRootJSXFromLayoutDeclaration (layoutAST: ts.VariableDeclaration) {
-  let rootJSX: ts.JsxElement = null;
+function pickRootJSXFromLayoutDeclaration (layoutAST: ts.VariableDeclaration | undefined) {
+  let rootJSX: ts.JsxElement | undefined;
 
   function loop (node: ts.Node) {
     if (rootJSX) {
@@ -65,7 +65,9 @@ function pickRootJSXFromLayoutDeclaration (layoutAST: ts.VariableDeclaration) {
       }
     })
   }
-  loop(layoutAST)
+  if (layoutAST) {
+    loop(layoutAST)
+  }
 
   return rootJSX;
 }
@@ -109,7 +111,7 @@ function appendConstructorComponent (json: JSONTree, file: ts.Node) {
 
   function search (top: ts.Node, variableName: string) {
 
-    let originConstructorName: string;
+    let originConstructorName: string = '';
 
     function loop (node: ts.Node) {
       if (originConstructorName) {
@@ -198,7 +200,7 @@ export function generateLayoutTypes (c: IConfig) {
     const content = fs.readFileSync(f.path, 'utf-8')
     const jsonTree = parse(content)
 
-    const dts = toTSD(jsonTree)
+    const dts = jsonTree ? toTSD(jsonTree) : '{}';
 
     const relativeName = f.path.replace(modulesDir, '').replace(/\.\w+$/, '')
 

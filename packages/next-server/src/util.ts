@@ -267,7 +267,7 @@ export function connectModel () {
       }
     },
     start (ctx: ConnectModelMiddlewareContext = {}) {
-      const tail = (ctx: ConnectModelMiddlewareContext) => null
+      const tail = async (ctx: ConnectModelMiddlewareContext) => {}
 
       const composedChain = middlewareArr.reduceRight((current, prev) => {
         return (ctx) => {

@@ -42,7 +42,7 @@ export const generateIndexHtml = (c: IConfig) => {
 export const generateStaticResources = (c: IConfig) => {
   fs.mkdirSync(c.pointFiles.generates.app.staticResourcesDir, { recursive: true })
   c.staticDeps.forEach(dep => {
-    const code = combineStaticToCode(dep.resources)
+    const code = combineStaticToCode(dep.resources || [])
     
     fs.writeFileSync(path.join(c.pointFiles.generates.app.staticResourcesDir, dep.name), code)
   })

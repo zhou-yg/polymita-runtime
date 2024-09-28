@@ -1,7 +1,6 @@
 import Router from '@koa/router';
 import { IConfig } from '../../config';
 import * as path from 'path'
-import { decompress, tryMkdir } from '../../util';
 import { getCurrentDynamicConfig, overrideActivate, overrideInactivate, saveDynamicModule } from '../../config/dynamic';
 
 export function createModuleManager(c: IConfig) {
@@ -28,7 +27,7 @@ export function createModuleManager(c: IConfig) {
 
   router.post('/import', async (ctx) => {
     const { moduleName } = ctx.request.body
-    const moduleZip = [].concat(ctx.request.files.module)[0]
+    const moduleZip = ctx.request.files?.module as any; 
     /**
      * request.files data:
      * 

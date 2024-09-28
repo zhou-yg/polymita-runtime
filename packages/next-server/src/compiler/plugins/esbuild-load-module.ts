@@ -112,12 +112,12 @@ export default function loadModuleToView (c: IConfig, arg: {
 
         const viewContentTS = content1 + '\n' + content2
 
-        const tsFile = path.join(build.initialOptions.outdir, relativePath)
+        const tsFile = path.join(build.initialOptions.outdir || '', relativePath)
         onFile([tsFile, viewContentTS])
       
         return {
           contents: viewContentTS,
-          loader: 'tsx'
+          loader: 'tsx' as esbuild.Loader
         }
       })
     },

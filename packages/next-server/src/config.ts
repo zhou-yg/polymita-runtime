@@ -162,7 +162,7 @@ export interface IRoutesTree {
   [k: string]: IRouteChild
 }
 
-function defineRoutesTree (pages: PageConfig[]) {
+function defineRoutesTree (pages: PageConfig[]): IRouteChild | undefined {
   const routesMap: IRoutesTree = {}
   pages.forEach(p => {
     if (!routesMap[p.parentRouterPath]) {
@@ -369,6 +369,7 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
     output: {
       root: outputDir, 
       virtualIndex: path.join(outputDir, 'index.ts'),
+      meta: path.join(outputDir, config.metaFileName),
       index: path.join(outputDir, config.outputIndex),
 
       app: path.join(outputDir, config.outputApp),
@@ -542,6 +543,11 @@ export interface UserCustomConfig {
     activeLink?: string[]
     configMap?: Record<string, Record<string, any>>
   }
+
+  routes?: {
+    pages: Record<string, string>
+    layouts: Record<string, string>
+  }
 }
 
 function filterComposeSignals(
@@ -599,12 +605,12 @@ export async function readConfig (arg: {
   const project = path.parse(cwd).name
 
   const packageJSONPath = path.join(cwd, 'package.json')
-  const packageJSON: null | JSONSchemaForNPMPackageJsonFiles = fs.existsSync(packageJSONPath) ? loadJSON(packageJSONPath) : null
+  const packageJSON: JSONSchemaForNPMPackageJsonFiles = loadJSON(packageJSONPath);
 
-  const pointFiles = getOutputFiles(cwd, config, isProd, isRelease)
+  const pointFiles = getOutputFiles(cwd, config, !!isProd, !!isRelease)
 
   const {
-    appDirectory,
+    appDirectory, 
     modulesDirectory,
     overridesDirectory,
     scriptsDirectory,
@@ -613,7 +619,7 @@ export async function readConfig (arg: {
   } = pointFiles.currentFiles
 
 
-  const envFiles = getEnvFiles(pointFiles, isProd, isRelease)
+  const envFiles = getEnvFiles(pointFiles, !!isProd, !!isRelease)
 
   // to next@14
   // complement page file with page directory
@@ -646,7 +652,8 @@ export async function readConfig (arg: {
     packageJSON, config.metaFileName
   )
   const staticDeps = findStaticDeps(
-    isProd, nodeModulesDir,
+    !!isProd,
+    nodeModulesDir,
     [
       ...dynamicModules,
       ...dependencyModules

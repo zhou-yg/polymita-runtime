@@ -18,8 +18,8 @@ export default function inlineStatic (args: {
       const resources = config.staticDeps.find(p => p.name === name);
       let code = ''
 
-      if (resources) {
-        code = resources.resources.reduce((prev, file) => {
+      if (resources && resources.resources) {
+        code = resources.resources?.reduce((prev, file) => {
           if (fs.existsSync(file)) {
             return prev + '\n\n\n' + fs.readFileSync(file, 'utf-8')
           }

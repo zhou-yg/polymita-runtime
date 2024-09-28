@@ -21,7 +21,7 @@ export const injectElectronBuilderConfig = (config: IConfig) => {
   //   return
   // }
 
-  const name = config.packageJSON.name.replace(/[^a-zA-Z0-9]/gi, '').toLowerCase()
+  const name = config.packageJSON.name?.replace(/[^a-zA-Z0-9]/gi, '').toLowerCase()
   const newBuilderConfigStr = builderConfigTemplate({
     name,
     appId: `polymita.${name}`,

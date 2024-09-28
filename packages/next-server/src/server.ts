@@ -37,7 +37,7 @@ export async function createDevNextServer (c: IConfig) {
 
   http.createServer(async (req, res) => {
     try {
-      const parsedUrl = url.parse(req.url)
+      const parsedUrl = url.parse(req.url || '')
       await nextHandle(req, res, parsedUrl)
     } catch (err) {
       console.error('Error occurred handling', req.url, err)

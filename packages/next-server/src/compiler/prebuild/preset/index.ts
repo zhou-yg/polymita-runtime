@@ -111,7 +111,7 @@ export function generateScripts(c: IConfig) {
 }
 
 function getRouteElementName(route: IRouteChild, parentName = '') {
-  return route.pageConfig.name 
+  return route?.pageConfig?.name 
     ? `${upperFirstVariable(parentName)}${upperFirstVariable(route.pageConfig.name)}` 
     : 'Root';
 }
@@ -142,7 +142,7 @@ function generateRoutesImports (routes: IRouteChild) {
 interface IRouteObject {
   index?: boolean;
   path?: string;
-  element: string;
+  element: string | null;
   children?: IRouteObject[];
 }
 
@@ -155,20 +155,20 @@ function generateRoutesContent (routes: IRouteChild, depth = 0, parentName = '')
 
     let routeObject: IRouteObject = {
       path: route.routerPath,
-      element: route.pageConfig.layoutExists ? `<${layoutName} />` : null,
+      element: route?.pageConfig?.layoutExists ? `<${layoutName} />` : null,
       children: [
         name && {
           element: `<${name} />`,
           index: true,
         }
-      ].filter(Boolean),
+      ].filter(Boolean) as IRouteObject[],
     };
 
     if (route.children.length > 0) {
       const childrenRoutes = route.children
         .map(child => generateRouteObject(child, parentName + (route.pageConfig?.name || '')))
       
-      routeObject.children = routeObject.children.concat(childrenRoutes)
+      routeObject.children = (routeObject.children || []).concat(childrenRoutes)
     }
 
     return routeObject;
@@ -212,7 +212,7 @@ function generateDependencyModulesImportCode(
 ) {
   const dependencyModulesImportCode = dependencyModules.map(({ name, path, pathPKG }) => {
     return [
-      `import ${name} from '${path}'`,
+      `import * as ${name} from '${path}'`,
     ]
   }).flat().join('\n')
 
@@ -236,9 +236,9 @@ export async function generateClientRoutes(c: IConfig) {
     routesTree,
   } = c
 
-  const imports = generateRoutesImports(routesTree)
+  const imports = routesTree ? generateRoutesImports(routesTree) : []
 
-  const routesContent = generateRoutesContent(routesTree)
+  const routesContent = routesTree ? generateRoutesContent(routesTree) : ''
 
   const importsWithAbsolutePathClient = imports.map(([n, f]) => {
     return `import ${n} from '${implicitImportPath(f, c.ts)}'`
