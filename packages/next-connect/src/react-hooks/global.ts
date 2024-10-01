@@ -13,6 +13,10 @@ interface UserCustomConfig {
   }
 }
 
+export function getDynamicRoutes (): { path: string, element: string }[] {
+  return globalThis.POLYMITA_DYNAMIC_ROUTES || []
+}
+
 export function getConfig (): UserCustomConfig {
   if (!globalThis.POLYMITA_CONFIG) {
     globalThis.POLYMITA_CONFIG = {
@@ -22,8 +26,29 @@ export function getConfig (): UserCustomConfig {
       }
     }
   }
+  if (!globalThis.POLYMITA_CONFIG.moduleOverride) {
+    Object.assign(globalThis.POLYMITA_CONFIG, {
+      moduleOverride: {
+        linkMap: new Map<string, string[]>(),
+        activeLink: []
+      }
+    })
+  }
   return globalThis.POLYMITA_CONFIG;
 }
+
+export function getModulesContext (): Record<string, {
+  views: Record<string, any>,
+  modules: Record<string, any>,
+  overrides: Record<string, any>,
+}> {
+  if (!globalThis.POLYMITA_MODULES) {
+    globalThis.POLYMITA_MODULES = {}
+  }
+  return globalThis.POLYMITA_MODULES;
+}
+
+
 
 export function createModulesContext (
   config: UserCustomConfig,
@@ -31,7 +56,7 @@ export function createModulesContext (
 ) {
   let context = initialContext;
   if (!context) {
-    context = globalThis.POLYMITA_MODULES || {};
+    context = getModulesContext()
   }
 
   function registerModule ( 
@@ -42,10 +67,9 @@ export function createModulesContext (
       overrides: Record<string, any>,
     }
   ) {
-    context = {
-      ...context || {},
+    Object.assign(context, {
       [pkg]: exports,
-    }
+    })
     
     Object.keys(exports.overrides || {}).forEach(keyName => {
       exports.views[keyName](config.moduleOverride.linkMap);
