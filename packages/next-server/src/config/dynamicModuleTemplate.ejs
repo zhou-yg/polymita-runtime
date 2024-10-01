@@ -1,0 +1,11 @@
+const {getConfig, createModulesContext, getModulesContext } = globalThis['@polymita/next-connect'];
+
+const <%= modulesContextName %> = createModulesContext(getConfig(), getModulesContext());
+
+<%- dependencyModulesImportCode %>
+
+<%- registerModulesCode %>
+
+<%- dynamicModulesImportCode %>
+
+<%- exportRoutesToGlobalCode %>

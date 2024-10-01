@@ -34,7 +34,6 @@ function getModuleByDir(
 ): IDynamicModule {
   const pkg = path.join(dir, 'package.json')
   const metaFile = path.join(dir, outputDirectoryName, metaFileName)
-  console.log('metaFile: ', metaFile);
 
   const pkgJSON = loadJSON(pkg)
   const metaJSON = loadJSON(metaFile)

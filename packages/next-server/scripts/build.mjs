@@ -15,6 +15,7 @@ instance.on('close', () => {
     'src/compiler/plugins/*.ejs',
     'src/electron-compiler/*/*.ejs',
     'src/server/*/*.ejs',
+    'src/config/*.ejs',
   ]
   const jsArr = [
     'src/server/internalStatic/*.js',

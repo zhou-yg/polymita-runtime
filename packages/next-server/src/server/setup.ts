@@ -24,6 +24,7 @@ import inlineStatic from "./middlewares/inlineStatic";
 import { externalModules } from "../compiler";
 import prisma from "./middlewares/prisma";
 import serverScripts from "./middlewares/serverScripts";
+import inlineDynamic from "./middlewares/dynamic";
 
 export function setupBasicServer (c: IConfig) {
   const app = new Koa()
@@ -116,6 +117,7 @@ export async function createDevViteServer (c: IConfig) {
     config: c
   }))
 
+  app.use(inlineDynamic({ config: c }))
   app.use(inlineStatic({ config: c }))
   app.use(prisma({ config: c }))
 
@@ -170,6 +172,7 @@ export async function createServer(c: IConfig) {
 
   app.use(staticServe(c.cwd))
 
+  app.use(inlineDynamic({ config: c }))
   app.use(inlineStatic({ config: c }))
   app.use(prisma({ config: c }))
   app.use(page({

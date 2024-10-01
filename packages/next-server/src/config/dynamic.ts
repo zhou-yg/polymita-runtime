@@ -1,8 +1,14 @@
 import Router from '@koa/router';
-import { IConfig, UserCustomConfig } from '../config';
+import { IConfig, IDynamicModule, UserCustomConfig } from '../config';
 import * as path from 'path'
 import * as fs from 'fs'
-import { decompress, tryMkdir } from '../util';
+import { compile } from 'ejs'
+
+import { convertModuleNameToVariableName, decompress, tryMkdir } from '../util';
+
+const dynamicModuleTemplateFile = './dynamicModuleTemplate.ejs'
+const dynamicModuleTemplateFilePath = path.join(__dirname, dynamicModuleTemplateFile)
+const dynamicModuleTemplate = compile(fs.readFileSync(dynamicModuleTemplateFilePath).toString())
 
 export async function saveDynamicModule (
   config: IConfig,
@@ -109,4 +115,117 @@ export function exportToGlobalScript (config: IConfig) {
   }, null, 2)
   
   return `window.${config.globalConfigRefKey} = ${codeValue}`
+}
+
+/**
+ * for generating:
+ *  import * as _polymita_xxx a from '@polymita/xxx'
+ *  import * as xxx from '@/dynamic_modules/xxx'
+ */
+function getDependencyModules(c: IConfig) {
+  return c.allDependencyModules.map(f => {
+
+    let importPath = ''
+    let importPathPKG = ''
+    if (f.fromNodeModules) {
+      importPath = f.dir;
+      importPath = importPath.replace(c.nodeModulesDir, ''); 
+      importPath = path.join(importPath, c.buildDirectory, c.outputIndex)
+      importPathPKG = path.join(importPath, 'package.json')
+    } else {
+      importPath = path.join('@', c.dynamicModulesDirectory, f.name, c.buildDirectory, c.outputIndex)
+      importPathPKG = path.join('@', c.dynamicModulesDirectory, f.name, 'package.json')
+    }
+
+    return {
+      pkgName: f.pkgName,
+      // package name maybe include '@' scope
+      name: convertModuleNameToVariableName(f.name),
+      path: importPath,
+      pathPKG: importPathPKG,
+    }
+  })
+}
+
+function generateDependencyModulesImportCode(
+  modulesContextName: string,
+  dependencyModules: ReturnType<typeof getDependencyModules>
+) {
+  const dependencyModulesImportCode = dependencyModules.map(({ name, pkgName }) => {
+    return [
+      `const ${name} = globalThis['${pkgName}'];`,
+    ]
+  }).flat().join('\n')
+
+  const registerModulesCode = dependencyModules.map((obj) => {
+    
+    return `${modulesContextName}.registerModule('${obj.pkgName}', ${obj.name})`
+  }).join('\n')
+  
+  return {
+    dependencyModulesImportCode,
+    registerModulesCode,
+  }
+}
+
+function generateDynamicModulesImportCode(
+  modulesContextName: string,
+  dynamicModules: IDynamicModule[]
+) {
+  
+  const dynamicModulesImportCode = dynamicModules.map((f) => {
+    return Object.entries(f.meta.routes?.pages || {}).map(([_, name]) => {
+      return `const ${convertModuleNameToVariableName(f.pkgName)}${name}Component = ${modulesContextName}.createViewComponent('${f.pkgName}', '${name}')`
+    })
+  }).flat().join('\n')
+
+  return dynamicModulesImportCode
+}
+
+/**
+ * append dynamic modules pages
+ */
+export function exportDynamicModulesToRoutes(
+  config: IConfig,
+) {
+  const modulesContextName = 'modulesContext';
+
+  const dependencyModules = getDependencyModules(config)
+
+  const {
+    dependencyModulesImportCode,
+    registerModulesCode,
+  } = generateDependencyModulesImportCode(modulesContextName, dependencyModules)
+
+
+  /**
+   * export dynamic routes to global
+   */
+  let exportRoutesToGlobalCode = `window.${config.globalDynamicRoutesRefKey} = [`
+  config.dynamicModules.map(f => {
+    return Object.entries(f.meta.routes?.pages || {}).map(([path, name]) => {
+
+      exportRoutesToGlobalCode += `
+      {
+        path: "${path}",
+        element: React.createElement(${convertModuleNameToVariableName(f.pkgName)}${name}Component),
+      },`
+    })
+  }).flat()
+  exportRoutesToGlobalCode += `]`
+
+  
+  const dynamicModulesImportCode = generateDynamicModulesImportCode(modulesContextName, config.dynamicModules)
+
+
+  const code = dynamicModuleTemplate({
+    modulesContextName,
+    exportRoutesToGlobalCode,
+
+    registerModulesCode,
+    dependencyModulesImportCode,
+    dynamicModulesImportCode,
+  })
+
+  return code
 }

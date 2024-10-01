@@ -6,8 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %></title>
 
-  <script src="/static/dynamicConfig.js"></script>
-
   <% css.forEach((path, i) => { %>
   <link rel="stylesheet" href="<%- css[i] %>">
   <% }) %>
@@ -20,6 +18,8 @@
   <!-- modules -->
   <script src="/static/module.js"></script>
   
+  <script src="/static/dynamicConfig.js"></script>
+
   <% scripts.forEach((path, i) => { %>
   <script src="<%- scripts[i] %>"></script>
   <% }) %>

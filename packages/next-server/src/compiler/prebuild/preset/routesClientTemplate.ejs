@@ -9,25 +9,24 @@ import {
   createHashRouter,
 } from "react-router-dom"
 
-import { getConfig, createModulesContext } from '@polymita/next-connect'
+import { getConfig, createModulesContext, getModulesContext, getDynamicRoutes } from '@polymita/next-connect'
 
 <%- imports %>
 
-<%- dependencyModulesImportCode %>
-
-const <%= modulesContextName %> = createModulesContext(getConfig(), globalThis.POLYMITA_MODULES || {});
-
-<%- registerModulesCode %>
-
-<%- dynamicModulesImportCode %>
 
 function RootApplication({
   location
 }) {
-  const router = (createBrowserRouter)([
+  const routes = [
     <%- routes %>
-  ])
-  
+  ];
+  const dynamicRoutes = getDynamicRoutes()
+  if (dynamicRoutes.length) {
+    routes.push(...dynamicRoutes)
+  }
+  const router = createBrowserRouter(routes)
+
+
   return (
     <RouterProvider router={router} />
   );
