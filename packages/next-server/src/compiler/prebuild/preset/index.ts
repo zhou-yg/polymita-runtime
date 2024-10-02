@@ -194,9 +194,6 @@ export async function generateClientRoutes(c: IConfig) {
     routesTree,
   } = c
 
-
-  const modulesContextName = 'modulesContext';
-
   const imports = routesTree ? generateRoutesImports(routesTree) : []
 
   const routesJSONTree = routesTree ? generateJSONRoutes(routesTree) : undefined
