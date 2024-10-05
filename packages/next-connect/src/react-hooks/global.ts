@@ -13,7 +13,14 @@ interface UserCustomConfig {
   }
 }
 
-export function getDynamicRoutes (): { path: string, element: string }[] {
+interface DynamicRoute {
+  title: string,
+  path: string, 
+  element: any; 
+  children?: DynamicRoute[]
+}
+
+export function getDynamicRoutes (): DynamicRoute[] {
   return globalThis.POLYMITA_DYNAMIC_ROUTES || []
 }
 
@@ -76,11 +83,11 @@ export function createModulesContext (
     })
   }
 
-  function createViewComponent (pkg: string, name: string) {
+  function createViewComponent (pkg: string, name: string, props: any) {
     const moduleViews = getModule(pkg, 'views');
-    if (moduleViews) {
+    if (moduleViews?.[name]) {
       return moduleViews?.[name]?.(config.moduleOverride.linkMap, config.moduleOverride.activeLink)
-    }
+    } 
   }
   
   function getModules () {
