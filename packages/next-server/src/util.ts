@@ -292,7 +292,7 @@ export function startElectronProcess () {
  * Convert some global absolute paths in the config to relative paths for the current project
  */
 export function projectRelativePath (c: IConfig, p: string) {
-  return p.replace(c.cwd, '.')
+  return p.replace(c.cwd, '')
 }
 
 export function removeExt(s: string) {

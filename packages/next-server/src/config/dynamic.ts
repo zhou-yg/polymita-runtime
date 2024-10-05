@@ -168,6 +168,16 @@ function generateDependencyModulesImportCode(
   }
 }
 
+function getNameAndProps(name: string | [string, any]) {
+  let nameVar = name;
+  let propsVar: Record<string, any> = {};
+  if (Array.isArray(name) && name.length === 2) {
+    nameVar = name[0];
+    propsVar = name[1];
+  }
+  return { nameVar, propsVar }
+}
+
 function generateDynamicModulesImportCode(
   modulesContextName: string,
   dynamicModules: IDynamicModule[]
@@ -175,7 +185,9 @@ function generateDynamicModulesImportCode(
   
   const dynamicModulesImportCode = dynamicModules.map((f) => {
     return Object.entries(f.meta.routes?.pages || {}).map(([_, name]) => {
-      return `const ${convertModuleNameToVariableName(f.pkgName)}${name}Component = ${modulesContextName}.createViewComponent('${f.pkgName}', '${name}')`
+      const { nameVar } = getNameAndProps(name)
+
+      return `const ${convertModuleNameToVariableName(f.pkgName)}${nameVar}Component = ${modulesContextName}.createViewComponent('${f.pkgName}', '${nameVar}')`
     })
   }).flat().join('\n')
 
@@ -199,23 +211,28 @@ export function exportDynamicModulesToRoutes(
 
 
   /**
+   * generate declaration component from module.views
+   */
+  const dynamicModulesImportCode = generateDynamicModulesImportCode(modulesContextName, config.dynamicModules)
+
+  /**
    * export dynamic routes to global
    */
   let exportRoutesToGlobalCode = `window.${config.globalDynamicRoutesRefKey} = [`
   config.dynamicModules.map(f => {
     return Object.entries(f.meta.routes?.pages || {}).map(([path, name]) => {
+      const { nameVar, propsVar } = getNameAndProps(name)
 
       exportRoutesToGlobalCode += `
       {
         path: "${path}",
-        element: React.createElement(${convertModuleNameToVariableName(f.pkgName)}${name}Component),
+        title: "${propsVar?.title || name}",
+        element: React.createElement(${convertModuleNameToVariableName(f.pkgName)}${nameVar}Component, ${JSON.stringify(propsVar)}),
       },`
     })
   }).flat()
   exportRoutesToGlobalCode += `]`
 
-  
-  const dynamicModulesImportCode = generateDynamicModulesImportCode(modulesContextName, config.dynamicModules)
 
 
   const code = dynamicModuleTemplate({

@@ -220,6 +220,7 @@ export async function generateClientRoutes(c: IConfig) {
     routes: routesCode,
     // 
   })
+
   fs.writeFileSync(clientRoutes, await prettier.format(routesStr2, { parser: 'typescript' }))
   // fs.writeFileSync(clientRoutes, routesStr2)
 }

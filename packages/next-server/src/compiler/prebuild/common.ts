@@ -102,6 +102,7 @@ export const externalModules = (modules: string[] = []) => ({
   '@mui/material': 'MaterialUI',
   '@polymita/next-connect': 'window["@polymita/next-connect"]',
   '@polymita/renderer': 'window["@polymita/renderer"]',
+  '@polymita/renderer/jsx-runtime': 'window["@polymita/renderer"]',
   '@polymita/signal': 'window["@polymita/signal"]',
   '@polymita/signal-model': 'window["@polymita/signal-model"]',
   'eventemitter3': 'EventEmitter3',

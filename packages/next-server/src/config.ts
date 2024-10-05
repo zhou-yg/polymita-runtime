@@ -54,9 +54,9 @@ export const defaultConfig = () => ({
 
   entryServer: 'entry.server', // .(j|t)sx in app
   routesServer: 'routes.server', // serve for polymita self
-  routes: 'routes', // serve for polymita self
+  clientRoutesFile: 'routes', // serve for polymita self
 
-  ts: false,
+  ts: true,
 
   electronMainJs: 'main.js',
   electronMainMenu: 'menu.js',
@@ -405,7 +405,7 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
       root: appDir,
       entryCSS,
       // routes.tsx including react-router
-      clientRoutes: path.join(appDir, `${config.routes}.tsx`),
+      clientRoutes: path.join(appDir, `${config.clientRoutesFile}.tsx`),
       // entry.tsx including app entry
       appClientEntry: path.join(appDir, `${config.entry}.tsx`),
     },
@@ -552,8 +552,8 @@ export interface UserCustomConfig {
   }
 
   routes?: {
-    pages: Record<string, string>
-    layouts: Record<string, string>
+    pages: Record<string, string | [string, any]>
+    layouts: Record<string, string | [string, any]>
   }
 }
 
@@ -605,6 +605,13 @@ export async function readConfig (arg: {
   let config = defaultConfig() as IDefaultConfig
   if (fs.existsSync(configFileInPath)) {
     const configInFile: UserCustomConfig = require(configFileInPath)
+    
+    /** check conflict key name */
+    const conflictKeys = Object.keys(configInFile).filter(key => key in config && config[key] !== configInFile[key])
+    if (conflictKeys.length > 0) {
+      throw new Error(`[config] conflict keys: ${conflictKeys.join(', ')}`)
+    }
+
     merge(config, configInFile)
     config.moduleConfig = configInFile
   }
