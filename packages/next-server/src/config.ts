@@ -331,6 +331,7 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
   const modelsDirectory = path.join(cwd, config.modelsDirectory)
   const scriptsDirectory = path.join(cwd, config.scriptDirectory)
   const contextsDirectory = path.join(cwd, config.contextDirectory)
+  const dynamicModulesDir = path.join(cwd, config.dynamicModulesDirectory)
   
   const modelDir = path.join(cwd, config.modelsDirectory)
   const modelEnhance = path.join(modelDir, config.modelEnhance)
@@ -361,6 +362,7 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
     modelsDirectory,
     overridesDirectory,
     dynamicConfigFile: path.join(overridesDirectory, config.dynamicConfigFile),
+    dynamicModulesDir,
     configFile: configFileInPath,
     modelFiles,
     contextsDirectory,

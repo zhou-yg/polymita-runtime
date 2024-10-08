@@ -1,7 +1,11 @@
 import Router from '@koa/router';
 import { IConfig } from '../../config';
 import * as path from 'path'
+import * as fs from 'fs'
 import { getCurrentDynamicConfig, overrideActivate, overrideInactivate, saveDynamicModule } from '../../config/dynamic';
+import * as market from '../../service/market';
+import axios from 'axios';
+import { tryMkdir } from '../../util';
 
 export function createModuleManager(c: IConfig) {
   const router = new Router()
@@ -23,6 +27,33 @@ export function createModuleManager(c: IConfig) {
     const { name } = ctx.request.body
     const arr = overrideInactivate(c, name)
     ctx.body = arr
+  })
+
+  router.post('/import-remote', async (ctx) => {
+    const { name, version } = ctx.request.body
+    const detail = await market.detail(name, version)
+    const { zip, meta, packageJson } = detail
+
+    const zipFile = await axios(zip.url, { responseType: 'stream' })
+  
+    tryMkdir(c.pointFiles.currentFiles.dynamicModulesDir)
+
+    const tmpZipFile = path.join(c.pointFiles.currentFiles.dynamicModulesDir, `${name}-${version}.zip`)
+    const tempWriter = fs.createWriteStream(tmpZipFile)
+    zipFile.data.pipe(tempWriter)
+    await new Promise((resolve, reject) => {
+      tempWriter.on('finish', resolve)
+      tempWriter.on('error', reject)
+    })
+    const dynamicModuleDir = await saveDynamicModule(c, name, tmpZipFile)
+
+    // clear
+    fs.unlinkSync(tmpZipFile)
+
+    ctx.body = {
+      destDir: dynamicModuleDir,
+      filepath: tmpZipFile,
+    }
   })
 
   router.post('/import', async (ctx) => {
