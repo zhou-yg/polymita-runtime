@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "module": "ESNext",
-    "lib": ["esnext"],
+    "lib": ["esnext", "DOM"],
     "moduleResolution": "Node",
     "types": ["node", "jest"],
     "strictNullChecks": true,

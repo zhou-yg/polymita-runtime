@@ -6,6 +6,7 @@ import any from "./any";
 import release from "./release";
 import start from "./start";
 import zip from "./zip";
+import upload from "./upload";
 
 export * as nextServer from '../src/index'
 
@@ -43,13 +44,22 @@ cac
     }
   })
 
-  cac
+cac
   .command('zip', 'create zip file after build')
   .action(async () => {
     try {
       await zip(cwd)
     } catch (e) {
-      console.log('release error: ', e);
+      console.log('zip error: ', e);
+    }
+  })
+cac
+  .command('upload', 'upload zip to market-service')
+  .action(async () => {
+    try {
+      await upload(cwd)
+    } catch (e) {
+      console.log('upload error: ', e);
     }
   })
 

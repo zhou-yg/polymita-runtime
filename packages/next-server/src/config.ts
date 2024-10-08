@@ -712,6 +712,7 @@ export async function readConfig (arg: {
     config.devCacheDirectory,
     config.buildDirectory,
     config.testCacheDirectory,
+    config.releaseDirectory,
   ]
 
   return {
