@@ -31,21 +31,26 @@ export function createModuleManager(c: IConfig) {
 
   router.post('/import-remote', async (ctx) => {
     const { name, version } = ctx.request.body
+    console.log('name, version: ', name, version);
     const detail = await market.detail(name, version)
+    console.log('detail: ', detail);
     const { zip, meta, packageJson } = detail
 
     const zipFile = await axios(zip.url, { responseType: 'stream' })
   
     tryMkdir(c.pointFiles.currentFiles.dynamicModulesDir)
 
-    const tmpZipFile = path.join(c.pointFiles.currentFiles.dynamicModulesDir, `${name}-${version}.zip`)
+    const convertedName = name.replace(/^@\w+\//g, '')
+
+    const tmpZipFile = path.join(c.pointFiles.currentFiles.dynamicModulesDir, `${convertedName}-${version}.zip`)
+    console.log('tmpZipFile: ', tmpZipFile);
     const tempWriter = fs.createWriteStream(tmpZipFile)
     zipFile.data.pipe(tempWriter)
     await new Promise((resolve, reject) => {
       tempWriter.on('finish', resolve)
       tempWriter.on('error', reject)
     })
-    const dynamicModuleDir = await saveDynamicModule(c, name, tmpZipFile)
+    const dynamicModuleDir = await saveDynamicModule(c, convertedName, tmpZipFile)
 
     // clear
     fs.unlinkSync(tmpZipFile)

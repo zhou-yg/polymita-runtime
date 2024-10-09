@@ -10,7 +10,8 @@ export const upload = async (fd: FormData) => {
     data: fd,
     headers: {
       'Content-Type': 'multipart/form-data',
-    }
+    },
+    proxy: false,
   })
   return res.data as {
     zipFileResult: PutBlobResult,
@@ -22,12 +23,13 @@ export const upload = async (fd: FormData) => {
 export const detail = async (name: string, version: string) => {
   const res = await axios('https://polymita.cc/api/market/detail', {
     method: 'GET',
-    data: {
+    params: {
       name,
       version,
     },
+    proxy: false,
   })
-  return res.data as {
+  return res.data.result as {
     zip: PutBlobResult,
     meta: UserCustomConfig,
     packageJson: JSONSchemaForNPMPackageJsonFiles,
