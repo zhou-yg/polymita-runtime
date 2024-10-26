@@ -2,7 +2,7 @@ import Router from '@koa/router';
 import { IConfig } from '../../config';
 import * as path from 'path'
 import * as fs from 'fs'
-import { getCurrentDynamicConfig, overrideActivate, overrideInactivate, saveDynamicModule } from '../../config/dynamic';
+import { getCurrentDynamicConfig, overrideActivate, overrideInactivate, overrideUpdateModuleConfig, saveDynamicModule } from '../../config/dynamic';
 import * as market from '../../service/market';
 import axios from 'axios';
 import { tryMkdir } from '../../util';
@@ -27,6 +27,26 @@ export function createModuleManager(c: IConfig) {
     const { name } = ctx.request.body
     const arr = overrideInactivate(c, name)
     ctx.body = arr
+  })
+
+  router.post('/update-config', async (ctx) => {
+    const { name, config } = ctx.request.body
+    const result = overrideUpdateModuleConfig(c, name, config)
+    ctx.body = !!result
+  })
+  router.post('/override-module', async (ctx) => {
+    const { name } = ctx.request.body
+    /**
+     * 1.find target module from dynamicModules using 'name
+     * 2.get target module package name
+     * 3.create empty polymita project and add target module as dependency
+     * 4.open project using cursor
+     */
+    
+  })
+
+  router.get('/modules', async (ctx) => {
+    
   })
 
   router.post('/import-remote', async (ctx) => {

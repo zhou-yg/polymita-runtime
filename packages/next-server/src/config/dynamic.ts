@@ -29,9 +29,9 @@ export async function saveDynamicModule (
 }
 
 export function getCurrentDynamicConfig(config: IConfig) {
-  const f = config.pointFiles.currentFiles.dynamicConfigFile;
+  const f = config.pointFiles.currentFiles.moduleConfigFile;
   if (!fs.existsSync(f)) {
-    return []
+    return {}
   }
 
   return JSON.parse(fs.readFileSync(f, 'utf-8'))
@@ -42,7 +42,7 @@ export function overrideActivate(
   moduleName: string,
   overrideConfig?: Record<string, any>
 ) {
-  const f = config.pointFiles.currentFiles.dynamicConfigFile;
+  const f = config.pointFiles.currentFiles.moduleConfigFile;
   if (!fs.existsSync(f)) {
     fs.writeFileSync(f, '[]')
   }
@@ -80,7 +80,7 @@ export function overrideInactivate(
   config: IConfig,
   moduleName: string,
 ) {
-  const f = config.pointFiles.currentFiles.dynamicConfigFile;
+  const f = config.pointFiles.currentFiles.moduleConfigFile;
   if (!fs.existsSync(f)) {
     return []
   }
@@ -103,6 +103,32 @@ export function overrideInactivate(
   }, null, 2))
 
   return activeArray
+}
+
+export function overrideUpdateModuleConfig(
+  config: IConfig,
+  moduleName: string,
+  overrideConfig?: Record<string, any>
+) {
+  moduleName = moduleName.replace(/@polymita\//g, '/')
+
+  const f = path.join(config.pointFiles.currentFiles.dynamicModulesDir, moduleName, config.overridesDirectory, config.moduleConfigFile);
+  console.log('[next-server] overrideUpdateModuleConfig: ', f);
+  if (!fs.existsSync(f)) {
+    const dir = path.dirname(f)
+    tryMkdir(dir)
+    fs.writeFileSync(f, '{}')
+  }
+
+  const userConfig: UserCustomConfig = JSON.parse(fs.readFileSync(f, 'utf-8'))
+  
+  if (overrideConfig) {
+    Object.assign(userConfig, overrideConfig)
+  }
+
+  fs.writeFileSync(f, JSON.stringify(userConfig, null, 2))
+
+  return userConfig
 }
 
 export function exportToGlobalScript (config: IConfig) {

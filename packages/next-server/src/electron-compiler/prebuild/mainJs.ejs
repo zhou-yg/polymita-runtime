@@ -52,7 +52,7 @@ const createWindow = async () => {
     },
   });
 
-  mainWindow.loadURL(`http://127.0.0.1:${config.port}/`);
+  mainWindow.loadURL(config.homePageUrl);
 
   mainWindow.on('ready-to-show', () => {
     if (!mainWindow) {
@@ -124,4 +124,8 @@ ipcMain.handle('nodejs', async (module, api, args) => {
     return result(...args);
   }
   return result;
+});
+
+ipcMain.handle('config', async () => {
+  return configPromise;
 });

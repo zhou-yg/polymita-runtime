@@ -20,6 +20,9 @@ export const defaultConfig = () => ({
 
   //
   platform: 'web', // 'desktop'
+  port: 9500,
+  host: 'http://127.0.0.1',
+  homePath: '/',
 
   // client about
   viewsDirectory: 'views', // in polymita the display unit maybe page or component, they should belong to "views"
@@ -79,7 +82,7 @@ export const defaultConfig = () => ({
   esmDirectory: 'esm',
 
   modelEnhance: 'model.enhance.json',
-  dynamicConfigFile: 'moduleConfig.json',
+  moduleConfigFile: 'moduleConfig.json',
   prismaModelPart: 'part.prisma', // postfix
   targetSchemaPrisma: 'schema.prisma',
   schemaIndexes: 'indexes.json',
@@ -90,7 +93,6 @@ export const defaultConfig = () => ({
 
   diffPath: '_diff',
 
-  port: 9100,
   model: {
     engine: 'prisma'
   },
@@ -101,7 +103,6 @@ export const defaultConfig = () => ({
   moduleConfig: {} as UserCustomConfig,
   globalConfigRefKey: 'POLYMITA_CONFIG',
   globalDynamicRoutesRefKey: 'POLYMITA_DYNAMIC_ROUTES',
-
 
   metaFileName: 'meta.json',
 })
@@ -361,7 +362,7 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
     modulesDirectory,
     modelsDirectory,
     overridesDirectory,
-    dynamicConfigFile: path.join(overridesDirectory, config.dynamicConfigFile),
+    moduleConfigFile: path.join(overridesDirectory, config.moduleConfigFile),
     dynamicModulesDir,
     configFile: configFileInPath,
     modelFiles,
@@ -557,6 +558,11 @@ export interface UserCustomConfig {
     pages: Record<string, string | [string, any]>
     layouts: Record<string, string | [string, any]>
   }
+
+  /**
+   * module settings exposed to user
+   **/
+  settings: Record<string, any>
 }
 
 function filterComposeSignals(
@@ -689,6 +695,8 @@ export async function readConfig (arg: {
   const port = await getPort({
     port: arg.port || (config.port ? config.port : process.env.PORT ? Number(process.env.PORT) : portNumbers(9000, 9100))
   })
+  const homePageUrl = `${config.host}:${port}${config.homePath}`
+  const hostOrigin = `${config.host}:${port}`
 
   const thirdPartEntry = path.join(cwd, config.thirdPartDir)
 
@@ -718,6 +726,8 @@ export async function readConfig (arg: {
   ]
 
   return {
+    homePageUrl,
+    hostOrigin,
     ...config,
     configFile,
     nodeModulesDir,

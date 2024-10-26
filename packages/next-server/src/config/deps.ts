@@ -20,6 +20,7 @@ const internalLibs = {
 export interface IDynamicModule {
   name: string,
   pkgName: string,
+  version: string,
   dir: string,
   meta: UserCustomConfig,
   fromNodeModules: boolean,
@@ -39,6 +40,7 @@ function getModuleByDir(
   const metaJSON = loadJSON(metaFile)
   return {
     name,
+    version: pkgJSON.version,
     pkgName: pkgJSON.name,
     dir: dir,
     meta: metaJSON,
