@@ -112,7 +112,7 @@ export function overrideUpdateModuleConfig(
 ) {
   moduleName = moduleName.replace(/@polymita\//g, '/')
 
-  const f = path.join(config.pointFiles.currentFiles.dynamicModulesDir, moduleName, config.overridesDirectory, config.moduleConfigFile);
+  const f = path.join(config.pointFiles.currentFiles.dynamicModulesDir, moduleName, config.moduleConfigFile);
   console.log('[next-server] overrideUpdateModuleConfig: ', f);
   if (!fs.existsSync(f)) {
     const dir = path.dirname(f)

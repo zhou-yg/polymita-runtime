@@ -362,7 +362,7 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
     modulesDirectory,
     modelsDirectory,
     overridesDirectory,
-    moduleConfigFile: path.join(overridesDirectory, config.moduleConfigFile),
+    moduleConfigFile: path.join(cwd, config.moduleConfigFile),
     dynamicModulesDir,
     configFile: configFileInPath,
     modelFiles,
@@ -669,6 +669,7 @@ export async function readConfig (arg: {
     path.join(cwd, config.dynamicModulesDirectory),
     config.metaFileName,
     config.buildDirectory,
+    config.moduleConfigFile,
   );
 
   const dependencyModules = findDependencies(
@@ -676,6 +677,7 @@ export async function readConfig (arg: {
     packageJSON, 
     config.buildDirectory,
     config.metaFileName,
+    config.moduleConfigFile,
   )
   const staticDeps = findStaticDeps(
     !!isProd,

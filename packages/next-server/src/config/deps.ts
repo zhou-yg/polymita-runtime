@@ -31,13 +31,19 @@ function getModuleByDir(
   fromNodeModules: boolean,
   dir: string,
   outputDirectoryName: string,
-  metaFileName: string
+  metaFileName: string,
+  moduleConfigFileName: string,
 ): IDynamicModule {
   const pkg = path.join(dir, 'package.json')
   const metaFile = path.join(dir, outputDirectoryName, metaFileName)
+  const moduleConfigFile = path.join(dir, outputDirectoryName, moduleConfigFileName)
 
   const pkgJSON = loadJSON(pkg)
   const metaJSON = loadJSON(metaFile)
+  const moduleConfig = loadJSON(moduleConfigFile)
+
+  Object.assign(metaJSON, moduleConfig)
+
   return {
     name,
     version: pkgJSON.version,
@@ -45,7 +51,7 @@ function getModuleByDir(
     dir: dir,
     meta: metaJSON,
     fromNodeModules,
-  }
+  } 
 }
 
 /**
@@ -55,6 +61,7 @@ export function findDynamicModules (
   dynamicModulesDir: string,
   metaFileName: string,
   outputDirectoryName: string,
+  moduleConfigFileName: string,
 ) {
   if (!fs.existsSync(dynamicModulesDir)) {
     return []
@@ -63,7 +70,7 @@ export function findDynamicModules (
   const modules = readdirSync(dynamicModulesDir)
     .map(f => {
       const dir = path.join(dynamicModulesDir, f)
-      return getModuleByDir(f, false, dir, outputDirectoryName, metaFileName)
+      return getModuleByDir(f, false, dir, outputDirectoryName, metaFileName, moduleConfigFileName)
     })
     .filter(f => lstatSync(f.dir).isDirectory())
   return modules
@@ -75,6 +82,7 @@ export function findDependencies (
   pkgJSON: null | JSONSchemaForNPMPackageJsonFiles,
   metaFileName: string,
   outputDirectoryName: string,
+  moduleConfigFileName: string,
 ) {
   const pkgModules = Object.keys(pkgJSON?.dependencies || {})
 
@@ -93,7 +101,7 @@ export function findDependencies (
     }
   })
 
-  return modules.map(name => getModuleByDir(name, true, path.join(nodeModulesDir, name), outputDirectoryName, metaFileName))
+  return modules.map(name => getModuleByDir(name, true, path.join(nodeModulesDir, name), outputDirectoryName, metaFileName, moduleConfigFileName))
 }
 
 type k = keyof typeof internalLibs
