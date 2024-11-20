@@ -422,6 +422,7 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
       // for electron
       app: {
         root: electronAppDir,
+        mainDir: path.join(electronAppDir, 'main'),
         pkgJSON: path.join(electronAppDir, 'package.json'),
         indexHtml: path.join(electronAppDir, config.electronIndexHtml),
         preload: path.join(electronAppDir, 'main',config.electronPreload),

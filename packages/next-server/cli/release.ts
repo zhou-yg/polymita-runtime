@@ -12,6 +12,7 @@ import {
   injectElectronBuilderConfig,
   installAppDeps,
   linkModules,
+  mergePolymitaDeps,
   readConfig,
 } from '../src/index'
 
@@ -28,14 +29,15 @@ export default async (cwd: string) => {
   await buildTailwindCSS(config)
 
   generateIndexHtml(config)
-  // generateMainFiles(config)
+  generateMainFiles(config)
   
   generateReleaseAppPkg(config)
   injectElectronBuilderConfig(config)
   generateStaticResources(config)
   
-  checkNativeDep(config)
-  // await installAppDeps(config)
+  mergePolymitaDeps(config)
 
-  linkModules(config)
+  checkNativeDep(config)
+  await installAppDeps(config)
+  // linkModules(config)
 }

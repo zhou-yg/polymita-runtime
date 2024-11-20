@@ -143,6 +143,7 @@ export function traverseDir (
   const files = fs.readdirSync(dir)
   files.forEach(f => {
     const p = path.join(dir, f)
+
     const isDir = fs.lstatSync(p).isDirectory()
     const continueFlag = callback({
       isDir,

@@ -143,27 +143,94 @@ export const generateElectronApp = async (c: IConfig) => {
 
 }
 
+function addDepToPkg (c: IConfig, depPath: string) {
+  const pkg = JSON.parse(fs.readFileSync(c.pointFiles.generates.app.pkgJSON).toString())
+  // dep package name
+  const depPkg = path.join(depPath, 'package.json')
+  const depPkgContent = JSON.parse(fs.readFileSync(depPkg).toString())
+  
+  // ignore electron
+  if (depPkgContent.name.startsWith('electron')) {
+    return
+  }
 
+  const newPkg = {
+    ...pkg,
+    dependencies: {
+      ...pkg.dependencies,
+      [depPkgContent.name]: '*',
+    },
+  }
+  
+  fs.writeFileSync(c.pointFiles.generates.app.pkgJSON, JSON.stringify(newPkg, null, 2))
+}
+
+export const mergePolymitaDeps = (c: IConfig) => {
+  const srcPolymitaModulesPath = path.join(c.nodeModulesDir, '@polymita');
+
+  const appPkg = JSON.parse(fs.readFileSync(c.pointFiles.generates.app.pkgJSON).toString())
+  /**
+   * merge dependencies from root package.json
+   */
+  Object.assign(appPkg.dependencies, c.packageJSON.dependencies)
+  /**
+   * merge dependencies from @polymita modules
+   */
+  readdirSync(srcPolymitaModulesPath).forEach(f => {
+    const srcDirPath = path.join(srcPolymitaModulesPath, f, 'package.json')
+    const srcPkg = JSON.parse(fs.readFileSync(srcDirPath).toString())
+    Object.assign(appPkg.dependencies, srcPkg.dependencies)
+  })
+
+  Object.keys(appPkg.dependencies).forEach(name => {
+    if (
+      name.startsWith('@polymita') ||
+      ['electron', 'electron-builder'].includes(name)
+    ) {
+      delete appPkg.dependencies[name]
+    }
+  })
+
+  fs.writeFileSync(c.pointFiles.generates.app.pkgJSON, JSON.stringify(appPkg, null, 2))
+}
 export const linkModules = (c: IConfig) => {
   const srcNodeModulesPath = path.join(c.nodeModulesDir);
   const appNodeModulesPath = path.join(c.pointFiles.generates.app.root, 'node_modules');
+  
+  // const srcPolymitaModulesPath = path.join(c.nodeModulesDir, '@polymita');
+  // const appPolymitaModulesPath = path.join(c.pointFiles.generates.app.root, 'node_modules', '@polymita');
+  // const polymitaSubModules = fs.readdirSync(srcPolymitaModulesPath).map(f => [
+  //   path.join(srcPolymitaModulesPath, f, 'node_modules'),
+  //   path.join(appPolymitaModulesPath, f, 'node_modules'),
+  // ]);
 
-  traverseDir(srcNodeModulesPath, (f) => {
-    if (!f.name) {
-      return false
-    }
-    const appModulePath = path.join(appNodeModulesPath, f.relativeFile)
-    if (f.isDir) {
-      tryMkdir(appModulePath)
-    } else {
-      const appModulePath = path.join(appNodeModulesPath, f.relativeFile)
-      if (!fs.existsSync(appModulePath)) {
-        fs.symlink(f.path, appModulePath, 'junction', err => {
-          if (err) {
-            console.error('error:', err)
-          }
-        });
+  ;[
+    [srcNodeModulesPath, appNodeModulesPath],
+    // ...polymitaSubModules,
+  ].forEach(([srcDirPath, appDirPath]) => {
+    traverseDir(srcDirPath, (f) => {
+      if (!f.name) {
+        return false
       }
-    }
+  
+      const appModulePath = path.join(appDirPath, f.relativeFile)
+      if (f.isDir) {
+        tryMkdir(appModulePath)
+      } else {
+        const appModulePath = path.join(appDirPath, f.relativeFile)
+        
+        if (!fs.existsSync(appModulePath)) {
+          fs.symlink(f.path, appModulePath, 'junction', err => {
+            if (err) {
+              console.error('error:', err)
+            }
+            addDepToPkg(c, appModulePath)
+          });
+        } else {
+          addDepToPkg(c, appModulePath)
+        }
+      }
+    })
   })
+
 }

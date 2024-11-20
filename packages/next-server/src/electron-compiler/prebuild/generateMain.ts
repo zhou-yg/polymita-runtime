@@ -3,6 +3,7 @@ import fs from 'fs';
 import * as path from 'path'
 import chalk from 'chalk';
 import { compile } from 'ejs'
+import { tryMkdir } from "../../util";
 
 const releaseAppPkgTemplateFile = './appPackageJSON.ejs'
 const releaseAppPkgFilePath = path.join(__dirname, releaseAppPkgTemplateFile)
@@ -38,6 +39,7 @@ function generatePreloadJS(c: IConfig) {
 }
 
 export function generateMainFiles(c: IConfig) {
+  tryMkdir(c.pointFiles.generates.app.mainDir)
   generateMainJS(c)
   generateMenu(c)
   generatePreloadJS(c)

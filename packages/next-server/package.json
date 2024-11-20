@@ -12,7 +12,6 @@
   "files": [
     "src",
     "cli",
-    "adaptors",
     "package.json",
     "dist"
   ],
@@ -22,7 +21,9 @@
     "test-unit": "jest --runInBand --detectOpenHandles",
     "test-ci": "TEST=CI jest",
     "build": "rm -rf dist/ && node scripts/build.mjs",
-    "build:watch": "npm run build && rollup --config rollup.config.mjs --watch"
+    "build:watch": "npm run build && rollup --config rollup.config.mjs --watch",
+    "prepublishOnly": "npm run build",
+    "pub": "pnpm publish"
   },
   "license": "ISC",
   "repository": {
@@ -75,12 +76,14 @@
     "rimraf": "^3.0.2",
     "shelljs": "^0.8.5",
     "tailwindcss": "^3.4.3",
-    "tar": "^7.4.3",
-    "typescript": "^5.4.2"
-  },
-  "devDependencies": {
+    "tar": "^6.2.1",
+    "typescript": "^5.4.2",
     "@rollup/plugin-commonjs": "^22.0.2",
     "@rollup/plugin-json": "^4.1.0",
+    "vite": "^5.4.0",
+    "vite-plugin-external": "^4.3.1"
+  },
+  "devDependencies": {
     "@types/adm-zip": "^0.5.5",
     "@types/ejs": "^3.1.1",
     "@types/estree": "^0.0.52",
@@ -94,8 +97,6 @@
     "@types/shelljs": "^0.8.11",
     "rollup": "^4.12.1",
     "rollup-plugin-typescript2": "^0.31.2",
-    "tslib": "^2.4.0",
-    "vite": "^5.4.0",
-    "vite-plugin-external": "^4.3.1"
+    "tslib": "^2.4.0"
   }
 }
