@@ -35,7 +35,7 @@ export default async (cwd: string) => {
   injectElectronBuilderConfig(config)
   generateStaticResources(config)
   
-  mergePolymitaDeps(config)
+  // mergePolymitaDeps(config)
 
   checkNativeDep(config)
   await installAppDeps(config)
