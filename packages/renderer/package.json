@@ -1,6 +1,6 @@
 {
   "name": "@polymita/renderer",
-  "version": "2.0.26",
+  "version": "2.0.27",
   "description": "useHook serverless framework",
   "main": "./dist/renderer.umd.js",
   "types": "./dist/renderer.umd.d.ts",
