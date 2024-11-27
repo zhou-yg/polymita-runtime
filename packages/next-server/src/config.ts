@@ -307,7 +307,7 @@ export interface IConfig extends IReadConfigResult{
  * so: 
  *   any file -(dev/prod/release) -> mapping path
  */
-function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, isRelease: boolean) {
+function getOutputFiles (externalCacheDir: string, cwd: string, config: IDefaultConfig, isProd: boolean, isRelease: boolean) {
   const outputDir = isRelease
     ? path.join(cwd, config.releaseDirectory, config.appDirectory, 'renderer', config.buildDirectory)
     // ? path.join(cwd, config.buildDirectory)
@@ -332,7 +332,7 @@ function getOutputFiles (cwd: string, config: IDefaultConfig, isProd: boolean, i
   const modelsDirectory = path.join(cwd, config.modelsDirectory)
   const scriptsDirectory = path.join(cwd, config.scriptDirectory)
   const contextsDirectory = path.join(cwd, config.contextDirectory)
-  const dynamicModulesDir = path.join(cwd, config.dynamicModulesDirectory)
+  const dynamicModulesDir = path.join(externalCacheDir, config.dynamicModulesDirectory)
   
   const modelDir = path.join(cwd, config.modelsDirectory)
   const modelEnhance = path.join(modelDir, config.modelEnhance)
@@ -609,7 +609,16 @@ export async function readConfig (arg: {
   const { cwd, isProd, isRelease } = arg
   const configFileInPath = path.join(cwd, configFile)
 
+  const isElectron = typeof process !== 'undefined' && process.versions.hasOwnProperty('electron')
+
   const nodeModulesDir = path.join(arg.resolveNodeModulesDir || cwd, 'node_modules')
+
+  const project = path.parse(cwd).name
+
+  const packageJSONPath = path.join(cwd, 'package.json')
+  const packageJSON: JSONSchemaForNPMPackageJsonFiles = loadJSON(packageJSONPath);
+
+  const externalCacheDir = packageJSON.name && isElectron ? path.join('~/polymita', packageJSON.name) : cwd
 
   let config = defaultConfig() as IDefaultConfig
   if (fs.existsSync(configFileInPath)) {
@@ -625,12 +634,8 @@ export async function readConfig (arg: {
     config.moduleConfig = configInFile
   }
 
-  const project = path.parse(cwd).name
 
-  const packageJSONPath = path.join(cwd, 'package.json')
-  const packageJSON: JSONSchemaForNPMPackageJsonFiles = loadJSON(packageJSONPath);
-
-  const pointFiles = getOutputFiles(cwd, config, !!isProd, !!isRelease)
+  const pointFiles = getOutputFiles(externalCacheDir, cwd, config, !!isProd, !!isRelease)
 
   const {
     appDirectory, 
@@ -667,7 +672,7 @@ export async function readConfig (arg: {
    * @polymita/* business modules
    */
   const dynamicModules = findDynamicModules(
-    path.join(cwd, config.dynamicModulesDirectory),
+    pointFiles.currentFiles.dynamicModulesDir,
     config.metaFileName,
     config.buildDirectory,
     config.moduleConfigFile,
@@ -732,6 +737,7 @@ export async function readConfig (arg: {
     homePageUrl,
     hostOrigin,
     ...config,
+    isElectron,
     configFile,
     nodeModulesDir,
     tailwindConfigPath,

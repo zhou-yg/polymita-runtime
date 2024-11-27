@@ -58,18 +58,18 @@ function getModuleByDir(
  * load dynamic modules from server
  */
 export function findDynamicModules (
-  dynamicModulesDir: string,
+  targetDir: string,
   metaFileName: string,
   outputDirectoryName: string,
   moduleConfigFileName: string,
 ) {
-  if (!fs.existsSync(dynamicModulesDir)) {
+  if (!fs.existsSync(targetDir)) {
     return []
   }
 
-  const modules = readdirSync(dynamicModulesDir)
+  const modules = readdirSync(targetDir)
     .map(f => {
-      const dir = path.join(dynamicModulesDir, f)
+      const dir = path.join(targetDir, f)
       return getModuleByDir(f, false, dir, outputDirectoryName, metaFileName, moduleConfigFileName)
     })
     .filter(f => lstatSync(f.dir).isDirectory())
