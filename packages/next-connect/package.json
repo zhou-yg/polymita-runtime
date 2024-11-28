@@ -1,6 +1,6 @@
 {
   "name": "@polymita/next-connect",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "useHook serverless framework",
   "main": "./dist/index.umd.js",
   "types": "./dist/index.umd.d.ts",
