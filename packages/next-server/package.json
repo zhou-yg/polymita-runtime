@@ -95,10 +95,12 @@
     "@types/rimraf": "^3.0.2",
     "@types/shelljs": "^0.8.11",
     "rollup": "^4.12.1",
+    "rollup-plugin-dts": "^4.2.2",
     "rollup-plugin-typescript2": "^0.31.2",
     "tslib": "^2.4.0"
   },
   "peerDependencies": {
+    "@polymita/renderer": "workspace:^",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   }

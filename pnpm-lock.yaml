@@ -669,7 +669,7 @@ importers:
         version: 5.0.11
       typescript:
         specifier: ^5.4.2
-        version: 5.4.2
+        version: 4.9.5
       vite:
         specifier: ^5.4.0
         version: 5.4.0(@types/node@18.15.5)
@@ -712,7 +712,10 @@ importers:
         version: 0.8.12
       rollup:
         specifier: ^4.12.1
-        version: 4.12.1
+        version: 2.79.1
+      rollup-plugin-dts:
+        specifier: ^4.2.2
+        version: 4.2.3(rollup@2.79.1)(typescript@4.9.5)
       rollup-plugin-typescript2:
         specifier: ^0.31.2
         version: 0.31.2(rollup@4.12.1)(typescript@5.4.2)
@@ -5132,6 +5135,7 @@ packages:
       magic-string: 0.25.9
       resolve: 1.22.2
       rollup: 4.12.1
+    dev: false
 
   /@rollup/plugin-json@4.1.0(rollup@2.79.1):
     resolution: {integrity: sha512-yfLbTdNS6amI/2OpmbiBoW12vngr5NW2jCJVZSBEz+H5KfUJZ2M7sDjk0U6GOOdCWFVScShte29o9NezJ53TPw==}
@@ -5149,6 +5153,7 @@ packages:
     dependencies:
       '@rollup/pluginutils': 3.1.0(rollup@4.12.1)
       rollup: 4.12.1
+    dev: false
 
   /@rollup/plugin-node-resolve@13.3.0(rollup@2.79.1):
     resolution: {integrity: sha512-Lus8rbUo1eEcnS4yTFKLZrVumLPY+YayBdWXgFSHYhTT2iJbMhoaaBL3xl5NCdeRytErGr8tZ0L71BMRmnlwSw==}
@@ -5197,6 +5202,7 @@ packages:
       estree-walker: 1.0.1
       picomatch: 2.3.1
       rollup: 4.12.1
+    dev: false
 
   /@rollup/pluginutils@4.2.1:
     resolution: {integrity: sha512-iKnFXr7NkdZAIHiIWE+BX5ULi/ucVFYWD6TbAV+rZctiRTY2PL6tsIKhoIOaoskiWAkgu+VsbXgUVDNLHf+InQ==}
@@ -5642,6 +5648,7 @@ packages:
     dependencies:
       '@types/jsonfile': 6.1.4
       '@types/node': 20.14.10
+    dev: false
 
   /@types/glob@7.2.0:
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
@@ -5699,6 +5706,7 @@ packages:
     resolution: {integrity: sha512-D5qGUYwjvnNNextdU59/+fI+spnwtTFmyQP0h+PfIOSkNfpU6AOICUOkm4i0OnSk+NyjdPJrxCDro0sJsWlRpQ==}
     dependencies:
       '@types/node': 20.14.10
+    dev: false
 
   /@types/keygrip@1.0.2:
     resolution: {integrity: sha512-GJhpTepz2udxGexqos8wgaBx4I/zWIDPh/KOGEwAqtuGDkOUJu5eFvwmdBX4AmB8Odsr+9pHCQqiAqDL/yKMKw==}
@@ -5808,6 +5816,7 @@ packages:
 
   /@types/node@14.18.63:
     resolution: {integrity: sha512-fAtCfv4jJg+ExtXhvCkCqUKZ+4ok/JQk01qDKhL5BDDoS3AxKXhV5/MAVUZyQnSEd2GT92fkgZl0pz0Q0AzcIQ==}
+    dev: false
 
   /@types/node@16.18.36:
     resolution: {integrity: sha512-8egDX8dE50XyXWH6C6PRCNkTP106DuUrvdrednFouDSmCi7IOvrqr0frznfZaHifHH/3aq/7a7v9N4wdXMqhBQ==}
@@ -14653,6 +14662,7 @@ packages:
     resolution: {integrity: sha512-+2/g0Fds1ERlP6JsakQQDXjZdZMM+rqpamFZJEKh4kwTIn3iDkgKtby0CeNd5ATNZ4Ry1ax15TMx0W2V+miizQ==}
     engines: {node: '>=14.17'}
     hasBin: true
+    dev: true
 
   /uc.micro@1.0.6:
     resolution: {integrity: sha512-8Y75pvTYkLJW2hWQHXxoqRgV7qb9B+9vFEtidML+7koHUFapnVJAZ6cKs+Qjz5Aw3aZWHMC6u0wJE3At+nSGwA==}
@@ -14773,6 +14783,7 @@ packages:
       '@types/fs-extra': 11.0.4
       '@types/node': 14.18.63
       fs-extra: 11.1.1
+    dev: false
 
   /vite-tsconfig-paths@4.3.1(typescript@4.9.5)(vite@3.2.7):
     resolution: {integrity: sha512-cfgJwcGOsIxXOLU/nELPny2/LUD/lcf1IbfyeKTv2bsupVbTH/xpFtdQlBmIP1GEK2CjjLxYhFfB+QODFAx5aw==}

@@ -110,7 +110,7 @@ export function findDepLibs (pkgJSON: null | JSONSchemaForNPMPackageJsonFiles) {
   return Object.fromEntries(Object.keys(internalLibs).map(k => [k, pkgModules[k]])) as Record<k, boolean>;
 }
 
-interface Dep {
+export interface Dep {
   name: string
   resourceDir?: string
   resources?: string[]

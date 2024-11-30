@@ -130,12 +130,16 @@ export type IDefaultConfig = ReturnType<typeof defaultConfig> & {
 const configFile = 'polymita.config.js'
 export const configFileName = 'polymita.config.js'
 
+const convertToImportPath = (f: string) => path.join('./', f.replace(/\.\w+$/, ''))
 /**
  * app/page -> /
  * app/xxx/page -> /xxx
  */
 const definePage = (f: IFile, viewDir: string) => {
+
   const isRoot = viewDir === f.dir
+
+  const isLayout = isLayoutFile(f.file)
 
   const parsedDir = path.parse(f.dir)
   const prefix = f.dir.replace(viewDir, '')
@@ -145,12 +149,14 @@ const definePage = (f: IFile, viewDir: string) => {
   const parentRouterPath = prefix.split('/').slice(0, -1).join('/')
 
   return {
+    isLayout,
     name: isRoot ? '' : name,
     parentRouterPath: isRoot ? '' : parentRouterPath || '/',
     routerPath: prefix || '/',
+    /** page file path */
     path: f.path,
-    relativeImportPath: path.join('./', f.relativeFile.replace(/\.\w+$/, '')),
-    relativeLayoutImportPath: path.join('./', replaceToLayout(f.relativeFile)),
+    relativeImportPath: convertToImportPath(f.relativeFile),
+    relativeLayoutImportPath: convertToImportPath(replaceToLayout(f.relativeFile)),
     layout: replaceToLayout(f.path),
     layoutExists: fs.existsSync(replaceToLayout(f.path)),
   }
@@ -196,6 +202,7 @@ function defineRoutesTree (pages: PageConfig[]): IRouteChild | undefined {
 }
 
 const isPageFile = (f: string) => /page\.(j|t)sx$/.test(f)
+const isLayoutFile = (f: string) => /layout\.(j|t)sx$/.test(f)
 const replaceToLayout = (f: string) => f.replace(/page\.(\w+)$/, `layout.$1`)
 
 function readPages (config: IDefaultConfig, viewDir: string) {
@@ -204,7 +211,7 @@ function readPages (config: IDefaultConfig, viewDir: string) {
 
   traverseDir(viewDir, (f) => {
     if (!f.relativeFile.includes(config.generateRoot)) {
-      if (isPageFile(f.file)) {
+      if (isPageFile(f.file) || isLayoutFile(f.file)) {
         pages.push(definePage(f, viewDir))
       }
     }
@@ -544,6 +551,19 @@ function readScripts (dir: string) {
   return result
 }
 
+/**
+ * /page/index
+ */
+export type PagePath = string
+/**
+ * module's component name
+ */
+export type PageModuleName = string
+/**
+ * component props
+ */
+export type PageModuleProps = Record<string, any>
+
 export interface UserCustomConfig {
   platform: 'browser' | 'desktop'
   ts?: boolean
@@ -556,8 +576,14 @@ export interface UserCustomConfig {
   }
 
   routes?: {
-    pages: Record<string, string | [string, any]>
-    layouts: Record<string, string | [string, any]>
+    /**
+     * /main/index
+     */
+    pages: Record<PagePath, PageModuleName | [PageModuleName, PageModuleProps]>
+    /**
+     * /layout/index
+     */
+    layouts: Record<PagePath, PageModuleName | [PageModuleName, PageModuleProps]>
   }
 
   /**
@@ -598,6 +624,7 @@ function getTailwindConfigPath(cwd: string) {
     return pathPrefix + '.ts'
   }
 }
+
 
 export async function readConfig (arg: {
   cwd: string,
@@ -733,7 +760,12 @@ export async function readConfig (arg: {
     config.releaseDirectory,
   ]
 
-  return {
+  async function reload () {
+    const newConfig = await readConfig(arg)
+    Object.assign(result, newConfig)
+  }
+
+  const result = {
     homePageUrl,
     hostOrigin,
     ...config,
@@ -767,5 +799,8 @@ export async function readConfig (arg: {
     configFileName,
     staticDeps,
     packageJSONPath,
+    reload,
   }
+
+  return result
 }

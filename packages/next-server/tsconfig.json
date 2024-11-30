@@ -3,12 +3,12 @@
   "compilerOptions": {
     "module": "ESNext",
     "lib": ["esnext", "DOM"],
-    "moduleResolution": "Node",
+    "moduleResolution": "node",
     "types": ["node", "jest"],
     "strictNullChecks": true,
     "typeRoots": [
       "node_modules/@types",
       "./src"
     ]
-  },
+  }
 }

@@ -14,13 +14,12 @@ export default function inlineDynamic (args: {
   return async (ctx, next) => {
     const url = ctx.request.url
     const name = url.match(/\/dynamicConfig\.js$/)
-    console.log('name: ', url, name);
-
     if (name) {
+      console.log('[middleware/dynamic] name: ', url, name);
       const code = exportToGlobalScript(config)
 
       const routeCode = exportDynamicModulesToRoutes(config)
-      console.log('routeCode: ', routeCode);
+      // console.log('[middleware/dynamic] routeCode: ', routeCode);
       
       ctx.set('Content-Type', 'application/javascript');
       ctx.body = `${code}\n${routeCode}`

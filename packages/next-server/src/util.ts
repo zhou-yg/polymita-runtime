@@ -214,7 +214,7 @@ export function traverse(
     parentKeys = []
   }
   Object.entries(target).forEach(([key, value]) => {
-    const currentKeys = parentKeys.concat(key)
+    const currentKeys = parentKeys!.concat(key)
     value && callback(currentKeys, value)
     if (typeof value === 'object' && value) {
       traverse(value, callback, currentKeys)

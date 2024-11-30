@@ -121,8 +121,9 @@ function generateRoutesImports (routes: IRouteChild) {
   function traverseRoutes(route: IRouteChild, parentName = '') {
     if (route.pageConfig) {
       const name = getRouteElementName(route, parentName);
-      importsArr.push([name, `./${route.pageConfig.relativeImportPath}`]);
-
+      if (!route.pageConfig.isLayout) {
+        importsArr.push([name, `./${route.pageConfig.relativeImportPath}`]);
+      }
       if (route.pageConfig.layoutExists) {
         importsArr.push([`${name}Layout`, `./${route.pageConfig.relativeLayoutImportPath}`]);
       }
@@ -156,7 +157,7 @@ function generateJSONRoutes (routes: IRouteChild, depth = 0, parentName = ''): I
       path: route.routerPath,
       element: route?.pageConfig?.layoutExists ? `<${layoutName} />` : null,
       children: [
-        name && {
+        name && !route?.pageConfig?.isLayout &&  {
           element: `<${name} />`,
           index: true,
         }
@@ -193,6 +194,8 @@ export async function generateClientRoutes(c: IConfig) {
   const {
     routesTree,
   } = c
+
+  console.log('routesTree: ', routesTree);
 
   const imports = routesTree ? generateRoutesImports(routesTree) : []
 
