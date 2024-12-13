@@ -17,6 +17,9 @@ const MODEL_UPDATE = 'MODEL_UPDATE'
 
 export const genModelEventKey = (entity: string) => `${MODEL_UPDATE}:${entity}`
 
+/**
+ * @deprecated
+ */
 export const PrismaNamespaceContext = React.createContext<{
   namespace: string;
   modulesLinkMap?: Map<string, any>;
@@ -39,7 +42,9 @@ export function ConnectProvider(props: {
     props.children,
   );
 }
-
+/**
+ * @deprecated
+ */
 export function PrismaNamespaceProvider(props: {
   children?: any;
   namespace: string;
