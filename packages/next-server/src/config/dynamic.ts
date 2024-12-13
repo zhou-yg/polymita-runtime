@@ -148,7 +148,7 @@ export function exportToGlobalScript (config: IConfig) {
  *  import * as _polymita_xxx a from '@polymita/xxx'
  *  import * as xxx from '@/dynamic_modules/xxx'
  */
-function getDependencyModules(c: IConfig) {
+export function getDependencyModules(c: IConfig) {
   return c.allDependencyModules.map(f => {
 
     let importPath = ''

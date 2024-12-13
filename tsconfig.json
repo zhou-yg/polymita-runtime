@@ -8,6 +8,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "allowJs": true,
+    "moduleResolution": "node",
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "removeComments": false,

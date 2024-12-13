@@ -14,6 +14,7 @@ import {
   generateViewFromOverrides,
   createDevViteServer,
   generateClientRoutes,
+  loadThirdPart,
 } from '../src'
 
 const chokidarOptions = () => ({
@@ -116,13 +117,6 @@ function prepareDirs(c: IConfig) {
     emptyDirectory(c.pointFiles.generates.root)
   } else {
     fs.mkdirSync(c.pointFiles.generates.root, { recursive: true })
-  }
-}
-
-function loadThirdPart(c: IConfig) {
-  if (fs.existsSync(c.thirdPartEntry)) {
-    logFrame(`find third entry:${c.thirdPartEntry}`)
-    require(c.thirdPartEntry)(c)
   }
 }
 
