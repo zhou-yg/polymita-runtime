@@ -374,6 +374,7 @@ function getOutputFiles (externalCacheDir: string, cwd: string, config: IDefault
     configFile: configFileInPath,
     modelFiles,
     contextsDirectory,
+    thirdPartDir: path.join(cwd, config.thirdPartDir),
   }  
 
   const moduleFiles = readModules(modulesDirectory)

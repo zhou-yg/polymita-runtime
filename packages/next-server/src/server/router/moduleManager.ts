@@ -82,6 +82,16 @@ export function createModuleManager(c: IConfig) {
     }
   })
 
+  router.get('/import-page', async (ctx) => {
+    ctx.set('Content-Type', 'text/html')
+    ctx.body = `
+      <form action="/api/moduleManager/import" method="post" enctype="multipart/form-data">
+        <input name="moduleName" />
+        <input type="file" name="module" />
+        <button type="submit">upload</button>
+      </form>
+    `
+  })
   router.post('/import', async (ctx) => {
     const { moduleName } = ctx.request.body
     const moduleZip = ctx.request.files?.module as any; 

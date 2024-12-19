@@ -28,11 +28,16 @@ export default [
   },
   {
     input: 'src/index.ts',
-    output: [
-      { file: `dist/lib.d.ts`, format: 'es' }
-    ],
+    // output: [
+    //   { file: `dist/lib.d.ts`, format: 'es' }
+    // ],
     plugins: [
-      dts(),
+      tsPlugin({
+        clean: true,
+        tsconfig: './tsconfig.types.json',        
+      }),
+      json(),
+      commonjs(),
     ],
   }
 ]

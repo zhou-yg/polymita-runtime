@@ -180,6 +180,7 @@ export async function zipOutput(c: IConfig) {
 
   const files = [
     ['dist', c.pointFiles.output.root],
+    ['third_part', c.pointFiles.currentFiles.thirdPartDir],
     ['', c.packageJSONPath],
   ] as [string, string][];
 
