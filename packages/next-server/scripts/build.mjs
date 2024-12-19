@@ -8,6 +8,8 @@ const instance = spawn('rollup', ['--config', 'rollup.config.mjs'], {
   stdio: 'inherit'
 })
 
+const st = Date.now()
+
 instance.on('close', () => {
   
   const ejsArr = [
@@ -38,5 +40,5 @@ instance.on('close', () => {
     cp(from, 'dist/internalStatic/dev')
   })
 
-  console.log('build end')
+  console.log('build end, cost', (Date.now() - st) / 1000)
 })
