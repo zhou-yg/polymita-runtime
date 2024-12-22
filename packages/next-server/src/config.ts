@@ -587,6 +587,8 @@ export interface UserCustomConfig {
     layouts: Record<PagePath, PageModuleName | [PageModuleName, PageModuleProps]>
   }
 
+  services: string[]
+
   /**
    * module settings exposed to user
    **/

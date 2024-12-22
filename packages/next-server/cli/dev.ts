@@ -14,7 +14,6 @@ import {
   generateViewFromOverrides,
   createDevViteServer,
   generateClientRoutes,
-  loadThirdPart,
 } from '../src'
 
 const chokidarOptions = () => ({
@@ -144,12 +143,6 @@ export default async (cwd: string) => {
   logFrame(`build everything in ${t1()}s`)
 
   watchEverything(config)
-
-  try{
-    loadThirdPart(config)
-  }catch (e) {
-    errorFrame(e)
-  }
 
   createDevViteServer(config)
 }

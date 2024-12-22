@@ -13,6 +13,8 @@ import react from '@vitejs/plugin-react'
 import sendApp from './middlewares/sendApp'
 import createExternal from 'vite-plugin-external';
 import { createRouter } from './router'
+import { createThirdPart } from './third_part'
+import koaMount from 'koa-mount'
 
 import * as vite from "vite";
 
@@ -75,6 +77,10 @@ async function startApp(app: Application, c: IConfig) {
   appendMiddleware(app, c)
 
   const port = c.port
+
+  const thirdPartIns = createThirdPart(c)
+
+  app.use(koaMount('third_part', thirdPartIns))
 
   app.listen(port, () => {
 

@@ -164,8 +164,11 @@ export function getDependencyModules(c: IConfig) {
     }
 
     return {
+      dir: f.dir,
       pkgName: f.pkgName,
       // package name maybe include '@' scope
+      varName: convertModuleNameToVariableName(f.name),
+      /** @deprecated */
       name: convertModuleNameToVariableName(f.name),
       path: importPath,
       pathPKG: importPathPKG,

@@ -28,9 +28,9 @@ export default [
   },
   {
     input: 'src/index.ts',
-    // output: [
-    //   { file: `dist/lib.d.ts`, format: 'es' }
-    // ],
+    output: [
+      { file: `dist/lib.d.ts`, format: 'es' }
+    ],
     plugins: [
       tsPlugin({
         clean: true,
