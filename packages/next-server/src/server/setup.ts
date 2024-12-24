@@ -49,38 +49,26 @@ export function setupBasicServer (c: IConfig) {
   })
   app.use(serverScripts({ config: c }))
 
-  return app
-}
-
-function appendMiddleware (app: Application, c: IConfig) {
+  const thirdPartIns = createThirdPart(c)
+  app.use(koaMount('/third_part', thirdPartIns))
 
   const router = createRouter(c)
 
   app.use(router.routes())
   app.use(router.allowedMethods())
 
-  /**
-   * handle *.css
-   */
-  // app.use(async (ctx, next) => {
-  //   if (!ctx.body && ctx.request.path.endsWith('.css')) {
-  //     if (existsSync(join(ctx.request.path))) {
-  //       ctx.headers['content-type'] = 'text/css'
-  //       ctx.body = readFileSync((ctx.request.path), 'utf-8')
-  //     }
-  //   }
-  //   await next()
-  // })
+  return app
+}
+/**
+ * @deprecated
+ */
+function appendMiddleware (app: Application, c: IConfig) {
 }
 
 async function startApp(app: Application, c: IConfig) {
   appendMiddleware(app, c)
 
   const port = c.port
-
-  const thirdPartIns = createThirdPart(c)
-
-  app.use(koaMount('third_part', thirdPartIns))
 
   app.listen(port, () => {
 
