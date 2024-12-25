@@ -91,6 +91,40 @@ export async function  buildScripts(c: IConfig) {
     ])
   }
 }
+export async function buildThirdPart(c: IConfig) {
+
+  const buildEntries: string[] = []
+
+  const dir = join(c.cwd, c.thirdPartDir)
+  const destDir = c.pointFiles.output.thirdPartDir
+
+  tryMkdir(destDir)          
+  traverseDir(dir, f => {
+    if (f.isDir) {
+      tryMkdir(join(c.pointFiles.output.thirdPartDir, f.relativeFile))
+    } else {
+      if (/\.ts(x)?/.test(f.file)) {
+        buildEntries.push(f.path)
+      } else if (!/^\./.test(f.file)) {
+        // ignore hidden files
+        cp(f.path, join(destDir, f.relativeFile))
+      }
+    }
+  })
+
+  if (buildEntries.length) {
+    console.log('buildEntries: ', buildEntries);
+    console.log('c.pointFiles.output.thirdPartDir: ', c.pointFiles.output.thirdPartDir);
+    console.log('join(c.cwd, c.thirdPartDir): ', dir);
+    await Promise.all([
+      esbuild({
+        entryPoints: buildEntries,
+        outdir: c.pointFiles.output.thirdPartDir,
+        outbase: dir,
+      }),
+    ])
+  }
+}
 
 export const externalModules = (modules: string[] = []) => ({
   react: 'React',

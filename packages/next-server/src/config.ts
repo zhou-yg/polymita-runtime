@@ -94,7 +94,8 @@ export const defaultConfig = () => ({
   diffPath: '_diff',
 
   model: {
-    engine: 'prisma'
+    engine: 'prisma',
+    prismaClientEntry: './models/customPrismaClient/client'
   },
 
   // compose
@@ -295,7 +296,8 @@ type IReadConfigResult = UnPromisify<ReturnType<typeof readConfig>>
 
 export interface IConfig extends IReadConfigResult{
   model: {
-    engine: 'prisma' | 'er'
+    engine: 'prisma' | 'er',
+    prismaClientEntry: string
   }
 }
 
@@ -408,6 +410,7 @@ function getOutputFiles (externalCacheDir: string, cwd: string, config: IDefault
       css: path.join(outputDir, 'index.css'),
       //
       scriptsDir: path.join(outputDir, config.scriptDirectory),    
+      thirdPartDir: path.join(outputDir, config.thirdPartDir),    
       serverScriptsDir: path.join(outputDir, config.scriptDirectory, config.serverDir),    
       edgeScriptsDir: path.join(outputDir, config.scriptDirectory, config.edgeDir),    
     },

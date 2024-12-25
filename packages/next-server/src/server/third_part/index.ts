@@ -20,14 +20,22 @@ function loadThirdPart(c: IConfig, app: Koa) {
   const modules = getDependencyModules(c)
   const thirdPartInModules = modules.filter(m => {
     return c.moduleConfig?.services?.includes(m.pkgName)
-  }).map(m => {
-    return join(m.dir, c.thirdPartDir)
-  }).filter(f => {
-    console.log('[loadThirdPart] dynamic third_part: ', f);
-    return fs.existsSync(join(f, 'index.js')) || fs.existsSync(join(f, 'index.mjs'))
-  })
+  }).map(f => {
+    const r = [
+      join(c.thirdPartDir, 'index.js'),
+      join(c.thirdPartDir, 'index.mjs'),
+      join(c.buildDirectory, c.thirdPartDir, 'index.js'),
+      join(c.buildDirectory, c.thirdPartDir, 'index.mjs')
+    ].find(entry => {
+      return fs.existsSync(join(f.dir, entry))
+    })
 
+    if (r) {
+      return join(f.dir, r)
+    }
+  }).filter(Boolean) as string[]
 
+  console.log('loadThirdPart[] thirdPartInModules: ', thirdPartInModules);
   if (thirdPartInModules.length > 0) {
     thirdPartInModules.forEach(f => {
       require(f)(c, app)
@@ -37,9 +45,21 @@ function loadThirdPart(c: IConfig, app: Koa) {
 
 export function createThirdPart (c: IConfig) {
     
-    const thirdKoaIns = new Koa();
+  const thirdKoaIns = new Koa();
 
-    loadThirdPart(c, thirdKoaIns)
-      
-    return thirdKoaIns
+  thirdKoaIns.use(async (ctx, next) => {
+    console.log('[@polymita/server] start third', ctx.request.path)
+    await next()
+  })
+
+  loadThirdPart(c, thirdKoaIns)
+
+  thirdKoaIns.use(async (ctx, next) => {
+    console.log('[@polymita/server] end basic', ctx.request.path)
+    if (!ctx.body) {
+      await next()
+    }
+  })
+    
+  return thirdKoaIns
 }

@@ -25,6 +25,7 @@ import { getAddress, logFrame } from "../util";
 import inlineStatic from "./middlewares/inlineStatic";
 import { externalModules } from "../compiler";
 import prisma from "./middlewares/prisma";
+import prismaQuickAPI from "./middlewares/prismaQuickAPI";
 import serverScripts from "./middlewares/serverScripts";
 import inlineDynamic from "./middlewares/dynamic";
 
@@ -47,7 +48,15 @@ export function setupBasicServer (c: IConfig) {
     console.log('[@polymita/server] >> request path=', ctx.request.path)
     await next()
   })
+  app.use(prisma({ config: c }))
+  
   app.use(serverScripts({ config: c }))
+
+
+  app.use(async (ctx, next) => {
+    console.log('[@polymita/server] before third', ctx.request.path)
+    await next()
+  })
 
   const thirdPartIns = createThirdPart(c)
   app.use(koaMount('/third_part', thirdPartIns))
@@ -113,7 +122,7 @@ export async function createDevViteServer (c: IConfig) {
 
   app.use(inlineDynamic({ config: c }))
   app.use(inlineStatic({ config: c }))
-  app.use(prisma({ config: c }))
+  app.use(prismaQuickAPI({ config: c }))
 
   const viteServer = await vite.createServer({
     server: { middlewareMode: true },
@@ -168,7 +177,7 @@ export async function createServer(c: IConfig) {
 
   app.use(inlineDynamic({ config: c }))
   app.use(inlineStatic({ config: c }))
-  app.use(prisma({ config: c }))
+  app.use(prismaQuickAPI({ config: c }))
   app.use(page({
     config: c,
   }))
