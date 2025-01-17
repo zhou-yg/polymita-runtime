@@ -216,7 +216,9 @@ export async function zipOutput(c: IConfig) {
     ['dist', c.pointFiles.output.root],
     ['third_part', c.pointFiles.currentFiles.thirdPartDir],
     ['', c.packageJSONPath],
-  ] as [string, string][];
+  ].filter(([name, dir]) => {
+    return existsSync(dir)
+  }) as [string, string][];
 
   compressZip(files, c.pointFiles.output.zip)
 }

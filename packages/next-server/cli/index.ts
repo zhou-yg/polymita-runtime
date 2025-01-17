@@ -7,6 +7,7 @@ import release from "./release";
 import start from "./start";
 import zip from "./zip";
 import upload from "./upload";
+import prisma from "./prisma";
 
 export * as nextServer from '../src/index'
 
@@ -21,6 +22,12 @@ cac
   })
   .action(async (options: { port: number }) => {
     dev(cwd)
+  })
+
+  cac
+  .command('prisma', 'compose prisma schema and generate')
+  .action(async (options: { port: number }) => {
+    prisma(cwd)
   })
 
 cac

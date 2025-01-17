@@ -10,5 +10,9 @@
       "node_modules/@types",
       "./src"
     ]
-  }
+  },
+  "include": [
+    "./src/**.ts",
+    "./cli/**.ts"
+  ]
 }

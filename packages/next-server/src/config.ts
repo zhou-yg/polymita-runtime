@@ -768,6 +768,7 @@ export async function readConfig (arg: {
 
   async function reload () {
     const newConfig = await readConfig(arg)
+    console.log('[config.reload] newConfig: ', newConfig);
     Object.assign(result, newConfig)
   }
 

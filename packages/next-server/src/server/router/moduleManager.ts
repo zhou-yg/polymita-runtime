@@ -72,7 +72,9 @@ export function createModuleManager(c: IConfig) {
     })
     const dynamicModuleDir = await saveDynamicModule(c, convertedName, tmpZipFile)
 
-    c.reload()
+    console.log('before reload: ');
+
+    await c.reload()
     // clear
     fs.unlinkSync(tmpZipFile)
 
@@ -86,8 +88,12 @@ export function createModuleManager(c: IConfig) {
     ctx.set('Content-Type', 'text/html')
     ctx.body = `
       <form action="/api/moduleManager/import" method="post" enctype="multipart/form-data">
-        <input name="moduleName" />
-        <input type="file" name="module" />
+        <div>
+          <input name="moduleName" />
+        </div>
+        <div>
+          <input type="file" name="module" />
+        </div>
         <button type="submit">upload</button>
       </form>
     `
@@ -119,6 +125,8 @@ export function createModuleManager(c: IConfig) {
 
     const dynamicModuleDir = await saveDynamicModule(c, moduleName, zipFile)
     
+    await c.reload()
+
     ctx.body = {
       destDir: dynamicModuleDir,
       filepath: moduleZip?.filepath,
