@@ -36,7 +36,7 @@ function getModuleByDir(
 ): IDynamicModule {
   const pkg = path.join(dir, 'package.json')
   const metaFile = path.join(dir, outputDirectoryName, metaFileName)
-  const moduleConfigFile = path.join(dir, outputDirectoryName, moduleConfigFileName)
+  const moduleConfigFile = path.join(dir, moduleConfigFileName)
 
   const pkgJSON = loadJSON(pkg)
   const metaJSON = loadJSON(metaFile)
@@ -168,11 +168,16 @@ export function findStaticDeps (isProd: boolean, nodeModulesDir: string, modules
   arr.forEach(d1 => {
     if (d1.resourceDir && existsSync(d1.resourceDir)) {
       if (lstatSync(d1.resourceDir).isDirectory()) {
-        d1.resources = (readdirSync(d1.resourceDir)
+        const dirLoadedResources = (readdirSync(d1.resourceDir)
           .filter(f => /\.js$/.test(f))
           .map(f => {
             return path.join(d1.resourceDir!, f)
-          })).concat((d1.resources || []))
+          }))
+          if (!dirLoadedResources.length) {
+            throw new Error(`[findStaticDeps] not found resources in dir "${d1.resourceDir}"`)
+          }
+
+          d1.resources = dirLoadedResources.concat((d1.resources || []))
       }
     }
   })

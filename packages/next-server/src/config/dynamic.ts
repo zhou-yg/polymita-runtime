@@ -44,7 +44,7 @@ export function overrideActivate(
 ) {
   const f = config.pointFiles.currentFiles.moduleConfigFile;
   if (!fs.existsSync(f)) {
-    fs.writeFileSync(f, '[]')
+    fs.writeFileSync(f, '{}')
   }
 
   const userConfig: UserCustomConfig = JSON.parse(fs.readFileSync(f, 'utf-8'))
@@ -103,6 +103,29 @@ export function overrideInactivate(
   }, null, 2))
 
   return activeArray
+}
+
+export function overrideRootConfig (
+  config: IConfig,
+  overrideConfig?: Record<string, any>
+) {
+
+  const f = config.pointFiles.currentFiles.moduleConfigFile;
+  console.log('[next-server] overrideRootConfig: ', f);
+  if (!fs.existsSync(f)) {
+    const dir = path.dirname(f)
+    tryMkdir(dir)
+    fs.writeFileSync(f, '{}')
+  }
+  const userConfig: UserCustomConfig = JSON.parse(fs.readFileSync(f, 'utf-8'))
+  
+  if (overrideConfig) {
+    Object.assign(userConfig, overrideConfig)
+  }
+
+  fs.writeFileSync(f, JSON.stringify(userConfig, null, 2))
+
+  return userConfig
 }
 
 export function overrideUpdateModuleConfig(
@@ -248,6 +271,7 @@ export function exportDynamicModulesToRoutes(
    * export dynamic routes to global
    */
   let exportRoutesToGlobalCode = `window.${config.globalDynamicRoutesRefKey} = [`
+  console.log('config.dynamicModules: ', config.dynamicModules);
   config.dynamicModules.map(f => {
     return Object.entries(f.meta.routes?.pages || {}).map(([path, name]) => {
       const { nameVar, propsVar } = getNameAndProps(name)

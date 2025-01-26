@@ -348,3 +348,9 @@ export function compressZip(files: [string, string][], dest: string) {
   })
   return zip.writeZipPromise(dest)
 }
+
+
+export function getDynmaicModuleConfigFile(config: IConfig, moduleName: string) {
+  const f = path.join(config.pointFiles.currentFiles.dynamicModulesDir, moduleName, config.moduleConfigFile);
+  return
+}

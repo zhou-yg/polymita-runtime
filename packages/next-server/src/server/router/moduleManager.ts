@@ -2,7 +2,7 @@ import Router from '@koa/router';
 import { IConfig } from '../../config';
 import * as path from 'path'
 import * as fs from 'fs'
-import { getCurrentDynamicConfig, overrideActivate, overrideInactivate, overrideUpdateModuleConfig, saveDynamicModule } from '../../config/dynamic';
+import { getCurrentDynamicConfig, overrideActivate, overrideInactivate, overrideRootConfig, overrideUpdateModuleConfig, saveDynamicModule } from '../../config/dynamic';
 import * as market from '../../service/market';
 import axios from 'axios';
 import { tryMkdir } from '../../util';
@@ -32,6 +32,11 @@ export function createModuleManager(c: IConfig) {
   router.post('/update-config', async (ctx) => {
     const { name, config } = ctx.request.body
     const result = overrideUpdateModuleConfig(c, name, config)
+    ctx.body = !!result
+  })
+  router.post('/update-root-config', async (ctx) => {
+    const { config } = ctx.request.body
+    const result = overrideRootConfig(c, config)
     ctx.body = !!result
   })
   router.post('/override-module', async (ctx) => {

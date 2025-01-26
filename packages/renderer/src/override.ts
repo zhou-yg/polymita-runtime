@@ -562,22 +562,22 @@ export function getModulesByBase(
  *
  * module link Map relation
  * {
- *   [module.namespace1-name1]: [Module1, ...],
- *   [module.namespace2-name2]: [Module2, Module2-override, ...],
+ *   [ module.namespace1-name1 ]: [ Module1, ... ],
+ *   [ module.namespace2-name2 ]: [ Module2, Module2-override, ... ],
  * }
  * active modules:
- * [module.namespace1-name1]
+ * [ module.namespace1-name1 ]
  * @param m
  * @param mp
  */
 export function getActiveModuleByBase(
   m: SingleFileModule<any, any, any, any>,
-  mp: GlobalModulesLinkMap,
+  linkMap: GlobalModulesLinkMap,
   activeModules: GlobalModulesActiveMap
 ): SingleFileModule<any, any, any, any>[] | null {
   const key = moduleIndexKey(m);
-  if (m && mp && activeModules) {
-    const modules = mp.get(key);
+  if (m && linkMap && activeModules) {
+    const modules = linkMap.get(key);
     let result: [number, SingleFileModule<any, any, any, any>][] = [];
     modules?.forEach((m) => {
       const i = activeModules.indexOf(moduleIndexKey(m));

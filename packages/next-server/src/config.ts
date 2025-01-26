@@ -632,6 +632,27 @@ function getTailwindConfigPath(cwd: string) {
 }
 
 
+function getModuleConfig (
+  cwd: string,
+  config: IDefaultConfig
+) {
+  
+  const configFileInPath = path.join(cwd, configFile)
+
+  let configInFile: Partial<UserCustomConfig> = {}
+  if (fs.existsSync(configFileInPath)) {
+    configInFile = require(configFileInPath)
+    
+    /** check conflict key name */
+    const conflictKeys = Object.keys(configInFile).filter(key => key in config && config[key] !== configInFile[key])
+    if (conflictKeys.length > 0) {
+      throw new Error(`[config] conflict keys: ${conflictKeys.join(', ')}`)
+    }
+  }
+
+  return configInFile
+}
+
 export async function readConfig (arg: {
   cwd: string,
   resolveNodeModulesDir?: string,
@@ -654,18 +675,9 @@ export async function readConfig (arg: {
   const externalCacheDir = packageJSON.name && isElectron ? path.join('~/polymita', packageJSON.name) : cwd
 
   let config = defaultConfig() as IDefaultConfig
-  if (fs.existsSync(configFileInPath)) {
-    const configInFile: UserCustomConfig = require(configFileInPath)
-    
-    /** check conflict key name */
-    const conflictKeys = Object.keys(configInFile).filter(key => key in config && config[key] !== configInFile[key])
-    if (conflictKeys.length > 0) {
-      throw new Error(`[config] conflict keys: ${conflictKeys.join(', ')}`)
-    }
 
-    merge(config, configInFile)
-    config.moduleConfig = configInFile
-  }
+  const moduleConfig = getModuleConfig(cwd, config)
+  merge(config, moduleConfig)
 
 
   const pointFiles = getOutputFiles(externalCacheDir, cwd, config, !!isProd, !!isRelease)
@@ -679,6 +691,9 @@ export async function readConfig (arg: {
     signalsDirectory,
   } = pointFiles.currentFiles
 
+
+  const localUserConfig = loadJSON(pointFiles.currentFiles.moduleConfigFile)
+  merge(config.moduleConfig, localUserConfig)
 
   const envFiles = getEnvFiles(pointFiles, !!isProd, !!isRelease)
 
