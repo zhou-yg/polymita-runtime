@@ -41,6 +41,10 @@ export function getConfig (): UserCustomConfig {
       }
     })
   }
+  if (!globalThis.POLYMITA_CONFIG.moduleOverride.linkMap) {
+    globalThis.POLYMITA_CONFIG.moduleOverride.linkMap = new Map<string, string[]>()
+  }
+
   return globalThis.POLYMITA_CONFIG;
 }
 
