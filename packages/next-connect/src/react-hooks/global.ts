@@ -13,17 +13,6 @@ interface UserCustomConfig {
   }
 }
 
-interface DynamicRoute {
-  title: string,
-  path: string, 
-  element: any; 
-  children?: DynamicRoute[]
-}
-
-export function getDynamicRoutes (): DynamicRoute[] {
-  return globalThis.POLYMITA_DYNAMIC_ROUTES || []
-}
-
 export function getConfig (): UserCustomConfig {
   if (!globalThis.POLYMITA_CONFIG) {
     globalThis.POLYMITA_CONFIG = {
