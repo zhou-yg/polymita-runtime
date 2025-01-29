@@ -7,4 +7,6 @@ export default async (cwd: string) => {
   await zipOutput(config)
 
   logFrame('zip success at:', config.pointFiles.output.zip)
+
+  return config
 }

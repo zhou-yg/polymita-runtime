@@ -569,7 +569,7 @@ export type PageModuleName = string
 export type PageModuleProps = Record<string, any>
 
 export interface UserCustomConfig {
-  platform: 'browser' | 'desktop'
+  platform?: 'browser' | 'desktop'
   ts?: boolean
   debugLog?: boolean
 
@@ -590,12 +590,12 @@ export interface UserCustomConfig {
     layouts: Record<PagePath, PageModuleName | [PageModuleName, PageModuleProps]>
   }
 
-  services: string[]
+  services?: string[]
 
   /**
    * module settings exposed to user
    **/
-  settings: Record<string, any>
+  settings?: Record<string, any>
 }
 
 function filterComposeSignals(
@@ -678,7 +678,7 @@ export async function readConfig (arg: {
 
   const moduleConfig = getModuleConfig(cwd, config)
   merge(config, moduleConfig)
-
+  config.moduleConfig = moduleConfig
 
   const pointFiles = getOutputFiles(externalCacheDir, cwd, config, !!isProd, !!isRelease)
 

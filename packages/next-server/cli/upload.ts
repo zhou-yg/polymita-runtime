@@ -1,11 +1,40 @@
-import { logFrame, readConfig, zipOutput } from '../src'
+import { IConfig, logFrame, readConfig, zipOutput } from '../src'
 import * as fs from 'fs'
 import * as path from 'path'
 // import fetch from 'node-fetch'
 import FormData from 'form-data'
 import axios from 'axios'
 
-export default async (cwd: string) => {
+
+async function linkToLocal (
+  config: IConfig,
+  localPort: number,
+) {
+  const formData = new FormData();
+  formData.append('moduleName', config.packageJSON.name);
+  formData.append('module', fs.createReadStream(config.pointFiles.output.zip));
+
+  try {
+    const res = await axios.post(
+      `http://localhost:${localPort}/api/moduleManager/import`,
+      formData,
+      {
+        headers: {
+          ...formData.getHeaders()
+        }
+      }
+    );
+    if (res.status === 200) {
+      logFrame('[linkToLocal] success')
+    }  
+  } catch (error) {
+    console.error(`Failed to upload to local service: ${error.message}`);
+  }
+}
+
+export default async (cwd: string, options: {
+  localPort: number
+}) => {
   const config = await readConfig({
     cwd,
     isProd: true,
@@ -42,4 +71,6 @@ export default async (cwd: string) => {
   const data = res.data
 
   logFrame('upload success', data)
+
+  await linkToLocal(config, options.localPort)
 }

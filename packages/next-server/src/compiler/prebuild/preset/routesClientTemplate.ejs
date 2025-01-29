@@ -9,7 +9,7 @@ import {
   createHashRouter,
 } from "react-router-dom"
 
-import { getConfig, createModulesContext, getModulesContext, getDynamicRoutes } from '@polymita/next-connect'
+import { getConfig, createModulesContext, getModulesContext, getDynamicRoutes, mergeDynamicRoutesToTree } from '@polymita/next-connect'
 
 <%- imports %>
 
@@ -22,7 +22,7 @@ function RootApplication({
   ];
   const dynamicRoutes = getDynamicRoutes()
   if (dynamicRoutes.length) {
-    routes.push(...dynamicRoutes)
+    routes.push(...mergeDynamicRoutesToTree(dynamicRoutes))
   }
   console.log('[RootApplication] routes: ', routes);
   const router = createBrowserRouter(routes)

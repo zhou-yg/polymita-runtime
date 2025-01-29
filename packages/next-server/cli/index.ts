@@ -60,15 +60,23 @@ cac
       console.log('zip error: ', e);
     }
   })
+
+
 cac
   .command('upload', 'upload zip to market-service')
-  .action(async () => {
+  .option('--local <port>', 'local service port', {
+    default: '9500'
+  })
+  .action(async ({ local }) => {
     try {
-      await upload(cwd)
+      await upload(cwd, {
+        localPort: local,
+      })
     } catch (e) {
       console.log('upload error: ', e);
     }
   })
+
 
 cac
   .command('any')
