@@ -47,6 +47,7 @@ export function setupBasicServer (c: IConfig) {
   app.use(async (ctx, next) => {
     console.log('[@polymita/server] >> request path=', ctx.request.path)
     await next()
+    console.log('[@polymita/server] << response path=', ctx.request.path)
   })
   app.use(prisma({ config: c }))
   
@@ -54,7 +55,6 @@ export function setupBasicServer (c: IConfig) {
 
 
   app.use(async (ctx, next) => {
-    console.log('[@polymita/server] before third', ctx.request.path)
     await next()
   })
 
@@ -63,7 +63,7 @@ export function setupBasicServer (c: IConfig) {
    * extend third global context
    */
   Object.assign(app.context, thirdPartIns.context)
-  app.use(koaMount('/third_part', thirdPartIns))
+  // app.use(koaMount('/third_part', thirdPartIns))
 
   const router = createRouter(c)
 
@@ -149,7 +149,7 @@ export async function createDevViteServer (c: IConfig) {
     ],
     build: {
       commonjsOptions: {
-        include: [/dynamic-modules/, /node_modules/],
+        include: [/dynamic_modules/, /node_modules/],
       },
     },
     resolve: {
