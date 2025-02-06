@@ -42,13 +42,12 @@ export function mergeDynamicRoutesToTree(routes: DynamicRoute[]): DynamicRoute[]
     } else {
       while (currentPath) {
         let parentPath = currentPath.substring(0, currentPath.lastIndexOf('/'));
-        if (parentPath === '') {
-          parentPath = '/'
-        }
 
-        if (routeMap[parentPath]) {
+        const destParentPath = parentPath === '' ? '/' : parentPath
+
+        if (routeMap[destParentPath]) {
           const newRoutePath = route.path.replace(parentPath, '')
-          routeMap[parentPath].children!.push({
+          routeMap[destParentPath].children!.push({
             ...routeMap[route.path],
             path: newRoutePath,
           });
