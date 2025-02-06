@@ -52,6 +52,9 @@ export function mergeDynamicRoutesToTree(routes: DynamicRoute[]): DynamicRoute[]
             path: newRoutePath,
           });
           break;
+        } else if (destParentPath === '/') {
+          rootRoutes.push(routeMap[route.path]);
+          break
         } else {
           currentPath = parentPath
         }
