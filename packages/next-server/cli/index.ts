@@ -8,6 +8,7 @@ import start from "./start";
 import zip from "./zip";
 import upload from "./upload";
 import prisma from "./prisma";
+import { assignCommandsToProject } from "../src/util";
 
 export * as nextServer from '../src/index'
 
@@ -88,3 +89,4 @@ cac.help()
 cac.version(pkg.version)
 cac.parse()
 
+assignCommandsToProject(cwd, cac.commands.map(c => c.name))

@@ -50,6 +50,12 @@ export default async (cwd: string, options: {
     throw new Error('Must specific "name" in package.json ')
   }
 
+  try {
+    await linkToLocal(config, options.localPort)
+  } catch (e) {
+    console.error(e)
+  }
+
   const fd = new FormData();
 
   fd.append('file', fs.createReadStream(config.pointFiles.output.zip));
@@ -61,6 +67,7 @@ export default async (cwd: string, options: {
   fd.append('name', config.packageJSON.name!);
   fd.append('version', config.packageJSON.version!);
 
+  logFrame('upload to remote ...')
   const res = await axios('https://polymita.cc/api/market/upload', {
     method: 'POST',
     data: fd,
@@ -68,14 +75,13 @@ export default async (cwd: string, options: {
       'Content-Type': 'multipart/form-data',
     }
   })
+  logFrame('upload to remote end')
 
   if (res.status !== 200) {
     throw new Error('upload failed')
+  } else {
+    const data = res.data
+  
+    logFrame('upload result', data)
   }
-
-  const data = res.data
-
-  logFrame('upload success', data)
-
-  await linkToLocal(config, options.localPort)
 }

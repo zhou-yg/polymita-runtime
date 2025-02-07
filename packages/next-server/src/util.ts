@@ -20,6 +20,10 @@ export function loadJSON (f: string) {
   }
 }
 
+export function writeJSON(p: string, obj: Record<string, any>) {
+  fs.writeFileSync(p, JSON.stringify(obj, null, 2))
+}
+
 export function emptyDirectory (dir: string) {
   if (fs.existsSync(dir)) {
     rimraf.sync(dir)
@@ -352,3 +356,24 @@ export function compressZip(files: [string, string][], dest: string) {
 export const isNonNullable = <T>(value: T): value is NonNullable<T> => Boolean(value);
 
 export const reduceScopePrefix = (name: string) => name.replace(/^@\w+\//, '')
+
+
+export const assignCommandsToProject = (cwd: string, cmds: string[]) => {
+  const pkgJSON = loadJSON(path.join(cwd, 'package.json'))
+  if (!pkgJSON.scripts) {
+    pkgJSON.scripts = {}
+  }
+
+  cmds.forEach(cli => {
+    const scriptCli = `polymita ${cli}`
+    if (pkgJSON.scripts[cli]) {
+      if (!pkgJSON.scripts[cli].includes(scriptCli)) {
+        throw new Error('Unexpected cli command ' + pkgJSON.scripts[cli]) 
+      }
+    } else {
+      pkgJSON.scripts[cli] = scriptCli
+    }
+  })
+
+  writeJSON(path.join(cwd, 'package.json'), pkgJSON)
+}
