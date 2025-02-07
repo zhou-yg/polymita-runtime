@@ -63,7 +63,7 @@ export function setupBasicServer (c: IConfig) {
    * extend third global context
    */
   Object.assign(app.context, thirdPartIns.context)
-  // app.use(koaMount('/third_part', thirdPartIns))
+  app.use(koaMount('/third_part', thirdPartIns))
 
   const router = createRouter(c)
 
