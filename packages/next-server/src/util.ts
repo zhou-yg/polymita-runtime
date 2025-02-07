@@ -349,8 +349,6 @@ export function compressZip(files: [string, string][], dest: string) {
   return zip.writeZipPromise(dest)
 }
 
+export const isNonNullable = <T>(value: T): value is NonNullable<T> => Boolean(value);
 
-export function getDynmaicModuleConfigFile(config: IConfig, moduleName: string) {
-  const f = path.join(config.pointFiles.currentFiles.dynamicModulesDir, moduleName, config.moduleConfigFile);
-  return
-}
+export const reduceScopePrefix = (name: string) => name.replace(/^@\w+\//, '')

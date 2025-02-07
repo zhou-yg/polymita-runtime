@@ -1,4 +1,4 @@
-import { IConfig, logFrame, readConfig, zipOutput } from '../src'
+import { IConfig, logFrame, readConfig, reduceScopePrefix, zipOutput } from '../src'
 import * as fs from 'fs'
 import * as path from 'path'
 // import fetch from 'node-fetch'
@@ -11,10 +11,11 @@ async function linkToLocal (
   localPort: number,
 ) {
   const formData = new FormData();
-  formData.append('moduleName', config.packageJSON.name);
-  formData.append('module', fs.createReadStream(config.pointFiles.output.zip));
-
+  
   try {
+    formData.append('moduleName', reduceScopePrefix(config.packageJSON.name || ''));
+    formData.append('module', fs.createReadStream(config.pointFiles.output.zip));
+
     const res = await axios.post(
       `http://localhost:${localPort}/api/moduleManager/import`,
       formData,
@@ -43,6 +44,10 @@ export default async (cwd: string, options: {
 
   if (!fs.existsSync(config.pointFiles.output.zip)) {
     throw new Error('zip file not found')
+  }
+
+  if (!config.packageJSON.name) {
+    throw new Error('Must specific "name" in package.json ')
   }
 
   const fd = new FormData();

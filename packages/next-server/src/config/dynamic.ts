@@ -271,7 +271,7 @@ export function exportDynamicModulesToRoutes(
    * export dynamic routes to global
    */
   let exportRoutesToGlobalCode = `window.${config.globalDynamicRoutesRefKey} = [`
-  console.log('config.dynamicModules: ', config.dynamicModules);
+  console.log('[config/dynamic] config.dynamicModules: ', config.dynamicModules);
   config.dynamicModules.map(f => {
     return Object.entries(f.meta.routes?.pages || {}).map(([path, name]) => {
       const { nameVar, propsVar } = getNameAndProps(name)

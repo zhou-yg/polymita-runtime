@@ -1,4 +1,4 @@
-import { loadJSON, logFrame } from "../util"
+import { isNonNullable, loadJSON, logFrame } from "../util"
 import * as path from 'path'
 import * as fs from 'fs'
 import { existsSync, lstatSync, readdirSync } from "fs"
@@ -33,12 +33,17 @@ function getModuleByDir(
   outputDirectoryName: string,
   metaFileName: string,
   moduleConfigFileName: string,
-): IDynamicModule {
+): IDynamicModule | undefined {
   const pkg = path.join(dir, 'package.json')
   const metaFile = path.join(dir, outputDirectoryName, metaFileName)
   const moduleConfigFile = path.join(dir, moduleConfigFileName)
 
   const pkgJSON = loadJSON(pkg)
+
+  if (!pkgJSON.name) {
+    return
+  }
+
   const metaJSON = loadJSON(metaFile)
   const moduleConfig = loadJSON(moduleConfigFile)
 
@@ -72,7 +77,8 @@ export function findDynamicModules (
       const dir = path.join(targetDir, f)
       return getModuleByDir(f, false, dir, outputDirectoryName, metaFileName, moduleConfigFileName)
     })
-    .filter(f => lstatSync(f.dir).isDirectory())
+    .filter(isNonNullable)
+    .filter(f => f && lstatSync(f.dir).isDirectory())
   return modules
 }
 
@@ -101,7 +107,9 @@ export function findDependencies (
     }
   })
 
-  return modules.map(name => getModuleByDir(name, true, path.join(nodeModulesDir, name), outputDirectoryName, metaFileName, moduleConfigFileName))
+  return modules
+    .map(name => getModuleByDir(name, true, path.join(nodeModulesDir, name), outputDirectoryName, metaFileName, moduleConfigFileName))
+    .filter(isNonNullable)
 }
 
 type k = keyof typeof internalLibs
