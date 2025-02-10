@@ -120,7 +120,7 @@ export function prisma<T>(
 export function writePrisma<T extends any[]>(namespace: string, name: string) {
   const { plugin, modelIndexes, modelEvents } = useContext(ConnectContext);
 
-  const entity = (namespace ? modelIndexes[namespace] : modelIndexes)?.[name];
+  const entity = (namespace ? modelIndexes[namespace] || modelIndexes : modelIndexes)?.[name];
 
   const key = genModelEventKey(name)
 
