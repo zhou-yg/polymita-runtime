@@ -78,7 +78,10 @@ export async function generateModelTypes2(c: IConfig) {
   const result: string[] = []
 
   traverse(schemaIndexes, (keys, val: string | IModelIndexesBase) => {
-    if (typeof val === 'string') {
+    if (
+      keys[keys.length -1] !== MODEL_INDEXES_NAMESPACE_KEY &&
+      typeof val === 'string'
+    ) {
       const interfaceName = upperFirst(val)
        result.push(interfaceName)
     }
@@ -93,6 +96,8 @@ export async function generateModelTypes2(c: IConfig) {
 
   fs.writeFileSync(c.pointFiles.currentFiles.modelFiles.schemaIndexesTypes, dts)
 }
+
+export const MODEL_INDEXES_NAMESPACE_KEY = 'namespace'
 
 export async function buildModelIndexes(c: IConfig) {
   if (c.model.engine === 'prisma') {
@@ -110,7 +115,7 @@ export async function buildModelIndexes(c: IConfig) {
         }
       }
   
-      const schemaIndexesFile = path.join(c.cwd, c.modelsDirectory, c.schemaIndexes)
+      const schemaIndexesFile = c.pointFiles.currentFiles.modelFiles.schemaIndexes
   
       const objArr = await Promise.all(existPrismaPart.map(async ({ content }) => {
         const model = await prismaInternals.getDMMF({
@@ -129,12 +134,12 @@ export async function buildModelIndexes(c: IConfig) {
         const dependentIndexesWithNamespace = deepInsertName(obj.moduleName, obj.indexes)
   
         mergedObj[obj.moduleName] = {
-          namespace: obj.moduleName,
+          [MODEL_INDEXES_NAMESPACE_KEY]: obj.moduleName,
           ...dependentIndexesWithNamespace,
         }
       })
 
-      mergedObj.namespace = c.packageJSON.name || ''
+      mergedObj[MODEL_INDEXES_NAMESPACE_KEY] = c.packageJSON.name || ''
       /**
        * eg
        * mergedObj = {

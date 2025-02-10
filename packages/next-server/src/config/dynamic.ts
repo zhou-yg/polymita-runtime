@@ -163,7 +163,10 @@ export function exportToGlobalScript (config: IConfig) {
     ...userConfig,
   }, null, 2)
 
-  const miCode = fs.readFileSync(config.pointFiles.currentFiles.modelFiles.schemaIndexes, 'utf-8')
+  let miCode = '{}'
+  if (fs.existsSync(config.pointFiles.currentFiles.modelFiles.schemaIndexes)) {
+    miCode = fs.readFileSync(config.pointFiles.currentFiles.modelFiles.schemaIndexes, 'utf-8')
+  }
 
   const userConfigCode = `window.${config.globalConfigRefKey} = ${codeValue}`
   

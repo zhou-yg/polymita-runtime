@@ -162,13 +162,13 @@ export function findStaticDeps (isProd: boolean, nodeModulesDir: string, modules
     {
       name: 'module.js',
       resources: [
-        ...modules.map(dir => (path.join(dir, `dist/index.js`))),
+        ...modules.map(dir => (path.join(dir, `dist/index.js`))).filter(fs.existsSync),
        ]
     },
     {
       name: 'module.css',
       resources: [
-        ...modules.map(dir => (path.join(dir, `dist/index.css`))),
+        ...modules.map(dir => (path.join(dir, `dist/index.css`))).filter(fs.existsSync),
        ]
     },
   ]
