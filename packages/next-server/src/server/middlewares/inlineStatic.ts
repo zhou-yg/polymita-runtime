@@ -20,10 +20,7 @@ export default function inlineStatic (args: {
 
       if (resources && resources.resources) {
         code = resources.resources?.reduce((prev, file) => {
-          if (fs.existsSync(file)) {
-            return prev + '\n\n\n' + fs.readFileSync(file, 'utf-8')
-          }
-          return prev
+          return prev + `\n\n\n// file: ${file}\n` + fs.readFileSync(file, 'utf-8')
         }, '')
       } 
       if (/\.js/.test(name)) {

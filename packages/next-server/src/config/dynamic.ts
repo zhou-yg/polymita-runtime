@@ -162,8 +162,17 @@ export function exportToGlobalScript (config: IConfig) {
     ...initialConfig,
     ...userConfig,
   }, null, 2)
+
+  const miCode = fs.readFileSync(config.pointFiles.currentFiles.modelFiles.schemaIndexes, 'utf-8')
+
+  const userConfigCode = `window.${config.globalConfigRefKey} = ${codeValue}`
   
-  return `window.${config.globalConfigRefKey} = ${codeValue}`
+  const modelIndexesCode = `window.${config.globalModelIndexesRefKey} = ${miCode}`
+
+  return [
+    userConfigCode,
+    modelIndexesCode,
+  ]
 }
 
 /**

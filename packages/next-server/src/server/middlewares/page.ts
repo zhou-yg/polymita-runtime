@@ -5,7 +5,6 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { ViteDevServer } from "vite";
 import { projectRelativePath } from "../../util";
-import { exportToGlobalScript } from "../../config/dynamic";
 
 const templateFile = './pageTemplate.ejs'
 const templateFilePath = path.join(__dirname, templateFile)

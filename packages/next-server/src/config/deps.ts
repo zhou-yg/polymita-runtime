@@ -147,7 +147,7 @@ export function findStaticDeps (isProd: boolean, nodeModulesDir: string, modules
       resources: isProd ? [] : [
         path.join(nodeModulesDir, '@polymita/next-server/dist/internalStatic/emotion-react.umd.min.js'),
         path.join(nodeModulesDir, '@polymita/next-server/dist/internalStatic/emotion-styled.umd.min.js'),
-        path.join(nodeModulesDir, '@polymita/next-server/dist/internalStatic/eventemitter3.js'),
+        // path.join(nodeModulesDir, '@polymita/next-server/dist/internalStatic/eventemitter3.js'),
       ]
     },
     {

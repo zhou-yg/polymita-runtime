@@ -104,6 +104,7 @@ export const defaultConfig = () => ({
   moduleConfig: {} as UserCustomConfig,
   globalConfigRefKey: 'POLYMITA_CONFIG',
   globalDynamicRoutesRefKey: 'POLYMITA_DYNAMIC_ROUTES',
+  globalModelIndexesRefKey: 'POLYMITA_DYNAMIC_MODEL_INDEXES',
 
   metaFileName: 'meta.json',
 })

@@ -9,7 +9,13 @@ import {
   createHashRouter,
 } from "react-router-dom"
 
-import { getConfig, createModulesContext, getModulesContext, getDynamicRoutes, mergeDynamicRoutesToTree } from '@polymita/next-connect'
+import {
+  getConfig, createModulesContext, getModulesContext,
+  getDynamicRoutes, mergeDynamicRoutesToTree,
+  getDynamicModelIndexes,
+  createApiPlugin,
+  ConnectProvider,
+} from '@polymita/next-connect'
 
 <%- imports %>
 
@@ -28,8 +34,14 @@ function RootApplication({
   const router = createBrowserRouter(routes)
 
 
+
   return (
-    <RouterProvider router={router} />
+    <ConnectProvider
+      modelIndexes={getDynamicModelIndexes()}
+      plugin={createApiPlugin()}
+    >
+      <RouterProvider router={router} />
+    </ConnectProvider>
   );
 }
 
