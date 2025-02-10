@@ -60,6 +60,9 @@ module.exports = [
       file: 'dist/renderer.umd.js',
       format: 'umd',
       name: require('./package.json').name,
+      globals: {
+        '@polymita/signal-model': '@polymita/signal-model'
+      },
     },
   },
   {
