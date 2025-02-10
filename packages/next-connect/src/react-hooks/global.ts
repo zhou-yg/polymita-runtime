@@ -104,3 +104,7 @@ export function createModulesContext (
   }
 }
 
+
+export function getDynamicModelIndexes(): Record<string, any> {
+  return globalThis.POLYMITA_DYNAMIC_MODEL_INDEXES || {}
+}
