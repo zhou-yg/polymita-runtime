@@ -4,11 +4,19 @@ import * as path from 'path'
 import * as fs from 'fs'
 import { compile } from 'ejs'
 
-import { convertModuleNameToVariableName, decompress, tryMkdir } from '../util';
+import { convertModuleNameToVariableName, decompress, loadJSON, tryMkdir } from '../util';
 
 const dynamicModuleTemplateFile = './dynamicModuleTemplate.ejs'
 const dynamicModuleTemplateFilePath = path.join(__dirname, dynamicModuleTemplateFile)
 const dynamicModuleTemplate = compile(fs.readFileSync(dynamicModuleTemplateFilePath).toString())
+
+export function getModuleInfo (dir: string) {
+  const pkgJSON = path.join(dir, 'package.json')
+
+  return {
+    pkgJSON: loadJSON(pkgJSON)
+  }
+}
 
 export async function saveDynamicModule (
   config: IConfig,

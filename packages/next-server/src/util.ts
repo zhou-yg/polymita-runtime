@@ -4,7 +4,7 @@ import rimraf from 'rimraf'
 import { IConfig, IViewConfig } from './config'
 import os from "os";
 import { BM, isEqual } from "@polymita/signal-model";
-import { spawn } from 'child_process';
+import { spawn, SpawnOptions } from 'child_process';
 import chalk from 'chalk';
 import tar from 'tar'
 import AdmZip from 'adm-zip'
@@ -84,6 +84,17 @@ export function logFrame (...content: any[]) {
 }
 export function errorFrame (...content: any[]) {
   return console.error(`| ${chalk.red(LOG_PREFIX)}: `, ...content);
+}
+
+export function statusFrame (topic: string, ...content: any[]) {
+  return {
+    success () {
+      return logFrame(chalk.green(topic), ...content)
+    },
+    fail () {
+      return logFrame(chalk.red(topic), ...content)
+    },
+  }
 }
 
 export function getAddress() {
@@ -290,6 +301,27 @@ export function startElectronProcess () {
     cwd: '',
     stdio: ['pipe', process.stdout, process.stderr]
   })  
+}
+
+export function runSpawn (args: any[], op?: SpawnOptions) {
+  return new Promise<void>((resolve, reject) => {
+    const [
+      cmd,
+      ...rest
+    ] = args
+
+    const ps = spawn(cmd, rest, {
+      stdio: 'inherit',
+      ...op
+    });
+
+    ps.on('close', () => {
+      resolve();
+    });
+    ps.on('error', (e) => {
+      reject(e)
+    })
+  })
 }
 
 

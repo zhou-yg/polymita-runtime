@@ -77,11 +77,11 @@ export function createModuleManager(c: IConfig) {
     })
     const dynamicModuleDir = await saveDynamicModule(c, convertedName, tmpZipFile)
 
-    console.log('before reload: ');
-
     await c.reload()
     // clear
-    fs.unlinkSync(tmpZipFile)
+    fs.unlinkSync(tmpZipFile)    
+
+    
 
     ctx.body = {
       destDir: dynamicModuleDir,
