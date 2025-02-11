@@ -5,6 +5,7 @@ import * as fs from 'fs'
 import { compile } from 'ejs'
 
 import { convertModuleNameToVariableName, decompress, loadJSON, tryMkdir } from '../util';
+import { JSONSchemaForNPMPackageJsonFiles } from '@schemastore/package';
 
 const dynamicModuleTemplateFile = './dynamicModuleTemplate.ejs'
 const dynamicModuleTemplateFilePath = path.join(__dirname, dynamicModuleTemplateFile)
@@ -13,8 +14,12 @@ const dynamicModuleTemplate = compile(fs.readFileSync(dynamicModuleTemplateFileP
 export function getModuleInfo (dir: string) {
   const pkgJSON = path.join(dir, 'package.json')
 
+  if (!fs.existsSync(pkgJSON)) {
+    return
+  }
+
   return {
-    pkgJSON: loadJSON(pkgJSON)
+    pkgJSON: loadJSON(pkgJSON) as JSONSchemaForNPMPackageJsonFiles
   }
 }
 

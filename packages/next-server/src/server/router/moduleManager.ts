@@ -2,10 +2,11 @@ import Router from '@koa/router';
 import { IConfig } from '../../config';
 import * as path from 'path'
 import * as fs from 'fs'
-import { getCurrentDynamicConfig, overrideActivate, overrideInactivate, overrideRootConfig, overrideUpdateModuleConfig, saveDynamicModule } from '../../config/dynamic';
+import { getCurrentDynamicConfig, getModuleInfo, overrideActivate, overrideInactivate, overrideRootConfig, overrideUpdateModuleConfig, saveDynamicModule } from '../../config/dynamic';
 import * as market from '../../service/market';
 import axios from 'axios';
-import { tryMkdir } from '../../util';
+import { logFrame, tryMkdir } from '../../util';
+import { migratePrisma } from '../../compiler';
 
 export function createModuleManager(c: IConfig) {
   const router = new Router()
@@ -55,7 +56,7 @@ export function createModuleManager(c: IConfig) {
   })
 
   router.post('/import-remote', async (ctx) => {
-    const { name, version } = ctx.request.body
+    const { name, version, forceMigrate } = ctx.request.body
     console.log('name, version: ', name, version);
     const detail = await market.detail(name, version)
     console.log('detail: ', detail);
@@ -75,13 +76,27 @@ export function createModuleManager(c: IConfig) {
       tempWriter.on('finish', resolve)
       tempWriter.on('error', reject)
     })
-    const dynamicModuleDir = await saveDynamicModule(c, convertedName, tmpZipFile)
+
+    const dynamicModuleDir = path.join(c.cwd, c.dynamicModulesDirectory, convertedName)
+
+    const info = getModuleInfo(dynamicModuleDir)
+
+    await saveDynamicModule(c, convertedName, tmpZipFile)
 
     await c.reload()
     // clear
     fs.unlinkSync(tmpZipFile)    
 
-    
+    const newInfo = getModuleInfo(dynamicModuleDir)
+    const migrateName = `${newInfo?.pkgJSON.name}-${newInfo?.pkgJSON.version}`
+
+    if (
+      info?.pkgJSON.version !== newInfo?.pkgJSON.version ||
+      forceMigrate
+    ) {
+      logFrame('[moduleManager] import-remote migrate ', `${migrateName}`)
+      await migratePrisma(c, migrateName)
+    }
 
     ctx.body = {
       destDir: dynamicModuleDir,
