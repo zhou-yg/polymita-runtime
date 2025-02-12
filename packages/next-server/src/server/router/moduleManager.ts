@@ -77,29 +77,14 @@ export function createModuleManager(c: IConfig) {
       tempWriter.on('error', reject)
     })
 
-    const dynamicModuleDir = path.join(c.cwd, c.dynamicModulesDirectory, convertedName)
-
-    const info = getModuleInfo(dynamicModuleDir)
-
-    await saveDynamicModule(c, convertedName, tmpZipFile)
+    const { destDir } = await saveDynamicModule(c, convertedName, tmpZipFile)
 
     await c.reload()
     // clear
     fs.unlinkSync(tmpZipFile)    
 
-    const newInfo = getModuleInfo(dynamicModuleDir)
-    const migrateName = `${newInfo?.pkgJSON.name}-${newInfo?.pkgJSON.version}`
-
-    if (
-      info?.pkgJSON.version !== newInfo?.pkgJSON.version ||
-      forceMigrate
-    ) {
-      logFrame('[moduleManager] import-remote migrate ', `${migrateName}`)
-      await migratePrisma(c, migrateName)
-    }
-
     ctx.body = {
-      destDir: dynamicModuleDir,
+      destDir,
       filepath: tmpZipFile,
     }
   })
@@ -143,12 +128,12 @@ export function createModuleManager(c: IConfig) {
       throw new Error('field "module" zip file not found')
     }
 
-    const dynamicModuleDir = await saveDynamicModule(c, moduleName, zipFile)
+    const { destDir } = await saveDynamicModule(c, moduleName, zipFile)
     
     await c.reload()
 
     ctx.body = {
-      destDir: dynamicModuleDir,
+      destDir,
       filepath: moduleZip?.filepath,
     }
   })

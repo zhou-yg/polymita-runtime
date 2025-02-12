@@ -362,6 +362,7 @@ function getOutputFiles (externalCacheDir: string, cwd: string, config: IDefault
 
 
   const currentFiles = {
+    pkgJSON: path.join(cwd, 'package.json'),
     appDirectory,
     pagesDirectory,
     viewsDirectory,

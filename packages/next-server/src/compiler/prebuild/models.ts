@@ -198,7 +198,6 @@ export async function preCheckSchema(c: IConfig) {
   }
 }
 
-
 export function copyModelFiles (config: IConfig) {
 
   const { schemaPrisma, schemaIndexes } = config.pointFiles.currentFiles.modelFiles

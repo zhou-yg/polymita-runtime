@@ -4,8 +4,9 @@ import * as path from 'path'
 import * as fs from 'fs'
 import { compile } from 'ejs'
 
-import { convertModuleNameToVariableName, decompress, loadJSON, tryMkdir } from '../util';
+import { convertModuleNameToVariableName, decompress, loadJSON, logFrame, tryMkdir } from '../util';
 import { JSONSchemaForNPMPackageJsonFiles } from '@schemastore/package';
+import { migratePrisma } from '../compiler';
 
 const dynamicModuleTemplateFile = './dynamicModuleTemplate.ejs'
 const dynamicModuleTemplateFilePath = path.join(__dirname, dynamicModuleTemplateFile)
@@ -26,19 +27,32 @@ export function getModuleInfo (dir: string) {
 export async function saveDynamicModule (
   config: IConfig,
   moduleName: string, 
-  zipFile: string | undefined
+  zipFile: string,
+  forceMigrate?: boolean
 ) {
-  let dynamicModuleDir = ''
-  if (moduleName) {
-    dynamicModuleDir = path.join(config.cwd, config.dynamicModulesDirectory, moduleName)
-    tryMkdir(dynamicModuleDir)
+  const dynamicModuleDir = path.join(config.cwd, config.dynamicModulesDirectory, moduleName)
+  tryMkdir(dynamicModuleDir)
 
-    if (zipFile) {
-      await decompress(zipFile, dynamicModuleDir)
-    }
+  const info = getModuleInfo(dynamicModuleDir)
+
+  await decompress(zipFile, dynamicModuleDir)
+
+  const newInfo = getModuleInfo(dynamicModuleDir)
+  const migrateName = `${newInfo?.pkgJSON.name}-${newInfo?.pkgJSON.version}`
+
+  logFrame('[saveDynamicModule] migrate ', info?.pkgJSON.version, newInfo?.pkgJSON.version, info?.pkgJSON.version !== newInfo?.pkgJSON.version, forceMigrate)
+
+  if (
+    info?.pkgJSON.version !== newInfo?.pkgJSON.version ||
+    forceMigrate
+  ) {
+    logFrame('[saveDynamicModule] migrate ', `${migrateName}`)
+    await migratePrisma(config, migrateName)
   }
 
-  return dynamicModuleDir
+  return {
+    destDir: dynamicModuleDir
+  }
 }
 
 export function getCurrentDynamicConfig(config: IConfig) {

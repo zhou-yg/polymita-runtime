@@ -399,7 +399,9 @@ export const assignCommandsToProject = (cwd: string, cmds: string[]) => {
   cmds.forEach(cli => {
     const scriptCli = `polymita ${cli}`
     if (pkgJSON.scripts[cli]) {
-      console.error('Unexpected cli command ' + pkgJSON.scripts[cli]) 
+      if (!pkgJSON.scripts[cli].includes(scriptCli)) {
+        console.error(`Unexpected cli command "${pkgJSON.scripts[cli]}"`) 
+      }
     } else {
       pkgJSON.scripts[cli] = scriptCli
     }

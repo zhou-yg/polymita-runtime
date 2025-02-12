@@ -9,5 +9,7 @@ export async function migratePrisma(
 
   await composeSchema(c)
 
-  await runSpawn(['prisma', 'migrate', 'dev', '--name', name], { cwd: c.cwd })
+  await runSpawn(['npx', 'prisma', 'generate'], { cwd: c.cwd })
+
+  await runSpawn(['npx', 'prisma', 'migrate', 'dev', '--name', name], { cwd: c.cwd })
 }

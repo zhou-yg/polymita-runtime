@@ -2,7 +2,7 @@ import chalk from 'chalk'
 import * as path from 'path'
 import * as fs from 'fs'
 import { cp } from "shelljs"
-import { buildCommonDirs, buildIndex, buildMeta, buildModelIndexes, buildModules, buildOverrides, buildScripts, buildSignals, buildTailwindCSS, buildThirdPart, composeSchema, composeScripts, composeSignal, copyModelFiles, emptyDirectory, generateBuildingIndex, generateClientRoutes, generateLayoutTypes, generateModelTypes2, generateViewFromModule, generateViewFromOverrides, IConfig, logFrame, preCheckSchema, readConfig, time } from '../src'
+import { buildCommonDirs, buildIndex, buildMeta, buildModelIndexes, buildModules, buildOverrides, buildScripts, buildSignals, buildTailwindCSS, buildThirdPart, composeSchema, composeScripts, composeSignal, copyModelFiles, emptyDirectory, generateBuildingIndex, generateClientRoutes, generateLayoutTypes, generateModelTypes2, generateViewFromModule, generateViewFromOverrides, IConfig, logFrame, preCheckSchema, readConfig, time, upgradePatchVersion } from '../src'
 
 function copyFiles (config: IConfig) {
   copyModelFiles(config)
@@ -25,6 +25,8 @@ export default async (cwd: string, isRelease?: boolean) => {
   emptyDirectory(config.pointFiles.output.root)
 
   let t1 = time()
+
+  upgradePatchVersion(config)
 
   await Promise.all([
     composeSchema(config),

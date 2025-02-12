@@ -28,6 +28,10 @@ const moduleRenderToReactFile = './moduleRenderToReact.ejs'
 const moduleRenderToReactFilePath = path.join(__dirname, moduleRenderToReactFile)
 const moduleRenderToReactFilePathTemplate = compile(fs.readFileSync(moduleRenderToReactFilePath).toString())
 
+const schemaTemplateFile = './schemaTemplate.ejs'
+const schemaTemplateFilePath = path.join(__dirname, schemaTemplateFile)
+const schemaTemplate = compile(fs.readFileSync(schemaTemplateFilePath).toString())
+
 export function copyContextFiles (c: IConfig) {
   tryMkdir(c.pointFiles.output.root)
 
@@ -276,3 +280,15 @@ export async function generateBuildingIndex(c: IConfig) {
 
   fs.writeFileSync(c.pointFiles.output.virtualIndex, contents.join('\n'))
 }
+
+
+export function initBlankSchemaPart (c: IConfig) {
+
+  tryMkdir(c.pointFiles.currentFiles.modelsDirectory)
+
+  fs.writeFileSync(
+    c.pointFiles.currentFiles.modelFiles.partSchemaPrisma,
+    schemaTemplate()
+  )
+}
+

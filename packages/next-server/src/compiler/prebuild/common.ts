@@ -3,7 +3,7 @@ import { writeFile } from 'fs/promises';
 import { IConfig } from '../../config';
 import { join, parse } from 'path';
 import { buildDTS, buildDTS2, esbuild, runTSC } from '../bundleUtility';
-import { logFrame, traverseDir, tryMkdir } from '../../util';
+import { loadJSON, logFrame, statusFrame, traverseDir, tryMkdir } from '../../util';
 import { cp } from 'shelljs';
 import tailwindcss from 'tailwindcss'
 import autoprefixer from 'autoprefixer';
@@ -221,4 +221,20 @@ export async function zipOutput(c: IConfig) {
   }) as [string, string][];
 
   compressZip(files, c.pointFiles.output.zip)
+}
+
+
+export function upgradePatchVersion (c: IConfig) {
+  const latestPkgJSON = loadJSON(c.pointFiles.currentFiles.pkgJSON)
+  const old = latestPkgJSON.version
+  if (!latestPkgJSON.version) {
+    latestPkgJSON.version = '0.0.0'
+  } else {
+    latestPkgJSON.version = latestPkgJSON.version.replace(/\d+$/, (w: string) => {
+      return parseInt(w) + 1
+    })
+  }
+  writeFileSync(c.pointFiles.currentFiles.pkgJSON, JSON.stringify(latestPkgJSON, null, 2))
+
+  statusFrame('upgrade', old, '->', latestPkgJSON.version).success()
 }
