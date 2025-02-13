@@ -303,12 +303,17 @@ export function startElectronProcess () {
   })  
 }
 
-export function runSpawn (args: any[], op?: SpawnOptions) {
+export function runSpawn (args: any[], op?: SpawnOptions) {  
   return new Promise<void>((resolve, reject) => {
-    const [
+    let [
       cmd,
       ...rest
     ] = args
+
+    const destBin = path.join(String(op?.cwd || './'), 'node_modules/.bin', cmd);
+    if (fs.existsSync(destBin)) {
+      cmd = destBin
+    }
 
     const ps = spawn(cmd, rest, {
       stdio: 'inherit',

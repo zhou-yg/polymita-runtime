@@ -47,7 +47,7 @@ export async function saveDynamicModule (
     forceMigrate
   ) {
     logFrame('[saveDynamicModule] migrate ', `${migrateName}`)
-    await migratePrisma(config, migrateName)
+    await migratePrisma(config, migrateName)  
   }
 
   return {

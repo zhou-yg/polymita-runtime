@@ -87,6 +87,7 @@ export const defaultConfig = () => ({
   targetSchemaPrisma: 'schema.prisma',
   schemaIndexes: 'indexes.json',
   schemaIndexesTypes: 'indexesTypes.d.ts',
+  customPrismaClientIndexFile: 'customPrismaClient/client/index.js',
 
   // server side
   apiPre: '/api/prisma',
@@ -350,6 +351,7 @@ function getOutputFiles (externalCacheDir: string, cwd: string, config: IDefault
   const partSchemaPrisma = path.join(modelDir, config.prismaModelPart)
   const schemaIndexes = path.join(modelDir, config.schemaIndexes)
   const schemaIndexesTypes = path.join(modelDir, config.schemaIndexesTypes)
+  const customPrismaClientIndex = path.join(modelDir, config.customPrismaClientIndexFile)
 
   const modelFiles = {
     modelDir,
@@ -358,6 +360,7 @@ function getOutputFiles (externalCacheDir: string, cwd: string, config: IDefault
     schemaIndexes,
     partSchemaPrisma,
     schemaIndexesTypes,
+    customPrismaClientIndex,
   }
 
 

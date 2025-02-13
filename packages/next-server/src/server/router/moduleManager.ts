@@ -80,6 +80,7 @@ export function createModuleManager(c: IConfig) {
     const { destDir } = await saveDynamicModule(c, convertedName, tmpZipFile)
 
     await c.reload()
+    await ctx.initPrisma()
     // clear
     fs.unlinkSync(tmpZipFile)    
 
@@ -131,6 +132,9 @@ export function createModuleManager(c: IConfig) {
     const { destDir } = await saveDynamicModule(c, moduleName, zipFile)
     
     await c.reload()
+    await ctx.initPrisma()
+
+    fs.unlinkSync(zipFile)    
 
     ctx.body = {
       destDir,

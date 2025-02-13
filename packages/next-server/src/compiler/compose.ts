@@ -279,7 +279,7 @@ export async function composeSchema (c: IConfig) {
       
       tryMkdir(modelDir)      
   
-      const partSchema = path.join(c.cwd, c.modelsDirectory, `schema.${c.prismaModelPart}`)
+      const partSchema = path.join(c.cwd, c.modelsDirectory, `${c.prismaModelPart}`)
       if (!fs.existsSync(partSchema) && dependentPrismaFiles.length > 0) {
         cp(targetFile, partSchema)
       }

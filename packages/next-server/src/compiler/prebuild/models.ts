@@ -1,13 +1,13 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as prismaInternals from '@prisma/internals'
-import { readCurrentPrisma, readExistingPrismaPart, transformModelName } from '../compose';
+import { composeSchema, readCurrentPrisma, readExistingPrismaPart, transformModelName } from '../compose';
 import shelljs from 'shelljs'
 
 const { cp } = shelljs;
 
 import { IConfig } from "../../config"
-import { loadJSON, lowerFirst, traverse, tryMkdir } from '../../util'
+import { loadJSON, lowerFirst, runSpawn, traverse, tryMkdir } from '../../util'
 import { cloneDeep, merge, set, upperFirst } from 'lodash';
 import { spawn } from 'child_process';
 
@@ -195,6 +195,17 @@ export async function preCheckSchema(c: IConfig) {
         await runPrismaDev(c)
       }
     }
+    
+    tryGenerateClient(c)
+  }
+}
+
+export async function tryGenerateClient(c: IConfig) {
+  if (
+    fs.existsSync(c.pointFiles.currentFiles.modelFiles.schemaPrisma) && 
+    !fs.existsSync(c.pointFiles.currentFiles.modelFiles.customPrismaClientIndex)
+  ) {
+    await runSpawn(['prisma', 'generate'], { cwd: c.cwd })
   }
 }
 
@@ -210,4 +221,18 @@ export function copyModelFiles (config: IConfig) {
   if (fs.existsSync(schemaIndexes)) {
     cp(schemaIndexes, config.pointFiles.output.schemaIndexes)
   }
+}
+
+export async function migratePrisma(
+  c: IConfig,
+  name: string
+) {
+
+  await composeSchema(c)
+
+  tryGenerateClient(c)
+
+  await runSpawn(['prisma', 'generate'], { cwd: c.cwd })
+
+  await runSpawn(['prisma', 'migrate', 'dev', '--name', name], { cwd: c.cwd })
 }

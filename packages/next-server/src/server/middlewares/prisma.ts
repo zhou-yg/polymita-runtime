@@ -21,13 +21,23 @@ export default function prisma (args: {
     return ((ctx, next) => next())
   }
 
-  const client = require(prismaClientEntry)
-  const prisma = new client.PrismaClient()
+  let connectResult
+  let prisma;
+  function initPrisma () {
+    delete require.cache[require.resolve(prismaClientEntry)]
 
-  const connectResult = prisma.$connect();
+    const client = require(prismaClientEntry)
+    prisma = new client.PrismaClient()
+    connectResult = prisma.$connect();  
+
+    return connectResult
+  }
+
+  initPrisma()
   
   return async (ctx, next) => {
     ctx.prisma = prisma
+    ctx.initPrisma = initPrisma
     await connectResult
     await next()
   }
