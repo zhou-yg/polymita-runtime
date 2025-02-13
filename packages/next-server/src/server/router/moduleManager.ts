@@ -2,7 +2,7 @@ import Router from '@koa/router';
 import { IConfig } from '../../config';
 import * as path from 'path'
 import * as fs from 'fs'
-import { getCurrentDynamicConfig, getModuleInfo, overrideActivate, overrideInactivate, overrideRootConfig, overrideUpdateModuleConfig, saveDynamicModule } from '../../config/dynamic';
+import { getAllOverridesList, getCurrentDynamicConfig, getModuleInfo, overrideActivate, overrideInactivate, overrideRootConfig, overrideUpdateModuleConfig, saveDynamicModule } from '../../config/dynamic';
 import * as market from '../../service/market';
 import axios from 'axios';
 import { logFrame, tryMkdir } from '../../util';
@@ -16,6 +16,7 @@ export function createModuleManager(c: IConfig) {
       dependencyModules: c.dependencyModules,
       dynamicModules: c.dynamicModules,
       activeModules: getCurrentDynamicConfig(c),
+      overridesList: getAllOverridesList(c),
     }, null, 2)
   })
 

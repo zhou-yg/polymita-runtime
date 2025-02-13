@@ -213,12 +213,6 @@ export async function generateClientRoutes(c: IConfig) {
     return `import ${n} from '${implicitImportPath(f, c.ts)}'`
   }).join('\n')
 
-  const modelIndexesJSON = path.join(c.cwd, c.modelsDirectory, c.schemaIndexes)
-  let modelIndexes = '{}'
-  if (fs.existsSync(modelIndexesJSON)) {
-    modelIndexes = fs.readFileSync(modelIndexesJSON).toString()
-  }
-
   const routesStr2 = routesClientTemplate({
     /** import all pages */
     imports: importsWithAbsolutePathClient,

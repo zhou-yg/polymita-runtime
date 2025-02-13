@@ -18,10 +18,11 @@ interface IModelIndexesBase {
 function findDependentIndexes (c: IConfig) {
   const schemaFiles: Array<{
     moduleName: string
+    pkgName: string
     indexes: IModelIndexesBase
   }> = []
 
-  ;c.allDependencyModules.forEach(({ dir, name }) => {
+  ;c.allDependencyModules.forEach(({ dir, name, pkgName }) => {
 
     const depSchemaPath = path.join(dir, c.buildDirectory, c.modelsDirectory, c.schemaIndexes)
     const r2 = fs.existsSync(depSchemaPath)
@@ -29,6 +30,7 @@ function findDependentIndexes (c: IConfig) {
     if (r2) {
       schemaFiles.push({
         moduleName: name,
+        pkgName,
         indexes: JSON.parse(fs.readFileSync(depSchemaPath).toString())
       })
     }
@@ -131,10 +133,10 @@ export async function buildModelIndexes(c: IConfig) {
       const mergedObj: IModelIndexesBase = objArr.reduce((p, n) => Object.assign(p, n), {})
   
       dependentIndexes.forEach(obj => {
-        const dependentIndexesWithNamespace = deepInsertName(obj.moduleName, obj.indexes)
+        const dependentIndexesWithNamespace = deepInsertName(obj.pkgName, obj.indexes)
   
-        mergedObj[obj.moduleName] = {
-          [MODEL_INDEXES_NAMESPACE_KEY]: obj.moduleName,
+        mergedObj[obj.pkgName] = {
+          [MODEL_INDEXES_NAMESPACE_KEY]: obj.pkgName,
           ...dependentIndexesWithNamespace,
         }
       })

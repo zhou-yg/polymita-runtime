@@ -338,3 +338,29 @@ export function exportDynamicModulesToRoutes(
 
   return code
 }
+
+export function getAllOverridesList (c: IConfig) {
+  const dynamicConfig = getCurrentDynamicConfig(c)?.moduleOverride?.activeLink || []
+
+  const isActive = (name: string) => {
+    return dynamicConfig.includes(`components-${name}`)
+  }
+
+  return c.dynamicModules.map(m => {
+    const overridesDir = path.join(m.dir, c.buildDirectory, c.overridesDirectory)
+
+    if (!fs.existsSync(overridesDir)) {
+      return
+    }
+
+    const overrideFiles = fs
+      .readdirSync(overridesDir)
+      .filter(f => /\.js$/.test(f))
+      .map(f => f.replace(/\.js$/, ''))
+    
+    return {
+      pkg: m.pkgName,
+      overrideFiles: overrideFiles.map(f => [f, isActive(f)])
+    }
+  }).filter(Boolean)
+}
