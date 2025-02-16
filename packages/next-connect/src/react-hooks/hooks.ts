@@ -8,8 +8,10 @@ import {
 } from "@polymita/signal-model";
 
 export const ConnectContext = React.createContext<{
+  pkgName?: string
   plugin: Plugin;
   modelIndexes: IModelIndexesBase;
+  parentModelIndexes?: IModelIndexesBase;
   modelEvents: EventEmitter
 }>(null);
 
@@ -17,47 +19,31 @@ const MODEL_UPDATE = 'MODEL_UPDATE'
 
 export const genModelEventKey = (entity: string) => `${MODEL_UPDATE}:${entity}`
 
-/**
- * @deprecated
- */
-export const PrismaNamespaceContext = React.createContext<{
-  namespace: string;
-  modulesLinkMap?: Map<string, any>;
-  modulesActiveMap?: string[]
-}>(null);
-
 export function ConnectProvider(props: {
+  pkgName: string
   children?: any;
   plugin: Plugin;
   modelIndexes: IModelIndexesBase;
 }) {
+  const current = useContext(ConnectContext)
+  let modelIndexes = props.modelIndexes
+  let parentModelIndexes = undefined
+
+  const currentScopeMi = modelIndexes?.[current?.pkgName]
+  if (typeof currentScopeMi === 'object') {
+    parentModelIndexes = modelIndexes
+    modelIndexes = currentScopeMi
+  }
+
   return createElement(
     ConnectContext.Provider,
     {
       value: {
-        ...props,
         modelEvents: new EventEmitter(),
-      }
-    },
-    props.children,
-  );
-}
-/**
- * @deprecated
- */
-export function PrismaNamespaceProvider(props: {
-  children?: any;
-  namespace: string;
-  modulesLinkMap?: Map<string, any>;
-  modulesActiveMap?: string[]
-}) {
-  return createElement(
-    PrismaNamespaceContext.Provider,
-    {
-      value: {
-        namespace: props.namespace,
-        modulesLinkMap: props.modulesLinkMap,
-        modulesActiveMap: props.modulesActiveMap,
+        ...parent,
+        ...props,
+        modelIndexes,
+        parentModelIndexes,
       }
     },
     props.children,
@@ -117,10 +103,14 @@ export function prisma<T>(
   return data;
 }
 
-export function writePrisma<T extends any[]>(namespace: string, name: string) {
-  const { plugin, modelIndexes, modelEvents } = useContext(ConnectContext);
+export function writePrisma<T extends any[]>(name: string) {
+  const { plugin, modelIndexes, pkgName: namespace, modelEvents } = useContext(ConnectContext);
 
-  const entity = (namespace ? modelIndexes[namespace] || modelIndexes : modelIndexes)?.[name];
+  const entity = (modelIndexes)?.[name];
+
+  if (!entity || typeof entity === 'object') {
+    throw new Error(`[writePrisma] ${name} entity not found in`);
+  }
 
   const key = genModelEventKey(name)
 
