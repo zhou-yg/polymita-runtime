@@ -26,10 +26,10 @@ export function ConnectProvider(props: {
   modelIndexes: IModelIndexesBase;
 }) {
   const current = useContext(ConnectContext)
-  let modelIndexes = props.modelIndexes
-  let parentModelIndexes = undefined
+  let modelIndexes = current?.modelIndexes || props.modelIndexes
+  let parentModelIndexes = current?.parentModelIndexes
 
-  const currentScopeMi = modelIndexes?.[current?.pkgName]
+  const currentScopeMi = modelIndexes?.[props?.pkgName]
   if (typeof currentScopeMi === 'object') {
     parentModelIndexes = modelIndexes
     modelIndexes = currentScopeMi
@@ -39,9 +39,9 @@ export function ConnectProvider(props: {
     ConnectContext.Provider,
     {
       value: {
-        modelEvents: new EventEmitter(),
-        ...parent,
-        ...props,
+        modelEvents: current?.modelEvents || new EventEmitter(),
+        pkgName: props.pkgName || current?.pkgName,
+        plugin: props.plugin || current?.plugin,
         modelIndexes,
         parentModelIndexes,
       }
@@ -51,14 +51,17 @@ export function ConnectProvider(props: {
 }
 
 export function prisma<T>(
-  namespace: string,
   name: string,
   queryFn?: () => Promise<IModelQuery["query"]> | IModelQuery["query"],
   options?: { immediate?: boolean; deps: any[] },
 ): T | undefined {
-  const { plugin, modelIndexes, modelEvents } = useContext(ConnectContext);
+  const { plugin, pkgName: namespace, modelIndexes, modelEvents } = useContext(ConnectContext);
 
-  const entity = (namespace ? modelIndexes[namespace] : modelIndexes)?.[name];
+  const entity = modelIndexes?.[name];
+
+  if (!entity || typeof entity === 'object') {
+    throw new Error(`[prisma] ${name} entity not found in`);
+  }
 
   const [data, setData] = useState<T>();
 
