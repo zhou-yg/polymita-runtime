@@ -510,6 +510,7 @@ export function createRenderer3<
     construct,
     render,
     rendererContext,
+    provide: rendererContainer.provide,
   };
 
   return currentRendererInstance;

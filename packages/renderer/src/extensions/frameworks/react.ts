@@ -81,6 +81,8 @@ export function createReactContainer<
 
   const convertProps = stateManagement?.convertProps || (<T>(props: T) => props)
 
+  let providerNode: VirtualLayoutJSON = null
+
   function initLogic (props?: any) {
     let cache: ModuleCache = module[cacheSymbol]
     if (cache) {
@@ -269,7 +271,14 @@ export function createReactContainer<
   }
 
   function render (json: VirtualLayoutJSON) {
-    const root = createElementDepth(json, options)
+    let destJSON = json
+    if (providerNode) {
+      destJSON = {
+        ...providerNode,
+        children: [destJSON],
+      }
+    }
+    const root = createElementDepth(destJSON, options)
     return root
   }
 
@@ -279,10 +288,15 @@ export function createReactContainer<
     return proxyHandler?.draft as ConvertToLayoutTreeDraft<T>
   }
 
+  function provide (node: VirtualLayoutJSON) {
+    providerNode = node
+  }
+
   return {
     render,
     construct,
     runLogic: runLogicFromCache,
     getLayout,
+    provide,
   }
 }

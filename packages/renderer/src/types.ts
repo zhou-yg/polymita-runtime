@@ -170,6 +170,7 @@ export interface ModuleRenderContainer<
 > {
   runLogic: (...args: any[]) => Record<string, any>;
   render: (json: VirtualLayoutJSON) => FrameworkVirtualNode;
+  provide: (node: VirtualLayoutJSON) => void;
   construct: <NewConstructPC>(
     props?: ConstructProps,
     overrides?: [
