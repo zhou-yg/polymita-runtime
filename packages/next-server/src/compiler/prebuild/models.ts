@@ -7,7 +7,7 @@ import shelljs from 'shelljs'
 const { cp } = shelljs;
 
 import { IConfig } from "../../config"
-import { loadJSON, lowerFirst, runSpawn, traverse, tryMkdir } from '../../util'
+import { loadJSON, logFrame, lowerFirst, runSpawn, traverse, tryMkdir } from '../../util'
 import { cloneDeep, merge, set, upperFirst } from 'lodash';
 import { spawn } from 'child_process';
 
@@ -19,19 +19,22 @@ function findDependentIndexes (c: IConfig) {
   const schemaFiles: Array<{
     moduleName: string
     pkgName: string
-    indexes: IModelIndexesBase
-  }> = []
+    indexes: IModelIndexesBase,
+    enhance: IEnhancement
+  }> = [];
 
-  ;c.allDependencyModules.forEach(({ dir, name, pkgName }) => {
+  c.allDependencyModules.forEach(({ dir, name, pkgName }) => {
 
     const depSchemaPath = path.join(dir, c.buildDirectory, c.modelsDirectory, c.schemaIndexes)
+    const hanceSchemaPath = path.join(dir, c.buildDirectory, c.modelsDirectory, c.modelEnhance)
     const r2 = fs.existsSync(depSchemaPath)
 
     if (r2) {
       schemaFiles.push({
         moduleName: name,
         pkgName,
-        indexes: JSON.parse(fs.readFileSync(depSchemaPath).toString())
+        indexes: loadJSON(depSchemaPath),
+        enhance: loadJSON(hanceSchemaPath)
       })
     }
   })
@@ -101,10 +104,61 @@ export async function generateModelTypes2(c: IConfig) {
 
 export const MODEL_INDEXES_NAMESPACE_KEY = 'namespace'
 
+export interface IEnhancement {
+  extraRelation: {
+    from: {
+      model: string
+      field: string
+    },
+    type: '1:1' | '1:n' | 'n:1' | 'n:n'
+    to: {
+      model: string
+      field: string
+    }
+  }[]
+  modelAddition: {
+    name: string,
+    fields: {
+      name: string
+      type: string
+      extra: string
+    }[]
+  }[]
+
+  /**
+  {
+   '@polymita/xx': {
+     rss: 'rSS'
+   }
+  }
+  */
+  overrides: Record<string, string[]>
+}
+
+
+function convertOverridesIndexes (
+  current: IModelIndexesBase,
+  overrides: IEnhancement['overrides']
+): Record<string, IModelIndexesBase> {
+  return Object.fromEntries(Object.entries(overrides).map(([pkgName, names]) => {
+      return [
+        pkgName,
+        Object.fromEntries(names.map(entityKey => [entityKey, current[entityKey]]))
+      ]
+    })
+  )
+}
+
 export async function buildModelIndexes(c: IConfig) {
   if (c.model.engine === 'prisma') {
-
     if (fs.existsSync(c.pointFiles.currentFiles.modelFiles.modelDir)) {
+
+      const { modelEnhance } = c.pointFiles.currentFiles.modelFiles
+
+      let enhanceJSON: IEnhancement | undefined
+      if (fs.existsSync(modelEnhance)) {
+        enhanceJSON = loadJSON(modelEnhance)
+      }    
 
       const dependentIndexes = findDependentIndexes(c)
   
@@ -130,28 +184,49 @@ export async function buildModelIndexes(c: IConfig) {
         })
         return r
       }))
+      
       const mergedObj: IModelIndexesBase = objArr.reduce((p, n) => Object.assign(p, n), {})
-  
-      dependentIndexes.forEach(obj => {
-        const dependentIndexesWithNamespace = deepInsertName(obj.pkgName, obj.indexes)
-  
-        mergedObj[obj.pkgName] = {
-          [MODEL_INDEXES_NAMESPACE_KEY]: obj.pkgName,
-          ...dependentIndexesWithNamespace,
+      logFrame('buildModelIndexes', mergedObj);
+
+      if (enhanceJSON?.overrides) {
+        const overrides = convertOverridesIndexes(mergedObj, enhanceJSON.overrides)
+        Object.assign(mergedObj, overrides)
+      }
+
+      logFrame('buildModelIndexes 2', mergedObj);
+      // case 1:
+      // const selfIndexes = { ...mergedObj }
+      // dependentIndexes.forEach(obj => {  
+      //   Object.assign(mergedObj, obj.indexes })
+      // })
+      // const result = {
+      //   ...selfIndexes,
+      //   [c.packageJSON.name!]: mergedObj,
+      // }
+      
+      const extraIndexes: Array<Record<string, IModelIndexesBase>> = []
+
+      // case 2:
+      console.log('dependentIndexes: ', dependentIndexes);
+      dependentIndexes.forEach(obj => {  
+        const indexesWithPrefix = deepInsertName(obj.moduleName, obj.indexes)
+
+        if (obj.enhance?.overrides) {
+          const newOverrides = convertOverridesIndexes(indexesWithPrefix, obj.enhance.overrides)
+          extraIndexes.push(newOverrides) 
         }
+
+        extraIndexes.push({
+          [obj.pkgName]: indexesWithPrefix
+        })
       })
 
-      mergedObj[MODEL_INDEXES_NAMESPACE_KEY] = c.packageJSON.name || ''
-      /**
-       * eg
-       * mergedObj = {
-       *   modelA: string
-       *   anyModule: {
-       *     modelA: `anyModule`_modelA
-       *   }
-       * }
-       */
-      fs.writeFileSync(schemaIndexesFile, JSON.stringify(mergedObj, null, 2))
+      logFrame('buildModelIndexes extra', extraIndexes);
+
+
+      const result = extraIndexes.reduce((current, extra) => merge(current, extra), mergedObj)
+
+      fs.writeFileSync(schemaIndexesFile, JSON.stringify(result, null, 2))
     }
   }
 }
@@ -213,12 +288,18 @@ export async function tryGenerateClient(c: IConfig) {
 
 export function copyModelFiles (config: IConfig) {
 
-  const { schemaPrisma, schemaIndexes } = config.pointFiles.currentFiles.modelFiles
+  const { schemaIndexes, partSchemaPrisma, depDartSchemaPrisma, modelEnhance } = config.pointFiles.currentFiles.modelFiles
 
   tryMkdir(config.pointFiles.output.modelsDir)
 
-  if (fs.existsSync(schemaPrisma)) {
-    cp(schemaPrisma, config.pointFiles.output.schemaPrisma)
+  if (fs.existsSync(partSchemaPrisma)) {
+    cp(partSchemaPrisma, config.pointFiles.output.partSchemaPrisma)
+  }
+  if (fs.existsSync(modelEnhance)) {
+    cp(modelEnhance, config.pointFiles.output.modelEnhance)
+  }
+  if (fs.existsSync(depDartSchemaPrisma)) {
+    cp(depDartSchemaPrisma, config.pointFiles.output.depDartSchemaPrisma)
   }
   if (fs.existsSync(schemaIndexes)) {
     cp(schemaIndexes, config.pointFiles.output.schemaIndexes)
@@ -233,6 +314,8 @@ export async function migratePrisma(
   await composeSchema(c)
 
   tryGenerateClient(c)
+
+  await buildModelIndexes(c);
 
   await runSpawn(['prisma', 'generate'], { cwd: c.cwd })
 

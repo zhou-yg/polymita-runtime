@@ -5,7 +5,6 @@ import { cp } from "shelljs"
 import { buildCommonDirs, buildIndex, buildMeta, buildModelIndexes, buildModules, buildOverrides, buildScripts, buildSignals, buildTailwindCSS, buildThirdPart, composeSchema, composeScripts, composeSignal, copyModelFiles, emptyDirectory, generateBuildingIndex, generateClientRoutes, generateLayoutTypes, generateModelTypes2, generateViewFromModule, generateViewFromOverrides, IConfig, logFrame, preCheckSchema, readConfig, time, upgradePatchVersion } from '../src'
 
 function copyFiles (config: IConfig) {
-  copyModelFiles(config)
 
   if (fs.existsSync(path.join(config.cwd, 'types'))) {
     cp('-r', 
@@ -44,6 +43,7 @@ export default async (cwd: string, isRelease?: boolean) => {
     buildMeta(config),
   ]);
 
+  copyModelFiles(config)
   copyFiles(config)
 
   logFrame(`build models in ${t1()}s`)

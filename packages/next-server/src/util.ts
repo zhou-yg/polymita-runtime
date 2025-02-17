@@ -32,6 +32,12 @@ export function emptyDirectory (dir: string) {
   fs.mkdirSync(dir, { recursive: true })
 }
 
+export function tryUnlinkSync (f: string) {
+  if (fs.existsSync(f))  {
+    fs.unlinkSync(f)
+   }
+}
+
 export function lowerFirst (s: string) {
   return s[0].toLowerCase() + s.substring(1)
 }
@@ -413,4 +419,9 @@ export const assignCommandsToProject = (cwd: string, cmds: string[]) => {
   })
 
   writeJSON(path.join(cwd, 'package.json'), pkgJSON)
+}
+
+
+export function transformPkgName(str: string) {
+  return str.replace(/^@/, '').replace(/\/|@|-/g, '_')
 }

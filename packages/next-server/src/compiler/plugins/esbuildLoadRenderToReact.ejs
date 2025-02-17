@@ -1,3 +1,6 @@
+import { ConnectProvider } from '@polymita/next-connect'
+import { h } from '@polymita/renderer'
+
 function RenderToReact<P>(
   module: SingleFileModule<P, any, any, any>,
   modulesLinkMap: Map<string, any>,
@@ -17,6 +20,11 @@ function RenderToReact<P>(
   })
   return (p: P) => {
     const r = renderer.construct(p);
+    renderer.provide(
+      h(ConnectProvider, {
+        pkgName: "<%= pkgName %>",
+      })
+    )
     return renderer.render()
   }
 }

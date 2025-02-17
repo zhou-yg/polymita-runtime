@@ -84,6 +84,7 @@ export const defaultConfig = () => ({
   modelEnhance: 'model.enhance.json',
   moduleConfigFile: 'moduleConfig.json',
   prismaModelPart: 'part.prisma', // postfix
+  prismaModelDepPart: 'dep.part.prisma', // postfix
   targetSchemaPrisma: 'schema.prisma',
   schemaIndexes: 'indexes.json',
   schemaIndexesTypes: 'indexesTypes.d.ts',
@@ -349,6 +350,7 @@ function getOutputFiles (externalCacheDir: string, cwd: string, config: IDefault
   const modelEnhance = path.join(modelDir, config.modelEnhance)
   const schemaPrisma = path.join(modelDir, config.targetSchemaPrisma)
   const partSchemaPrisma = path.join(modelDir, config.prismaModelPart)
+  const depDartSchemaPrisma = path.join(modelDir, config.prismaModelDepPart)
   const schemaIndexes = path.join(modelDir, config.schemaIndexes)
   const schemaIndexesTypes = path.join(modelDir, config.schemaIndexesTypes)
   const customPrismaClientIndex = path.join(modelDir, config.customPrismaClientIndexFile)
@@ -359,6 +361,7 @@ function getOutputFiles (externalCacheDir: string, cwd: string, config: IDefault
     schemaPrisma,
     schemaIndexes,
     partSchemaPrisma,
+    depDartSchemaPrisma,
     schemaIndexesTypes,
     customPrismaClientIndex,
   }
@@ -404,7 +407,9 @@ function getOutputFiles (externalCacheDir: string, cwd: string, config: IDefault
       contextDir: path.join(outputDir, config.contextDirectory),
       // prisma
       modelsDir: path.join(outputDir, config.modelsDirectory),
-      schemaPrisma: path.join(outputDir, config.modelsDirectory, config.targetSchemaPrisma),
+      modelEnhance: path.join(outputDir, config.modelsDirectory, config.modelEnhance),
+      partSchemaPrisma: path.join(outputDir, config.modelsDirectory, config.prismaModelDepPart),
+      depDartSchemaPrisma: path.join(outputDir, config.modelsDirectory, config.prismaModelPart),
       schemaIndexes: path.join(outputDir, config.modelsDirectory, config.schemaIndexes),
       // views/modules/drivers
       viewsDir: path.join(outputDir, config.viewsDirectory),

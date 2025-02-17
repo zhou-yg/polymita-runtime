@@ -107,6 +107,7 @@ export default function loadModuleToView (c: IConfig, arg: {
 
         const content2 = onlyRegister ? moduleViewRegisterModuleTemplate() : moduleViewRenderToReactTemplate({
           name,
+          pkgName: c.packageJSON.name,
           hasImportSignal,
         })
 

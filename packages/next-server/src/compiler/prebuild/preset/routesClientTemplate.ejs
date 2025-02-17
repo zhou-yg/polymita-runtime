@@ -37,6 +37,7 @@ function RootApplication({
 
   return (
     <ConnectProvider
+      pkgName="<%= pkgName %>"
       modelIndexes={getDynamicModelIndexes()}
       plugin={createApiPlugin()}
     >

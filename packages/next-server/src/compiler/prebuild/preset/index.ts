@@ -214,6 +214,8 @@ export async function generateClientRoutes(c: IConfig) {
   }).join('\n')
 
   const routesStr2 = routesClientTemplate({
+    pkgName: c.packageJSON.name,
+
     /** import all pages */
     imports: importsWithAbsolutePathClient,
 
@@ -261,6 +263,7 @@ export async function generateBuildingIndex(c: IConfig) {
   tryMkdir(c.pointFiles.output.root)
 
   const viewsContent = moduleRenderToReactFilePathTemplate({
+    pkgName: c.packageJSON.name,
     names: [
       ...c.pointFiles.currentFiles.moduleFiles.map(f => f.name),
     ],

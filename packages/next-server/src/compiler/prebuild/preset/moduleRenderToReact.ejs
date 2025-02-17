@@ -1,5 +1,6 @@
 import React from 'react'
-import { createRHRenderer, SingleFileModule, registerModule } from '@polymita/renderer'
+import { h, createRHRenderer, SingleFileModule, registerModule } from '@polymita/renderer'
+import { ConnectProvider } from '@polymita/next-connect'
 
 function RenderToReact<P extends Record<string, any>>(
   module: SingleFileModule<P, any, any, any>,
@@ -20,6 +21,11 @@ function RenderToReact<P extends Record<string, any>>(
   })
   return (p: P) => {
     const r = renderer.construct(p);
+    renderer.provide(
+      h(ConnectProvider, {
+        pkgName: "<%= pkgName %>"
+      })
+    )
     return renderer.render()
   }
 }
