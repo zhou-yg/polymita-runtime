@@ -89,4 +89,7 @@ cac.help()
 cac.version(pkg.version)
 cac.parse()
 
-assignCommandsToProject(cwd, cac.commands.map(c => c.name))
+assignCommandsToProject(cwd, [
+  ...cac.commands.map(c => c.name),
+  ['local', 'npm run build && npm run zip && npm run upload']
+])

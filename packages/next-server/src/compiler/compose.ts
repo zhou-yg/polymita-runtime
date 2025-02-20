@@ -321,17 +321,12 @@ export async function composeSchema (c: IConfig) {
   }
   if (c.model.engine === 'prisma') {
     const dependentPrismaFiles = findDependentPrisma(c)
-    console.log('dependentPrismaFiles: ', dependentPrismaFiles);
+    logFrame('dependentPrismaFiles: ', dependentPrismaFiles);
 
     if (dependentPrismaFiles.length) {
       
       tryMkdir(modelDir)      
   
-      const partSchema = path.join(c.cwd, c.modelsDirectory, `${c.prismaModelPart}`)
-      if (!fs.existsSync(partSchema) && dependentPrismaFiles.length > 0) {
-        cp(targetFile, partSchema)
-      }
-
       if (
         dependentPrismaFiles.length &&
         readExistingPrismaPart(c).length === 0
@@ -340,6 +335,7 @@ export async function composeSchema (c: IConfig) {
       }
   
       const existPrismaPart = readExistingPrismaPart(c)
+      logFrame('[composeSchema] existPrismaPart: ', existPrismaPart);
   
       if (existPrismaPart.length) {
         /**

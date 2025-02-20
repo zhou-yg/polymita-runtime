@@ -401,20 +401,25 @@ export const isNonNullable = <T>(value: T): value is NonNullable<T> => Boolean(v
 export const reduceScopePrefix = (name: string) => name.replace(/^@\w+\//, '')
 
 
-export const assignCommandsToProject = (cwd: string, cmds: string[]) => {
+export const assignCommandsToProject = (
+  cwd: string, 
+  cmds: (string | [string, string])[]
+) => {
   const pkgJSON = loadJSON(path.join(cwd, 'package.json'))
   if (!pkgJSON.scripts) {
     pkgJSON.scripts = {}
   }
 
   cmds.forEach(cli => {
-    const scriptCli = `polymita ${cli}`
-    if (pkgJSON.scripts[cli]) {
-      if (!pkgJSON.scripts[cli].includes(scriptCli)) {
-        console.error(`Unexpected cli command "${pkgJSON.scripts[cli]}"`) 
+    const name = typeof cli === 'string' ? cli : cli[0]
+    const scriptCli = typeof cli === 'string' ? `polymita ${cli}` : cli[1]
+
+    if (pkgJSON.scripts[name]) {
+      if (!pkgJSON.scripts[name].includes(scriptCli)) {
+        console.error(`Unexpected cli command "${pkgJSON.scripts[name]}"`) 
       }
     } else {
-      pkgJSON.scripts[cli] = scriptCli
+      pkgJSON.scripts[name] = scriptCli
     }
   })
 

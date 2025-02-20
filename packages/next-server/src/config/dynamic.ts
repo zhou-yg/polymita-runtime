@@ -278,6 +278,9 @@ function generateDynamicModulesImportCode(
     return Object.entries(f.meta.routes?.pages || {}).map(([_, name]) => {
       const { nameVar } = getNameAndProps(name)
 
+      /** 
+       * const xxxModuleComponent = modulesContext.createViewComponent('@polymita/xxxx', 'ModuleName')
+      */
       return `const ${convertModuleNameToVariableName(f.pkgName)}${nameVar}Component = ${modulesContextName}.createViewComponent('${f.pkgName}', '${nameVar}')`
     })
   }).flat().join('\n')
