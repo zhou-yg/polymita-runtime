@@ -272,12 +272,12 @@ export function createReactContainer<
 
   function render (json: VirtualLayoutJSON) {
     let destJSON = json
-    if (providerNode) {
-      destJSON = {
-        ...providerNode,
-        children: [destJSON],
-      }
-    }
+    // if (providerNode) {
+    //   destJSON = {
+    //     ...providerNode,
+    //     children: [destJSON],
+    //   }
+    // }
     const root = createElementDepth(destJSON, options)
     return root
   }
@@ -288,8 +288,20 @@ export function createReactContainer<
     return proxyHandler?.draft as ConvertToLayoutTreeDraft<T>
   }
 
-  function provide (node: VirtualLayoutJSON) {
+  function provide (
+    node: VirtualLayoutJSON,
+    functionComponent: Function,
+  ) {
     providerNode = node
+
+    const provideRoot = createElementDepth({
+      ...node,
+      children: [].concat(node.children || []).concat({
+        type: functionComponent
+      })
+    }, options)
+
+    return provideRoot
   }
 
   return {
