@@ -1,7 +1,7 @@
 import React, { ReactElement, useEffect, useState } from 'react'
 
 import s from './commentList.module.less'
-import { useSignal } from '@polymita/connect'
+import { useSignal } from '@polymita/next-connect'
 
 import { Button, Input, List, ListItem } from '@mui/material'
 

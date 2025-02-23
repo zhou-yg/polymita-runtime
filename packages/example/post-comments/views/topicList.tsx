@@ -1,7 +1,7 @@
 import React, { ReactElement, useState } from 'react'
 
 import s from './topicList.module.less'
-import { useSignal } from '@polymita/connect'
+import { useSignal } from '@polymita/next-connect'
 import topicHook, { ITopic } from '../drivers/topic'
 import { Button, Input, List, ListItem, ListItemButton } from '@mui/material'
 

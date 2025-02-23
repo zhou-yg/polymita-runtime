@@ -1,7 +1,7 @@
 import React from 'react'
 import mdDriver from '../../drivers/mdList'
 import { Link } from 'react-router-dom'
-import { useSignal } from '@polymita/connect'
+import { useSignal } from '@polymita/next-connect'
 
 import LoadingButton from '@mui/lab/LoadingButton'
 

@@ -34,9 +34,9 @@
     "lodash": "^4.17.21",
     "nanoid": "3.x.x",
     "prisma": "4.x.x",
-    "@polymita/server": "workspace:~*",
+    "@polymita/next-server": "workspace:~*",
     "tarat-file-uploader": "workspace:~*",
-    "@polymita/connect": "workspace:^",
+    "@polymita/next-connect": "workspace:^",
     "@polymita/signal": "workspace:^",
     "@polymita/signal-model": "workspace:^"
   },

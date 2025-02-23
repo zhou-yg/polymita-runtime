@@ -1,5 +1,5 @@
 import React from 'react'
-import { useProgress, useSignal } from '@polymita/connect'
+import { useProgress, useSignal } from '@polymita/next-connect'
 import UserInfo from '../../../views/info'
 import login from '../../../drivers/login'
 import { Navigate } from 'react-router-dom'

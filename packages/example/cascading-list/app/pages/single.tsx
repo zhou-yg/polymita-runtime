@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
 import * as immer from 'immer'
 import singleDriver from '@/drivers/single'
-import { useSignal } from '@polymita/connect'
+import { useSignal } from '@polymita/next-connect'
 
 let myName = 'my'
 

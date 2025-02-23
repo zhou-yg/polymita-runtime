@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useSignal } from '@polymita/connect'
+import { useSignal } from '@polymita/next-connect'
 import Cascading from '../../views/cascading'
 import cascadingHook, { Folder } from '@/drivers/cascading'
 

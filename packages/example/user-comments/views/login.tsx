@@ -1,4 +1,4 @@
-import { useSignal } from '@polymita/connect'
+import { useSignal } from '@polymita/next-connect'
 import React, { useState } from 'react'
 
 const Login = () => {

@@ -2,7 +2,7 @@ import React from 'react'
 import Editor from '@/views/editor'
 import mdEditor from '@/drivers/mdEditor'
 import { Link, useSearchParams } from 'react-router-dom'
-import { useSignal, useProgress } from '@polymita/connect'
+import { useSignal, useProgress } from '@polymita/next-connect'
 
 export default function Main () {
   const searchParams = useSearchParams()  

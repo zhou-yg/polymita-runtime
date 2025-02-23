@@ -1,6 +1,6 @@
 import mainHook from '../drivers/main'
 import topicDriver from '../drivers/topic'
-import { useSignal } from '@polymita/connect'
+import { useSignal } from '@polymita/next-connect'
 import React, { useState } from 'react'
 import s from './comments.module.less'
 import { Link } from 'react-router-dom'

@@ -9,6 +9,6 @@ module.exports = {
     './drivers/**/*.ts',
   ],
   setupFilesAfterEnv: [
-    '@polymita/server/driverTestSetup.ts'
+    '@polymita/next-server/driverTestSetup.ts'
   ]
 };

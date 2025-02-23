@@ -6,7 +6,7 @@ import 'tarat-user-login-system/dist/views/login.css'
 import loginDriver from '@/drivers/compose/login'
 
 import { after } from '@polymita/signal-model'
-import { useProgress, useSignal } from '@polymita/connect'
+import { useProgress, useSignal } from '@polymita/next-connect'
 
 export default function Login () {
   console.log('--- user-comments Login ---')
