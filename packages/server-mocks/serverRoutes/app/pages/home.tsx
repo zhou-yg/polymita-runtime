@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useSignal } from '@polymita/connect'
+import { useSignal } from '@polymita/next-connect'
 import a from '../../drivers/a'
 
 export default function Main () {

@@ -1,7 +1,7 @@
 {
   "name": "some-drivers",
   "dependencies": {
-    "@polymita/connect": "workspace:^",
+    "@polymita/next-connect": "workspace:^",
     "@polymita/signal": "workspace:^",
     "@polymita/signal-model": "workspace:^",
     "@polymita/renderer": "workspace:^",

@@ -1,7 +1,7 @@
 {
   "name": "some-routes",
   "dependencies": {
-    "@polymita/connect": "workspace:^",
+    "@polymita/next-connect": "workspace:^",
     "@polymita/renderer": "workspace:^",
     "@polymita/signal": "workspace:^",
     "@polymita/signal-model": "workspace:^",
