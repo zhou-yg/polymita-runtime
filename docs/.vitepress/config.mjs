@@ -51,8 +51,8 @@ export default defineConfig({
               { text: 'create-polymita' },
               { text: '@polymita/signal-model' },
               { text: '@polymita/renderer' },
-              { text: '@polymita/server' },
-              { text: '@polymita/connect' },
+              { text: '@polymita/next-server' },
+              { text: '@polymita/next-connect' },
             ]
           },
           {
