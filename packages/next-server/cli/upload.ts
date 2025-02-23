@@ -20,6 +20,8 @@ async function linkToLocal (
       `http://localhost:${localPort}/api/moduleManager/import`,
       formData,
       {
+        maxBodyLength: 1024 * 1024 * 1024,
+        maxContentLength: 1024 * 1024 * 1024,
         headers: {
           ...formData.getHeaders()
         }

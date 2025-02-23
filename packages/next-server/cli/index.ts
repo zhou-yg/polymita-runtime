@@ -54,9 +54,12 @@ cac
 
 cac
   .command('zip', 'create zip file after build')
-  .action(async () => {
+  .option('-d, --deps', 'copy node_modules', {
+    default: false,
+  })
+  .action(async ({ deps }) => {
     try {
-      await zip(cwd)
+      await zip(cwd, { copyDeps: deps })
     } catch (e) {
       console.log('zip error: ', e);
     }
@@ -91,5 +94,5 @@ cac.parse()
 
 assignCommandsToProject(cwd, [
   ...cac.commands.map(c => c.name),
-  ['local', 'npm run build && npm run zip && npm run upload']
+  ['local', 'npm run zip && npm run upload']
 ])

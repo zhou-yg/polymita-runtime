@@ -12,6 +12,7 @@ import less from 'postcss-less'
 import { umdWrapper } from 'esbuild-plugin-umd-wrapper';
 import externalGlobals from '../plugins/esbuild-globals';
 import { compressZip } from '../../util';
+import { execSync } from 'child_process';
 
 export async function buildCommonDirs(c: IConfig) {
   const dirs = readdirSync(c.cwd)
@@ -237,4 +238,11 @@ export function upgradePatchVersion (c: IConfig) {
   writeFileSync(c.pointFiles.currentFiles.pkgJSON, JSON.stringify(latestPkgJSON, null, 2))
 
   statusFrame('upgrade', old, '->', latestPkgJSON.version).success()
+}
+
+export async function copyNodeModules(c: IConfig) {
+  return execSync('cp -r node_modules dist/node_modules', {
+    cwd: c.cwd,
+    stdio: 'inherit'
+  })
 }

@@ -53,14 +53,14 @@ export function createThirdPart (c: IConfig) {
   const thirdKoaIns = new Koa();
 
   thirdKoaIns.use(async (ctx, next) => {
-    console.log('[@polymita/server] start third', ctx.request.path)
+    console.log('[@polymita/next-server] start third', ctx.request.path)
     await next()
   })
 
   loadThirdPart(c, thirdKoaIns)
 
   thirdKoaIns.use(async (ctx, next) => {
-    console.log('[@polymita/server] end basic', ctx.request.path)
+    console.log('[@polymita/next-server] end basic', ctx.request.path)
     if (!ctx.body) {
       await next()
     }

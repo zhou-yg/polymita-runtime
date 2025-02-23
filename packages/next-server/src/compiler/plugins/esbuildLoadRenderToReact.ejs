@@ -19,13 +19,19 @@ function RenderToReact<P>(
     },
   })
   return (p: P) => {
-    const r = renderer.construct(p);
-    renderer.provide(
-      h(ConnectProvider, {
-        pkgName: "<%= pkgName %>",
-      })
+    return renderer.provide(
+      h(
+        ConnectProvider, 
+        {
+          pkgName: "<%= pkgName %>",
+        },
+        h()
+      ),
+      () => {
+        const r = renderer.construct(p);
+        return renderer.render()
+      },
     )
-    return renderer.render()
   }
 }
 

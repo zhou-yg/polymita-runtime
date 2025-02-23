@@ -321,7 +321,7 @@ export function exportDynamicModulesToRoutes(
       exportRoutesToGlobalCode += `
       {
         path: "${path}",
-        title: "${propsVar?.title || name}",
+        title: "${propsVar?.title || nameVar}",
         element: React.createElement(${convertModuleNameToVariableName(f.pkgName)}${nameVar}Component, ${JSON.stringify(propsVar)}),
       },`
     })
@@ -332,11 +332,13 @@ export function exportDynamicModulesToRoutes(
 
   const code = dynamicModuleTemplate({
     modulesContextName,
-    exportRoutesToGlobalCode,
-
-    registerModulesCode,
     dependencyModulesImportCode,
+    //
+    registerModulesCode,
+    //
     dynamicModulesImportCode,
+    //
+    exportRoutesToGlobalCode,
   })
 
   return code

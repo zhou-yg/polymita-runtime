@@ -39,15 +39,21 @@ export function setupBasicServer (c: IConfig) {
     await next();
   })
   app.use(koaBody({
-    multipart: true,
-    jsonLimit: '100mb',
-  }))
+    multipart: true, // 支持文件上传
+    formidable: {
+      maxFileSize: 1024 * 1024 * 1024, // 设置最大文件大小为 1GB
+      keepExtensions: true, // 保留文件扩展名
+    },
+    jsonLimit: '1gb', // JSON 请求体大小限制
+    formLimit: '1gb', // 表单请求体大小限制
+    textLimit: '1gb', // 文本请求体大小限制
+  }));
   app.use(cors())
   app.use(staticServe(c.publicDirectory))
   app.use(async (ctx, next) => {
-    console.log('[@polymita/server] >> request path=', ctx.request.path)
+    console.log('[@polymita/next-server] >> request path=', ctx.request.path)
     await next()
-    console.log('[@polymita/server] << response path=', ctx.request.path)
+    console.log('[@polymita/next-server] << response path=', ctx.request.path)
   })
   app.use(prisma({ config: c }))
   

@@ -374,6 +374,13 @@ export async function composeSchema (c: IConfig) {
           ]
         )
       }
+    } else if (
+      readExistingPrismaPart(c).length
+    ) {
+      cp(
+        c.pointFiles.currentFiles.modelFiles.partSchemaPrisma,
+        targetFile
+      )
     } else {
       tryUnlinkSync(c.pointFiles.currentFiles.modelFiles.depDartSchemaPrisma)
     }

@@ -207,7 +207,7 @@ export async function buildModelIndexes(c: IConfig) {
       const extraIndexes: Array<Record<string, IModelIndexesBase>> = []
 
       // case 2:
-      console.log('dependentIndexes: ', dependentIndexes);
+      logFrame('dependentIndexes: ', dependentIndexes);
       dependentIndexes.forEach(obj => {  
         const indexesWithPrefix = deepInsertName(obj.moduleName, obj.indexes)
 
