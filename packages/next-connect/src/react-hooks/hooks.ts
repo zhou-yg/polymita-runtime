@@ -15,6 +15,14 @@ export const ConnectContext = React.createContext<{
   modelEvents: EventEmitter
 }>(null);
 
+if (
+  !globalThis.POLYMITA_CONNECT_CONTEXT
+) { 
+  globalThis.POLYMITA_CONNECT_CONTEXT = ConnectContext
+} else {
+  throw new Error('[next-connect] duplicate')
+}
+
 const MODEL_UPDATE = 'MODEL_UPDATE'
 
 export const genModelEventKey = (entity: string) => `${MODEL_UPDATE}:${entity}`
@@ -60,7 +68,7 @@ export function prisma<T>(
   const entity = modelIndexes?.[name];
 
   if (!entity || typeof entity === 'object') {
-    throw new Error(`[prisma] ${name} entity not found in`);
+    throw new Error(`[prisma] "${name}" entity not found in`);
   }
 
   const [data, setData] = useState<T>();
@@ -112,7 +120,7 @@ export function writePrisma<T extends any[]>(name: string) {
   const entity = (modelIndexes)?.[name];
 
   if (!entity || typeof entity === 'object') {
-    throw new Error(`[writePrisma] ${name} entity not found in`);
+    throw new Error(`[writePrisma] "${name}" entity not found in`);
   }
 
   const key = genModelEventKey(name)

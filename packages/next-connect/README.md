@@ -1,4 +1,4 @@
-# @polymita/connect
+# @polymita/next-connect
 
 将signal结合到现有的UI框架, like React, Vue and others
 

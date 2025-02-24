@@ -25,6 +25,7 @@ module.exports = [
         name: pkg.name,
         globals: {
           '@polymita/signal-model': '@polymita/signal-model',
+          '@polymita/renderer': '@polymita/renderer',
         }
       },
     },
