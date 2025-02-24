@@ -758,8 +758,9 @@ export async function readConfig (arg: {
 
   const routesTree = defineRoutesTree(pages)
 
+  const defaultPort = arg.port || (process.env.PORT ? Number(process.env.PORT) : config.port)
   const port = await getPort({
-    port: arg.port || (config.port ? config.port : process.env.PORT ? Number(process.env.PORT) : portNumbers(9000, 9100))
+    port: portNumbers(defaultPort, defaultPort + 100)
   })
   const homePageUrl = `${config.host}:${port}${config.homePath}`
   const hostOrigin = `${config.host}:${port}`

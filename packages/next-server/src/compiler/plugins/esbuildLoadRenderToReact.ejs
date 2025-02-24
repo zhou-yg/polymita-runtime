@@ -1,39 +1,7 @@
-import { ConnectProvider } from '@polymita/next-connect'
+import { ConnectProvider, createRenderToReact } from '@polymita/next-connect'
 import { h } from '@polymita/renderer'
 
-function RenderToReact<P>(
-  module: SingleFileModule<P, any, any, any>,
-  modulesLinkMap: Map<string, any>,
-  modulesActiveLink: string[],
-) {
-  registerModule(module, modulesLinkMap)
-
-  const renderer = <%= hasImportSignal ? 'createRSRenderer' : 'createRHRenderer' %>(module, {
-    framework: {
-      name: 'react',
-      lib: React
-    },
-    moduleOverride: {
-      modulesLinkMap,
-      modulesActiveMap: modulesActiveLink,
-    },
-  })
-  return (p: P) => {
-    return renderer.provide(
-      h(
-        ConnectProvider, 
-        {
-          pkgName: "<%= pkgName %>",
-        },
-        h()
-      ),
-      () => {
-        const r = renderer.construct(p);
-        return renderer.render()
-      },
-    )
-  }
-}
+const renderToReact = createRenderToReact(React, "<%= pkgName %>")
 
 export type <%= name %>Props = ComponentModule.<%= name %>Props
 
@@ -51,7 +19,7 @@ export const designPattern = ComponentModule.designPattern
 
 export default (modulesLinkMap: Map<string, any>, modulesActiveLink: string[]) => {
   
-  const Component = RenderToReact(ComponentModule, modulesLinkMap, modulesActiveLink);
+  const Component = renderToReact(ComponentModule, modulesLinkMap, modulesActiveLink);
 
   const <%= name %> = (props: ComponentModule.<%= name %>Props) => {
 
