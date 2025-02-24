@@ -44,6 +44,10 @@ export function h(
   props: Record<string, any> | null,
   ...children: (VirtualLayoutJSON | VirtualLayoutJSON[] | BaseDataType)[]
 ): VirtualLayoutJSON {
+  if (!type) {
+    throw new Error('[renderer] must provide a "type"');
+  }
+
   /** compatible with different versions jsx: children in props, and key in children */
   if (props?.children) {
     if (children.length !== 0) {

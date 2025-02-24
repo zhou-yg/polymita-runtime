@@ -290,15 +290,13 @@ export function createReactContainer<
 
   function provide (
     node: VirtualLayoutJSON,
-    functionComponent: Function,
+    child: VirtualLayoutJSON,
   ) {
     providerNode = node
 
     const provideRoot = createElementDepth({
       ...node,
-      children: [].concat(node.children || []).concat({
-        type: functionComponent
-      })
+      children: [child]
     }, options)
 
     return provideRoot
