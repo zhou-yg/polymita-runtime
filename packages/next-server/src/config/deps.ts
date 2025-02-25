@@ -4,7 +4,7 @@ import * as fs from 'fs'
 import { existsSync, lstatSync, readdirSync } from "fs"
 import chalk from 'chalk'
 import { JSONSchemaForNPMPackageJsonFiles } from "@schemastore/package"
-import type { UserCustomConfig } from "../config"
+import type { IConfig, UserCustomConfig } from "../config"
 
 interface IPkg {
   dependencies: {
@@ -122,6 +122,7 @@ export interface Dep {
   name: string
   resourceDir?: string
   resources?: string[]
+  order: number
 }
 
 export function combineStaticToCode (resources: string[]) {
@@ -148,7 +149,8 @@ export function findStaticDeps (isProd: boolean, nodeModulesDir: string, modules
         path.join(nodeModulesDir, '@polymita/next-server/dist/internalStatic/emotion-react.umd.min.js'),
         path.join(nodeModulesDir, '@polymita/next-server/dist/internalStatic/emotion-styled.umd.min.js'),
         // path.join(nodeModulesDir, '@polymita/next-server/dist/internalStatic/eventemitter3.js'),
-      ]
+      ],
+      order: 0,
     },
     {
       name: 'runtime.js',
@@ -158,18 +160,21 @@ export function findStaticDeps (isProd: boolean, nodeModulesDir: string, modules
         path.join(nodeModulesDir, '@polymita/renderer/dist/renderer.umd.js'),
         path.join(nodeModulesDir, '@polymita/next-connect/dist/index.umd.js'),
       ],
+      order: 1,
     },
     {
       name: 'module.js',
       resources: [
         ...modules.map(dir => (path.join(dir, `dist/index.js`))).filter(fs.existsSync),
-       ]
+      ],
+      order: 2,
     },
     {
       name: 'module.css',
       resources: [
         ...modules.map(dir => (path.join(dir, `dist/index.css`))).filter(fs.existsSync),
-       ]
+      ] ,
+      order: 0,
     },
   ]
 
@@ -191,4 +196,10 @@ export function findStaticDeps (isProd: boolean, nodeModulesDir: string, modules
   })
 
   return arr
+}
+
+export const getFileNameFormUrl = (c: IConfig, url: string) => {
+  const reg = new RegExp(`${c.inlineStaticPrefix}/([\\w-]+\\.(js|css))`)
+  const name = url.match(reg)?.[1]
+  return name
 }

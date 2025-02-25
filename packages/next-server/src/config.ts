@@ -100,6 +100,8 @@ export const defaultConfig = () => ({
     prismaClientEntry: './models/customPrismaClient/client'
   },
 
+  inlineStaticPrefix: '/static',
+
   // compose
   compose: [],
 
@@ -109,6 +111,7 @@ export const defaultConfig = () => ({
   globalModelIndexesRefKey: 'POLYMITA_DYNAMIC_MODEL_INDEXES',
 
   metaFileName: 'meta.json',
+
 })
 
 interface ServerScriptConfig {

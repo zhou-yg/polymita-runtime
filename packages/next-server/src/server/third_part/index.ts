@@ -27,8 +27,6 @@ function loadThirdPart(c: IConfig, app: Koa) {
     return isServiceDep(c, m.pkgName)
   }).map(f => {
     const r = [
-      join(c.thirdPartDir, 'index.js'),
-      join(c.thirdPartDir, 'index.mjs'),
       join(c.buildDirectory, c.thirdPartDir, 'index.js'),
       join(c.buildDirectory, c.thirdPartDir, 'index.mjs')
     ].find(entry => {

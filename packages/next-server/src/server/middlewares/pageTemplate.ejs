@@ -10,13 +10,14 @@
   <link rel="stylesheet" href="<%- css[i] %>">
   <% }) %>
 
-  <link rel="stylesheet" href="/static/module.css" >
+  <% inlineCssArr.forEach((css) => { %>
+    <link rel="stylesheet" href="<%- css %>" >
+  <% }) %>
   
-  <!-- deps -->
-  <script src="/static/deps.js"></script>
-  <script src="/static/runtime.js"></script>
-  <!-- modules -->
-  <script src="/static/module.js"></script>
+  
+  <% inlineJsArr.forEach((js) => { %>
+    <script src="<%- js %>"></script>
+  <% }) %>
   
   <script src="/static/dynamicConfig.js"></script>
 

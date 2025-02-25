@@ -5,6 +5,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { ViteDevServer } from "vite";
 import { projectRelativePath } from "../../util";
+import { sortBy } from "lodash";
 
 const templateFile = './pageTemplate.ejs'
 const templateFilePath = path.join(__dirname, templateFile)
@@ -34,6 +35,9 @@ const buildPageTemplate = (
     css: css.filter(p => fs.existsSync(p)).map(path => projectRelativePath(config, path)),
     ssrHTML: '',
     scripts,
+
+    inlineJsArr: sortBy(config.staticDeps, 'order').map(obj => `${config.inlineStaticPrefix}/${obj.name}`).filter(name => /\.js$/.test(name)),
+    inlineCssArr: sortBy(config.staticDeps, 'order').map(obj => `${config.inlineStaticPrefix}/${obj.name}`).filter(name => /\.css$/.test(name)),
   })
 
   return html

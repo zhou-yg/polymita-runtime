@@ -1,7 +1,8 @@
 import Application from "koa";
-import { IConfig } from "../../config";
+import { getFileNameFormUrl, IConfig } from "../../config";
 import * as fs from "fs";
 import * as path from "path";
+import { logFrame } from "../../util";
 /**
  * @TODO should provide by default  
  */
@@ -12,7 +13,8 @@ export default function inlineStatic (args: {
 
   return async (ctx, next) => {
     const url = ctx.request.url
-    const name = url.match(/\/static\/(\w+\.(js|css))/)?.[1]
+    const name = getFileNameFormUrl(config, url)
+    logFrame('[inlineStatic] name: ', name);
 
     if (name) {
       const resources = config.staticDeps.find(p => p.name === name);

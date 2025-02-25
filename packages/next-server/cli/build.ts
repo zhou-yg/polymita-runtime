@@ -69,5 +69,7 @@ export default async (cwd: string, isRelease?: boolean) => {
 
   logFrame(`build modules/overrides/index in ${t1()}s`)
 
+  logFrame(`build end in ${t1()}s`)
+
   return config
 }
