@@ -571,20 +571,43 @@ export function getModulesByBase(
  * @param mp
  */
 export function getActiveModuleByBase(
-  m: SingleFileModule<any, any, any, any>,
+  sourceModule: SingleFileModule<any, any, any, any>,
   linkMap: GlobalModulesLinkMap,
   activeModules: GlobalModulesActiveMap
 ): SingleFileModule<any, any, any, any>[] | null {
-  const key = moduleIndexKey(m);
-  if (m && linkMap && activeModules) {
-    const modules = linkMap.get(key);
+  if (sourceModule && linkMap && activeModules) {
     let result: [number, SingleFileModule<any, any, any, any>][] = [];
-    modules?.forEach((m) => {
-      const i = activeModules.indexOf(moduleIndexKey(m));
-      if (i >= 0) {
-        result.push([i, m]);
+    
+    const cache = new Set();
+
+    const findOverrides = (current: SingleFileModule<any, any, any, any>[]) => {
+      let foundOverrideModules = [];
+      current.forEach(currentModule => {
+        if (cache.has(currentModule)) {
+          return
+        }
+
+        const key = moduleIndexKey(currentModule);
+        const modules = linkMap.get(key);
+        modules?.forEach((targetM) => {
+          const i = activeModules.indexOf(moduleIndexKey(targetM));
+          if (i >= 0) {
+            if (!result.find(([i, exist]) => exist === targetM)) {              
+              result.push([i, targetM]);
+              foundOverrideModules.push(targetM)
+            }
+          }
+        });
+
+        cache.add(currentModule)
+      })
+
+      if (foundOverrideModules.length) {        
+        findOverrides(foundOverrideModules)
       }
-    });
+    }
+    findOverrides([sourceModule])
+
     return result.sort((a, b) => a[0] - b[0]).map((arr) => arr[1]);
   }
 }
@@ -632,13 +655,52 @@ export function mergeOverrideModules(
 ) {
   if (modules.length > 1) {
     return modules.reduce((p, n) => {
-      return extendModule(p, n.override);
+      return mergeModule(p, n.override);
     });
   }
   return modules[0];
 }
 
 export function extendModule<
+  Props,
+  L extends LayoutStructTree,
+  PCArr extends PatchCommand[][],
+  NewProps extends Props,
+  NewPC,
+  ModuleName
+>(
+  module: SingleFileModule<Props, L, PCArr, ModuleName>,
+  override: () =>
+    | OverrideModule<
+        NewProps,
+        SingleFileModule<NewProps, L, PCArr, ModuleName>["layoutStruct"],
+        NewPC
+      >
+    | OverrideModule<
+        NewProps,
+        SingleFileModule<NewProps, L, PCArr, ModuleName>["layoutStruct"],
+        NewPC
+      >[]
+) {
+  const newModule = {
+    ...module,
+    base: module,
+    override() {
+      // const p1 = module.override?.() || [];
+      const p1 = [];
+      const p2 = override();
+      return [].concat(p1).concat(p2);
+    },
+  } as unknown as SingleFileModule<
+    NewProps,
+    L,
+    any, // [...PCArr, FormatPatchCommands<NewPC>],
+    ModuleName
+  >;
+
+  return newModule;
+}
+export function mergeModule<
   Props,
   L extends LayoutStructTree,
   PCArr extends PatchCommand[][],
