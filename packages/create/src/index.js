@@ -98,7 +98,10 @@ inquirer
       default: 'my-tarat-module'
     },
   ]).then(({ lang, name }) => {
-    create({ name })
+    return create({ name })
+      .catch(err => {
+        console.log('err', err)
+      })
       .finally(() => {
         rm(cacheZip, (err) => {
           if (err) console.error(err)
