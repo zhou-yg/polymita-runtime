@@ -22,24 +22,26 @@ export function findDependentPrisma (c: IConfig) {
   c.allDependencyModules.forEach(({ dir, name: moduleName }) => {
 
     const depsSchemaDir = path.join(dir, c.buildDirectory, c.modelsDirectory)
-    console.log('depsSchemaDir: ', depsSchemaDir);
+    console.log('[findDependentPrisma] depsSchemaDir: ', depsSchemaDir);
 
-    fs.readdirSync(depsSchemaDir).forEach(file => {
-      if (new RegExp(`${c.prismaModelPart}$`).test(file)) {
-        statusFrame(moduleName, `find prisma dep '${file}'`).success();
-
-        const depSchemaPath = path.join(depsSchemaDir, file)
-        const r2 = fs.existsSync(depSchemaPath)
-    
-        if (r2) {
-          schemaFiles.push({
-            moduleName,
-            path: depSchemaPath,
-            content: fs.readFileSync(depSchemaPath).toString()
-          })
+    if (fs.existsSync(depsSchemaDir)) {
+      fs.readdirSync(depsSchemaDir).forEach(file => {
+        if (new RegExp(`${c.prismaModelPart}$`).test(file)) {
+          statusFrame(moduleName, `find prisma dep '${file}'`).success();
+  
+          const depSchemaPath = path.join(depsSchemaDir, file)
+          const r2 = fs.existsSync(depSchemaPath)
+      
+          if (r2) {
+            schemaFiles.push({
+              moduleName,
+              path: depSchemaPath,
+              content: fs.readFileSync(depSchemaPath).toString()
+            })
+          }
         }
-      }
-    })
+      })
+    }
   })
 
 

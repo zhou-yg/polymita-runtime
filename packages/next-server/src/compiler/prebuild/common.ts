@@ -172,7 +172,7 @@ export async function buildIndex(c: IConfig) {
     [entry],
     c.pointFiles.output.root,
   )
-  unlinkSync(entry)
+  // unlinkSync(entry)
 }
 
 export async function buildTailwindCSS(c: IConfig) {
