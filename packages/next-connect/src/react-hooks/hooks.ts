@@ -34,24 +34,25 @@ export function ConnectProvider(props: {
   modelIndexes: IModelIndexesBase;
 }) {
   const current = useContext(ConnectContext)
-  let modelIndexes = current?.modelIndexes || props.modelIndexes
-  let parentModelIndexes = current?.parentModelIndexes
+  // let modelIndexes = current?.modelIndexes || props.modelIndexes
+  // let parentModelIndexes = current?.parentModelIndexes
 
-  const currentScopeMi = modelIndexes?.[props?.pkgName]
-  if (typeof currentScopeMi === 'object') {
-    parentModelIndexes = modelIndexes
-    modelIndexes = currentScopeMi
-  }
+  // const currentScopeMi = modelIndexes?.[props?.pkgName]
+  // if (typeof currentScopeMi === 'object') {
+  //   parentModelIndexes = modelIndexes
+  //   modelIndexes = currentScopeMi
+  // }
 
   return createElement(
     ConnectContext.Provider,
     {
       value: {
+        ...props,
         modelEvents: current?.modelEvents || new EventEmitter(),
-        pkgName: props.pkgName || current?.pkgName,
-        plugin: props.plugin || current?.plugin,
-        modelIndexes,
-        parentModelIndexes,
+        // pkgName: props.pkgName || current?.pkgName,
+        // plugin: props.plugin || current?.plugin,
+        // modelIndexes,
+        // parentModelIndexes,
       }
     },
     props.children,
@@ -59,13 +60,14 @@ export function ConnectProvider(props: {
 }
 
 export function prisma<T>(
+  pkgName: string,
   name: string,
   queryFn?: () => Promise<IModelQuery["query"]> | IModelQuery["query"],
   options?: { immediate?: boolean; deps: any[] },
 ): T | undefined {
   const { plugin, pkgName: namespace, modelIndexes, modelEvents } = useContext(ConnectContext);
 
-  const entity = modelIndexes?.[name];
+  const entity = modelIndexes[pkgName] ? modelIndexes[pkgName][name] : modelIndexes?.[name];
 
   if (!entity || typeof entity === 'object') {
     throw new Error(`[prisma] "${name}" entity not found in`);
@@ -114,10 +116,10 @@ export function prisma<T>(
   return data;
 }
 
-export function writePrisma<T extends any[]>(name: string) {
+export function writePrisma<T extends any[]>(pkgName: string, name: string) {
   const { plugin, modelIndexes, pkgName: namespace, modelEvents } = useContext(ConnectContext);
 
-  const entity = (modelIndexes)?.[name];
+  const entity = modelIndexes[pkgName] ? modelIndexes[pkgName][name] : modelIndexes?.[name];
 
   if (!entity || typeof entity === 'object') {
     throw new Error(`[writePrisma] "${name}" entity not found in`);
