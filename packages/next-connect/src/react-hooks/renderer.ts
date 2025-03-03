@@ -21,19 +21,21 @@ export const createRenderToReact = (React: any, pkgName: string) => {
       },
     })
     return (p: P) => {
-      return internalRenderer.provide(
-        h(
-          ConnectProvider, 
-          {
-            pkgName,
-          },
-        ),
-        h(
-          () => {
-            const r = internalRenderer.construct(p);
-            return internalRenderer.render()
-          }, {}),
-      )
+      const r = internalRenderer.construct(p);
+      return internalRenderer.render()
+      // return internalRenderer.provide(
+      //   h(
+      //     ConnectProvider, 
+      //     {
+      //       pkgName,
+      //     },
+      //   ),
+      //   h(
+      //     () => {
+      //       const r = internalRenderer.construct(p);
+      //       return internalRenderer.render()
+      //     }, {}),
+      // )
     }
   }
 }

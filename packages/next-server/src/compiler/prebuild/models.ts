@@ -188,6 +188,10 @@ export async function buildModelIndexes(c: IConfig) {
       const mergedObj: IModelIndexesBase = objArr.reduce((p, n) => Object.assign(p, n), {})
       logFrame('buildModelIndexes', mergedObj);
 
+      Object.assign(mergedObj, {
+        [MODEL_INDEXES_NAMESPACE_KEY]: c.packageJSON.name
+      })
+
       if (enhanceJSON?.overrides) {
         const overrides = convertOverridesIndexes(mergedObj, enhanceJSON.overrides)
         Object.assign(mergedObj, overrides)
