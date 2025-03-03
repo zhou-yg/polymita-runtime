@@ -21,9 +21,13 @@ export default function inlineStatic (args: {
       let code = ''
 
       if (resources && resources.resources) {
+        code = resources.resources.map(file => {
+          return `// file: ${file}`
+        }).join('\n')
+
         code = resources.resources?.reduce((prev, file) => {
           return prev + `\n\n\n/* file: ${file} */\n` + fs.readFileSync(file, 'utf-8')
-        }, '')
+        }, code)
       } 
       if (/\.js/.test(name)) {
         ctx.set('Content-Type', 'application/javascript');

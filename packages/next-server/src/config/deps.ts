@@ -1,4 +1,4 @@
-import { isNonNullable, loadJSON, logFrame } from "../util"
+import { isNonNullable, loadJSON, logFrame, sortByDependency } from "../util"
 import * as path from 'path'
 import * as fs from 'fs'
 import { existsSync, lstatSync, readdirSync } from "fs"
@@ -24,6 +24,7 @@ export interface IDynamicModule {
   dir: string,
   meta: UserCustomConfig,
   fromNodeModules: boolean,
+  pkgJSON: JSONSchemaForNPMPackageJsonFiles
 }
 
 function getModuleByDir(
@@ -51,12 +52,35 @@ function getModuleByDir(
 
   return {
     name,
+    pkgJSON,
     version: pkgJSON.version,
     pkgName: pkgJSON.name,
     dir: dir,
     meta: metaJSON,
     fromNodeModules,
   } 
+}
+
+export function sortModules (modules: IDynamicModule[]) {
+  const moduleNames = modules.map(m => m.pkgName)
+
+  const relations = modules.map(m => {
+    return moduleNames.filter(depModuleName => {
+      return m.pkgJSON.dependencies?.[depModuleName]
+    }).map(depModuleName => {
+      return [m.pkgName, depModuleName] as [string, string]
+    })
+  }).flat()
+
+  const sortedModuleNames = sortByDependency(moduleNames, relations)
+
+  const result = sortedModuleNames.map(name => modules.find(m => m.pkgName === name)!).filter(Boolean)
+
+  if (result.length !== modules.length) {
+    throw new Error('[sortModules] unknown why changed after sort')
+  }
+
+  return result
 }
 
 /**

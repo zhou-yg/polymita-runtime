@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import l from 'lodash'
 import { IFile, isFileEmpty, loadJSON, logFrame, traverse, traverseDir, traverseFirstDir } from './util'
 import chalk from 'chalk'
-import { findDependencies, findDepLibs, findDynamicModules, findStaticDeps } from './config/deps'
+import { findDependencies, findDepLibs, findDynamicModules, findStaticDeps, sortModules } from './config/deps'
 import type { JSONSchemaForNPMPackageJsonFiles } from '@schemastore/package'
 const { merge } = l
 import getPort, { makeRange as portNumbers } from "get-port";
@@ -746,13 +746,16 @@ export async function readConfig (arg: {
     config.metaFileName,
     config.moduleConfigFile,
   )
+
+  const allDependencyModules = sortModules([
+    ...dependencyModules,
+    ...dynamicModules,
+  ])
+
   const staticDeps = findStaticDeps(
     !!isProd,
     nodeModulesDir,
-    [
-      ...dynamicModules,
-      ...dependencyModules
-    ].map(f => f.dir)
+    allDependencyModules.map(f => f.dir)
   )
   
   const dependencyLibs = findDepLibs(packageJSON)
@@ -824,10 +827,7 @@ export async function readConfig (arg: {
     pages,
     dependencyModules,
     dynamicModules,
-    allDependencyModules: [
-      ...dependencyModules,
-      ...dynamicModules,
-    ],
+    allDependencyModules,
     dependencyLibs,
     thirdPartEntry,
     preservedDirs,

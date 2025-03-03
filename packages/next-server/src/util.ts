@@ -430,3 +430,57 @@ export const assignCommandsToProject = (
 export function transformPkgName(str: string) {
   return str.replace(/^@/, '').replace(/\/|@|-/g, '_')
 }
+
+
+export function sortByDependency(arr: string[], relation: [string, string][]) {
+  // Create a graph to store nodes and their dependencies
+  const graph = new Map();
+  const inDegree = new Map<string, number>();
+
+  // Initialize the graph and in-degree map
+  for (const node of arr) {
+      graph.set(node, []);
+      inDegree.set(node, 0);
+  }
+
+  // Build the graph and in-degree map
+  for (const [current, dep] of relation) {
+      if (graph.has(dep)) {
+          graph.get(dep).push(current);
+          inDegree.set(current, (inDegree.get(current) || 0) + 1);
+      }
+  }
+
+  // Find all nodes with in-degree 0 (nodes with no dependencies)
+  const queue: string[] = [];
+  for (const [node, degree] of inDegree.entries()) {
+      if (degree === 0) {
+          queue.push(node);
+      }
+  }
+
+  // Perform topological sorting
+  const sorted: string[] = [];
+  while (queue.length > 0) {
+      const node = queue.shift();
+      if (!node) {
+        break
+      }
+      sorted.push(node);
+
+      // Reduce the in-degree of nodes that depend on the current node
+      for (const neighbor of graph.get(node)) {
+          inDegree.set(neighbor, inDegree.get(neighbor)! - 1);
+          if (inDegree.get(neighbor) === 0) {
+              queue.push(neighbor);
+          }
+      }
+  }
+
+  // If the length of the sorted array does not match the original array, there is a cyclic dependency
+  if (sorted.length !== arr.length) {
+      throw new Error('Cyclic dependency detected, cannot sort');
+  }
+
+  return sorted;
+}
