@@ -14,7 +14,10 @@ export function createApiPlugin () {
   }
 
   async function find(from: string, e: string, w) {
-    return fetchAPI(from, e, 'find', w)
+    return fetchAPI(from, e, 'findMany', w)
+  }
+  async function findMany(from: string, e: string, w) {
+    return fetchAPI(from, e, 'findMany', w)
   }
   async function update(from: string, e: string, w) {
     return fetchAPI(from, e, 'update', w)
@@ -25,6 +28,9 @@ export function createApiPlugin () {
   async function create(from: string, e: string, q) {
     return fetchAPI(from, e, 'create', q)
   }
+  async function createMany(from: string, e: string, q) {
+    return fetchAPI(from, e, 'createMany', q)
+  }
   async function updateMany(from, e: string, query) {
     return fetchAPI(from, e, 'updateMany', query)
   }
@@ -33,9 +39,9 @@ export function createApiPlugin () {
   }
 
   plugin.loadPlugin('Model', {
-    find, update, remove, create, updateMany, upsert,
+    find, update, remove, create, updateMany, upsert, createMany, findMany,
     async executeDiff(){},
-  })
+  } as any)
 
   return plugin
 }

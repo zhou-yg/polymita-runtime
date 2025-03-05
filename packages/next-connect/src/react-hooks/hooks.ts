@@ -134,6 +134,13 @@ export function writePrisma<T extends any[]>(pkgName: string, name: string) {
         return res
       });
   };
+  const createMany = (obj?: Partial<T[0]>[]) => {
+    const model: any = plugin.getPlugin("Model")
+    return model.createMany(namespace, entity, { data: obj }).then(res => {
+        modelEvents.emit(key)
+        return res
+      });
+  };
   const update = (whereId: number, obj?: Partial<T[0]>) => {
     return plugin
       .getPlugin("Model")
@@ -175,6 +182,7 @@ export function writePrisma<T extends any[]>(pkgName: string, name: string) {
 
   return {
     create,
+    createMany,
     update,
     updateMany,
     upsert,
