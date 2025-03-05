@@ -16,52 +16,28 @@ export default function prisma (args: {
     if (url.startsWith(config.apiPre) && ctx.prisma) {
       const prisma = ctx.prisma
 
-      async function find(from: string, e: string, w) {
-        console.log('find e: ', e);
-        return prisma[e].findMany(w).then(r => r)
-      }
-      async function update(from: string, e: string, w) {
-        console.log('update start: ', e, w);
-        const r = prisma[e].update(w)
+      const action = async (method: string, entity: string, q: any) => {
+        logFrame('prismaQuickAPI', method, 'start: ', entity, q);
+        const r = prisma[entity][method](q).then(r => r)
         await r
-        console.log('update end: ', e);
+        logFrame('prismaQuickAPI]', method, 'end: ', entity, q);
         return r
-      }
-      async function remove(from: string, e: string, d) {
-        return prisma[e].delete(d).then(r => r)
-      }
-      async function create(from: string, e: string, q) {
-        console.log('create start: ', e, q);
-        const r = prisma[e].create(q).then(r => r)
-        await r
-        console.log(`create end:`,e, q)
-        return r
-      }
-      async function updateMany(from, e: string, query) {
-        return prisma[e].updateMany(query).then(r => r)
-      }
-      async function upsert(from, e: string, query) {
-        return prisma[e].upsert(query).then(r => r)
       }
     
-      const actions = {
-        find, update, remove, create, updateMany, upsert
-      }
-
       const [_, entity, method] = (url.match(new RegExp(`${config.apiPre}/(\\w+)/(\\w+)`)) || [])
       const from = ctx.request.query.from;
       const param = ctx.request.body
       console.log('[prisma] entity, method: ', entity, method, param);
 
       let result = ''
-      if (actions[method]) {
-        result = await actions[method](
-          'prisma-middleware', 
+      if (prisma[entity]?.[method]) {
+        result = await action(
+          method, 
           entity, 
           param
         )
       } else {
-        result = await prisma[entity]?.[method](param)
+        throw new Error(`[prismaQuickAPI] "${method}" not found in prisma`)
       }
       ctx.set('content-type', 'application/json')
       ctx.body = JSON.stringify(result)
