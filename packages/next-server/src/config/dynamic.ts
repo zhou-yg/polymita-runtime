@@ -322,6 +322,7 @@ export function exportDynamicModulesToRoutes(
       {
         path: "${path}",
         title: "${propsVar?.title || nameVar}",
+        hidden: ${!!propsVar?.hidden}
         element: React.createElement(${convertModuleNameToVariableName(f.pkgName)}${nameVar}Component, ${JSON.stringify(propsVar)}),
       },`
     })
