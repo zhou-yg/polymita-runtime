@@ -1,5 +1,5 @@
 import { signal } from '@polymita/signal-model'
-import { CommandOP, createRHRenderer, createRSRenderer, extendModule, h, useLogic } from '../../src'
+import { CommandOP, createRHRenderer, createRSRenderer, extendModule, h, useLogic, mergeModule } from '../../src'
 import * as mock from '../mock'
 import { overridePatchRules } from '../mock'
 
@@ -17,7 +17,7 @@ describe('override', () => {
             target: jsonDraft.div,
             child: h('p', { className: 'p-cls' }, '123') // h('p', {}, '123')
           }
-        ] as const
+        ]
       }
     }))
 
@@ -52,7 +52,7 @@ describe('override', () => {
     
     const baseModule = mock.layoutHasTypes()
 
-    const newModule2 = extendModule(baseModule, () => ({
+    const newModule2 = mergeModule(baseModule, () => ({
       patchLayout (props, jsonDraft) {
         return [
           {
@@ -60,7 +60,7 @@ describe('override', () => {
             target: jsonDraft.div,
             child: h('p', { className: 'p-cls' }, '123') // h('p', {}, '123')
           }
-        ] as const
+        ] 
       }
     }))
 
@@ -91,7 +91,7 @@ describe('override', () => {
       ]
     })
 
-    const newModule3 = extendModule(newModule2, () => ({
+    const newModule3 = mergeModule(newModule2, () => ({
       patchLayout (props, root) {
         return [
           {
@@ -99,7 +99,7 @@ describe('override', () => {
             target: root.div.p,
             child: h('text', {}, '456') // h('text', {}, '456')
           }
-        ] as const 
+        ]  
       }
     }))
 

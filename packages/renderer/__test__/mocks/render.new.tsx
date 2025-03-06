@@ -139,7 +139,7 @@ export function patchDeepComposeComponent() {
           target: layout.div.LayoutUseLogic.div,
           child: (<span>deep</span>)
         }
-      ] as const
+      ]
     }
   }))
 

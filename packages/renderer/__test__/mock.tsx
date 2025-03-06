@@ -422,7 +422,7 @@ export function useSingleOverride() {
           target: jsonDraft.div,
           child: <span is-text>text</span>, // must type p
         },
-      ] as const;
+      ];
     },
   }));
 
@@ -436,7 +436,7 @@ export function useSingleOverride() {
           target: root.div.span,
           child: <text></text>, // must type p
         },
-      ] as const;
+      ];
     },
   }));
   // const m4 = extendModule(m3, () => ({
@@ -465,7 +465,7 @@ export function overrideAtModuleLayer() {
           target: jsonDraft.div,
           child: <p></p>,
         },
-      ] as const;
+      ];
     },
   }));
   const m3 = extendModule(m2, () => ({
@@ -476,7 +476,7 @@ export function overrideAtModuleLayer() {
           target: jsonDraft.div.p,
           child: <p></p>,
         },
-      ] as const;
+      ];
     },
   }));
 
@@ -539,7 +539,7 @@ export function overrideAtModuleLayer() {
 //                 readonly children: readonly ['123']
 //               }
 //             }
-//           ] as const
+//           ]
 //         }
 //       })
 
@@ -673,7 +673,7 @@ export function overrideAtUseModuleAndRender(): SingleFileModule<
           target: jsonDraft.div.p,
           child: <text>123</text>,
         },
-      ] as const;
+      ];
     },
   });
   return {
