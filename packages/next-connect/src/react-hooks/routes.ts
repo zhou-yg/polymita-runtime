@@ -1,6 +1,7 @@
 interface DynamicRoute {
   title?: string,
   path: string, 
+  hidden?: boolean
   element: any; 
   children?: DynamicRoute[]
 }
