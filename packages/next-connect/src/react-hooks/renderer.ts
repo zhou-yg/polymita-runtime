@@ -1,4 +1,4 @@
-import { h, createRHRenderer, SingleFileModule, registerModule } from '@polymita/renderer'
+import { h, createRHRenderer, SingleFileModule, registerModule, markupVNodeFunction } from '@polymita/renderer'
 import { ConnectProvider } from './hooks'
 
 export const createRenderToReact = (React: any, pkgName: string) => {
@@ -20,7 +20,7 @@ export const createRenderToReact = (React: any, pkgName: string) => {
         modulesActiveMap: modulesActiveLink,
       },
     })
-    return (p: P) => {
+    function reactComponent(p: P) {
       const r = internalRenderer.construct(p);
       return internalRenderer.render()
       // return internalRenderer.provide(
@@ -37,5 +37,6 @@ export const createRenderToReact = (React: any, pkgName: string) => {
       //     }, {}),
       // )
     }
+    return markupVNodeFunction(reactComponent, module)
   }
 }

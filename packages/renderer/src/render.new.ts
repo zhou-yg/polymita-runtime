@@ -19,6 +19,7 @@ import {
   isVNodeComponent,
   isVNodeFunctionComponent,
   last,
+  markupVNodeFunction,
   traverse,
   VirtualNodeTypeSymbol,
   VNodeComponentSymbol,
@@ -370,17 +371,10 @@ export function createFunctionComponent<
 
     return renderer.render();
   }
-  Object.defineProperty(frameworkFunctionComponent, "name", {
-    get() {
-      return name || "Unknown function component";
-    },
-  });
-  const componentWithSymbol = Object.assign(frameworkFunctionComponent, {
-    [VNodeFunctionComponentSymbol]: true,
-    [VNodeFunctionComponentOriginModuleSymbol]: module,
-  });
 
-  return componentWithSymbol;
+  const result = markupVNodeFunction(frameworkFunctionComponent, module);
+
+  return result;
 }
 
 export function createComposeComponent<

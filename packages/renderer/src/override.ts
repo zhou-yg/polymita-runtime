@@ -577,14 +577,14 @@ export function getActiveModuleByBase(
 ): SingleFileModule<any, any, any, any>[] | null {
   if (sourceModule && linkMap && activeModules) {
     let result: [number, SingleFileModule<any, any, any, any>][] = [];
-    
+
     const cache = new Set();
 
     const findOverrides = (current: SingleFileModule<any, any, any, any>[]) => {
       let foundOverrideModules = [];
-      current.forEach(currentModule => {
+      current.forEach((currentModule) => {
         if (cache.has(currentModule)) {
-          return
+          return;
         }
 
         const key = moduleIndexKey(currentModule);
@@ -592,21 +592,21 @@ export function getActiveModuleByBase(
         modules?.forEach((targetM) => {
           const i = activeModules.indexOf(moduleIndexKey(targetM));
           if (i >= 0) {
-            if (!result.find(([i, exist]) => exist === targetM)) {              
+            if (!result.find(([i, exist]) => exist === targetM)) {
               result.push([i, targetM]);
-              foundOverrideModules.push(targetM)
+              foundOverrideModules.push(targetM);
             }
           }
         });
 
-        cache.add(currentModule)
-      })
+        cache.add(currentModule);
+      });
 
-      if (foundOverrideModules.length) {        
-        findOverrides(foundOverrideModules)
+      if (foundOverrideModules.length) {
+        findOverrides(foundOverrideModules);
       }
-    }
-    findOverrides([sourceModule])
+    };
+    findOverrides([sourceModule]);
 
     return result.sort((a, b) => a[0] - b[0]).map((arr) => arr[1]);
   }

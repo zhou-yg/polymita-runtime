@@ -9,6 +9,7 @@ import {
   LayoutTreeDraft,
   PropTypeValidator,
   DraftPatch,
+  SingleFileModule,
 } from "./types";
 import { deepClone } from "./lib/deepClone";
 import { css } from "@emotion/css";
@@ -282,6 +283,27 @@ export const VNodeFunctionComponentOriginModuleSymbol = Symbol(
 );
 export function getModuleFromFunctionComponent(f: any) {
   return f[VNodeFunctionComponentOriginModuleSymbol];
+}
+
+export function markupVNodeFunction<
+  P extends Record<string, any>,
+  L extends LayoutStructTree,
+  PCArr extends PatchCommand[][],
+  ModuleName
+>(functionCpt: any, module: SingleFileModule<P, L, PCArr, ModuleName>) {
+  const { name } = module;
+
+  Object.defineProperty(functionCpt, "name", {
+    get() {
+      return name || "Unknown function component";
+    },
+  });
+  const componentWithSymbol = Object.assign(functionCpt, {
+    [VNodeFunctionComponentSymbol]: true,
+    [VNodeFunctionComponentOriginModuleSymbol]: module,
+  });
+
+  return componentWithSymbol;
 }
 
 export function isVNodeComponent(target: any): target is { type: Function } {
