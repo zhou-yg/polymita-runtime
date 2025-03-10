@@ -3,7 +3,6 @@ import * as fs from 'fs'
 import chokidar from 'chokidar'
 import {
   IConfig, IWatcherConfig, buildModelIndexes, composeSignal, composeSchema, generateLayoutTypes, generateModelTypes2, generateSignalMap, generateViewFromModule, preCheckSchema, readConfig, watchByConfig,
-  createDevNextServer,
   logFrame,
   time,
   errorFrame,

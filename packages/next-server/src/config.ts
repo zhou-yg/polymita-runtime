@@ -13,6 +13,8 @@ export * from './config/deps'
 
 export { IViewConfig } from './config/routes'
 
+const defaultFavicon = 'https://avatars.githubusercontent.com/u/123711866?s=64&v=4'
+
 export const defaultConfig = () => ({
   app: {
     title: 'polymita',
@@ -35,6 +37,7 @@ export const defaultConfig = () => ({
   testDirectory: 'test',
   scriptDirectory: 'scripts', // for js script
   publicDirectory: 'public',
+  faviconFile: 'favicon.ico',
   overridesDirectory: 'overrides',
   configDirectory: 'config',
   contextDirectory: 'contexts',
@@ -358,6 +361,9 @@ function getOutputFiles (externalCacheDir: string, cwd: string, config: IDefault
   const schemaIndexesTypes = path.join(modelDir, config.schemaIndexesTypes)
   const customPrismaClientIndex = path.join(modelDir, config.customPrismaClientIndexFile)
 
+  const publicDir = path.join(cwd, config.publicDirectory)
+  const favicon = path.join(publicDir, config.faviconFile)
+
   const modelFiles = {
     modelDir,
     modelEnhance,
@@ -367,6 +373,10 @@ function getOutputFiles (externalCacheDir: string, cwd: string, config: IDefault
     depDartSchemaPrisma,
     schemaIndexesTypes,
     customPrismaClientIndex,
+  }
+
+  const publicFiles = {
+    favicon,
   }
 
 
@@ -388,6 +398,8 @@ function getOutputFiles (externalCacheDir: string, cwd: string, config: IDefault
     modelFiles,
     contextsDirectory,
     thirdPartDir: path.join(cwd, config.thirdPartDir),
+    publicDir,
+    publicFiles,
   }  
 
   const moduleFiles = readModules(modulesDirectory)
@@ -775,6 +787,8 @@ export async function readConfig (arg: {
 
   const tailwindConfigPath = getTailwindConfigPath(cwd)
 
+  const favicon = fs.existsSync(pointFiles.currentFiles.publicFiles.favicon) ? `/${config.faviconFile}` : defaultFavicon
+
   const rootTsconfig = path.join(cwd, 'tsconfig.json');
 
   const preservedDirs = [
@@ -805,6 +819,7 @@ export async function readConfig (arg: {
   }
 
   const result = {
+    favicon,
     homePageUrl,
     hostOrigin,
     ...config,

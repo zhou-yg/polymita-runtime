@@ -38,6 +38,8 @@ const buildPageTemplate = (
 
     inlineJsArr: sortBy(config.staticDeps, 'order').map(obj => `${config.inlineStaticPrefix}/${obj.name}`).filter(name => /\.js$/.test(name)),
     inlineCssArr: sortBy(config.staticDeps, 'order').map(obj => `${config.inlineStaticPrefix}/${obj.name}`).filter(name => /\.css$/.test(name)),
+
+    favicon: config.favicon,
   })
 
   return html

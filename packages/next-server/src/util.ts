@@ -484,3 +484,7 @@ export function sortByDependency(arr: string[], relation: [string, string][]) {
 
   return sorted;
 }
+
+export function sleep (ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}

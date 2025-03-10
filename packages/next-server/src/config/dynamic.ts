@@ -316,13 +316,14 @@ export function exportDynamicModulesToRoutes(
   console.log('[config/dynamic] config.dynamicModules: ', config.dynamicModules);
   config.dynamicModules.map(f => {
     return Object.entries(f.meta.routes?.pages || {}).map(([path, name]) => {
+      console.log('[config/dynamic] config.dynamicModules routes.pages.name: ', name);
       const { nameVar, propsVar } = getNameAndProps(name)
 
       exportRoutesToGlobalCode += `
       {
         path: "${path}",
         title: "${propsVar?.title || nameVar}",
-        hidden: ${!!propsVar?.hidden}
+        hidden: ${!!propsVar?.hidden},
         element: React.createElement(${convertModuleNameToVariableName(f.pkgName)}${nameVar}Component, ${JSON.stringify(propsVar)}),
       },`
     })

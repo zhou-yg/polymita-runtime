@@ -128,13 +128,15 @@ export async function buildThirdPart(c: IConfig) {
 }
 
 export const externalModules = (modules: string[] = []) => ({
-  react: 'React',
+  'react': 'React',
+  'react/jsx-runtime': 'ReactJsxRuntime',
   'react-dom': 'ReactDOM',
   'react-dom/client': 'ReactDOM',
   'react-router-dom': 'ReactRouterDOM',
   '@emotion/react': 'emotionReact',
   '@emotion/styled': 'emotionStyled',
   '@mui/material': 'MaterialUI',
+  '@mui/material/utils': 'MaterialUI',
   '@polymita/next-connect': 'window["@polymita/next-connect"]',
   '@polymita/renderer': 'window["@polymita/renderer"]',
   '@polymita/renderer/jsx-runtime': 'window["@polymita/renderer"]',

@@ -6,10 +6,16 @@ import FormData from 'form-data'
 import axios from 'axios'
 
 
-async function linkToLocal (
+export async function linkToLocal (
   config: IConfig,
   localPort: number,
 ) {
+
+  if (!fs.existsSync(config.pointFiles.output.zip)) {
+    console.log('[linkToLocal] not exist at:  ', config.pointFiles.output.zip);
+    return
+  }
+
   const formData = new FormData();
   
   try {

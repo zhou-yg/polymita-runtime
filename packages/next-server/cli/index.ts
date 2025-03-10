@@ -9,6 +9,7 @@ import zip from "./zip";
 import upload from "./upload";
 import prisma from "./prisma";
 import { assignCommandsToProject } from "../src/util";
+import link from "./link";
 
 export * as nextServer from '../src/index'
 
@@ -78,6 +79,21 @@ cac
       })
     } catch (e) {
       console.log('upload error: ', e);
+    }
+  })
+
+  cac
+  .command('link', 'upload zip to market-service')
+  .option('--local <port>', 'local service port', {
+    default: '9500'
+  })
+  .action(async ({ local }) => {
+    try {
+      await link(cwd, {
+        localPort: local,
+      })
+    } catch (e) {
+      console.log('link error: ', e);
     }
   })
 
